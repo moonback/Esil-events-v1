@@ -48,8 +48,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .container-custom {
-  @apply max-w-7xl mx-auto;
-  margin-top: 20px; /* Adjust this value as needed */
+  @apply w-[calc(100%-40px)] mx-[40px] mt-5;  
+  /* mx-[10px] = marge gauche/droite de 10px */
+  /* mt-5 = marge haute de 20px (si base 1rem = 16px) */
 }
 
 .header-video {
