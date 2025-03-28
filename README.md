@@ -66,14 +66,68 @@ Plateforme de location de matériel événementiel et de gestion de devis pour *
 
 ## Stack Technique
 
-- **Frontend :** React 18+, TypeScript
-- **Build Tool :** Vite
-- **Routing :** React Router DOM v6
-- **Styling :** Tailwind CSS v3, Lucide Icons
-- **Backend / BaaS :** Supabase (Authentication, Database, Storage)
-- **Gestion d'état :** React Context API (`CartContext`, `useAuth`)
-- **SEO :** React Helmet Async
-- **Linting/Formatting :** ESLint/Prettier (via configuration Vite)
+### Frontend
+- **React 18+** : Bibliothèque JavaScript pour construire des interfaces utilisateur
+- **TypeScript** : Ajoute des types statiques à JavaScript pour une meilleure maintenabilité
+- **Vite** : Outil de build ultra-rapide pour les applications modernes
+
+### Routing
+- **React Router DOM v6** : Gestion des routes côté client avec système de nested routes
+
+### Styling
+- **Tailwind CSS v3** : Framework CSS utility-first pour des designs personnalisables
+- **Lucide Icons** : Collection d'icônes open-source
+
+### Backend
+- **Supabase** : Backend-as-a-service avec:
+  - Authentification
+  - Base de données PostgreSQL en temps réel
+  - Stockage de fichiers
+
+### Gestion d'état
+- **React Context API** : Gestion d'état global pour:
+  - `CartContext` : Panier d'achat
+  - `useAuth` : Authentification utilisateur
+
+### SEO
+- **React Helmet Async** : Gestion dynamique des balises meta pour le référencement
+
+### Qualité de code
+- **ESLint** : Analyse statique du code
+- **Prettier** : Formatage automatique du code
+
+### Dépendances principales
+```json
+{
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.7",
+    "lucide-react": "^0.344.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-helmet-async": "^2.0.5",
+    "react-router-dom": "^6.22.3",
+    "react-slick": "^0.30.2",
+    "slick-carousel": "^1.8.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@types/react-slick": "^0.23.13",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.18",
+    "eslint": "^9.9.1",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.11",
+    "globals": "^15.9.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.3.0",
+    "vite": "^5.4.2"
+  }
+}
+```
 
 ## Structure du Projet
 
