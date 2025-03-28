@@ -32,6 +32,7 @@ const App: React.FC = () => {
           {/* Routes publiques avec Layout principal */}
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/products" element={<ProductListPage />} />
             <Route path="/products/:category" element={<ProductListPage />} />
             <Route path="/products/:category/:subcategory" element={<ProductListPage />} />
             <Route path="/product/:id" element={<ProductPage />} />

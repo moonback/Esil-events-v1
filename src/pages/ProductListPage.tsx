@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Filter, ChevronDown } from 'lucide-react';
 import { getProductsByCategory, getProductsBySubCategory } from '../services/productService';
+import { Category, getAllCategories } from '../services/categoryService';
 
 interface Product {
   id: string;
@@ -17,6 +18,7 @@ interface Product {
 const ProductListPage: React.FC = () => {
   const { category, subcategory } = useParams<{ category: string; subcategory?: string }>();
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +26,19 @@ const ProductListPage: React.FC = () => {
   // Filters
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [sortBy, setSortBy] = useState<string>('name-asc');
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoriesData = await getAllCategories();
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -111,6 +126,27 @@ const ProductListPage: React.FC = () => {
   return (
     <div className="pt-24 pb-16 px-4">
       <div className="container-custom mx-auto">
+        {/* Categories Section */}
+        {!category && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Nos catégories</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {categories.map((cat) => (
+                <Link 
+                  key={cat.id} 
+                  to={`/products/${cat.slug}`}
+                  className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col items-center"
+                >
+                  <div className="w-16 h-16 bg-gray-100 rounded-full mb-4 flex items-center justify-center">
+                    {/* Placeholder for category icon */}
+                    <span className="text-xl">{cat.name.charAt(0)}</span>
+                  </div>
+                  <h3 className="text-lg font-medium text-center">{cat.name}</h3>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
         {/* Breadcrumb */}
         <div className="mb-8">
           <nav className="flex" aria-label="Breadcrumb">
