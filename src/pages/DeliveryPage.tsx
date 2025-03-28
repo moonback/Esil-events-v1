@@ -171,6 +171,44 @@ const DeliveryPage: React.FC = () => {
           </div>
         </div>
         
+        {/* Testimonials */}
+        <div className="bg-white rounded-lg shadow-md p-8 mb-16">
+          <h2 className="text-2xl font-bold mb-8 text-center">Témoignages de nos clients</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <p className="italic mb-4">"Service professionnel et réactif. La livraison était à l'heure et l'installation impeccable."</p>
+              <p className="font-medium">- Marie D., Paris</p>
+            </div>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <p className="italic mb-4">"Très satisfait de la formule premium. Tout était installé avant notre arrivée, un vrai gain de temps."</p>
+              <p className="font-medium">- Thomas L., Versailles</p>
+            </div>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <p className="italic mb-4">"Le retrait sur place était simple et le personnel très serviable pour charger notre véhicule."</p>
+              <p className="font-medium">- Sophie R., Mantes-la-Jolie</p>
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ */}
+        <div className="bg-white rounded-lg shadow-md p-8 mb-16">
+          <h2 className="text-2xl font-bold mb-8 text-center">Questions fréquentes</h2>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-bold mb-2">Quels sont les délais de livraison ?</h3>
+              <p className="text-gray-600">Les délais varient selon la formule choisie et votre localisation. En Île-de-France, comptez 24-48h pour la livraison économique et 48-72h pour la formule premium.</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-2">Puis-je modifier ma commande après réservation ?</h3>
+              <p className="text-gray-600">Oui, sous réserve de disponibilité. Les modifications sont possibles jusqu'à 48h avant la livraison pour la formule premium et 24h pour les autres formules.</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-2">Que se passe-t-il en cas de retard ou d'annulation ?</h3>
+              <p className="text-gray-600">Nous vous contacterons immédiatement en cas de retard imprévu. Pour les annulations, merci de nous prévenir au moins 72h à l'avance pour éviter des frais.</p>
+            </div>
+          </div>
+        </div>
+
         {/* CTA */}
         <div className="bg-black text-white rounded-xl p-8 text-center">
           <h2 className="text-2xl font-bold mb-4">Besoin d'un devis personnalisé ?</h2>
