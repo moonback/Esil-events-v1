@@ -103,7 +103,7 @@ const AboutPage: React.FC = () => {
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
               Notre Matériel
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-white dark:bg-gray-700 rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-105">
                 <div className="relative h-48">
                   <img
@@ -172,6 +172,29 @@ const AboutPage: React.FC = () => {
                   </ul>
                 </div>
               </div>
+
+              <div className="bg-white dark:bg-gray-700 rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-105">
+                <div className="relative h-48">
+                  <img
+                    src="/images/games.jpg"
+                    alt="Jeux interactifs"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <svg className="absolute bottom-4 left-4 h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Jeux</h3>
+                  <ul className="space-y-2 text-gray-600 dark:text-gray-300">
+                    <li>• Jeux géants en bois</li>
+                    <li>• Bornes d'arcade rétro</li>
+                    <li>• Jeux interactifs digitaux</li>
+                    <li>• Machines à sous vintage</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -237,7 +260,7 @@ const AboutPage: React.FC = () => {
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
               Notre Équipe
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {teamMembers.map((member) => (
                 <div key={member.id} className="bg-white dark:bg-gray-700 rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-105">
                   <div className="relative h-64">
