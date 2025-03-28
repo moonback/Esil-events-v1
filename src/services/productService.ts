@@ -178,6 +178,65 @@ export const getProductsByCategory = async (category: string): Promise<Product[]
   }
 };
 
+// Search products by query
+export const searchProducts = async (query: string): Promise<Product[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .ilike('name', `%${query}%`)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error:', error);
+      console.log('Falling back to mock data...');
+      return mockProducts.filter(p => 
+        p.name.toLowerCase().includes(query.toLowerCase()) ||
+        p.description.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    if (!data || data.length === 0) {
+      console.log('No products found in database for this query, using mock data...');
+      return mockProducts.filter(p => 
+        p.name.toLowerCase().includes(query.toLowerCase()) ||
+        p.description.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    // Convert snake_case to camelCase
+    const formattedData = data.map((product) => ({
+      id: product.id,
+      name: product.name,
+      reference: product.reference,
+      category: product.category,
+      subCategory: product.sub_category,
+      subSubCategory: product.sub_sub_category || '',
+      description: product.description,
+      priceHT: parseFloat(product.price_ht),
+      priceTTC: parseFloat(product.price_ttc),
+      stock: product.stock,
+      isAvailable: product.is_available,
+      createdAt: new Date(product.created_at),
+      updatedAt: new Date(product.updated_at),
+      images: product.images || [],
+      colors: product.colors || [],
+      relatedProducts: product.related_products || [],
+      technicalSpecs: product.technical_specs || {},
+      technicalDocUrl: product.technical_doc_url || null,
+      videoUrl: product.video_url || null
+    }));
+
+    return formattedData;
+  } catch (error) {
+    console.error('Error searching products:', error);
+    return mockProducts.filter(p => 
+      p.name.toLowerCase().includes(query.toLowerCase()) ||
+      p.description.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+};
+
 // Fetch products by subcategory
 export const getProductsBySubCategory = async (category: string, subCategory: string): Promise<Product[]> => {
   try {

@@ -3,10 +3,12 @@ import { Search, X } from 'lucide-react';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
+  onChange?: (query: string) => void;
+  value?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onChange, value }) => {
+  const [searchQuery, setSearchQuery] = useState(value || '');
   const [isFocused, setIsFocused] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -26,7 +28,10 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         <input
           type="text"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+  setSearchQuery(e.target.value);
+  onChange?.(e.target.value);
+}}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder="Rechercher un produit..."

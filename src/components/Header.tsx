@@ -6,6 +6,8 @@ import { useAuth } from '../hooks/useAuth';
 import { signOut } from '../services/authService';
 import MegaMenu from './MegaMenu';
 import SearchBar from './SearchBar';
+import SearchResults from './SearchResults';
+import { Product } from '../types/Product';
 // import UserMenu from './UserMenu';
 
 const Header: React.FC = () => {
@@ -14,6 +16,7 @@ const Header: React.FC = () => {
   const [showMegaMenu, setShowMegaMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { items } = useCart();
   const { user, isAdminUser } = useAuth();
   const navigate = useNavigate();
@@ -37,7 +40,9 @@ const Header: React.FC = () => {
   };
 
   const handleSearch = (query: string) => {
-    navigate(`/products?search=${encodeURIComponent(query)}`);
+    if (query.trim()) {
+      navigate(`/products?search=${encodeURIComponent(query.trim())}`);
+    }
   };
 
   useEffect(() => {
@@ -90,9 +95,22 @@ const Header: React.FC = () => {
 
             {/* Search Bar Section */}
             <div className="w-full py-2 border-b border-gray-200/80 dark:border-gray-700/80">
-              <div className="px-4 ml-24 flex items-center justify-between">
-                <div className="flex-1 max-w-3xl">
-                  <SearchBar onSearch={handleSearch} />
+              <div className="px-4 flex items-center justify-center">
+                <div className="flex-1 max-w-3xl relative">
+                  <SearchBar 
+                    onSearch={handleSearch} 
+                    onChange={(query) => setSearchQuery(query)}
+                    value={searchQuery}
+                  />
+                  <SearchResults 
+  query={searchQuery} 
+  onClose={() => setSearchQuery('')} 
+  results={[]} 
+  onSelect={(product) => {
+    setSearchQuery('');
+    navigate(`/product/${product.id}`);
+  }} 
+/>
                 </div>
                 <a 
                   href="tel:0620461385" 
