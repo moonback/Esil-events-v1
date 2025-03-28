@@ -3,66 +3,66 @@ import { Product, ProductFormData } from '../types/Product';
 
 // Mock data for products
 const mockProducts: Product[] = [
-  {
-    id: 'c0a80121-7ac0-4e1c-9d1f-c3a3877aa1b1',
-    name: 'Enceinte JBL EON neuro',
-    reference: 'JBL-EON715',
-    category: 'technique',
-    subCategory: 'son',
-    subSubCategory: 'enceintes',
-    description: 'Enceinte active 2 voies 15" avec DSP intégré, idéale pour les événements de moyenne et grande taille. Puissance de 1300W, légère et facile à transporter.',
-    priceHT: 80,
-    priceTTC: 96,
-    stock: 10,
-    isAvailable: true,
-    createdAt: new Date('2025-03-03T11:59:55.533Z'),
-    updatedAt: new Date('2025-03-03T11:59:55.533Z'),
-    images: [
-      'https://images.unsplash.com/photo-1545454675-3531b543be5d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1516223725307-6f76b9ec8742?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
-    ],
-    technicalSpecs: {
-      'Type': 'Enceinte active 2 voies',
-      'Puissance': '1300W',
-      'Haut-parleur': '15"',
-      'SPL max': '127 dB',
-      'Réponse en fréquence': '45 Hz - 20 kHz',
-      'Dispersion': '100° x 60°',
-      'Poids': '17 kg',
-      'Dimensions': '68.6 x 42.9 x 36.6 cm'
-    },
-    technicalDocUrl: 'https://example.com/docs/jbl-eon715.pdf',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-  },
-  {
-    id: 'c0a80121-7ac0-4e1c-9d1f-c3a3877aa1b2',
-    name: 'Table basse LED',
-    reference: 'TBL-LED-01',
-    category: 'mobilier',
-    subCategory: 'tables',
-    subSubCategory: 'tables-basses',
-    description: 'Table basse lumineuse à LED, idéale pour les espaces lounge et VIP. Changement de couleurs via télécommande, batterie rechargeable pour une utilisation sans fil.',
-    priceHT: 45,
-    priceTTC: 54,
-    stock: 5,
-    isAvailable: true,
-    createdAt: new Date('2025-03-03T11:59:55.533Z'),
-    updatedAt: new Date('2025-03-03T11:59:55.533Z'),
-    images: [
-      'https://images.unsplash.com/photo-1581428982868-e410dd047a90?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1565791380713-1756b9a05343?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
-    ],
-    technicalSpecs: {
-      'Matériau': 'Polyéthylène',
-      'Dimensions': '80 x 80 x 40 cm',
-      'Poids': '8 kg',
-      'Autonomie': 'Jusqu\'à 8 heures',
-      'Télécommande': 'Incluse'
-    },
-    technicalDocUrl: null,
-    videoUrl: null
-  }
+  // {
+  //   id: 'c0a80121-7ac0-4e1c-9d1f-c3a3877aa1b1',
+  //   name: 'Enceinte JBL EON neuro',
+  //   reference: 'JBL-EON715',
+  //   category: 'technique',
+  //   subCategory: 'son',
+  //   subSubCategory: 'enceintes',
+  //   description: 'Enceinte active 2 voies 15" avec DSP intégré, idéale pour les événements de moyenne et grande taille. Puissance de 1300W, légère et facile à transporter.',
+  //   priceHT: 80,
+  //   priceTTC: 96,
+  //   stock: 10,
+  //   isAvailable: true,
+  //   createdAt: new Date('2025-03-03T11:59:55.533Z'),
+  //   updatedAt: new Date('2025-03-03T11:59:55.533Z'),
+  //   images: [
+  //     'https://images.unsplash.com/photo-1545454675-3531b543be5d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+  //     'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+  //     'https://images.unsplash.com/photo-1516223725307-6f76b9ec8742?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+  //   ],
+  //   technicalSpecs: {
+  //     'Type': 'Enceinte active 2 voies',
+  //     'Puissance': '1300W',
+  //     'Haut-parleur': '15"',
+  //     'SPL max': '127 dB',
+  //     'Réponse en fréquence': '45 Hz - 20 kHz',
+  //     'Dispersion': '100° x 60°',
+  //     'Poids': '17 kg',
+  //     'Dimensions': '68.6 x 42.9 x 36.6 cm'
+  //   },
+  //   technicalDocUrl: 'https://example.com/docs/jbl-eon715.pdf',
+  //   videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+  // },
+  // {
+  //   id: 'c0a80121-7ac0-4e1c-9d1f-c3a3877aa1b2',
+  //   name: 'Table basse LED',
+  //   reference: 'TBL-LED-01',
+  //   category: 'mobilier',
+  //   subCategory: 'tables',
+  //   subSubCategory: 'tables-basses',
+  //   description: 'Table basse lumineuse à LED, idéale pour les espaces lounge et VIP. Changement de couleurs via télécommande, batterie rechargeable pour une utilisation sans fil.',
+  //   priceHT: 45,
+  //   priceTTC: 54,
+  //   stock: 5,
+  //   isAvailable: true,
+  //   createdAt: new Date('2025-03-03T11:59:55.533Z'),
+  //   updatedAt: new Date('2025-03-03T11:59:55.533Z'),
+  //   images: [
+  //     'https://images.unsplash.com/photo-1581428982868-e410dd047a90?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+  //     'https://images.unsplash.com/photo-1565791380713-1756b9a05343?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+  //   ],
+  //   technicalSpecs: {
+  //     'Matériau': 'Polyéthylène',
+  //     'Dimensions': '80 x 80 x 40 cm',
+  //     'Poids': '8 kg',
+  //     'Autonomie': 'Jusqu\'à 8 heures',
+  //     'Télécommande': 'Incluse'
+  //   },
+  //   technicalDocUrl: null,
+  //   videoUrl: null
+  // }
 ]
 
 // Fetch all products
@@ -97,18 +97,27 @@ export const getAllProducts = async (): Promise<Product[]> => {
       return [];
     }
 
-    // Convert snake_case to camelCase
-    const formattedData = data.map(product => ({
-      ...product,
-      createdAt: new Date(product.created_at),
-      updatedAt: new Date(product.updated_at),
+    // Convert snake_case to camelCase and ensure all Product interface properties are included
+    const formattedData = data.map((product) => ({
+      id: product.id,
+      name: product.name,
+      reference: product.reference,
+      category: product.category,
       subCategory: product.sub_category,
+      subSubCategory: product.sub_sub_category || '',
+      description: product.description,
       priceHT: parseFloat(product.price_ht),
       priceTTC: parseFloat(product.price_ttc),
-      technicalSpecs: product.technical_specs,
-      technicalDocUrl: product.technical_doc_url,
-      videoUrl: product.video_url,
-      isAvailable: product.is_available
+      stock: product.stock,
+      isAvailable: product.is_available,
+      createdAt: new Date(product.created_at),
+      updatedAt: new Date(product.updated_at),
+      images: product.images || [],
+      colors: product.colors || [],
+      relatedProducts: product.related_products || [],
+      technicalSpecs: product.technical_specs || {},
+      technicalDocUrl: product.technical_doc_url || null,
+      videoUrl: product.video_url || null
     }));
 
     console.log('Products fetched successfully:', formattedData.length, 'products');
@@ -140,17 +149,26 @@ export const getProductsByCategory = async (category: string): Promise<Product[]
     }
 
     // Convert snake_case to camelCase
-    const formattedData = data.map(product => ({
-      ...product,
-      createdAt: product.created_at,
-      updatedAt: product.updated_at,
+    const formattedData = data.map((product) => ({
+      id: product.id,
+      name: product.name,
+      reference: product.reference,
+      category: product.category,
       subCategory: product.sub_category,
-      priceHT: product.price_ht,
-      priceTTC: product.price_ttc,
-      technicalSpecs: product.technical_specs,
-      technicalDocUrl: product.technical_doc_url,
-      videoUrl: product.video_url,
-      isAvailable: product.is_available
+      subSubCategory: product.sub_sub_category || '',
+      description: product.description,
+      priceHT: parseFloat(product.price_ht),
+      priceTTC: parseFloat(product.price_ttc),
+      stock: product.stock,
+      isAvailable: product.is_available,
+      createdAt: new Date(product.created_at),
+      updatedAt: new Date(product.updated_at),
+      images: product.images || [],
+      colors: product.colors || [],
+      relatedProducts: product.related_products || [],
+      technicalSpecs: product.technical_specs || {},
+      technicalDocUrl: product.technical_doc_url || null,
+      videoUrl: product.video_url || null
     }));
 
     return formattedData;
@@ -182,17 +200,26 @@ export const getProductsBySubCategory = async (category: string, subCategory: st
     }
 
     // Convert snake_case to camelCase
-    const formattedData = data.map(product => ({
-      ...product,
-      createdAt: product.created_at,
-      updatedAt: product.updated_at,
+    const formattedData = data.map((product) => ({
+      id: product.id,
+      name: product.name,
+      reference: product.reference,
+      category: product.category,
       subCategory: product.sub_category,
-      priceHT: product.price_ht,
-      priceTTC: product.price_ttc,
-      technicalSpecs: product.technical_specs,
-      technicalDocUrl: product.technical_doc_url,
-      videoUrl: product.video_url,
-      isAvailable: product.is_available
+      subSubCategory: product.sub_sub_category || '',
+      description: product.description,
+      priceHT: parseFloat(product.price_ht),
+      priceTTC: parseFloat(product.price_ttc),
+      stock: product.stock,
+      isAvailable: product.is_available,
+      createdAt: new Date(product.created_at),
+      updatedAt: new Date(product.updated_at),
+      images: product.images || [],
+      colors: product.colors || [],
+      relatedProducts: product.related_products || [],
+      technicalSpecs: product.technical_specs || {},
+      technicalDocUrl: product.technical_doc_url || null,
+      videoUrl: product.video_url || null
     }));
 
     return formattedData;
@@ -355,7 +382,7 @@ export const createProduct = async (product: ProductFormData): Promise<Product> 
 };
 
 // Update an existing product
-export const updateProduct = async (id: string, product: Partial<ProductFormData>): Promise<Product> => {
+export const updateProduct = async (id: string, product: Partial<Product>): Promise<Product> => {
   try {
     console.log('Updating product in Supabase...');
     

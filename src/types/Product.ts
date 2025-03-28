@@ -12,8 +12,8 @@ export interface Product {
   colors?: string[];
   relatedProducts?: string[];
   technicalSpecs: Record<string, string>;
-  technicalDocUrl: string | null | undefined;
-  videoUrl: string | null | undefined;
+  technicalDocUrl: string | null;
+  videoUrl: string | null;
   stock: number;
   isAvailable: boolean;
   createdAt: Date;
