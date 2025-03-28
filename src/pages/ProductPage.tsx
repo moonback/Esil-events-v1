@@ -134,15 +134,19 @@ const ProductPage: React.FC = () => {
             
             {/* Thumbnails */}
             {product.images.length > 1 && (
-              <div className="grid grid-cols-5 gap-2 mt-4">
+              <div className="flex overflow-x-auto py-2 space-x-2">
                 {product.images.map((image, index) => (
-                  <img 
+                  <div 
                     key={index}
-                    src={image} 
-                    alt={`${product.name} - vue ${index + 1}`}
-                    className={`w-full h-20 object-cover rounded cursor-pointer ${currentImageIndex === index ? 'ring-2 ring-black' : ''}`}
+                    className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden cursor-pointer transition-all duration-200 ${currentImageIndex === index ? 'ring-2 ring-black' : 'opacity-70 hover:opacity-100'}`}
                     onClick={() => setCurrentImageIndex(index)}
-                  />
+                  >
+                    <img 
+                      src={image} 
+                      alt={`${product.name} - vue ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 ))}
               </div>
             )}
@@ -234,8 +238,8 @@ const ProductPage: React.FC = () => {
                 <table className="w-full">
                   <tbody>
                     {Object.entries(product.technicalSpecs).map(([key, value]) => (
-                      <tr key={key} className="border-b last:border-b-0">
-                        <td className="py-3 px-4 bg-gray-50 font-medium">{key}</td>
+                      <tr key={key} className="border-b last:border-b-0 hover:bg-gray-50">
+                        <td className="py-3 px-4 font-medium">{key}</td>
                         <td className="py-3 px-4">{value}</td>
                       </tr>
                     ))}

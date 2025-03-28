@@ -49,6 +49,18 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="revisit-after" content="7 days" />
       <meta name="author" content="ESIL Events" />
       
+      {/* Balises supplémentaires pour le SEO */}
+      <meta name="geo.region" content="FR" />
+      <meta name="geo.placename" content="Paris" />
+      <meta name="geo.position" content="48.856614;2.352222" />
+      <meta name="ICBM" content="48.856614, 2.352222" />
+      <meta name="theme-color" content="#ffffff" />
+      <meta name="apple-mobile-web-app-title" content="ESIL Events" />
+      <meta name="application-name" content="ESIL Events" />
+      <meta name="msapplication-TileColor" content="#ffffff" />
+      <meta name="format-detection" content="telephone=no" />
+      <link rel="alternate" hrefLang="fr" href="https://esil-events.com/fr" />
+      
       {/* Structured Data / Schema.org */}
       <script type="application/ld+json">
         {JSON.stringify({

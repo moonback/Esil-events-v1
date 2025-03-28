@@ -23,6 +23,7 @@ import { CartProvider } from './context/CartContext';
 import AdminRoute from './components/AdminRoute';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
+import ArtistPage from './pages/ArtistPage';
 
 const App: React.FC = () => {
   return (
@@ -46,6 +47,7 @@ const App: React.FC = () => {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/artists" element={<ArtistPage />} />
           </Route>
 
           {/* Routes utilisateur avec Layout principal */}

@@ -221,7 +221,7 @@ const ContactPage: React.FC = () => {
                   <div>
                     <h3 className="font-bold mb-1">Adresse</h3>
                     <p>ESIL Events</p>
-                    <p>123 Rue de l'Événementiel</p>
+                     <p>7 rue de la cellophane</p>
                     <p>78711 Mantes-la-Ville</p>
                   </div>
                 </li>
@@ -229,7 +229,7 @@ const ContactPage: React.FC = () => {
                   <Phone className="w-6 h-6 mr-3 mt-1" />
                   <div>
                     <h3 className="font-bold mb-1">Téléphone</h3>
-                    <p>01 XX XX XX XX</p>
+                    <p>06 20 46 13 85</p>
                   </div>
                 </li>
                 <li className="flex items-start">

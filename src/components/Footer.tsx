@@ -48,11 +48,11 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin className="w-5 h-5 mr-2 mt-1" />
-                <span>Mantes-la-Ville, Île-de-France</span>
+                <span>7 Rue de la cellophane,<br></br> Mantes-la-Ville, Île-de-France</span>
               </li>
               <li className="flex items-center">
                 <Phone className="w-5 h-5 mr-2" />
-                <span>01 XX XX XX XX</span>
+                <span>06 20 46 13 85</span>
               </li>
               <li className="flex items-center">
                 <Mail className="w-5 h-5 mr-2" />

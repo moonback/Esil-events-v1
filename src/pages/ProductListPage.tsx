@@ -124,7 +124,7 @@ const ProductListPage: React.FC = () => {
   const displayedProducts = sortProducts(filterProducts(products));
 
   return (
-    <div className="pt-24 pb-16 px-4">
+    <div className="pt-24 pb-16 px-4 bg-gray-50">
       <div className="container-custom mx-auto">
         {/* Categories Section */}
         {!category && (
@@ -135,7 +135,7 @@ const ProductListPage: React.FC = () => {
                 <Link 
                   key={cat.id} 
                   to={`/products/${cat.slug}`}
-                  className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col items-center"
+                  className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-all duration-300 flex flex-col items-center hover:-translate-y-1"
                 >
                   <div className="w-16 h-16 bg-gray-100 rounded-full mb-4 flex items-center justify-center">
                     {/* Placeholder for category icon */}
@@ -249,7 +249,7 @@ const ProductListPage: React.FC = () => {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
-              <div key={index} className="product-card">
+              <div key={index} className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300">
                 <div className="h-48 bg-gray-200 animate-pulse"></div>
                 <div className="p-4">
                   <div className="h-6 bg-gray-200 rounded animate-pulse mb-2"></div>
@@ -265,12 +265,12 @@ const ProductListPage: React.FC = () => {
               <Link 
                 key={product.id} 
                 to={`/product/${product.id}`}
-                className="product-card"
+                className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300"
               >
                 <img 
                   src={product.images[0]} 
                   alt={product.name}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-48 object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="p-4">
                   <h3 className="font-bold mb-1">{product.name}</h3>
