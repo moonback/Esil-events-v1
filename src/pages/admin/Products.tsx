@@ -29,19 +29,7 @@ const AdminProducts: React.FC = () => {
     }
   };
 
-  const handleSeedDatabase = async () => {
-    try {
-      setLoading(true);
-      await seedDatabase();
-      await loadProducts();
-      alert('Base de données initialisée avec succès !');
-    } catch (err) {
-      setError('Erreur lors de l\'initialisation de la base de données');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  
 
   useEffect(() => {
     loadProducts();
@@ -154,18 +142,18 @@ const AdminProducts: React.FC = () => {
         ) : (
           <>
             {/* Filters and Search */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <div className="flex-1 relative">
                 <input
                   type="text"
                   placeholder="Rechercher un produit..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent shadow-sm"
                 />
-                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
               </div>
-              <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+              <button className="flex items-center px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm transition-colors">
                 <Filter className="w-4 h-4 mr-2" />
                 Filtres
               </button>
@@ -175,27 +163,33 @@ const AdminProducts: React.FC = () => {
             </div>
 
             {/* Products Table */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-              <h1 className="text-2xl font-bold">Gestion des produits</h1>
-          <div className="flex gap-4">
-            <button
-              onClick={handleSeedDatabase}
-              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              Initialiser la BDD
-            </button>
-            <button
-              onClick={() => {
-                setEditingProduct(null);
-                setShowForm(true);
-              }}
-              className="flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Nouveau produit
-            </button>
-          </div>
+            
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="overflow-x-auto p-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                  <h1 className="text-2xl font-bold text-gray-900">Gestion des produits</h1>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setEditingProduct(null);
+                        setShowForm(true);
+                      }}
+                      className="flex items-center px-4 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors shadow-sm"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Nouveau produit
+                    </button>
+                    {/* <button
+                      onClick={() => {
+                        // Add your filter logic here
+                      }}
+                      className="flex items-center px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+                    >
+                      <Filter className="w-4 h-4 mr-2" />
+                      Filtres
+                    </button> */}
+                  </div>
+                </div>
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
