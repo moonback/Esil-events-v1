@@ -231,7 +231,8 @@ const CartPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-4 px-6 text-right font-bold">
-                        {items.reduce((total, item) => total + (item.priceTTC), 0).toFixed(2)} €
+                        {/* Fix: Use the current item's price instead of reducing all items */}
+                        {(item.priceTTC).toFixed(2)} €
                         
                       </td>
                       <td className="py-4 px-6 text-right">
@@ -252,6 +253,7 @@ const CartPage: React.FC = () => {
                       Total TTC
                     </td>
                     <td className="py-4 px-6 text-right font-bold">
+                      {/* This calculation for total is correct as it needs to sum all items */}
                       {items.reduce((total, item) => total + (item.priceTTC * item.quantity), 0).toFixed(2)} €
                     </td>
                     <td></td>
