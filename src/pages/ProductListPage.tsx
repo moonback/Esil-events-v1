@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Filter, ChevronDown } from 'lucide-react';
-import { getProductsByCategory, getProductsBySubCategory } from '../services/productService';
+import { getAllProducts, getProductsByCategory, getProductsBySubCategory } from '../services/productService';
 import { Category, getAllCategories } from '../services/categoryService';
 
 interface Product {
@@ -42,17 +42,19 @@ const ProductListPage: React.FC = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      if (!category) return;
-      
       try {
         setLoading(true);
         setError(null);
         
         let productsData;
-        if (subcategory) {
-          productsData = await getProductsBySubCategory(category, subcategory);
+        if (category) {
+          if (subcategory) {
+            productsData = await getProductsBySubCategory(category, subcategory);
+          } else {
+            productsData = await getProductsByCategory(category);
+          }
         } else {
-          productsData = await getProductsByCategory(category);
+          productsData = await getAllProducts(); // Add this case to fetch all products
         }
         
         setProducts(productsData);
