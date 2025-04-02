@@ -67,11 +67,11 @@ const HomePage: React.FC = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
             Louez votre matériel évènementiel !
           </h2>
-          <h3 className="text-xl md:text-2xl font-medium mb-8 text-center">
+          {/* <h3 className="text-xl md:text-2xl font-medium mb-8 text-center">
             Besoin de matériel pour organiser un événement réussi ?
-          </h3>
+          </h3> */}
           <p className="text-center mb-12 max-w-3xl mx-auto">
-            ESIL Events met à votre disposition une large gamme d'équipements professionnels, disponibles en location avec ou sans installation
+            ESIL Events met à votre disposition une large gamme d'équipements professionnels, disponibles en location avec ou sans installation, pour tous vos événements !
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -84,6 +84,9 @@ const HomePage: React.FC = () => {
               />
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-4">MOBILIER & DECO</h3>
+                <p className="text-sm mb-4">
+                  Offrez à vos invités une ambiance unique avec notre sélection de mobilier et de décoration en location : tables, chaises, mobiliers lumineux, décorations thématiques (vintage, fête foraine, super-héros...). Créez un cadre mémorable pour vos événements !
+                </p>
                 <Link to="/products/mobilier" className="flex items-center text-black font-medium hover:underline">
                   Découvrir <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
@@ -99,6 +102,17 @@ const HomePage: React.FC = () => {
               />
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-4">JEUX</h3>
+                <p className="text-sm mb-4">
+                  Offrez à vos invités une expérience
+                  ludique inoubliable avec notre gamme
+                  de jeux en location : bornes d'arcade,
+                  baby-foot, flippers, air hockey, coups de
+                  poing, paniers de basket et même des
+                  machines à pinces pour distribuer des
+                  cadeaux. Des animations fun et
+                  interactives qui feront le succès de votre
+                  événement !                
+                </p>
                 <Link to="/products/jeux" className="flex items-center text-black font-medium hover:underline">
                   Découvrir <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
@@ -114,6 +128,15 @@ const HomePage: React.FC = () => {
               />
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-4">SIGNALETIQUE</h3>
+                <p className="text-sm mb-4">
+                  Facilitez l'orientation de vos invités avec
+                  notre matériel de signalétique :
+                  panneaux directionnels, totems, stands,
+                  et banderoles sur mesure. Idéal pour
+                  vos salons, lancements de produits et
+                  autres événements professionnels, pour
+                  une communication claire et impactante.                
+                </p>
                 <Link to="/products/signaletique" className="flex items-center text-black font-medium hover:underline">
                   Découvrir <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
@@ -129,6 +152,15 @@ const HomePage: React.FC = () => {
               />
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-4">TECHNIQUE</h3>
+                <p className="text-sm mb-4">
+                  Mettez en lumière vos événements avec
+                  notre matériel technique : éclairage,
+                  sonorisation, vidéo et scènes. Parfait
+                  pour des prises de parole, conférences,
+                  concerts ou soirées dansantes, nous
+                  vous fournissons tout le nécessaire pour
+                  garantir le succès de vos animations.                
+                </p>
                 <Link to="/products/technique" className="flex items-center text-black font-medium hover:underline">
                   Découvrir <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
