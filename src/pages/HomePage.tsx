@@ -171,7 +171,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Contact CTA Section */}
-      <section className="section bg-white">
+      <section className="section bg-black">
         <div className="container-custom">
           <div className="bg-black text-white rounded-xl p-8 md:p-12 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
@@ -180,9 +180,9 @@ const HomePage: React.FC = () => {
             <p className="mb-8 max-w-3xl mx-auto">
               Chaque événement est unique et mérite une exécution parfaite. Chez ESIL Events, nous transformons vos idées en expériences marquantes, en combinant créativité, expertise technique et gestion rigoureuse.
               <br /><br />
-              Vous avez un projet en tête ? Discutons-en et créons ensemble un événement à la hauteur de vos ambitions.
+              <span className="font-bold text-purple-600">Vous avez un projet en tête ? Discutons-en et créons ensemble un événement à la hauteur de vos ambitions.</span>
             </p>
-            <Link to="/contact" className="btn-primary inline-block">
+            <Link to="/contact" className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors inline-block">
               Discuter de mon événement
             </Link>
           </div>
