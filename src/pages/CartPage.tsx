@@ -168,8 +168,9 @@ const CartPage: React.FC = () => {
   return (
     <div className="min-h-screen pt-44 pb-16 px-4">
       <div className="container-custom mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Votre devis</h1>
-
+        <h1 className="text-3xl font-bold mb-8">
+          Votre devis ({items.reduce((total, item) => total + item.quantity, 0)} articles)
+        </h1>
         {items.length === 0 ? (
           <div className="bg-white p-8 rounded-lg shadow-md text-center">
             <h2 className="text-xl font-medium mb-4">Votre panier est vide</h2>
@@ -231,6 +232,7 @@ const CartPage: React.FC = () => {
                       </td>
                       <td className="py-4 px-6 text-right font-bold">
                         {items.reduce((total, item) => total + (item.priceTTC), 0).toFixed(2)} €
+                        
                       </td>
                       <td className="py-4 px-6 text-right">
                         <button
