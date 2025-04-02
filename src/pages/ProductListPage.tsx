@@ -124,7 +124,7 @@ const ProductListPage: React.FC = () => {
   const displayedProducts = sortProducts(filterProducts(products));
 
   return (
-    <div className="pt-24 pb-16 px-4 bg-gray-50">
+    <div className="pt-44 pb-16 px-4 bg-gray-50">
       <div className="container-custom mx-auto">
         {/* Categories Section */}
         {!category && (
