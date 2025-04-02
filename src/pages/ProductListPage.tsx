@@ -254,43 +254,63 @@ const ProductListPage: React.FC = () => {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
-              <div key={index} className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300">
-                <div className="h-48 bg-gray-200 animate-pulse"></div>
-                <div className="p-4">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2 mb-4"></div>
-                  <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+              <div 
+                key={index} 
+                className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300"
+                aria-busy="true"
+                aria-label="Loading product..."
+              >
+                <div className="aspect-square bg-gray-200 animate-pulse"></div>
+                <div className="p-4 space-y-3">
+                  <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-2/3"></div>
+                  <div className="h-5 bg-gray-200 rounded animate-pulse w-1/2"></div>
                 </div>
               </div>
             ))}
           </div>
         ) : displayedProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            role="list"
+            aria-label="Products grid"
+          >
             {displayedProducts.map((product) => (
               <Link 
                 key={product.id} 
                 to={`/product/${product.id}`}
-                className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300"
+                className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                role="listitem"
               >
-                <div className="aspect-square">
+                <div className="aspect-square relative">
                   <img 
                     src={product.images[0]} 
                     alt={product.name}
                     className="w-full h-full object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                    }}
                   />
                 </div>
-                <div className="p-4">
-                  <h3 className="font-bold mb-1">{product.name}</h3>
-                  <p className="text-sm text-gray-500 mb-3">Réf: {product.reference}</p>
-                  <p className="font-bold">{product.priceHT.toFixed(2)}€ HT / jour</p>
+                <div className="p-4 space-y-2">
+                  <h3 className="font-bold text-lg line-clamp-2">{product.name}</h3>
+                  <p className="text-sm text-gray-500">Réf: {product.reference}</p>
+                  <p className="font-bold text-lg text-blue-600">{product.priceHT.toFixed(2)}€ HT / jour</p>
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-medium mb-2">Aucun produit trouvé</h3>
-            <p className="text-gray-500">Essayez de modifier vos filtres ou revenez plus tard.</p>
+          <div className="text-center py-12 bg-gray-50 rounded-lg">
+            <h3 className="text-xl font-medium mb-3">Aucun produit trouvé</h3>
+            <p className="text-gray-600">Essayez de modifier vos filtres ou revenez plus tard.</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Rafraîchir la page
+            </button>
           </div>
         )}
       </div>
