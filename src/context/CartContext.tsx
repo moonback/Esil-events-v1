@@ -6,6 +6,7 @@ interface CartItem {
   image: string;
   quantity: number;
   color?: string;
+  priceTTC: number; // Add price field
 }
 
 interface CartContextType {

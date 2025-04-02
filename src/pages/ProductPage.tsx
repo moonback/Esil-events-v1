@@ -52,9 +52,10 @@ const ProductPage: React.FC = () => {
       name: product.name,
       image: product.images[0],
       quantity,
-      color: selectedColor
+      color: selectedColor,
+      priceTTC: product.priceTTC // Add the price
     });
-
+  
     // Show confirmation message
     alert('Produit ajouté au devis !');
   };
