@@ -25,11 +25,11 @@ const HomePage: React.FC = () => {
             Votre événement de A à Z : Location, Installation, Régie Son & Lumière, Animation
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link to="/contact" className="btn-primary">
-              Discuter de mon événement
+            <Link to="/agence-evenementielle" className="btn-primary">
+              Notre Agence évènementille
             </Link>
-            <Link to="/products/mobilier" className="btn-secondary">
-              Découvrir nos produits
+            <Link to="/products/" className="btn-secondary">
+              Nos produits à la location
             </Link>
           </div>
         </div>
