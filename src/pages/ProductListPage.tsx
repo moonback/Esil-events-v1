@@ -267,11 +267,13 @@ const ProductListPage: React.FC = () => {
                 to={`/product/${product.id}`}
                 className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300"
               >
-                <img 
-                  src={product.images[0]} 
-                  alt={product.name}
-                  className="w-full h-48 object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
-                />
+                <div className="aspect-square">
+                  <img 
+                    src={product.images[0]} 
+                    alt={product.name}
+                    className="w-full h-full object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
                 <div className="p-4">
                   <h3 className="font-bold mb-1">{product.name}</h3>
                   <p className="text-sm text-gray-500 mb-3">Réf: {product.reference}</p>
