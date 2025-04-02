@@ -59,10 +59,16 @@ const MegaMenu: React.FC = () => {
       <div className="max-w-7xl mx-auto p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {categories.map((category) => (
-            <div key={category.id} className="bg-white p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-              <h3 className="text-lg font-bold mb-4">{category.name}</h3>
-              <ul className="space-y-4">
-                {category.subcategories?.map((subCategory) => (
+            <div 
+              key={category.id} 
+              className="bg-white p-4 rounded-lg hover:bg-violet-50 transition-all duration-200 group relative"
+            >
+              <h3 className="text-lg font-bold mb-4 group-hover:text-[#8854d0] transition-colors duration-200 flex items-center">
+                {category.name}
+                <span className="ml-2 text-sm text-gray-400">({category.subcategories?.length || 0})</span>
+              </h3>
+              <ul className="space-y-2 group-hover:space-y-1 transition-all duration-200">
+                {category.subcategories?.slice(0, 5).map((subCategory) => (
                   <li key={subCategory.id} className="space-y-2">
                     <Link
                       to={`/products/${category.slug}/${subCategory.slug}`}
