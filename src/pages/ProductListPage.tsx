@@ -126,27 +126,6 @@ const ProductListPage: React.FC = () => {
   return (
     <div className="pt-44 pb-16 px-4 bg-gray-50">
       <div className="container-custom mx-auto">
-        {/* Categories Section */}
-        {!category && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Nos catégories</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {categories.map((cat) => (
-                <Link 
-                  key={cat.id} 
-                  to={`/products/${cat.slug}`}
-                  className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-all duration-300 flex flex-col items-center hover:-translate-y-1"
-                >
-                  <div className="w-16 h-16 bg-gray-100 rounded-full mb-4 flex items-center justify-center">
-                    {/* Placeholder for category icon */}
-                    <span className="text-xl">{cat.name.charAt(0)}</span>
-                  </div>
-                  <h3 className="text-lg font-medium text-center">{cat.name}</h3>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
         {/* Breadcrumb */}
         <div className="mb-8">
           <nav className="flex" aria-label="Breadcrumb">
@@ -175,6 +154,28 @@ const ProductListPage: React.FC = () => {
             </ol>
           </nav>
         </div>
+        {/* Categories Section */}
+        {!category && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Nos catégories</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {categories.map((cat) => (
+                <Link 
+                  key={cat.id} 
+                  to={`/products/${cat.slug}`}
+                  className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-all duration-300 flex flex-col items-center hover:-translate-y-1"
+                >
+                  <div className="w-16 h-16 bg-gray-100 rounded-full mb-4 flex items-center justify-center">
+                    {/* Placeholder for category icon */}
+                    <span className="text-xl">{cat.name.charAt(0)}</span>
+                  </div>
+                  <h3 className="text-lg font-medium text-center">{cat.name}</h3>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+        
 
         <h1 className="text-3xl font-bold mb-8">
           {subcategory 
@@ -192,21 +193,21 @@ const ProductListPage: React.FC = () => {
 
         {/* Filters and Sorting */}
         <div className="mb-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
             <button 
               onClick={toggleFilter}
-              className="flex items-center text-black mb-4 md:mb-0"
+              className="flex items-center text-black hover:text-gray-700 transition-colors duration-200 bg-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md"
             >
               <Filter className="mr-2 w-5 h-5" />
               Filtres
-              <ChevronDown className={`ml-1 w-4 h-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
             </button>
             
             <div className="w-full md:w-auto">
               <select 
                 value={sortBy}
                 onChange={handleSortChange}
-                className="w-full md:w-auto p-2 border border-gray-300 rounded-md"
+                className="w-full md:w-auto p-2 border border-gray-300 rounded-lg bg-white shadow-sm hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
               >
                 <option value="name-asc">Nom (A-Z)</option>
                 <option value="name-desc">Nom (Z-A)</option>
@@ -218,28 +219,32 @@ const ProductListPage: React.FC = () => {
           
           {/* Filter Panel */}
           {isFilterOpen && (
-            <div className="bg-gray-50 p-4 rounded-md mb-4">
-              <h3 className="font-medium mb-3">Fourchette de prix</h3>
-              <div className="flex items-center mb-4">
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="1000" 
-                  value={priceRange[0]} 
-                  onChange={(e) => handlePriceRangeChange(0, parseInt(e.target.value))}
-                  className="w-full"
-                />
-                <span className="ml-2 min-w-[80px]">{priceRange[0]}€ - {priceRange[1]}€</span>
-              </div>
-              <div className="flex items-center">
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="1000" 
-                  value={priceRange[1]} 
-                  onChange={(e) => handlePriceRangeChange(1, parseInt(e.target.value))}
-                  className="w-full"
-                />
+            <div className="bg-white p-6 rounded-lg shadow-md mb-4 transition-all duration-300 ease-in-out">
+              <h3 className="font-semibold text-lg mb-4">Fourchette de prix</h3>
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="1000" 
+                    value={priceRange[0]} 
+                    onChange={(e) => handlePriceRangeChange(0, parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  />
+                  <span className="text-sm font-medium bg-gray-100 px-3 py-1 rounded-md min-w-[100px] text-center">
+                    {priceRange[0]}€ - {priceRange[1]}€
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="1000" 
+                    value={priceRange[1]} 
+                    onChange={(e) => handlePriceRangeChange(1, parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  />
+                </div>
               </div>
             </div>
           )}
