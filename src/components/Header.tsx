@@ -111,13 +111,22 @@ const Header: React.FC = () => {
   }} 
 />
                 </div>
-                <a 
-                  href="tel:0620461385" 
-                  className="hidden md:flex items-center space-x-2 px-3 py-1.5 ml-4 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors duration-200"
-                >
-                  <Phone className="w-4 h-4" />
-                  <span className="text-sm font-medium">06 20 46 13 85</span>
-                </a>
+                <div className="hidden md:flex flex-col space-y-1 ml-4">
+                  <a 
+                    href="tel:0620461385" 
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                  >
+                    <Phone className="w-4 h-4 animate-pulse" />
+                    <span className="text-sm font-medium tracking-wide">06 20 46 13 85</span>
+                  </a>
+                  <a 
+                    href="tel:07.85.95.97.23" 
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                  >
+                    <Phone className="w-4 h-4 animate-pulse" />
+                    <span className="text-sm font-medium tracking-wide">07.85.95.97.23</span>
+                  </a>
+                </div>
                 
                 <div className="hidden md:flex space-x-2">
                     <a href="https://www.facebook.com/profile.php?id=61574583021091" target="_blank" rel="noopener noreferrer" 
