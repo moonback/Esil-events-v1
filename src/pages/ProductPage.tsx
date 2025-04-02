@@ -164,7 +164,7 @@ const ProductPage: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Prix TTC / jour</p>
-                <p className="text-2xl font-bold">{product.priceTTC.toFixed(2)} €</p>
+                <p className="text-2xl text-violet-500  font-bold">{product.priceTTC.toFixed(2)} €</p>
               </div>
             </div>
             
@@ -220,7 +220,7 @@ const ProductPage: React.FC = () => {
             {/* Add to Cart Button */}
             <button 
               onClick={handleAddToCart}
-              className="w-full btn-primary mb-8"
+              className="w-full bg-violet-500 hover:bg-violet-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 mb-8"
             >
               Ajouter au devis
             </button>
