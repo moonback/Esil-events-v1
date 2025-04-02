@@ -209,7 +209,7 @@ const Header: React.FC = () => {
                 >
                   <ShoppingCart className="w-5 h-5 text-gray-700 dark:text-gray-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-all duration-300 transform group-hover:rotate-12" />
                   {items.length > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-green-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
+                    <span className="absolute -top-0.5 -right-0.5 bg-violet-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
                       {items.length}
                     </span>
                   )}
