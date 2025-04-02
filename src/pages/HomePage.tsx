@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, CheckCircle, Package, Truck } from 'lucide-react';
 
 const HomePage: React.FC = () => {
   return (
@@ -201,40 +201,112 @@ const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Option 1 */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-bold mb-4">Retrait sur place</h3>
-              <p className="text-sm text-green-600 font-bold mb-4">Gratuit</p>
-              <p>
-                Récupérez votre matériel directement dans notre entrepôt à Mantes-la-Ville.
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-black text-white p-4 flex items-center justify-center">
+              <Package className="w-8 h-8" />
+            </div>
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-2">Retrait sur place</h2>
+              <p className="text-green-600 font-bold mb-4">Gratuit</p>
+              <p className="mb-4">
+                Récupérez votre matériel directement dans notre entrepôt à Mantes-la-Ville. Du lundi au vendredi de 9h30 à 12h et 14h15 à 16h.
+              </p>
+              <ul className="space-y-2 mb-6">
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Économique</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Flexible sur les horaires</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Vérification du matériel sur place</span>
+                </li>
+              </ul>
+              <p className="text-sm text-gray-500">
+                Prévoir un véhicule adapté au volume du matériel loué.
               </p>
             </div>
+          </div>
 
             {/* Option 2 */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-bold mb-4">Livraison Économique</h3>
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-black text-white p-4 flex items-center justify-center">
+              <Truck className="w-8 h-8" />
+            </div>
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-2">Livraison Économique</h2>
+              <p className="text-gray-600 font-bold mb-4">Sur devis</p>
               <p className="mb-4">
                 Nous livrons sur site et vous participez au déchargement si nécessaire. Pensez à vérifier les accès (escaliers, ascenseurs, largeur des portes…).
               </p>
-            </div>
-
-            {/* Option 3 */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-bold mb-4">Formule Premium</h3>
-              <p className="mb-4">
-                Service clé en main : livraison, installation et démontage pris en charge par nos techniciens événementiels 7j/7 et 24h/24, partout en France. Idéal pour les événements nécessitant une régie technique ou une installation complexe.
+              <ul className="space-y-2 mb-6">
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Livraison à l'adresse de votre choix</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Solution intermédiaire économique</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Idéal pour les petites quantités</span>
+                </li>
+              </ul>
+              <p className="text-sm text-gray-500">
+                Tarif variable selon la distance et le volume.
               </p>
             </div>
+          </div>
+
+            {/* Option 3 */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-black text-white p-4 flex items-center justify-center">
+              <Truck className="w-8 h-8" />
+            </div>
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-2">Formule Premium</h2>
+              <p className="text-gray-600 font-bold mb-4">Sur devis</p>
+              <p className="mb-4">
+                Service clé en main : livraison, installation et démontage pris en charge par nos techniciens événementiels 7j/7 et 24h/24, partout en France.
+              </p>
+              <ul className="space-y-2 mb-6">
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Installation complète par nos techniciens</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Démontage et récupération inclus</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Assistance technique pendant l'événement</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Idéal pour les installations complexes</span>
+                </li>
+              </ul>
+              <p className="text-sm text-gray-500">
+                Des frais supplémentaires peuvent s'appliquer pour les interventions de nuit, le week-end ou les longues distances.
+              </p>
+            </div>
+          </div>
           </div>
 
           <p className="mt-8 text-center text-sm">
             Des frais supplémentaires peuvent s'appliquer pour les interventions de nuit, le week-end ou les longues distances.
           </p>
 
-          <div className="text-center mt-8">
+          {/* <div className="text-center mt-8">
             <Link to="/delivery" className="btn-secondary inline-block">
               En savoir plus
             </Link>
-          </div>
+          </div> */}
         </div>
       </section>
     </div>
