@@ -102,16 +102,16 @@ const Header: React.FC = () => {
                     value={searchQuery}
                   />
                   <SearchResults 
-  query={searchQuery} 
-  onClose={() => setSearchQuery('')} 
-  results={[]} 
-  onSelect={(product) => {
-    setSearchQuery('');
-    navigate(`/product/${product.id}`);
-  }} 
-/>
+                    query={searchQuery} 
+                    onClose={() => setSearchQuery('')} 
+                    results={[]} 
+                    onSelect={(product) => {
+                      setSearchQuery('');
+                      navigate(`/product/${product.id}`);
+                    }} 
+                  />
                 </div>
-                <div className="hidden md:flex flex-col space-y-1 ml-4">
+                <div className="hidden md:flex space-x-2 ml-4">
                   <a 
                     href="tel:0620461385" 
                     className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
