@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Package, FileText, Users, Grid, LayoutDashboard, Settings, Bell } from 'lucide-react';
+import { Package, FileText, Users, Grid, LayoutDashboard, Settings, Bell, MessageSquare } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 interface AdminLayoutProps {
@@ -13,29 +13,34 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const menuItems = [
     {
-      title: 'Tableau de bord',
+      label: 'Tableau de bord',
       icon: <LayoutDashboard className="w-5 h-5" />,
       path: '/admin'
     },
     {
-      title: 'Produits',
+      label: 'Produits',
       icon: <Package className="w-5 h-5" />,
       path: '/admin/products'
     },
     {
-      title: 'Catégories',
+      label: 'Catégories',
       icon: <Grid className="w-5 h-5" />,
       path: '/admin/categories'
     },
     {
-      title: 'Pages',
+      label: 'Pages',
       icon: <FileText className="w-5 h-5" />,
       path: '/admin/pages'
     },
     {
-      title: 'Clients',
+      label: 'Clients',
       icon: <Users className="w-5 h-5" />,
       path: '/admin/customers'
+    },
+    {
+      label: 'Annonces',
+      icon: <MessageSquare className="w-5 h-5" />,
+      path: '/admin/announcements'
     }
   ];
 
@@ -66,7 +71,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   }`}
                 >
                   {item.icon}
-                  <span className="ml-3">{item.title}</span>
+                  <span className="ml-3">{item.label}</span>
                 </Link>
               );
             })}

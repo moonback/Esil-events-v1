@@ -13,6 +13,7 @@ import AdminProducts from './pages/admin/Products';
 import AdminPages from './pages/admin/Pages';
 import AdminCustomers from './pages/admin/Customers';
 import AdminCategories from './pages/admin/Categories';
+import AdminAnnouncements from './pages/admin/Announcements';
 import NotFoundPage from './pages/NotFoundPage';
 import ProfilePage from './pages/ProfilePage';
 import OrdersPage from './pages/OrdersPage';
@@ -64,6 +65,7 @@ const App: React.FC = () => {
           <Route path="/admin/categories" element={<AdminRoute><AdminCategories /></AdminRoute>} />
           <Route path="/admin/pages" element={<AdminRoute><AdminPages /></AdminRoute>} />
           <Route path="/admin/customers" element={<AdminRoute><AdminCustomers /></AdminRoute>} />
+          <Route path="/admin/announcements" element={<AdminRoute><AdminAnnouncements /></AdminRoute>} />
 
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />
