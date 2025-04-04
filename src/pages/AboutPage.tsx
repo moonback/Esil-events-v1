@@ -292,19 +292,13 @@ const AboutPage: React.FC = () => {
           </section>
 
           {/* Contact CTA amélioré */}
-          <section className="relative overflow-hidden rounded-2xl">
-            <div className="absolute inset-0">
-              <img
-                src="/images/cta-bg.jpg"
-                alt="Background"
-                className="w-full h-full object-cover opacity-20"
-              />
-            </div>
-            <div className="relative bg-gradient-to-r from-primary-600 to-primary-800 dark:from-primary-800 dark:to-primary-900 p-12 rounded-2xl text-center">
+          <section className="relative overflow-hidden rounded-2xl bg-gray-900 dark:bg-gray-800">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-900 to-black opacity-80"></div>
+            <div className="relative px-6 py-12 sm:px-12 sm:py-16 text-center">
               <h2 className="text-3xl font-bold text-white mb-6">
                 Rejoignez l'aventure ESIL Events : Transformons votre projet en succès
               </h2>
-              <p className="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
                 Vous avez un projet d'événement ? Que ce soit pour la location de matériel, l'animation de vos
                 événements ou une gestion complète, ESIL Events est là pour vous accompagner à chaque étape.
                 Contactez-nous dès aujourd'hui pour discuter de vos besoins, et ensemble, faisons de votre
@@ -313,7 +307,7 @@ const AboutPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <a
                   href="/contact"
-                  className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-lg shadow-lg text-white bg-primary-500 hover:bg-primary-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105"
+                  className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-lg shadow-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105"
                 >
                   <svg className="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -323,7 +317,7 @@ const AboutPage: React.FC = () => {
                 </a>
                 <a
                   href="/catalogue"
-                  className="inline-flex items-center px-8 py-4 border-2 border-white text-lg font-medium rounded-lg text-white hover:bg-white hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all duration-200 transform hover:scale-105"
+                  className="inline-flex items-center px-8 py-4 border-2 border-white text-lg font-medium rounded-lg text-white hover:bg-white hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 transition-all duration-200 transform hover:scale-105"
                 >
                   Voir le Catalogue
                 </a>
