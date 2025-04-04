@@ -316,7 +316,7 @@ const AboutPage: React.FC = () => {
                   Contactez-nous
                 </a>
                 <a
-                  href="/catalogue"
+                  href="/products"
                   className="inline-flex items-center px-8 py-4 border-2 border-white text-lg font-medium rounded-lg text-white hover:bg-white hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 transition-all duration-200 transform hover:scale-105"
                 >
                   Voir le Catalogue

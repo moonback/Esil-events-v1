@@ -31,7 +31,7 @@ export const EventsPage: React.FC = () => {
         >
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-gray-800">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-700 to-violet-900">ESIL Events</span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-black">ESIL Events</span>
             </h1>
             <h2 className="text-2xl font-medium text-gray-700 tracking-wide">Votre partenaire pour des événements inoubliables</h2>
           </div>
@@ -240,7 +240,7 @@ export const EventsPage: React.FC = () => {
             whileHover={{ boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)" }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-4xl font-bold mb-8 text-center text-gray-800">Pourquoi choisir <span className="text-violet-700">ESIL Events</span> ?</h2>
+            <h2 className="text-4xl font-bold mb-8 text-center text-gray-800">Pourquoi choisir <span className="text-gray-700">ESIL Events</span> ?</h2>
             <h3 className="text-2xl font-medium mb-12 text-center text-gray-600">Parce que nous ne sommes pas comme les autres !</h3>
             
             <motion.div 
