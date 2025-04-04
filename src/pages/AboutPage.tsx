@@ -293,7 +293,7 @@ const AboutPage: React.FC = () => {
 
           {/* Contact CTA amélioré */}
           <section className="relative overflow-hidden rounded-2xl bg-gray-900 dark:bg-gray-800">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-900 to-black opacity-80"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-black to-black opacity-80"></div>
             <div className="relative px-6 py-12 sm:px-12 sm:py-16 text-center">
               <h2 className="text-3xl font-bold text-white mb-6">
                 Rejoignez l'aventure ESIL Events : Transformons votre projet en succès
