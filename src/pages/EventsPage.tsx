@@ -19,8 +19,8 @@ export const EventsPage: React.FC = () => {
   };
 
   return (
-    <div className="pt-28 pb-20 px-4 bg-white dark:bg-gray-800">
-      <div className="container mx-auto max-w-6xl">
+    <div className="pt-28 pb-20 px-4 bg-white dark:bg-gray-800 w-full">
+      <div className="w-full">
         {/* Hero Section */}
         <motion.section 
           className="mb-16 md:mb-24"
@@ -31,7 +31,7 @@ export const EventsPage: React.FC = () => {
         >
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-gray-800">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-900">ESIL Events</span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-700 to-violet-900">ESIL Events</span>
             </h1>
             <h2 className="text-2xl font-medium text-gray-700 tracking-wide">Votre partenaire pour des événements inoubliables</h2>
           </div>
@@ -42,7 +42,7 @@ export const EventsPage: React.FC = () => {
           >
             <p className="text-lg mb-6 leading-relaxed text-gray-700">
               Chez ESIL Events, nous sommes bien plus qu'une simple agence événementielle. Nous sommes
-              des <span className="font-semibold text-blue-700">créateurs d'expériences</span>, des architectes de moments mémorables, prêts à vous accompagner à
+              des <span className="font-semibold text-violet-700">créateurs d'expériences</span>, des architectes de moments mémorables, prêts à vous accompagner à
               chaque étape de l'organisation de vos événements.
             </p>
             <p className="text-lg mb-6 leading-relaxed text-gray-700">
@@ -63,7 +63,7 @@ export const EventsPage: React.FC = () => {
           
           {/* Image placeholder with improved gradient */}
           <motion.div 
-            className="w-full h-96 bg-gradient-to-r from-indigo-900 via-blue-800 to-indigo-700 mb-20 rounded-2xl overflow-hidden shadow-lg relative"
+            className="w-full h-96 bg-gradient-to-r from-violet-900 via-violet-800 to-violet-700 mb-20 rounded-2xl overflow-hidden shadow-lg relative"
             whileHover={{ scale: 1.01 }}
             transition={{ duration: 0.5 }}
           >
@@ -113,11 +113,11 @@ export const EventsPage: React.FC = () => {
               variants={fadeInUp}
               whileHover={{ scale: 1.03, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
             >
-              <div className="flex items-center justify-center h-16 w-16 rounded-full bg-blue-50 text-blue-600 mb-8 mx-auto shadow-md">
+              <div className="flex items-center justify-center h-16 w-16 rounded-full bg-violet-50 text-violet-600 mb-8 mx-auto shadow-md">
                 <span className="text-2xl font-bold">1</span>
               </div>
               <h3 className="text-2xl font-bold mb-3 text-center text-gray-800">La planification sur-mesure</h3>
-              <h4 className="text-lg font-semibold mb-5 text-center text-blue-600">Où tout commence</h4>
+              <h4 className="text-lg font-semibold mb-5 text-center text-violet-600">Où tout commence</h4>
               <p className="mb-5 text-gray-600 leading-relaxed">
                 Avant de lancer la machine, on prend le temps de comprendre vos attentes et vos objectifs.
                 L'idée ? Créer une stratégie claire, parfaitement alignée avec vos envies et l'univers de votre
@@ -164,15 +164,15 @@ export const EventsPage: React.FC = () => {
             </motion.div>
             
             <motion.div 
-              className="bg-white rounded-2xl shadow-md p-8 border-t-4 border-blue-800 transition duration-500"
+              className="bg-white rounded-2xl shadow-md p-8 border-t-4 border-violet-800 transition duration-500"
               variants={fadeInUp}
               whileHover={{ scale: 1.03, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
             >
-              <div className="flex items-center justify-center h-16 w-16 rounded-full bg-blue-50 text-blue-800 mb-8 mx-auto shadow-md">
+              <div className="flex items-center justify-center h-16 w-16 rounded-full bg-violet-50 text-violet-800 mb-8 mx-auto shadow-md">
                 <span className="text-2xl font-bold">3</span>
               </div>
               <h3 className="text-2xl font-bold mb-3 text-center text-gray-800">Action, production et fun</h3>
-              <h4 className="text-lg font-semibold mb-5 text-center text-blue-800">C'est le grand show !</h4>
+              <h4 className="text-lg font-semibold mb-5 text-center text-violet-800">C'est le grand show !</h4>
               <p className="mb-5 text-gray-600 leading-relaxed">
                 Le grand jour approche… Pas de panique ! Une fois que la créativité a fait son travail, il est temps
                 de passer à la production. Et là, c'est l'explosion de génie : repérage des lieux, choix du traiteur,
@@ -194,7 +194,7 @@ export const EventsPage: React.FC = () => {
             whileHover={{ scale: 1.01 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="w-full h-96 bg-gradient-to-r from-indigo-800 via-blue-700 to-blue-800 flex items-center justify-center relative">
+            <div className="w-full h-96 bg-gradient-to-r from-violet-800 via-violet-700 to-violet-800 flex items-center justify-center relative">
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">
                   <p className="text-2xl font-bold mb-2">CARROUSEL DE PHOTOS</p>
@@ -236,11 +236,11 @@ export const EventsPage: React.FC = () => {
           variants={fadeInUp}
         >
           <motion.div 
-            className="bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-lg p-12"
+            className="bg-gradient-to-br from-white to-violet-50 rounded-2xl shadow-lg p-12"
             whileHover={{ boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)" }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-4xl font-bold mb-8 text-center text-gray-800">Pourquoi choisir <span className="text-blue-700">ESIL Events</span> ?</h2>
+            <h2 className="text-4xl font-bold mb-8 text-center text-gray-800">Pourquoi choisir <span className="text-violet-700">ESIL Events</span> ?</h2>
             <h3 className="text-2xl font-medium mb-12 text-center text-gray-600">Parce que nous ne sommes pas comme les autres !</h3>
             
             <motion.div 
@@ -253,14 +253,14 @@ export const EventsPage: React.FC = () => {
                 whileHover={{ scale: 1.02 }}
               >
                 <div className="flex-shrink-0 mr-5">
-                  <div className="h-14 w-14 rounded-full bg-blue-50 flex items-center justify-center shadow-sm">
-                    <svg className="h-6 w-6 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="h-14 w-14 rounded-full bg-violet-50 flex items-center justify-center shadow-sm">
+                    <svg className="h-6 w-6 text-violet-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                     </svg>
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold mb-3 text-blue-700">Planification sur-mesure</h4>
+                  <h4 className="text-xl font-bold mb-3 text-violet-700">Planification sur-mesure</h4>
                   <p className="text-gray-600 leading-relaxed">
                     Pas de "formules pré-faites". Nous créons un événement qui
                     vous ressemble et qui dépasse vos attentes !
@@ -342,7 +342,7 @@ export const EventsPage: React.FC = () => {
           variants={fadeInUp}
         >
           <motion.div 
-            className="bg-gradient-to-r from-blue-700 to-blue-900 text-white p-12 rounded-xl shadow-2xl relative overflow-hidden"
+            className="bg-gradient-to-r from-violet-700 to-violet-900 text-white p-12 rounded-xl shadow-2xl relative overflow-hidden"
             whileHover={{ boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
             transition={{ duration: 0.5 }}
           >
@@ -377,7 +377,7 @@ export const EventsPage: React.FC = () => {
               
               <div className="flex justify-center mb-16">
                 <motion.button 
-                  className="bg-white text-blue-900 font-bold py-4 px-12 rounded-full hover:bg-blue-50 transition duration-300 shadow-lg flex items-center"
+                  className="bg-white text-violet-900 font-bold py-4 px-12 rounded-full hover:bg-violet-50 transition duration-300 shadow-lg flex items-center"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                 >
