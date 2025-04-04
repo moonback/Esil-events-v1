@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, CheckCircle, Package, Truck } from 'lucide-react';
 
 const HomePage: React.FC = () => {
   return (
@@ -25,11 +25,11 @@ const HomePage: React.FC = () => {
             Votre événement de A à Z : Location, Installation, Régie Son & Lumière, Animation
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link to="/contact" className="btn-primary">
-              Discuter de mon événement
+            <Link to="/agence-evenementielle" className="btn-primary">
+              Notre Agence évènementille
             </Link>
-            <Link to="/products/mobilier" className="btn-secondary">
-              Découvrir nos produits
+            <Link to="/products/" className="btn-secondary">
+              Nos produits à la location
             </Link>
           </div>
         </div>
@@ -67,11 +67,11 @@ const HomePage: React.FC = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
             Louez votre matériel évènementiel !
           </h2>
-          <h3 className="text-xl md:text-2xl font-medium mb-8 text-center">
+          {/* <h3 className="text-xl md:text-2xl font-medium mb-8 text-center">
             Besoin de matériel pour organiser un événement réussi ?
-          </h3>
+          </h3> */}
           <p className="text-center mb-12 max-w-3xl mx-auto">
-            ESIL Events met à votre disposition une large gamme d'équipements professionnels, disponibles en location avec ou sans installation
+            ESIL Events met à votre disposition une large gamme d'équipements professionnels, disponibles en location avec ou sans installation, pour tous vos événements !
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -84,6 +84,9 @@ const HomePage: React.FC = () => {
               />
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-4">MOBILIER & DECO</h3>
+                <p className="text-sm mb-4">
+                  Offrez à vos invités une ambiance unique avec notre sélection de mobilier et de décoration en location : tables, chaises, mobiliers lumineux, décorations thématiques (vintage, fête foraine, super-héros...). Créez un cadre mémorable pour vos événements !
+                </p>
                 <Link to="/products/mobilier" className="flex items-center text-black font-medium hover:underline">
                   Découvrir <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
@@ -99,6 +102,17 @@ const HomePage: React.FC = () => {
               />
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-4">JEUX</h3>
+                <p className="text-sm mb-4">
+                  Offrez à vos invités une expérience
+                  ludique inoubliable avec notre gamme
+                  de jeux en location : bornes d'arcade,
+                  baby-foot, flippers, air hockey, coups de
+                  poing, paniers de basket et même des
+                  machines à pinces pour distribuer des
+                  cadeaux. Des animations fun et
+                  interactives qui feront le succès de votre
+                  événement !                
+                </p>
                 <Link to="/products/jeux" className="flex items-center text-black font-medium hover:underline">
                   Découvrir <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
@@ -114,6 +128,15 @@ const HomePage: React.FC = () => {
               />
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-4">SIGNALETIQUE</h3>
+                <p className="text-sm mb-4">
+                  Facilitez l'orientation de vos invités avec
+                  notre matériel de signalétique :
+                  panneaux directionnels, totems, stands,
+                  et banderoles sur mesure. Idéal pour
+                  vos salons, lancements de produits et
+                  autres événements professionnels, pour
+                  une communication claire et impactante.                
+                </p>
                 <Link to="/products/signaletique" className="flex items-center text-black font-medium hover:underline">
                   Découvrir <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
@@ -129,6 +152,15 @@ const HomePage: React.FC = () => {
               />
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-4">TECHNIQUE</h3>
+                <p className="text-sm mb-4">
+                  Mettez en lumière vos événements avec
+                  notre matériel technique : éclairage,
+                  sonorisation, vidéo et scènes. Parfait
+                  pour des prises de parole, conférences,
+                  concerts ou soirées dansantes, nous
+                  vous fournissons tout le nécessaire pour
+                  garantir le succès de vos animations.                
+                </p>
                 <Link to="/products/technique" className="flex items-center text-black font-medium hover:underline">
                   Découvrir <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
@@ -139,7 +171,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Contact CTA Section */}
-      <section className="section bg-white">
+      <section className="section bg-black">
         <div className="container-custom">
           <div className="bg-black text-white rounded-xl p-8 md:p-12 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
@@ -148,9 +180,9 @@ const HomePage: React.FC = () => {
             <p className="mb-8 max-w-3xl mx-auto">
               Chaque événement est unique et mérite une exécution parfaite. Chez ESIL Events, nous transformons vos idées en expériences marquantes, en combinant créativité, expertise technique et gestion rigoureuse.
               <br /><br />
-              Vous avez un projet en tête ? Discutons-en et créons ensemble un événement à la hauteur de vos ambitions.
+              <span className="font-bold text-purple-600">Vous avez un projet en tête ? Discutons-en et créons ensemble un événement à la hauteur de vos ambitions.</span>
             </p>
-            <Link to="/contact" className="btn-primary inline-block">
+            <Link to="/contact" className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors inline-block">
               Discuter de mon événement
             </Link>
           </div>
@@ -169,40 +201,112 @@ const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Option 1 */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-bold mb-4">Retrait sur place</h3>
-              <p className="text-sm text-green-600 font-bold mb-4">Gratuit</p>
-              <p>
-                Récupérez votre matériel directement dans notre entrepôt à Mantes-la-Ville.
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-black text-white p-4 flex items-center justify-center">
+              <Package className="w-8 h-8" />
+            </div>
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-2">Retrait sur place</h2>
+              <p className="text-green-600 font-bold mb-4">Gratuit</p>
+              <p className="mb-4">
+                Récupérez votre matériel directement dans notre entrepôt à Mantes-la-Ville. Du lundi au vendredi de 9h30 à 12h et 14h15 à 16h.
+              </p>
+              <ul className="space-y-2 mb-6">
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Économique</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Flexible sur les horaires</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Vérification du matériel sur place</span>
+                </li>
+              </ul>
+              <p className="text-sm text-gray-500">
+                Prévoir un véhicule adapté au volume du matériel loué.
               </p>
             </div>
+          </div>
 
             {/* Option 2 */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-bold mb-4">Livraison Économique</h3>
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-black text-white p-4 flex items-center justify-center">
+              <Truck className="w-8 h-8" />
+            </div>
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-2">Livraison Économique</h2>
+              <p className="text-gray-600 font-bold mb-4">Sur devis</p>
               <p className="mb-4">
                 Nous livrons sur site et vous participez au déchargement si nécessaire. Pensez à vérifier les accès (escaliers, ascenseurs, largeur des portes…).
               </p>
-            </div>
-
-            {/* Option 3 */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-bold mb-4">Formule Premium</h3>
-              <p className="mb-4">
-                Service clé en main : livraison, installation et démontage pris en charge par nos techniciens événementiels 7j/7 et 24h/24, partout en France. Idéal pour les événements nécessitant une régie technique ou une installation complexe.
+              <ul className="space-y-2 mb-6">
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Livraison à l'adresse de votre choix</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Solution intermédiaire économique</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Idéal pour les petites quantités</span>
+                </li>
+              </ul>
+              <p className="text-sm text-gray-500">
+                Tarif variable selon la distance et le volume.
               </p>
             </div>
+          </div>
+
+            {/* Option 3 */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-black text-white p-4 flex items-center justify-center">
+              <Truck className="w-8 h-8" />
+            </div>
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-2">Formule Premium</h2>
+              <p className="text-gray-600 font-bold mb-4">Sur devis</p>
+              <p className="mb-4">
+                Service clé en main : livraison, installation et démontage pris en charge par nos techniciens événementiels 7j/7 et 24h/24, partout en France.
+              </p>
+              <ul className="space-y-2 mb-6">
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Installation complète par nos techniciens</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Démontage et récupération inclus</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Assistance technique pendant l'événement</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Idéal pour les installations complexes</span>
+                </li>
+              </ul>
+              <p className="text-sm text-gray-500">
+                Des frais supplémentaires peuvent s'appliquer pour les interventions de nuit, le week-end ou les longues distances.
+              </p>
+            </div>
+          </div>
           </div>
 
           <p className="mt-8 text-center text-sm">
             Des frais supplémentaires peuvent s'appliquer pour les interventions de nuit, le week-end ou les longues distances.
           </p>
 
-          <div className="text-center mt-8">
+          {/* <div className="text-center mt-8">
             <Link to="/delivery" className="btn-secondary inline-block">
               En savoir plus
             </Link>
-          </div>
+          </div> */}
         </div>
       </section>
     </div>

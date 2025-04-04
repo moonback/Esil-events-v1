@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Filter, ChevronDown } from 'lucide-react';
-import { getProductsByCategory, getProductsBySubCategory } from '../services/productService';
+import { getAllProducts, getProductsByCategory, getProductsBySubCategory } from '../services/productService';
 import { Category, getAllCategories } from '../services/categoryService';
 
 interface Product {
@@ -42,17 +42,19 @@ const ProductListPage: React.FC = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      if (!category) return;
-      
       try {
         setLoading(true);
         setError(null);
         
         let productsData;
-        if (subcategory) {
-          productsData = await getProductsBySubCategory(category, subcategory);
+        if (category) {
+          if (subcategory) {
+            productsData = await getProductsBySubCategory(category, subcategory);
+          } else {
+            productsData = await getProductsByCategory(category);
+          }
         } else {
-          productsData = await getProductsByCategory(category);
+          productsData = await getAllProducts(); // Add this case to fetch all products
         }
         
         setProducts(productsData);
@@ -124,29 +126,8 @@ const ProductListPage: React.FC = () => {
   const displayedProducts = sortProducts(filterProducts(products));
 
   return (
-    <div className="pt-24 pb-16 px-4 bg-gray-50">
+    <div className="pt-44 pb-16 px-4 bg-gray-50">
       <div className="container-custom mx-auto">
-        {/* Categories Section */}
-        {!category && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Nos catégories</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {categories.map((cat) => (
-                <Link 
-                  key={cat.id} 
-                  to={`/products/${cat.slug}`}
-                  className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-all duration-300 flex flex-col items-center hover:-translate-y-1"
-                >
-                  <div className="w-16 h-16 bg-gray-100 rounded-full mb-4 flex items-center justify-center">
-                    {/* Placeholder for category icon */}
-                    <span className="text-xl">{cat.name.charAt(0)}</span>
-                  </div>
-                  <h3 className="text-lg font-medium text-center">{cat.name}</h3>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
         {/* Breadcrumb */}
         <div className="mb-8">
           <nav className="flex" aria-label="Breadcrumb">
@@ -175,6 +156,28 @@ const ProductListPage: React.FC = () => {
             </ol>
           </nav>
         </div>
+        {/* Categories Section */}
+        {!category && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Nos catégories</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {categories.map((cat) => (
+                <Link 
+                  key={cat.id} 
+                  to={`/products/${cat.slug}`}
+                  className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-all duration-300 flex flex-col items-center hover:-translate-y-1"
+                >
+                  <div className="w-16 h-16 bg-gray-100 rounded-full mb-4 flex items-center justify-center">
+                    {/* Placeholder for category icon */}
+                    <span className="text-xl">{cat.name.charAt(0)}</span>
+                  </div>
+                  <h3 className="text-lg font-medium text-center">{cat.name}</h3>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+        
 
         <h1 className="text-3xl font-bold mb-8">
           {subcategory 
@@ -192,21 +195,21 @@ const ProductListPage: React.FC = () => {
 
         {/* Filters and Sorting */}
         <div className="mb-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
             <button 
               onClick={toggleFilter}
-              className="flex items-center text-black mb-4 md:mb-0"
+              className="flex items-center text-black hover:text-gray-700 transition-colors duration-200 bg-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md"
             >
               <Filter className="mr-2 w-5 h-5" />
               Filtres
-              <ChevronDown className={`ml-1 w-4 h-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
             </button>
             
             <div className="w-full md:w-auto">
               <select 
                 value={sortBy}
                 onChange={handleSortChange}
-                className="w-full md:w-auto p-2 border border-gray-300 rounded-md"
+                className="w-full md:w-auto p-2 border border-gray-300 rounded-lg bg-white shadow-sm hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
               >
                 <option value="name-asc">Nom (A-Z)</option>
                 <option value="name-desc">Nom (Z-A)</option>
@@ -218,28 +221,32 @@ const ProductListPage: React.FC = () => {
           
           {/* Filter Panel */}
           {isFilterOpen && (
-            <div className="bg-gray-50 p-4 rounded-md mb-4">
-              <h3 className="font-medium mb-3">Fourchette de prix</h3>
-              <div className="flex items-center mb-4">
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="1000" 
-                  value={priceRange[0]} 
-                  onChange={(e) => handlePriceRangeChange(0, parseInt(e.target.value))}
-                  className="w-full"
-                />
-                <span className="ml-2 min-w-[80px]">{priceRange[0]}€ - {priceRange[1]}€</span>
-              </div>
-              <div className="flex items-center">
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="1000" 
-                  value={priceRange[1]} 
-                  onChange={(e) => handlePriceRangeChange(1, parseInt(e.target.value))}
-                  className="w-full"
-                />
+            <div className="bg-white p-6 rounded-lg shadow-md mb-4 transition-all duration-300 ease-in-out">
+              <h3 className="font-semibold text-lg mb-4">Fourchette de prix</h3>
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="1000" 
+                    value={priceRange[0]} 
+                    onChange={(e) => handlePriceRangeChange(0, parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  />
+                  <span className="text-sm font-medium bg-gray-100 px-3 py-1 rounded-md min-w-[100px] text-center">
+                    {priceRange[0]}€ - {priceRange[1]}€
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="1000" 
+                    value={priceRange[1]} 
+                    onChange={(e) => handlePriceRangeChange(1, parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -249,41 +256,63 @@ const ProductListPage: React.FC = () => {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
-              <div key={index} className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300">
-                <div className="h-48 bg-gray-200 animate-pulse"></div>
-                <div className="p-4">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2 mb-4"></div>
-                  <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+              <div 
+                key={index} 
+                className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300"
+                aria-busy="true"
+                aria-label="Loading product..."
+              >
+                <div className="aspect-square bg-gray-200 animate-pulse"></div>
+                <div className="p-4 space-y-3">
+                  <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-2/3"></div>
+                  <div className="h-5 bg-gray-200 rounded animate-pulse w-1/2"></div>
                 </div>
               </div>
             ))}
           </div>
         ) : displayedProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            role="list"
+            aria-label="Products grid"
+          >
             {displayedProducts.map((product) => (
               <Link 
                 key={product.id} 
                 to={`/product/${product.id}`}
-                className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300"
+                className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                role="listitem"
               >
-                <img 
-                  src={product.images[0]} 
-                  alt={product.name}
-                  className="w-full h-48 object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
-                />
-                <div className="p-4">
-                  <h3 className="font-bold mb-1">{product.name}</h3>
-                  <p className="text-sm text-gray-500 mb-3">Réf: {product.reference}</p>
-                  <p className="font-bold">{product.priceHT.toFixed(2)}€ HT / jour</p>
+                <div className="aspect-square relative">
+                  <img 
+                    src={product.images[0]} 
+                    alt={product.name}
+                    className="w-full h-full object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                    }}
+                  />
+                </div>
+                <div className="p-4 space-y-2">
+                  <h3 className="font-bold text-lg line-clamp-2">{product.name}</h3>
+                  <p className="text-sm text-gray-500">Réf: {product.reference}</p>
+                  <p className="font-bold text-lg text-blue-600">{product.priceHT.toFixed(2)}€ HT / jour</p>
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-medium mb-2">Aucun produit trouvé</h3>
-            <p className="text-gray-500">Essayez de modifier vos filtres ou revenez plus tard.</p>
+          <div className="text-center py-12 bg-gray-50 rounded-lg">
+            <h3 className="text-xl font-medium mb-3">Aucun produit trouvé</h3>
+            <p className="text-gray-600">Essayez de modifier vos filtres ou revenez plus tard.</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Rafraîchir la page
+            </button>
           </div>
         )}
       </div>
