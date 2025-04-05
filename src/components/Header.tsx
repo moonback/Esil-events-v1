@@ -167,7 +167,7 @@ const Header: React.FC = () => {
                       onMouseLeave={() => setShowMegaMenu(false)}
                       className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 flex items-center space-x-1"
                     >
-                      <span>Nos produits</span>
+                      <span>Location matériel</span>
                       <div className={`w-1 h-1 rounded-full bg-primary-500 dark:bg-primary-400 transition-all duration-300 ${showMegaMenu ? 'opacity-100' : 'opacity-0'}`} />
                     </button>
                     {showMegaMenu && (
