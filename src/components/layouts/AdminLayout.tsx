@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Package, FileText, Users, Grid, LayoutDashboard, Settings, Bell, Music } from 'lucide-react';
+import { Package, FileText, Users, Grid, LayoutDashboard, Settings, Bell, Music, Tag } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 interface AdminLayoutProps {
@@ -27,20 +27,25 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       icon: <Grid className="w-5 h-5" />,
       path: '/admin/categories'
     },
-    // {
-    //   title: 'Pages',
-    //   icon: <FileText className="w-5 h-5" />,
-    //   path: '/admin/pages'
-    // },
-    // {
-    //   title: 'Clients',
-    //   icon: <Users className="w-5 h-5" />,
-    //   path: '/admin/customers'
-    // },
+    {
+      title: 'Pages',
+      icon: <FileText className="w-5 h-5" />,
+      path: '/admin/pages'
+    },
+    {
+      title: 'Clients',
+      icon: <Users className="w-5 h-5" />,
+      path: '/admin/customers'
+    },
     {
       title: 'Artistes',
       icon: <Music className="w-5 h-5" />,
       path: '/admin/artists'
+    },
+    {
+      title: 'Catégories d\'artistes',
+      icon: <Tag className="w-5 h-5" />,
+      path: '/admin/artist-categories'
     }
   ];
 

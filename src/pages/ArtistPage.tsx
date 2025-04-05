@@ -3,34 +3,41 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Music, Mic, Radio, Theater, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getAllArtists, Artist } from '../services/artistService';
+import { getAllArtistCategories, ArtistCategory } from '../services/artistCategoryService';
 
 const ArtistPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [artists, setArtists] = useState<Artist[]>([]);
+  const [categories, setCategories] = useState<ArtistCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchArtists = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getAllArtists();
-        setArtists(data);
+        const [artistsData, categoriesData] = await Promise.all([
+          getAllArtists(),
+          getAllArtistCategories()
+        ]);
+        setArtists(artistsData);
+        setCategories(categoriesData);
       } catch (err) {
-        console.error('Error fetching artists:', err);
-        setError('Impossible de charger les artistes. Veuillez réessayer plus tard.');
+        console.error('Error fetching data:', err);
+        setError('Impossible de charger les données. Veuillez réessayer plus tard.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchArtists();
+    fetchData();
   }, []);
 
   const filteredArtists = activeCategory === 'all' 
     ? artists 
     : artists.filter(artist => artist.category === activeCategory);
 
+  // Update the getCategoryIcon function to handle all categories
   const getCategoryIcon = (category: string) => {
     switch(category) {
       case 'Chanteurs': return <Mic className="w-5 h-5" />;
@@ -88,6 +95,15 @@ const ArtistPage: React.FC = () => {
     );
   }
 
+  // Default categories
+  const defaultCategories = ['Chanteurs', 'Danseurs', 'DJ', 'Spectacles', 'Animateurs'];
+  
+  // Get all unique categories from artists and categories table
+  const allCategories = [...new Set([
+    ...defaultCategories,
+    ...categories.map(cat => cat.name)
+  ])];
+
   return (
     <div className="pt-28 pb-20 bg-white dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4">
@@ -117,7 +133,7 @@ const ArtistPage: React.FC = () => {
           >
             Tous
           </button>
-          {['Chanteurs', 'Danseurs', 'DJ', 'Spectacles', 'Animateurs'].map((category) => (
+          {allCategories.map((category) => (
             <button
               key={category}
               onClick={() => setActiveCategory(category)}

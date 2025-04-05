@@ -9,6 +9,7 @@ import {
   deleteArtist,
   Artist
 } from '../../services/artistService';
+import { getAllArtistCategories, ArtistCategory } from '../../services/artistCategoryService';
 
 const AdminArtists: React.FC = () => {
   const [artists, setArtists] = useState<Artist[]>([]);
@@ -18,30 +19,36 @@ const AdminArtists: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingArtist, setEditingArtist] = useState<Artist | null>(null);
   // Initialize form state with empty strings for all fields to ensure inputs are controlled
+  // Update the initial form state to use one of the default categories
   const [formData, setFormData] = useState({
     name: '',
-    category: 'Chanteurs',
-    image_url: '', // Using snake_case to match database column
+    category: 'Chanteurs', // Default category
+    image_url: '',
     description: ''
   });
+  const [categories, setCategories] = useState<ArtistCategory[]>([]);
 
-  const loadArtists = async () => {
-    try {
-      setLoading(true);
-      const data = await getAllArtists();
-      setArtists(data);
-    } catch (err) {
-      setError('Erreur lors du chargement des artistes');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    loadArtists();
-  }, []);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [artistsData, categoriesData] = await Promise.all([
+          getAllArtists(),
+          getAllArtistCategories()
+        ]);
+        setArtists(artistsData);
+        setCategories(categoriesData);
+      } catch (err) {
+        setError('Erreur lors du chargement des données');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchData();
+  }, []);
   const handleAddArtist = () => {
     setFormData({
       name: '',
@@ -163,6 +170,7 @@ const AdminArtists: React.FC = () => {
                 />
               </div>
 
+              // In the form section, remove the duplicate category dropdown and keep only one:
               <div>
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Catégorie
@@ -170,20 +178,29 @@ const AdminArtists: React.FC = () => {
                 <select
                   id="category"
                   name="category"
-                  value={formData.category}
+                  value={formData.category || ''}
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
+                  {/* Default categories */}
                   <option value="Chanteurs">Chanteurs</option>
                   <option value="Danseurs">Danseurs</option>
                   <option value="DJ">DJ</option>
                   <option value="Spectacles">Spectacles</option>
                   <option value="Animateurs">Animateurs</option>
+                  
+                  {/* Dynamic categories from database (excluding default ones to avoid duplicates) */}
+                  {categories
+                    .filter(category => !['Chanteurs', 'Danseurs', 'DJ', 'Spectacles', 'Animateurs'].includes(category.name))
+                    .map(category => (
+                      <option key={category.id} value={category.name}>
+                        {category.name}
+                      </option>
+                    ))
+                  }
                 </select>
               </div>
-
-              // In the form section:
               <div>
                 <label htmlFor="image_url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   URL de l'image
