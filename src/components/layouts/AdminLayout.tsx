@@ -60,7 +60,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         to={item.path}
         className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
           isActive
-            ? 'bg-blue-600 text-white shadow-md'
+            ? 'bg-violet-600 text-white shadow-md'
             : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
         }`}
       >
