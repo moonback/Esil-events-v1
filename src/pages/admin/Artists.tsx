@@ -119,7 +119,7 @@ const AdminArtists: React.FC = () => {
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="p-6 pt-24 space-y-6">
+      <div className="space-y-6 mt-12">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Gestion des Artistes</h1>
           <button
