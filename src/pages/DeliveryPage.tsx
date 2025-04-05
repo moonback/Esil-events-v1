@@ -361,13 +361,13 @@ solutions pour une gestion simplifiée de votre matériel événementiel.       
             >
               Demander un devis
             </Link>
-            <a 
+            {/* <a 
               href="tel:+33123456789" 
               className="border-2 border-white text-white hover:bg-white hover:text-violet-600 font-bold py-3 px-8 rounded-lg transition-colors flex items-center justify-center"
             >
               <Phone className="w-5 h-5 mr-2" />
               Nous appeler
-            </a>
+            </a> */}
           </div>
         </div>
       </div>
