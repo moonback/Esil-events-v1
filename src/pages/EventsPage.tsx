@@ -378,11 +378,11 @@ export const EventsPage: React.FC = () => {
           variants={fadeInUp}
         >
           <motion.div 
-            className="bg-gradient-to-r from-violet-700 to-violet-900 text-white p-12 rounded-xl shadow-2xl relative overflow-hidden"
+            className="bg-gradient-to-r from-black to-black text-white p-12 rounded-xl shadow-2xl relative overflow-hidden"
             whileHover={{ boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
             transition={{ duration: 0.5 }}
           >
-            <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0 opacity-0">
               <div className="absolute inset-0 bg-pattern"></div>
               <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
                 <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
