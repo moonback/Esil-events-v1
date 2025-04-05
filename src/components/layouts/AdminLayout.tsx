@@ -27,16 +27,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       icon: <Grid className="w-5 h-5" />,
       path: '/admin/categories'
     },
-    {
-      title: 'Pages',
-      icon: <FileText className="w-5 h-5" />,
-      path: '/admin/pages'
-    },
-    {
-      title: 'Clients',
-      icon: <Users className="w-5 h-5" />,
-      path: '/admin/customers'
-    },
+    // {
+    //   title: 'Pages',
+    //   icon: <FileText className="w-5 h-5" />,
+    //   path: '/admin/pages'
+    // },
+    // {
+    //   title: 'Clients',
+    //   icon: <Users className="w-5 h-5" />,
+    //   path: '/admin/customers'
+    // },
     {
       title: 'Artistes',
       icon: <Music className="w-5 h-5" />,
