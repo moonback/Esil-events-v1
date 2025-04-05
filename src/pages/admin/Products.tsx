@@ -86,7 +86,7 @@ const AdminProducts: React.FC = () => {
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="space-y-6">
+      <div className="space-y-6 mt-12">
         
 
         {error && (
