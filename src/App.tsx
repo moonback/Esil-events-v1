@@ -25,6 +25,7 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import ArtistPage from './pages/ArtistPage';
 import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
+import AdminArtists from './pages/admin/Artists';
 
 const App: React.FC = () => {
   return (
@@ -64,6 +65,7 @@ const App: React.FC = () => {
           <Route path="/admin/categories" element={<AdminRoute><AdminCategories /></AdminRoute>} />
           <Route path="/admin/pages" element={<AdminRoute><AdminPages /></AdminRoute>} />
           <Route path="/admin/customers" element={<AdminRoute><AdminCustomers /></AdminRoute>} />
+          <Route path="/admin/artists" element={<AdminRoute><AdminArtists /></AdminRoute>} />
 
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />
