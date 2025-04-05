@@ -73,7 +73,7 @@ const ArtistPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen flex items-center justify-center">
+      <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen flex items-center justify-center w-full">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -81,7 +81,7 @@ const ArtistPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen flex items-center justify-center">
+      <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen flex items-center justify-center w-full">
         <div className="text-center">
           <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
           <button 
@@ -105,8 +105,8 @@ const ArtistPage: React.FC = () => {
   ])];
 
   return (
-    <div className="pt-28 pb-20 bg-white dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4">
+    <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div 
           className="text-center mb-12"
           initial="hidden"
@@ -158,33 +158,36 @@ const ArtistPage: React.FC = () => {
           {filteredArtists.map((artist) => (
             <motion.div 
               key={artist.id} 
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
               variants={fadeInUp}
               whileHover={{ y: -5 }}
             >
-              <div className="relative">
+              <div className="relative h-64">
                 <img 
-                  src={artist.image_url} // Changed from imageUrl to image_url
+                  src={artist.image_url}
                   alt={artist.name} 
-                  className="w-full h-56 object-cover"
+                  className="w-full h-full object-cover"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300/blue/white?text=Image+Non+Disponible';
                   }}
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 <div className="absolute top-4 right-4">
-                  <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300">
+                  <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-blue-100/80 text-blue-600 backdrop-blur-sm">
                     {getCategoryIcon(artist.category)}
                     <span className="ml-1">{artist.category}</span>
                   </span>
                 </div>
+                <div className="absolute bottom-0 left-0 p-4">
+                  <h2 className="text-xl font-bold text-white">{artist.name}</h2>
+                </div>
               </div>
               <div className="p-6">
-                <h2 className="text-xl font-bold mb-3 text-gray-800 dark:text-white">{artist.name}</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">{artist.description}</p>
+                <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">{artist.description}</p>
                 
                 <Link 
                   to={`/artist/${encodeURIComponent(artist.name)}`} 
-                  className="flex items-center text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Voir plus <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
