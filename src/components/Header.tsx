@@ -183,7 +183,7 @@ const Header: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <Link to="/artists" className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors duration-200">
+                  <Link to="/artists" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
                     Artistes
                   </Link>
                   <Link to="/about" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
