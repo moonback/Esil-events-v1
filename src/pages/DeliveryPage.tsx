@@ -370,7 +370,104 @@ solutions pour une gestion simplifiée de votre matériel événementiel.       
             </a> */}
           </div>
         </div>
-      </div>
+        
+
+        {/* Focus on Delivery Modes */}
+        <div className="mb-20 mt-12">
+          <h2 className="text-3xl font-bold mb-8 text-center">Focus sur nos 3 modes de livraison</h2>
+          
+          {/* Pickup Option */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold mb-4 text-violet-600">Retrait sur Place : Une solution pratique et économique</h3>
+            <p className="mb-4">
+              La formule Retrait sur place est idéale si vous avez la possibilité de récupérer votre matériel
+              directement à notre entrepôt de Mantes-la-Ville. Cette option est non seulement gratuite,
+              mais elle vous offre également une grande flexibilité, puisque vous êtes en charge de
+              l'acheminement et de l'installation de votre matériel. Vous pourrez ainsi vérifier tout le
+              matériel en amont, et vous avez la liberté de l'emporter à votre rythme.
+            </p>
+            <p>
+              Cependant, il est important de noter que cette solution nécessite un véhicule adapté pour
+              transporter le matériel. En fonction du volume de votre commande, nous vous conseillons de
+              choisir un véhicule suffisamment spacieux pour éviter toute contrainte lors du transport. Si
+              vous avez des doutes sur la capacité de votre véhicule, n'hésitez pas à nous consulter, nous
+              serons heureux de vous guider.
+            </p>
+          </div>
+
+          {/* Economic Delivery */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold mb-4 text-violet-600">Livraison Économique : Une option flexible et accessible</h3>
+            <p className="mb-4">
+              Notre formule de Livraison Économique est une solution pratique et abordable pour les
+              événements de taille modeste. Nous assurons la livraison de votre matériel directement sur le
+              site de votre événement. Cette option vous permet de bénéficier d'un service de qualité à un
+              tarif avantageux, tout en restant flexible sur les horaires.
+            </p>
+            <p className="mb-4">
+              Lors de la livraison, il vous sera demandé de participer au déchargement si nécessaire. Il est
+              essentiel de vérifier les conditions d'accès (escaliers, ascenseurs, portes larges, etc.) pour que
+              nous puissions adapter nos méthodes de livraison. En fonction des contraintes spécifiques de
+              votre lieu, nous pouvons vous conseiller sur les meilleures pratiques pour garantir une
+              livraison rapide et sécurisée.
+            </p>
+            <p>
+              Si votre événement se situe à une distance importante de notre entrepôt ou si des contraintes
+              d'accès sont présentes, des frais supplémentaires peuvent être appliqués. Mais avec un peu de
+              préparation, nous pouvons offrir un service sur mesure qui répondra parfaitement à vos
+              besoins.
+            </p>
+          </div>
+
+          {/* Premium Formula */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold mb-4 text-violet-600">Formule Premium : Le service clé en main, partout, à tout moment</h3>
+            <p className="mb-4">
+              Pour ceux qui souhaitent un service complet et sans stress, notre formule Premium est la
+              solution idéale. Disponible 7j/7 et 24h/24, ce service clé en main inclut la livraison,
+              l'installation, et le démontage du matériel par nos techniciens spécialisés. Nous prenons en
+              charge chaque étape de la logistique événementielle pour que vous puissiez vous concentrer
+              sur l'essentiel : la réussite de votre événement.
+            </p>
+            <p className="mb-4">
+              Cette formule est particulièrement recommandée pour les installations complexes qui
+              nécessitent un savoir-faire technique ou pour les événements où chaque détail doit être
+              parfaitement maîtrisé. Nos équipes s'occupent de tout, y compris de l'assistance technique
+              pendant l'événement pour résoudre toute éventualité rapidement. Si votre événement se
+              déroule dans un délai particulièrement court ou dans des zones éloignées, notre équipe
+              s'adapte et garantit une prestation à la hauteur de vos attentes.
+            </p>
+            <p>
+              Cependant, il est important de noter que cette formule inclut un tarif variable en fonction de
+              plusieurs facteurs, notamment les heures d'intervention (nuit, week-end) et la distance à
+              parcourir. Nous vous fournissons toujours un devis personnalisé avant toute intervention.
+            </p>
+          </div>
+
+          {/* Access Verification */}
+          <div>
+            <h2 className="text-3xl font-bold mb-6">Vérification des Accès : Garantissez une livraison sans accroc</h2>
+            <p className="mb-4">
+              Afin de garantir une livraison, il est impératif de vérifier les accès au lieu de l'événement,
+              surtout si des marches, escaliers, ascenseurs étroits ou des portes étroites sont présents.
+              Ces contraintes peuvent rendre le transport et l'installation du matériel plus complexes. C'est
+              pourquoi nous vous encourageons à bien nous renseigner sur ces éléments lors de votre
+              demande.
+            </p>
+            <p className="mb-4">
+              Certains de nos jeux ou équipements peuvent nécessiter un espace de manœuvre plus large,
+              ou des équipements spécifiques (comme des chariots élévateurs ou des rampes). Une
+              vérification des dimensions des portes et des accès doit être effectuée pour éviter tout
+              problème le jour J. En cas de doute, nous sommes à votre disposition pour effectuer une
+              évaluation à distance ou discuter des solutions possibles.
+            </p>
+            <p>
+              Nous vous conseillons également de vérifier les zones de stationnement à proximité pour
+              permettre un déchargement rapide. En cas de difficulté d'accès, nous pourrons organiser des
+              équipements ou des moyens alternatifs pour garantir une installation sans retard.
+            </p>
+          </div>
+        </div>      </div>
     </div>
   );
 };
