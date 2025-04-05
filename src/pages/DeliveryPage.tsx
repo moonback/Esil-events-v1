@@ -257,9 +257,9 @@ solutions pour une gestion simplifiée de votre matériel événementiel.       
         </div>
       </div>
     </div>
-    <div className="relative h-[500px]">
+    <div className="relative h-[800px]">
       <img 
-        src="/images/event-setup.jpg" 
+        src="/images/event-delivery.jpg" 
         alt="Installation événementielle professionnelle" 
         className="w-full h-full object-cover rounded-lg shadow-lg"
       />
@@ -443,6 +443,49 @@ solutions pour une gestion simplifiée de votre matériel événementiel.       
               parcourir. Nous vous fournissons toujours un devis personnalisé avant toute intervention.
             </p>
           </div>
+{/* Image Gallery Section */}
+<div className="mb-20">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="relative h-[400px]">
+      <img 
+        src="/images/delivery-1.jpg" 
+        alt="Service de livraison ESIL Events" 
+        className="w-full h-full object-cover rounded-lg shadow-lg"
+      />
+    </div>
+    <div className="relative h-[400px]">
+      <img 
+        src="/images/delivery-2.jpg" 
+        alt="Installation professionnelle ESIL Events" 
+        className="w-full h-full object-cover rounded-lg shadow-lg"
+      />
+    </div>
+  </div>
+</div>
+
+{/* Access Verification */}
+<div>
+  <h2 className="text-3xl font-bold mb-6">Vérification des Accès : Garantissez une livraison sans accroc</h2>
+  <p className="mb-4">
+    Afin de garantir une livraison, il est impératif de vérifier les accès au lieu de l'événement,
+    surtout si des marches, escaliers, ascenseurs étroits ou des portes étroites sont présents.
+    Ces contraintes peuvent rendre le transport et l'installation du matériel plus complexes. C'est
+    pourquoi nous vous encourageons à bien nous renseigner sur ces éléments lors de votre
+    demande.
+  </p>
+  <p className="mb-4">
+    Certains de nos jeux ou équipements peuvent nécessiter un espace de manœuvre plus large,
+    ou des équipements spécifiques (comme des chariots élévateurs ou des rampes). Une
+    vérification des dimensions des portes et des accès doit être effectuée pour éviter tout
+    problème le jour J. En cas de doute, nous sommes à votre disposition pour effectuer une
+    évaluation à distance ou discuter des solutions possibles.
+  </p>
+  <p>
+    Nous vous conseillons également de vérifier les zones de stationnement à proximité pour
+    permettre un déchargement rapide. En cas de difficulté d'accès, nous pourrons organiser des
+    équipements ou des moyens alternatifs pour garantir une installation sans retard.
+  </p>
+</div>
 
           {/* Access Verification */}
           <div>
