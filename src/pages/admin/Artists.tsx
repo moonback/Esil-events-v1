@@ -64,21 +64,21 @@ const AdminArtists: React.FC = () => {
     setFormData({
       name: artist.name,
       category: artist.category,
-      image_url: artist.image_url || '', // Add fallback to empty string
-      description: artist.description || '' // Add fallback to empty string
+      image_url: artist.image_url || '',
+      description: artist.description || ''
     });
     setEditingArtist(artist);
     setShowForm(true);
   };
 
-  const handleDeleteArtist = async (id: string) => {
+  const handleDeleteArtist = async (name: string) => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet artiste ?')) {
       return;
     }
 
     try {
-      await deleteArtist(id);
-      setArtists(artists.filter(artist => artist.id !== id));
+      await deleteArtist(name);
+      setArtists(artists.filter(artist => artist.name !== name));
     } catch (err) {
       setError('Erreur lors de la suppression de l\'artiste');
       console.error(err);
@@ -90,9 +90,9 @@ const AdminArtists: React.FC = () => {
     
     try {
       if (editingArtist) {
-        await updateArtist(editingArtist.id, formData);
+        await updateArtist(editingArtist.name, formData);
         setArtists(artists.map(artist => 
-          artist.id === editingArtist.id ? { ...artist, ...formData } : artist
+          artist.name === editingArtist.name ? { ...artist, ...formData } : artist
         ));
       } else {
         const newArtist = await createArtist(formData);
@@ -170,7 +170,6 @@ const AdminArtists: React.FC = () => {
                 />
               </div>
 
-              // In the form section, remove the duplicate category dropdown and keep only one:
               <div>
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Catégorie
@@ -284,7 +283,7 @@ const AdminArtists: React.FC = () => {
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {filteredArtists.map((artist) => (
-                      <tr key={artist.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <tr key={artist.name} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                           {artist.name}
                         </td>
@@ -314,7 +313,7 @@ const AdminArtists: React.FC = () => {
                             <Edit className="w-5 h-5" />
                           </button>
                           <button
-                            onClick={() => handleDeleteArtist(artist.id)}
+                            onClick={() => handleDeleteArtist(artist.name)}
                             className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                           >
                             <Trash2 className="w-5 h-5" />

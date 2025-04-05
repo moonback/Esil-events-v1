@@ -181,8 +181,9 @@ const ArtistPage: React.FC = () => {
               <div className="p-6">
                 <h2 className="text-xl font-bold mb-3 text-gray-800 dark:text-white">{artist.name}</h2>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">{artist.description}</p>
+                
                 <Link 
-                  to={`/artists/${artist.id}`} 
+                  to={`/artist/${encodeURIComponent(artist.name)}`} 
                   className="flex items-center text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200"
                 >
                   Voir plus <ArrowRight className="ml-2 w-4 h-4" />

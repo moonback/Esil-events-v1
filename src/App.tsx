@@ -27,6 +27,7 @@ import RegisterForm from './components/RegisterForm';
 import ArtistPage from './pages/ArtistPage';
 import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
 import AdminArtists from './pages/admin/Artists';
+import ArtistDetailPage from './pages/ArtistDetailPage';
 
 const App: React.FC = () => {
   return (
@@ -51,6 +52,7 @@ const App: React.FC = () => {
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/artists" element={<ArtistPage />} />
+            <Route path="/artist/:id" element={<ArtistDetailPage />} />
             <Route path="/agence-evenementielle" element={<EventsPage />} />
           </Route>
 

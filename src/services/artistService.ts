@@ -19,11 +19,11 @@ export const getAllArtists = async (): Promise<Artist[]> => {
   return data || [];
 };
 
-export const getArtistById = async (id: string): Promise<Artist> => {
+export const getArtistByName = async (name: string): Promise<Artist> => {
   const { data, error } = await supabase
     .from('artists')
     .select('*')
-    .eq('id', id)
+    .eq('name', name)
     .single();
 
   if (error) throw error;
@@ -41,11 +41,11 @@ export const createArtist = async (artist: Omit<Artist, 'id' | 'created_at'>): P
   return data;
 };
 
-export const updateArtist = async (id: string, artist: Partial<Artist>): Promise<Artist> => {
+export const updateArtist = async (name: string, artist: Partial<Artist>): Promise<Artist> => {
   const { data, error } = await supabase
     .from('artists')
     .update(artist)
-    .eq('id', id)
+    .eq('name', name)
     .select()
     .single();
 
@@ -53,11 +53,11 @@ export const updateArtist = async (id: string, artist: Partial<Artist>): Promise
   return data;
 };
 
-export const deleteArtist = async (id: string): Promise<void> => {
+export const deleteArtist = async (name: string): Promise<void> => {
   const { error } = await supabase
     .from('artists')
     .delete()
-    .eq('id', id);
+    .eq('name', name);
 
   if (error) throw error;
 };
