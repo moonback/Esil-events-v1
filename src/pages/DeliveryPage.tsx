@@ -18,131 +18,133 @@ const DeliveryPage: React.FC = () => {
       <div className="container-custom mx-auto">
         {/* Introduction */}
         <div className="max-w-4xl mx-auto mb-16 text-center">
-          <h2 className="text-3xl font-bold mb-6">Nos services de livraison</h2>
+          <h2 className="text-3xl font-bold mb-6">Les Solutions de livraison et d’installation de matériel événementiel chez
+          ESIL Events </h2>
           <p className="text-lg mb-6">
-            ESIL Events vous propose des solutions adaptées à chaque besoin, du retrait sur place à l'installation clé en main par nos techniciens spécialisés. Nous garantissons une logistique sans faille pour votre événement.
-          </p>
+          Chez ESIL Events, nous comprenons l'importance d'une logistique événementielle fluide et
+fiable. C'est pourquoi nous vous proposons trois formules de livraison et installation
+adaptées à vos besoins pour garantir le succès de vos événements professionnels, qu'il s'agisse
+de soirées d'entreprise, séminaires, conférences ou autres manifestations. Découvrez nos
+solutions pour une gestion simplifiée de votre matériel événementiel.          </p>
           <div className="w-20 h-1 bg-black mx-auto"></div>
         </div>
         
         {/* Delivery Options */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
           {/* Option 1 */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow">
-            <div className="bg-blue-600 text-white p-6 flex items-center">
-              <Package className="w-8 h-8 mr-4" />
-              <h2 className="text-2xl font-bold">Retrait sur place</h2>
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-black text-white p-4 flex items-center justify-center">
+              <Package className="w-8 h-8" />
             </div>
             <div className="p-6">
-              <p className="text-3xl font-bold mb-4 text-blue-600">Gratuit</p>
-              <p className="mb-6 text-gray-700">
-                Récupérez votre matériel dans notre entrepôt à Mantes-la-Ville (78)
+              <h2 className="text-2xl font-bold mb-2">Retrait sur place</h2>
+              <p className="text-green-600 font-bold mb-4">Gratuit</p>
+              <p className="mb-4">
+                Récupérez votre matériel directement dans notre entrepôt à Mantes-la-Ville. Du lundi au vendredi de 9h30 à 12h et 14h15 à 16h.
               </p>
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Économique et flexible</span>
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Économique</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Vérification du matériel avec notre équipe</span>
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Flexible sur les horaires</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Horaires adaptés à vos besoins</span>
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Vérification du matériel sur place</span>
                 </li>
               </ul>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  <strong>Prévoir :</strong> Un véhicule adapté au volume et notre équipe vous aidera au chargement
-                </p>
-              </div>
+              <p className="text-sm text-gray-500">
+                Prévoir un véhicule adapté au volume du matériel loué.
+              </p>
             </div>
           </div>
           
           {/* Option 2 */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow">
-            <div className="bg-purple-600 text-white p-6 flex items-center">
-              <Truck className="w-8 h-8 mr-4" />
-              <h2 className="text-2xl font-bold">Livraison Standard</h2>
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-black text-white p-4 flex items-center justify-center">
+              <Truck className="w-8 h-8" />
             </div>
             <div className="p-6">
-              <p className="text-3xl font-bold mb-4 text-purple-600">À partir de 50€ HT</p>
-              <p className="mb-6 text-gray-700">
-                Livraison sur site avec déchargement par nos soins
+              <h2 className="text-2xl font-bold mb-2">Livraison Économique</h2>
+              <p className="text-gray-600 font-bold mb-4">Sur devis</p>
+              <p className="mb-4">
+                Nous livrons sur site et vous participez au déchargement si nécessaire. Pensez à vérifier les accès (escaliers, ascenseurs, largeur des portes…).
               </p>
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Livraison à l'adresse de votre événement</span>
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Livraison à l'adresse de votre choix</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Déchargement par notre équipe</span>
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Solution intermédiaire économique</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Solution idéale pour les locations simples</span>
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Idéal pour les petites quantités</span>
                 </li>
               </ul>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <p className="text-sm text-purple-800">
-                  <strong>Important :</strong> Vérifiez les accès (escaliers, ascenseurs, largeur des portes)
-                </p>
-              </div>
+              <p className="text-sm text-gray-500">
+                Tarif variable selon la distance et le volume.
+              </p>
             </div>
           </div>
           
           {/* Option 3 */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow">
-            <div className="bg-green-600 text-white p-6 flex items-center">
-              <Settings className="w-8 h-8 mr-4" />
-              <h2 className="text-2xl font-bold">Formule Premium</h2>
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-black text-white p-4 flex items-center justify-center">
+              <Truck className="w-8 h-8" />
             </div>
             <div className="p-6">
-              <p className="text-3xl font-bold mb-4 text-green-600">Sur devis</p>
-              <p className="mb-6 text-gray-700">
-                Service clé en main avec installation professionnelle
+              <h2 className="text-2xl font-bold mb-2">Formule Premium</h2>
+              <p className="text-gray-600 font-bold mb-4">Sur devis</p>
+              <p className="mb-4">
+                Service clé en main : livraison, installation et démontage pris en charge par nos techniciens événementiels 7j/7 et 24h/24, partout en France.
               </p>
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Installation et démontage par nos techniciens</span>
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Installation complète par nos techniciens</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Démontage et récupération inclus</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
                   <span>Assistance technique pendant l'événement</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Solution idéale pour les événements complexes</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Disponible 7j/7 dans toute la France</span>
+                  <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
+                  <span>Idéal pour les installations complexes</span>
                 </li>
               </ul>
-              <div className="bg-green-50 p-4 rounded-lg">
-                <p className="text-sm text-green-800">
-                  <strong>Recommandé pour :</strong> les grandes installations, les événements professionnels et les lieux complexes
-                </p>
-              </div>
+              <p className="text-sm text-gray-500">
+                Des frais supplémentaires peuvent s'appliquer pour les interventions de nuit, le week-end ou les longues distances.
+              </p>
             </div>
           </div>
-        </div>
+          </div>
         
         {/* Detailed Information */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
           {/* Delivery Process */}
           <div className="bg-white p-8 rounded-xl shadow-md">
-            <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <Clock className="w-6 h-6 mr-3 text-blue-600" />
-              Processus de livraison
-            </h2>
+            <h3 className="text-2xl font-bold mb-6 flex items-center">
+              <Clock className="w-6 h-6 mr-3 text-violet-600" />
+              Nos délais de livraison : Planifiez votre événement en toute sérénité 
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Pour garantir la disponibilité du matériel et une livraison dans les meilleures conditions, nous
+              vous recommandons de réserver votre matériel selon les délais suivants :
+            </p>
             <div className="space-y-6">
               <div className="flex">
                 <div className="flex flex-col items-center mr-4">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">1</div>
+                  <div className="w-8 h-8 rounded-full bg-violet-600 text-white flex items-center justify-center font-bold">1</div>
                   <div className="w-0.5 h-full bg-gray-300 mt-2"></div>
                 </div>
                 <div>
@@ -152,7 +154,7 @@ const DeliveryPage: React.FC = () => {
               </div>
               <div className="flex">
                 <div className="flex flex-col items-center mr-4">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">2</div>
+                  <div className="w-8 h-8 rounded-full bg-violet-600 text-white flex items-center justify-center font-bold">2</div>
                   <div className="w-0.5 h-full bg-gray-300 mt-2"></div>
                 </div>
                 <div>
@@ -162,7 +164,7 @@ const DeliveryPage: React.FC = () => {
               </div>
               <div className="flex">
                 <div className="flex flex-col items-center mr-4">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">3</div>
+                  <div className="w-8 h-8 rounded-full bg-violet-600 text-white flex items-center justify-center font-bold">3</div>
                 </div>
                 <div>
                   <h3 className="font-bold mb-2">Livraison/Installation</h3>
@@ -209,9 +211,83 @@ const DeliveryPage: React.FC = () => {
             </div>
           </div>
         </div>
-        
+{/* Why Choose Us Section */}
+<div className="mb-20">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+    <div className="p-8">
+      <h2 className="text-3xl font-bold mb-8">
+        Pourquoi ESIL Events est le choix idéal pour vos événements ?
+      </h2>
+      <div className="space-y-6">
+        <div className="flex items-start">
+          <Settings className="w-6 h-6 text-violet-600 mr-4 mt-1 flex-shrink-0" />
+          <div>
+            <h3 className="font-bold mb-2">Flexibilité</h3>
+            <p className="text-gray-600">
+              Que vous choisissiez un service économique ou premium, nous adaptons notre prestation à vos besoins.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-start">
+          <CheckCircle className="w-6 h-6 text-violet-600 mr-4 mt-1 flex-shrink-0" />
+          <div>
+            <h3 className="font-bold mb-2">Professionnalisme</h3>
+            <p className="text-gray-600">
+              Nos équipes de techniciens événementiels sont expérimentées et assurent un service de qualité, avec le sourire :)
+            </p>
+          </div>
+        </div>
+        <div className="flex items-start">
+          <MapPin className="w-6 h-6 text-violet-600 mr-4 mt-1 flex-shrink-0" />
+          <div>
+            <h3 className="font-bold mb-2">Couverture Nationale</h3>
+            <p className="text-gray-600">
+              Nos services sont disponibles partout en France, même dans les zones les plus éloignées.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-start">
+          <Package className="w-6 h-6 text-violet-600 mr-4 mt-1 flex-shrink-0" />
+          <div>
+            <h3 className="font-bold mb-2">Service clé en main</h3>
+            <p className="text-gray-600">
+              Profitez de nos solutions tout-en-un, de la livraison à l'installation, en passant par le démontage.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className="relative h-[500px]">
+      <img 
+        src="/images/event-setup.jpg" 
+        alt="Installation événementielle professionnelle" 
+        className="w-full h-full object-cover rounded-lg shadow-lg"
+      />
+    </div>
+  </div>
+</div>
+{/* National Coverage Section */}
+<div className="mb-20">
+  <div className="max-w-4xl mx-auto text-center">
+    <h2 className="text-3xl font-bold mb-6">Livraison et installation partout en France</h2>
+    <p className="text-lg mb-6">
+      Chez ESIL Events, nous mettons un point d'honneur à offrir des solutions de livraison
+      flexibles, non seulement en Île-de-France, mais également partout en France. Grâce à notre
+      équipe mobile et notre flotte de véhicules, nous sommes capables de répondre à vos besoins
+      logistiques, que vous soyez à Paris, Lyon, Marseille, Toulouse, ou même dans des régions
+      plus éloignées. Nos solutions sont conçues pour garantir que vos événements se déroulent
+      dans les meilleures conditions, où que vous soyez.
+    </p>
+    <p className="text-lg">
+      En choisissant ESIL Events, vous optez pour un partenaire fiable, capable de s'adapter aux
+      particularités de chaque région et de livrer dans des délais respectés. Peu importe où se trouve
+      votre événement, nous assurons la livraison de votre matériel événementiel avec la même
+      efficacité.
+    </p>
+  </div>
+</div>
         {/* Testimonials */}
-        <div className="mb-20">
+        {/* <div className="mb-20">
           <h2 className="text-3xl font-bold mb-12 text-center">Ils nous ont fait confiance</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -235,10 +311,10 @@ const DeliveryPage: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
         
         {/* FAQ */}
-        <div className="mb-20">
+        {/* <div className="mb-20">
           <h2 className="text-3xl font-bold mb-12 text-center">Questions fréquentes</h2>
           <div className="bg-white rounded-xl shadow-md overflow-hidden">
             {[
@@ -270,10 +346,10 @@ const DeliveryPage: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* CTA Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl p-12 text-center">
+        <div className="bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl p-12 text-center">
           <h2 className="text-3xl font-bold mb-4">Prêt à organiser votre événement ?</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             Contactez-nous pour une solution de livraison adaptée à vos besoins
@@ -281,13 +357,13 @@ const DeliveryPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link 
               to="/contact" 
-              className="bg-white text-blue-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition-colors flex items-center justify-center"
+              className="bg-white text-violet-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition-colors flex items-center justify-center"
             >
               Demander un devis
             </Link>
             <a 
               href="tel:+33123456789" 
-              className="border-2 border-white text-white hover:bg-white hover:text-blue-600 font-bold py-3 px-8 rounded-lg transition-colors flex items-center justify-center"
+              className="border-2 border-white text-white hover:bg-white hover:text-violet-600 font-bold py-3 px-8 rounded-lg transition-colors flex items-center justify-center"
             >
               <Phone className="w-5 h-5 mr-2" />
               Nous appeler
