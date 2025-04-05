@@ -4,8 +4,16 @@ import { motion } from 'framer-motion';
 export const EventsPage: React.FC = () => {
   // Animation variants for scroll reveal effects
   const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeInOut" } }
+    hidden: { opacity: 0, y: 40 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        duration: 0.6, 
+        ease: [0.16, 1, 0.3, 1],
+        staggerChildren: 0.1
+      } 
+    }
   };
 
   const staggerContainer = {
@@ -23,16 +31,19 @@ export const EventsPage: React.FC = () => {
       <div className="w-full">
         {/* Hero Section */}
         <motion.section 
-          className="mb-16 md:mb-24"
+          className="mb-16 md:mb-24 relative overflow-hidden"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={fadeInUp}
         >
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-gray-800">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-black">ESIL Events</span>
-            </h1>
+            <motion.h1 
+              className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-gray-800"
+              variants={fadeInUp}
+            >
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-700 to-violet-900">ESIL Events</span>
+            </motion.h1>
             <h2 className="text-2xl font-medium text-gray-700 tracking-wide">Votre partenaire pour des événements inoubliables</h2>
           </div>
           
@@ -61,23 +72,48 @@ export const EventsPage: React.FC = () => {
             </p>
           </motion.div>
           
-          {/* Image placeholder with improved gradient */}
+          {/* Gallery with 4 photos */}
           <motion.div 
-            className="w-full h-96 bg-gradient-to-r from-violet-900 via-violet-800 to-violet-700 mb-20 rounded-2xl overflow-hidden shadow-lg relative"
-            whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.5 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
           >
-            <div className="absolute inset-0 bg-pattern bg-opacity-10"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-white text-2xl font-bold tracking-wide">PHOTO D'ÉVÉNEMENT</p>
-            </div>
-            <div className="absolute inset-0 bg-black opacity-10"></div>
+            {[
+              // Ideal image size: 800x600px with 16:9 aspect ratio
+              'https://placehold.co/800x600/violet/white?text=Event+1',
+              'https://placehold.co/800x600/violet/white?text=Event+2',
+              'https://placehold.co/800x600/violet/white?text=Event+3', 
+              'https://placehold.co/800x600/violet/white?text=Event+4'
+            ].map((imgSrc, index) => (
+              <motion.div 
+                key={index}
+                className="h-64 rounded-2xl overflow-hidden shadow-xl relative"
+                whileHover={{ scale: 1.02 }}
+                transition={{ 
+                  duration: 0.6,
+                  ease: [0.16, 1, 0.3, 1]
+                }}
+                variants={fadeInUp}
+              >
+                <img 
+                  src={imgSrc}
+                  alt={`Event photo ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-30"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <p className="text-white text-xl font-bold tracking-wide">ESIL Events</p>
+                </div>
+              </motion.div>
+            ))}
           </motion.div>
         </motion.section>
         
         {/* Methodology Section */}
         <motion.section 
-          className="mb-16 md:mb-24"
+          className="mb-16 md:mb-24 relative overflow-hidden"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
@@ -229,7 +265,7 @@ export const EventsPage: React.FC = () => {
         
         {/* Why Choose Us Section */}
         <motion.section 
-          className="mb-16 md:mb-24"
+          className="mb-16 md:mb-24 relative overflow-hidden"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
