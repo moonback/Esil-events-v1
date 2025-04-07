@@ -37,14 +37,15 @@ export const EventsPage: React.FC = () => {
           viewport={{ once: true, margin: "-100px" }}
           variants={fadeInUp}
         >
-          <div className="text-center mb-16">
-            <motion.h1 
-              className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-gray-800"
-              variants={fadeInUp}
-            >
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-700 to-violet-900">ESIL Events</span>
-            </motion.h1>
-            <h2 className="text-2xl font-medium text-gray-700 tracking-wide">Votre partenaire pour des événements inoubliables</h2>
+          {/* Hero Section */}
+          <div className="bg-black text-white py-20 mb-16">
+            <div className="container-custom mx-auto text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">ESIL Events
+              </h1>
+              <p className="text-xl max-w-3xl mx-auto">
+              Votre partenaire pour des événements inoubliables
+              </p>
+            </div>
           </div>
           
           <motion.div 
