@@ -28,6 +28,7 @@ import ArtistPage from './pages/ArtistPage';
 import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
 import AdminArtists from './pages/admin/Artists';
 import ArtistDetailPage from './pages/ArtistDetailPage';
+import { HelmetProvider } from 'react-helmet-async';
 
 const App: React.FC = () => {
   return (
