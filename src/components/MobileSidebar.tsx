@@ -30,11 +30,11 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
       >
         <div className="flex justify-between items-center p-4 border-b border-gray-200/80 dark:border-gray-700/80">
           <div className="flex items-center">
-            <img 
+            {/* <img 
               src="/images/logo.png" 
               alt="ESIL Events Logo" 
               className="h-8 w-8 mr-3"
-            />
+            /> */}
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">ESIL Events</h2>
           </div>
           <button
