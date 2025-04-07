@@ -24,7 +24,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
       />
       {/* Sidebar - From top */}
       <div 
-        className={`fixed top-0 left-0 right-0 w-full h-auto max-h-[85vh] overflow-y-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-md z-[100] md:hidden transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 right-0 w-full h-auto max-h-[105vh] overflow-y-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-md z-[100] md:hidden transform transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-y-0' : '-translate-y-full'
         } shadow-xl rounded-b-xl`}
       >

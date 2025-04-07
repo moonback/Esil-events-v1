@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Package, FileText, Users, Grid, LayoutDashboard, Settings, Bell, Music, Tag, LogOut } from 'lucide-react';
+import { Package, FileText, Users, Grid, LayoutDashboard, Settings, Bell, Music, Tag, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 interface MenuItem {
@@ -16,6 +16,7 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const location = useLocation();
   const { user } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Define a temporary logout function
   const logout = () => {
@@ -52,12 +53,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     
   ];
 
-  const NavItem = ({ item }: { item: MenuItem }) => {
+  const NavItem = ({ item, onClick }: { item: MenuItem; onClick?: () => void }) => {
     const isActive = location.pathname === item.path;
     return (
       <Link
         key={item.path}
         to={item.path}
+        onClick={onClick}
         className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
           isActive
             ? 'bg-violet-600 text-white shadow-md'
@@ -72,8 +74,24 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex">
-      {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg z-10">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="md:hidden fixed top-4 left-4 z-20 p-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700"
+      >
+        {isMobileMenuOpen ? (
+          <X className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+        ) : (
+          <Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+        )}
+      </button>
+
+      {/* Sidebar - Modified for responsiveness */}
+      <aside 
+        className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg z-10 transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700">
@@ -85,16 +103,37 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           {/* Navigation */}
           <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
             {menuItems.map((item) => (
-              <NavItem key={item.path} item={item} />
+              <NavItem 
+                key={item.path} 
+                item={item} 
+                onClick={() => setIsMobileMenuOpen(false)}
+              />
             ))}
           </nav>
 
-          
+          {/* Bottom Section */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              onClick={logout}
+              className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+            >
+              <LogOut className="w-5 h-5 mr-3" />
+              Déconnexion
+            </button>
+          </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="pl-64 w-full">
+      {/* Overlay for mobile */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[5] md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Main Content - Modified for responsiveness */}
+      <div className="w-full md:pl-64 transition-all duration-300">
         <main className="min-h-screen p-6">
           {children}
         </main>
