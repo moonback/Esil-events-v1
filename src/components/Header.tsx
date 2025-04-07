@@ -7,6 +7,7 @@ import { signOut } from '../services/authService';
 import MegaMenu from './MegaMenu';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
+import MobileSidebar from './MobileSidebar';
 // import UserMenu from './UserMenu';
 
 const Header: React.FC = () => {
@@ -146,6 +147,7 @@ const Header: React.FC = () => {
                     </svg>
                   </a>
                   
+                  
                 </div>
               </div>
               
@@ -277,88 +279,14 @@ const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu - Replaced with MobileSidebar component */}
           {isMobileMenuOpen && (
-            <>
-              {/* Overlay */}
-              <div 
-                className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[90] md:hidden"
-                onClick={() => setIsMobileMenuOpen(false)}
-              />
-              {/* Sidebar */}
-              <div 
-                className={`fixed top-0 right-0 w-64 h-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md z-[100] md:hidden transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'} shadow-xl`}
-              >
-                <div className="flex justify-between items-center p-4 border-b border-gray-200/80 dark:border-gray-700/80">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Menu</h2>
-                  <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-                  >
-                    <X className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-                  </button>
-                </div>
-                <div className="px-2 py-3 space-y-1 overflow-y-auto max-h-[calc(100vh-64px)]">
-                  <Link 
-                    to="/products" 
-                    className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Nos produits
-                  </Link>
-                  <Link 
-                    to="/about" 
-                    className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    À propos
-                  </Link>
-                  <Link 
-                    to="/contact" 
-                    className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Contact
-                  </Link>
-                  <Link 
-                    to="/delivery" 
-                    className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Livraison
-                  </Link>
-                  {user && (
-                    <>
-                      <div className="border-t border-gray-200/80 dark:border-gray-700/80 my-2" />
-                      <Link 
-                        to="/orders" 
-                        className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Mes commandes
-                      </Link>
-                      <Link 
-                        to="/profile" 
-                        className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Mon profil
-                      </Link>
-                    </>
-                  )}
-                  {isAdminUser && (
-                    <Link 
-                      to="/admin" 
-                      className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Settings className="w-4 h-4 mr-2" />
-                      Administration
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </>
+            <MobileSidebar 
+              isOpen={isMobileMenuOpen}
+              onClose={() => setIsMobileMenuOpen(false)}
+              user={user}
+              isAdminUser={isAdminUser}
+            />
           )}
         </div>
       </div>
