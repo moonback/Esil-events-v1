@@ -125,7 +125,7 @@ const ArtistPage: React.FC = () => {
             onClick={() => setActiveCategory('all')}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
               activeCategory === 'all'
-                ? 'bg-blue-600 text-white shadow-md'
+                ? 'bg-violet-500 text-white shadow-md'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
           >
@@ -137,7 +137,7 @@ const ArtistPage: React.FC = () => {
               onClick={() => setActiveCategory(category)}
               className={`flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                 activeCategory === category
-                  ? 'bg-blue-600 text-white shadow-md'
+                  ? 'bg-violet-500 text-white shadow-md'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
@@ -171,7 +171,7 @@ const ArtistPage: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 <div className="absolute top-4 right-4">
-                  <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-blue-100/80 text-blue-600 backdrop-blur-sm">
+                  <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full  text-black-600 backdrop-blur-sm">
                     {getCategoryIcon(artist.category)}
                     <span className="ml-1">{artist.category}</span>
                   </span>
@@ -185,7 +185,7 @@ const ArtistPage: React.FC = () => {
                 
                 <Link 
                   to={`/artist/${encodeURIComponent(artist.name)}`} 
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center px-4 py-2 bg-black text-white rounded-lg hover:bg-violet-700 transition-colors"
                 >
                   Voir plus <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
