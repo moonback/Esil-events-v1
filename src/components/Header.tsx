@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, X, User, Settings, Search, FileText, Info, Shield, Phone } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, Settings, Mail, Phone } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 import { signOut } from '../services/authService';
@@ -59,19 +59,7 @@ const Header: React.FC = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-      {/* {isSearchOpen && (
-        <div className="fixed inset-x-0 top-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md z-50 py-4 px-4 shadow-lg transition-all duration-300 transform">
-          <div className="w-full h-full flex items-center justify-center">
-            <SearchBar onSearch={handleSearch} />
-            <button
-              onClick={() => setIsSearchOpen(false)}
-              className="ml-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-            >
-              <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </button>
-          </div>
-        </div>
-      )} */}
+      
       <div 
         className={`transition-all duration-300 relative ${
           isScrolled 
@@ -127,6 +115,13 @@ const Header: React.FC = () => {
                     <Phone className="w-4 h-4 animate-pulse" />
                     <span className="text-sm font-medium tracking-wide">07.85.95.97.23</span>
                   </a>
+                  <Link
+                    to="/contact"
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span className="text-sm font-medium tracking-wide"></span>
+                  </Link>
                 </div>
                 
                 <div className="hidden md:flex space-x-2">
