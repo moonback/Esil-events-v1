@@ -4,7 +4,7 @@ import { Truck, Package, Clock, Settings, CheckCircle, Phone, MapPin, Calendar, 
 
 const DeliveryPage: React.FC = () => {
   return (
-    <div className="min-h-screen pt-32 pb-16 px-4 bg-gray-50">
+    <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen">
       {/* Hero Section */}
       <div className="bg-black text-white py-20 mb-16">
         <div className="container-custom mx-auto text-center">
@@ -349,7 +349,7 @@ solutions pour une gestion simplifiée de votre matériel événementiel.       
         </div> */}
 
         {/* CTA Section */}
-        <div className="bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl p-12 text-center">
+        <div className="bg-black text-white rounded-2xl p-12 text-center">
           <h2 className="text-3xl font-bold mb-4">Prêt à organiser votre événement ?</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             Contactez-nous pour une solution de livraison adaptée à vos besoins

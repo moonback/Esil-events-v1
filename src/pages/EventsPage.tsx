@@ -27,15 +27,12 @@ export const EventsPage: React.FC = () => {
   };
 
   return (
-    <div className="pt-28 pb-20 px-4 bg-white dark:bg-gray-800 w-full">
+    <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen">
       <div className="w-full">
         {/* Hero Section */}
         <motion.section 
           className="mb-16 md:mb-24 relative overflow-hidden"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeInUp}
+         
         >
           {/* Hero Section */}
           <div className="bg-black text-white py-20 mb-16">
