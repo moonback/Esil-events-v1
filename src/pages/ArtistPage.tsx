@@ -4,6 +4,7 @@ import { ArrowRight, Music, Mic, Radio, Theater, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getAllArtists, Artist } from '../services/artistService';
 import { getAllArtistCategories, ArtistCategory } from '../services/artistCategoryService';
+import { h1 } from 'framer-motion/client';
 
 const ArtistPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -106,20 +107,17 @@ const ArtistPage: React.FC = () => {
 
   return (
     <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div 
-          className="text-center mb-12"
-          initial="hidden"
-          animate="visible"
-          variants={fadeInUp}
-        >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-            Nos Artistes
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Découvrez notre sélection d'artistes professionnels pour animer vos événements et créer des moments inoubliables.
+      {/* Hero Section */}
+      <div className="bg-black text-white py-20 mb-16">
+        <div className="container-custom mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">Nos artistes</h1>
+          <p className="text-xl max-w-3xl mx-auto">
+          Découvrez notre sélection d'artistes professionnels pour animer vos événements et créer des moments inoubliables.
           </p>
-        </motion.div>
+        </div>
+      </div>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        
         
         {/* Category Filter */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
