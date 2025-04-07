@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Package, FileText, Users, Grid, LayoutDashboard, Settings, Bell, Music, Tag, LogOut, Menu, X } from 'lucide-react';
+import { Package, Grid, LayoutDashboard, Music, Tag, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 interface MenuItem {
