@@ -317,14 +317,14 @@ const ProductListPage: React.FC = () => {
           {/* Filters and Sorting */}
           <div className="mb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-              <button 
+              {/* <button 
                 onClick={toggleFilter}
                 className="flex items-center text-black hover:text-gray-700 transition-colors duration-200 bg-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md"
               >
                 <Filter className="mr-2 w-5 h-5" />
                 Filtres
                 <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
-              </button>
+              </button> */}
               
               <div className="w-full md:w-auto">
                 <select 
@@ -340,7 +340,7 @@ const ProductListPage: React.FC = () => {
               </div>
             </div>
             
-            {/* Filter Panel */}
+            {/* Filter Panel
             {isFilterOpen && (
               <div className="bg-white p-6 rounded-lg shadow-md mb-4 transition-all duration-300 ease-in-out">
                 <h3 className="font-semibold text-lg mb-4">Fourchette de prix</h3>
@@ -380,7 +380,7 @@ const ProductListPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Products Grid */}
