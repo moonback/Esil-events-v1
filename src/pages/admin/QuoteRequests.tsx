@@ -367,64 +367,97 @@ const QuoteRequestsAdmin: React.FC = () => {
                              selectedRequest.delivery_type === 'premium' ? 'Livraison premium' : '-'}
                           </p>
                         </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Date livraison</p>
-                          <p className="font-medium">{selectedRequest.delivery_date && formatDate(selectedRequest.delivery_date)}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Créneau horaire</p>
-                          <p className="font-medium">
-                            {selectedRequest.delivery_time_slot === 'before9' ? 'Avant 9h' : 
-                             selectedRequest.delivery_time_slot === '9to13' ? '9h-13h' : 
-                             selectedRequest.delivery_time_slot === '13to19' ? '13h-19h' : '-'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Date de retrait</p>
-                          <p className="font-medium">{selectedRequest.pickup_date && formatDate(selectedRequest.pickup_date)}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Adresse</p>
-                          <p className="font-medium">{selectedRequest.delivery_address}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Code postal</p>
-                          <p className="font-medium">{selectedRequest.delivery_postal_code}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Ville</p>
-                          <p className="font-medium">{selectedRequest.delivery_city}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Accès extérieur</p>
-                          <p className="font-medium">
-                            {selectedRequest.exterior_access === 'parking' ? 'Parking' : 
-                             selectedRequest.exterior_access === 'street' ? 'Rue' : '-'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Accès intérieur</p>
-                          <p className="font-medium">
-                            {selectedRequest.interior_access === 'stairs' ? 'Escaliers' : 
-                             selectedRequest.interior_access === 'flat' ? 'Plain-pied' : 
-                             selectedRequest.interior_access === 'elevator' ? 'Ascenseur' : '-'}
-                          </p>
-                        </div>
+                        {selectedRequest.delivery_type !== 'pickup' && (
+                          <>
+                            <div>
+                              <p className="text-xs text-gray-500">Date livraison</p>
+                              <p className="font-medium">{selectedRequest.delivery_date && formatDate(selectedRequest.delivery_date)}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500">Créneau horaire</p>
+                              <p className="font-medium">
+                                {selectedRequest.delivery_time_slot === 'before9' ? 'Avant 9h' : 
+                                 selectedRequest.delivery_time_slot === '9to13' ? '9h-13h' : 
+                                 selectedRequest.delivery_time_slot === '13to19' ? '13h-19h' : '-'}
+                              </p>
+                            </div>
+                          </>
+                        )}
+                        {selectedRequest.delivery_type === 'pickup' && (
+                          <div>
+                            <p className="text-xs text-gray-500">Date de retrait</p>
+                            <p className="font-medium">{selectedRequest.pickup_date && formatDate(selectedRequest.pickup_date)}</p>
+                          </div>
+                        )}
                       </div>
-                      {selectedRequest.interior_access === 'elevator' && (
-                        <div className="mt-2 grid grid-cols-3 gap-2">
-                          <div>
-                            <p className="text-xs text-gray-500">Largeur ascenseur</p>
-                            <p className="font-medium">{selectedRequest.elevator_width ? `${selectedRequest.elevator_width} cm` : '-'}</p>
+
+                      {selectedRequest.delivery_type !== 'pickup' && (
+                        <>
+                          <div className="mt-3 pt-2 border-t border-gray-200">
+                            <h4 className="text-xs font-medium text-gray-700 mb-2">Adresse de livraison</h4>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <p className="text-xs text-gray-500">Adresse</p>
+                                <p className="font-medium">{selectedRequest.delivery_address || '-'}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-500">Code postal</p>
+                                <p className="font-medium">{selectedRequest.delivery_postal_code || '-'}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-500">Ville</p>
+                                <p className="font-medium">{selectedRequest.delivery_city || '-'}</p>
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Hauteur ascenseur</p>
-                            <p className="font-medium">{selectedRequest.elevator_height ? `${selectedRequest.elevator_height} cm` : '-'}</p>
+
+                          <div className="mt-3 pt-2 border-t border-gray-200">
+                            <h4 className="text-xs font-medium text-gray-700 mb-2">Conditions d'accès</h4>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <p className="text-xs text-gray-500">Accès extérieur</p>
+                                <p className="font-medium">
+                                  {selectedRequest.exterior_access === 'parking' ? 'Parking' : 
+                                   selectedRequest.exterior_access === 'street' ? 'Rue' : '-'}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-500">Accès intérieur</p>
+                                <p className="font-medium">
+                                  {selectedRequest.interior_access === 'stairs' ? 'Escaliers' : 
+                                   selectedRequest.interior_access === 'flat' ? 'Plain-pied' : 
+                                   selectedRequest.interior_access === 'elevator' ? 'Ascenseur' : '-'}
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Profondeur ascenseur</p>
-                            <p className="font-medium">{selectedRequest.elevator_depth ? `${selectedRequest.elevator_depth} cm` : '-'}</p>
-                          </div>
+
+                          {selectedRequest.interior_access === 'elevator' && (
+                            <div className="mt-2 bg-white p-2 rounded border border-gray-200">
+                              <h4 className="text-xs font-medium text-gray-700 mb-2">Dimensions de l'ascenseur</h4>
+                              <div className="grid grid-cols-3 gap-2">
+                                <div>
+                                  <p className="text-xs text-gray-500">Largeur</p>
+                                  <p className="font-medium">{selectedRequest.elevator_width ? `${selectedRequest.elevator_width} cm` : '-'}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500">Hauteur</p>
+                                  <p className="font-medium">{selectedRequest.elevator_height ? `${selectedRequest.elevator_height} cm` : '-'}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500">Profondeur</p>
+                                  <p className="font-medium">{selectedRequest.elevator_depth ? `${selectedRequest.elevator_depth} cm` : '-'}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                      
+                      {selectedRequest.delivery_notes && (
+                        <div className="mt-3 pt-2 border-t border-gray-200">
+                          <p className="text-xs text-gray-500">Notes de livraison</p>
+                          <p className="text-sm mt-1">{selectedRequest.delivery_notes}</p>
                         </div>
                       )}
                     </div>
@@ -435,19 +468,15 @@ const QuoteRequestsAdmin: React.FC = () => {
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <p className="text-xs text-gray-500">Date de reprise</p>
-                          <p className="font-medium">{selectedRequest.pickup_return_date}</p>
+                          <p className="font-medium">{selectedRequest.pickup_return_date || '-'}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Heure de début</p>
-                          <p className="font-medium">{selectedRequest.pickup_return_start_time}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Heure de fin</p>
-                          <p className="font-medium">{selectedRequest.pickup_return_end_time}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Notes</p>
-                          <p className="font-medium">{selectedRequest.delivery_notes}</p>
+                          <p className="text-xs text-gray-500">Plage horaire</p>
+                          <p className="font-medium">
+                            {selectedRequest.pickup_return_start_time && selectedRequest.pickup_return_end_time
+                              ? `${selectedRequest.pickup_return_start_time} - ${selectedRequest.pickup_return_end_time}`
+                              : '-'}
+                          </p>
                         </div>
                       </div>
                     </div>
