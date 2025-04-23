@@ -1,10 +1,10 @@
 import { FormData } from '../components/cart/types';
 import { CartItem } from '../context/CartContext';
 
-// Fonction pour envoyer le devis par email via l'API
+// Fonction pour envoyer le devis par email via l'API Express
 export const sendQuoteEmail = async (formData: FormData, items: CartItem[]) => {
   try {
-    const response = await fetch('/api/send-quote', {
+    const response = await fetch('http://localhost:3001/api/send-quote', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
