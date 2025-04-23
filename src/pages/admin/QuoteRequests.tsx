@@ -483,7 +483,7 @@ const QuoteRequestsAdmin: React.FC = () => {
 
                     {/* Articles commandés */}
                     <div className="p-3 bg-gray-50 rounded-md">
-                      <h3 className="text-sm font-medium text-gray-700 mb-2">Articles commandés</h3>
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">Articles réservés</h3>
                       <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
                         {selectedRequest.items.map((item, index) => (
                           <div key={index} className="flex justify-between items-center p-2 bg-white rounded border border-gray-100">
@@ -491,6 +491,8 @@ const QuoteRequestsAdmin: React.FC = () => {
                               <p className="font-medium">{item.name}</p>
                               <p className="text-xs text-gray-500">
                                 {item.color && `Couleur: ${item.color}`}
+                                {item.size && <span>{item.color ? ' | ' : ''}Taille: {item.size}</span>}
+                                {item.material && <span>{item.color || item.size ? ' | ' : ''}Matériau: {item.material}</span>}
                               </p>
                             </div>
                             <div className="text-right">
