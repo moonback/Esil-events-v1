@@ -135,7 +135,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
             </Link>
           </div>
 
-          {/* User account section */}
+          {/* User account section
           {user && (
             <div className="mb-4">
               <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
@@ -178,7 +178,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
                 Déconnexion
               </button>
             </div>
-          )}
+          )} */}
 
           {/* Contact info */}
           <div className="px-3 py-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
