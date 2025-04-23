@@ -70,46 +70,11 @@ const AdminDashboard: React.FC = () => {
     // }
   ];
 
-  const recentOrders = [
-    {
-      id: '1',
-      customer: 'Entreprise ABC',
-      date: '12/05/2025',
-      amount: '1,234€',
-      status: 'En attente',
-      statusColor: 'yellow'
-    },
-    {
-      id: '2',
-      customer: 'Société XYZ',
-      date: '10/05/2025',
-      amount: '2,345€',
-      status: 'Confirmé',
-      statusColor: 'green'
-    },
-    {
-      id: '3',
-      customer: 'Agence 123',
-      date: '08/05/2025',
-      amount: '3,456€',
-      status: 'Livré',
-      statusColor: 'blue'
-    },
-    {
-      id: '4',
-      customer: 'Client Particulier',
-      date: '05/05/2025',
-      amount: '567€',
-      status: 'Annulé',
-      statusColor: 'red'
-    }
-  ];
+
 
   const [error, setError] = useState<string | null>(null);
 
-  const handleDownloadReport = () => {
-    // Implementation of handleDownloadReport function
-  };
+
   
   // Afficher un indicateur de chargement pendant le chargement des données
   if (loading) {
@@ -153,14 +118,6 @@ const AdminDashboard: React.FC = () => {
       <div className="pt-24 space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Tableau de bord</h1>
-          {/* <button
-            onClick={handleDownloadReport}
-            className="flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 transition-colors"
-            aria-label="Télécharger le rapport"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Télécharger le rapport
-          </button> */}
         </div>
 
         {/* Stats Grid */}
@@ -181,61 +138,7 @@ const AdminDashboard: React.FC = () => {
           ))}
         </div>
 
-        {/* Recent Orders
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Commandes récentes</h2>
-              <button className="text-sm text-black hover:text-gray-600">
-                Voir toutes les commandes
-              </button>
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Client
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Montant
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Statut
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {order.customer}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{order.date}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {order.amount}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full bg-${order.statusColor}-100 text-${order.statusColor}-800`}>
-                        {order.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div> */}
+        
       </div>
     </AdminLayout>
   );
