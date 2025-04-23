@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Eye, Check, X, RefreshCw } from 'lucide-react';
+import { FileText, Eye, Check, X, RefreshCw, Send } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { getQuoteRequests, updateQuoteRequestStatus, QuoteRequest } from '../../services/quoteRequestService';
@@ -11,6 +11,9 @@ const QuoteRequestsAdmin: React.FC = () => {
   const [selectedRequest, setSelectedRequest] = useState<QuoteRequest | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [generatingResponse, setGeneratingResponse] = useState(false);
+  const [responseMessage, setResponseMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  const [suggestedResponse, setSuggestedResponse] = useState<string>('');
 
   const loadQuoteRequests = async () => {
     try {
@@ -109,15 +112,120 @@ const QuoteRequestsAdmin: React.FC = () => {
     }
   };
 
+  const handleGenerateResponse = async () => {
+    if (!selectedRequest) return;
+    
+    try {
+      console.log("Début de la génération de réponse...");
+      setGeneratingResponse(true);
+      setResponseMessage(null);
+      setSuggestedResponse('');
+      
+      // Format the data for DeepSeek API
+      const messages = [
+        {
+          role: "system",
+          content: "Tu es un assistant spécialisé dans la génération de devis pour une entreprise de location de mobilier événementiel. Génère une réponse professionnelle et détaillée pour le client en français, en te basant sur les informations fournies."
+        },
+        {
+          role: "user",
+          content: `Voici les détails de la demande de devis:
+          
+Client: ${selectedRequest.first_name} ${selectedRequest.last_name}
+Email: ${selectedRequest.email}
+Téléphone: ${selectedRequest.phone}
+Société: ${selectedRequest.company || 'N/A'}
+Type de client: ${selectedRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}
+
+Détails de l'événement:
+- Date: ${selectedRequest.event_date}
+- Durée: ${selectedRequest.event_duration}
+- Nombre d'invités: ${selectedRequest.guest_count}
+- Lieu: ${selectedRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}
+- Description: ${selectedRequest.description}
+
+Articles demandés:
+${selectedRequest.items.map(item => `- ${item.name} (${item.quantity} x ${item.price}€) - Total: ${(item.quantity * item.price).toFixed(2)}€`).join('\n')}
+
+Total estimé: ${selectedRequest.items.reduce((total, item) => total + (item.quantity * item.price), 0).toFixed(2)}€
+
+Commentaires additionnels: ${selectedRequest.comments || 'Aucun'}
+
+Génère une réponse de devis professionnelle qui inclut:
+1. Une salutation personnalisée
+2. Un résumé de leur demande
+3. Une confirmation des articles et du prix total
+4. Les prochaines étapes pour finaliser la commande
+5. Une formule de politesse`
+        }
+      ];
+      
+      const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
+      console.log("API Key disponible:", apiKey ? "Oui" : "Non");
+      
+      const requestBody = {
+        model: "deepseek-chat",
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 1000
+      };
+      
+      console.log("Envoi de la requête à l'API DeepSeek...");
+      console.log("URL:", 'https://api.deepseek.com/v1/chat/completions');
+      
+      // Appel à l'API DeepSeek
+      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(requestBody),
+      });
+      
+      console.log("Statut de la réponse:", response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(e => ({ error: { message: "Impossible de parser la réponse d'erreur" } }));
+        console.error("Erreur API détaillée:", errorData);
+        throw new Error(`Erreur API (${response.status}): ${errorData.error?.message || 'Erreur inconnue'}`);
+      }
+      
+      const data = await response.json();
+      console.log("Réponse API reçue:", data);
+      
+      // Extraire la réponse générée
+      const generatedResponse = data.choices[0].message.content;
+      console.log("Réponse générée:", generatedResponse);
+      setSuggestedResponse(generatedResponse);
+      
+      // Afficher un message de succès
+      setResponseMessage({
+        type: 'success',
+        text: 'Réponse générée avec succès.'
+      });
+      
+    } catch (err: any) {
+      console.error('Erreur lors de la génération de la réponse:', err);
+      setResponseMessage({
+        type: 'error',
+        text: `Erreur: ${err.message || 'Erreur lors de la génération de la réponse automatique'}`
+      });
+    } finally {
+      setGeneratingResponse(false);
+      console.log("Fin de la génération de réponse");
+    }
+  };
+
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="space-y-6 mt-12">
+      <div className="space-y-6 mt-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Demandes de devis</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Demandes de devis</h1>
           <button
             onClick={() => loadQuoteRequests()}
-            className="flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+            className="flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors shadow-sm"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Actualiser
@@ -125,20 +233,20 @@ const QuoteRequestsAdmin: React.FC = () => {
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-md">
+          <div className="bg-red-50 text-red-600 p-4 rounded-md border border-red-200 shadow-sm">
             {error}
           </div>
         )}
 
         {loading ? (
-          <div className="flex justify-center items-center h-64">
+          <div className="flex justify-center items-center h-64 bg-white rounded-lg shadow-sm">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
           </div>
         ) : (
-          <div className="flex flex-col md:flex-row gap-6">
+          <div className="flex flex-col lg:flex-row gap-6">
             {/* Liste des demandes */}
-            <div className="w-full md:w-2/3">
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="w-full lg:w-3/5">
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
@@ -270,12 +378,12 @@ const QuoteRequestsAdmin: React.FC = () => {
             </div>
             
             {/* Détails de la demande sélectionnée */}
-            <div className="w-full md:w-1/3">
+            <div className="w-full lg:w-2/5 space-y-4">
               {selectedRequest ? (
-                <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
                   <div className="flex justify-between items-start mb-4">
-                    <h2 className="text-xl font-semibold">Détails de la demande</h2>
-                    <span className={`px-2 py-1 text-xs leading-5 font-semibold rounded-full ${getStatusColor(selectedRequest.status || 'pending')}`}>
+                    <h2 className="text-xl font-semibold text-gray-900">Détails de la demande</h2>
+                    <span className={`px-3 py-1 text-xs leading-5 font-semibold rounded-full ${getStatusColor(selectedRequest.status || 'pending')}`}>
                       {getStatusLabel(selectedRequest.status || 'pending')}
                     </span>
                   </div>
@@ -557,13 +665,74 @@ const QuoteRequestsAdmin: React.FC = () => {
                           <Check className="w-4 h-4 mr-1" />
                           Terminer
                         </button>
+                        <button
+                          onClick={handleGenerateResponse}
+                          disabled={generatingResponse}
+                          className="flex items-center px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <Send className="w-4 h-4 mr-1" />
+                          {generatingResponse ? 'Génération...' : 'Générer réponse'}
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="bg-white rounded-lg shadow-sm p-6 flex items-center justify-center h-64">
-                  <p className="text-gray-500">Sélectionnez une demande pour voir les détails</p>
+                  <div className="text-center">
+                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-gray-500">Sélectionnez une demande pour voir les détails</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Affichage de la réponse suggérée */}
+              {selectedRequest && suggestedResponse && (
+                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900 flex items-center">
+                    <Send className="w-5 h-5 mr-2 text-indigo-600" />
+                    Réponse suggérée
+                  </h3>
+                  <div className="bg-gray-50 p-4 rounded-md border border-gray-200 whitespace-pre-wrap max-h-96 overflow-y-auto text-gray-700">
+                    {suggestedResponse}
+                  </div>
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(suggestedResponse);
+                        setResponseMessage({
+                          type: 'success',
+                          text: 'Réponse copiée dans le presse-papier'
+                        });
+                      }}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm flex items-center"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                      </svg>
+                      Copier la réponse
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Affichage des messages de réponse */}
+              {responseMessage && (
+                <div className={`p-4 rounded-md border ${responseMessage.type === 'success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'} shadow-sm`}>
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      {responseMessage.type === 'success' ? (
+                        <Check className="h-5 w-5 text-green-400" />
+                      ) : (
+                        <X className="h-5 w-5 text-red-400" />
+                      )}
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium">
+                        {responseMessage.text}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
