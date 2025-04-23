@@ -125,38 +125,43 @@ const QuoteRequestsAdmin: React.FC = () => {
       const messages = [
         {
           role: "system",
-          content: "Tu es un assistant spécialisé dans la génération de devis pour une entreprise de location de mobilier événementiel. Génère une réponse professionnelle et détaillée pour le client en français, en te basant sur les informations fournies."
+          content: "Tu es un expert en gestion commerciale pour ESIL Events, une entreprise premium de location de mobilier événementiel. Ta mission est de générer des devis professionnels, personnalisés et convaincants. Utilise un ton formel mais chaleureux, mets en valeur notre expertise et notre engagement envers la satisfaction client. Inclus notre slogan 'L'élégance pour chaque événement' dans ta signature."
         },
         {
           role: "user",
-          content: `Voici les détails de la demande de devis:
+          content: `Voici les détails de la demande de devis #${selectedRequest.id?.substring(0, 8).toUpperCase()}:
           
-Client: ${selectedRequest.first_name} ${selectedRequest.last_name}
-Email: ${selectedRequest.email}
-Téléphone: ${selectedRequest.phone}
-Société: ${selectedRequest.company || 'N/A'}
-Type de client: ${selectedRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}
+INFORMATIONS CLIENT:
+• Nom complet: ${selectedRequest.first_name} ${selectedRequest.last_name}
+• Email: ${selectedRequest.email}
+• Téléphone: ${selectedRequest.phone}
+• Société: ${selectedRequest.company || 'N/A'}
+• Catégorie: ${selectedRequest.customer_type === 'professional' ? 'Client Professionnel' : 'Client Particulier'}
 
-Détails de l'événement:
-- Date: ${selectedRequest.event_date}
-- Durée: ${selectedRequest.event_duration}
-- Nombre d'invités: ${selectedRequest.guest_count}
-- Lieu: ${selectedRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}
-- Description: ${selectedRequest.description}
+DÉTAILS DE L'ÉVÉNEMENT:
+• Date: ${selectedRequest.event_date}
+• Durée: ${selectedRequest.event_duration}
+• Nombre de participants: ${selectedRequest.guest_count}
+• Type d'espace: ${selectedRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}
+• Description: ${selectedRequest.description}
 
-Articles demandés:
-${selectedRequest.items.map(item => `- ${item.name} (${item.quantity} x ${item.price}€) - Total: ${(item.quantity * item.price).toFixed(2)}€`).join('\n')}
+ARTICLES SÉLECTIONNÉS:
+${selectedRequest.items.map(item => `• ${item.name} (${item.quantity} unité${item.quantity > 1 ? 's' : ''} × ${item.price.toFixed(2)}€) - Sous-total: ${(item.quantity * item.price).toFixed(2)}€`).join('\n')}
 
-Total estimé: ${selectedRequest.items.reduce((total, item) => total + (item.quantity * item.price), 0).toFixed(2)}€
+MONTANT TOTAL: ${selectedRequest.items.reduce((total, item) => total + (item.quantity * item.price), 0).toFixed(2)}€ TTC
 
-Commentaires additionnels: ${selectedRequest.comments || 'Aucun'}
+COMMENTAIRES SPÉCIFIQUES: ${selectedRequest.comments || 'Aucun commentaire additionnel'}
 
 Génère une réponse de devis professionnelle qui inclut:
-1. Une salutation personnalisée
-2. Un résumé de leur demande
-3. Une confirmation des articles et du prix total
-4. Les prochaines étapes pour finaliser la commande
-5. Une formule de politesse`
+1. Une salutation personnalisée et chaleureuse
+2. Une introduction présentant brièvement ESIL Events et notre expertise
+3. Un résumé détaillé de leur projet événementiel
+4. Une confirmation précise des articles sélectionnés et du prix total
+5. Les conditions de réservation (acompte de 30% pour confirmer)
+6. Les prochaines étapes pour finaliser la commande
+7. Une proposition de rendez-vous téléphonique pour discuter des détails
+8. Une formule de politesse élégante avec signature professionnelle
+9. Nos coordonnées complètes et réseaux sociaux`
         }
       ];
       
