@@ -1,30 +1,65 @@
-import React, { useEffect, useState } from 'react';
-import { Package, FileText, Users, BarChart2, TrendingUp, ShoppingCart, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Package, FileText, Users, BarChart2, TrendingUp, ShoppingCart, Download, ClipboardList } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
+import { getAllProducts } from '../../services/productService';
+import { getAllCategories } from '../../services/categoryService';
+import { getQuoteRequests } from '../../services/quoteRequestService';
 
 const AdminDashboard: React.FC = () => {
+  const [productsCount, setProductsCount] = useState<number>(0);
+  const [categoriesCount, setCategoriesCount] = useState<number>(0);
+  const [quoteRequestsCount, setQuoteRequestsCount] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Récupérer les produits
+        const products = await getAllProducts();
+        setProductsCount(products.length);
+        
+        // Récupérer les catégories
+        const categories = await getAllCategories();
+        setCategoriesCount(categories.length);
+        
+        // Récupérer les demandes de devis
+        const { data: quoteRequests } = await getQuoteRequests();
+        setQuoteRequestsCount(quoteRequests ? quoteRequests.length : 0);
+      } catch (err) {
+        console.error('Erreur lors du chargement des données:', err);
+        setError('Erreur lors du chargement des données');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
+
   const stats = [
     {
       title: 'Produits',
-      value: '24',
+      value: loading ? '...' : productsCount.toString(),
       change: '+4.75%',
       changeType: 'increase',
       icon: <Package className="w-8 h-8 text-black" />
     },
     {
-      title: 'Commandes',
-      value: '12',
-      change: '+10.2%',
-      changeType: 'increase',
-      icon: <ShoppingCart className="w-8 h-8 text-black" />
-    },
-    {
-      title: 'Clients',
-      value: '18',
+      title: 'Catégories',
+      value: loading ? '...' : categoriesCount.toString(),
       change: '+2.3%',
       changeType: 'increase',
-      icon: <Users className="w-8 h-8 text-black" />
+      icon: <FileText className="w-8 h-8 text-black" />
+    },
+    {
+      title: 'Demandes de devis',
+      value: loading ? '...' : quoteRequestsCount.toString(),
+      change: '+10.2%',
+      changeType: 'increase',
+      icon: <ClipboardList className="w-8 h-8 text-black" />
     },
     {
       title: 'Revenus',
@@ -75,6 +110,23 @@ const AdminDashboard: React.FC = () => {
   const handleDownloadReport = () => {
     // Implementation of handleDownloadReport function
   };
+  
+  // Afficher un indicateur de chargement pendant le chargement des données
+  if (loading) {
+    return (
+      <AdminLayout>
+        <AdminHeader />
+        <div className="pt-24 space-y-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Tableau de bord</h1>
+          </div>
+          <div className="flex items-center justify-center min-h-[200px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   if (error) {
     return (
