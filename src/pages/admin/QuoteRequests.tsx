@@ -281,34 +281,54 @@ const QuoteRequestsAdmin: React.FC = () => {
                   </div>
                   
                   <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Client</h3>
-                      <p className="mt-1">{selectedRequest.first_name} {selectedRequest.last_name}</p>
-                      <p className="text-sm text-gray-500">{selectedRequest.company}</p>
+                    {/* Informations client */}
+                    <div className="p-3 bg-gray-50 rounded-md">
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">Informations client</h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-xs text-gray-500">Nom</p>
+                          <p className="font-medium">{selectedRequest.first_name} {selectedRequest.last_name}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Société</p>
+                          <p className="font-medium">{selectedRequest.company}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Email</p>
+                          <p className="font-medium">{selectedRequest.email}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Téléphone</p>
+                          <p className="font-medium">{selectedRequest.phone}</p>
+                        </div>
+                      </div>
                     </div>
                     
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Contact</h3>
-                      <p className="mt-1">{selectedRequest.email}</p>
-                      <p className="text-sm">{selectedRequest.phone}</p>
+                    {/* Informations événement */}
+                    <div className="p-3 bg-gray-50 rounded-md">
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">Détails de l'événement</h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-xs text-gray-500">Date</p>
+                          <p className="font-medium">{selectedRequest.event_date}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Durée</p>
+                          <p className="font-medium">{selectedRequest.event_duration}</p>
+                        </div>
+                      </div>
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-500">Description</p>
+                        <p className="text-sm mt-1">{selectedRequest.description}</p>
+                      </div>
                     </div>
                     
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Événement</h3>
-                      <p className="mt-1">Date: {selectedRequest.event_date}</p>
-                      <p className="text-sm">Durée: {selectedRequest.event_duration}</p>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Description</h3>
-                      <p className="mt-1 text-sm">{selectedRequest.description}</p>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Articles</h3>
-                      <div className="mt-2 space-y-2">
+                    {/* Articles commandés */}
+                    <div className="p-3 bg-gray-50 rounded-md">
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">Articles commandés</h3>
+                      <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
                         {selectedRequest.items.map((item, index) => (
-                          <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                          <div key={index} className="flex justify-between items-center p-2 bg-white rounded border border-gray-100">
                             <div>
                               <p className="font-medium">{item.name}</p>
                               <p className="text-xs text-gray-500">
@@ -317,15 +337,34 @@ const QuoteRequestsAdmin: React.FC = () => {
                             </div>
                             <div className="text-right">
                               <p className="font-medium">{item.quantity} x {item.price}€</p>
+                              <p className="text-xs text-gray-500">Total: {(item.quantity * item.price).toFixed(2)}€</p>
                             </div>
                           </div>
                         ))}
                       </div>
+                      
+                      {/* Total du devis */}
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <div className="flex justify-between items-center">
+                          <p className="font-medium">Total TTC</p>
+                          <p className="font-bold text-lg">
+                            {selectedRequest.items.reduce((total, item) => total + (item.quantity * item.price), 0).toFixed(2)}€
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     
+                    {/* Date de création */}
+                    <div className="text-xs text-gray-500 text-right">
+                      Demande créée le: {selectedRequest.created_at && formatDate(selectedRequest.created_at)}
+                      {selectedRequest.updated_at && selectedRequest.updated_at !== selectedRequest.created_at && 
+                        ` (Mise à jour: ${formatDate(selectedRequest.updated_at)})`}
+                    </div>
+                    
+                    {/* Actions */}
                     <div className="pt-4 border-t border-gray-200">
                       <h3 className="text-sm font-medium text-gray-500 mb-2">Actions</h3>
-                      <div className="flex space-x-2">
+                      <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => handleUpdateStatus(selectedRequest.id!, 'approved')}
                           disabled={selectedRequest.status === 'approved'}
