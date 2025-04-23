@@ -328,11 +328,19 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
         {/* Section 5: Project Description & Terms */}
         <h3 className="text-lg font-semibold mb-4 border-b pb-2">5. Votre projet et finalisation</h3>
-        <div className="mb-6">
+        <div className="mb-6 w-full">
           <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
             Description de votre projet (optionnel, max 1000 caractères)
           </label>
-          <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} maxLength={1000} rows={4} className="input-field"></textarea>
+          <textarea 
+            id="description" 
+            name="description" 
+            value={formData.description} 
+            onChange={handleInputChange} 
+            maxLength={1000} 
+            rows={4} 
+            className="input-field w-full"
+          ></textarea>
           <p className="text-sm text-gray-500 mt-1 text-right">
             {formData.description.length}/1000 caractères
           </p>
