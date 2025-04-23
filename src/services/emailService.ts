@@ -11,8 +11,15 @@ export const sendQuoteEmail = async (formData: FormData, items: CartItem[]) => {
       },
       body: JSON.stringify({ formData, items })
     });
-
-    const data = await response.json();
+    console.log('Statut de la réponse:', response.status);
+    let data;
+    try {
+      data = await response.json();
+      console.log('Réponse JSON du serveur:', data);
+    } catch (e) {
+      console.error('Erreur lors du parsing JSON:', e);
+      data = { success: false, error: "Réponse du serveur invalide" };
+    }
     return data;
   } catch (error) {
     console.error('Erreur lors de l\'envoi du devis:', error);
