@@ -101,14 +101,14 @@ const AdminDashboard: React.FC = () => {
       <div className="pt-24 space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Tableau de bord</h1>
-          <button
+          {/* <button
             onClick={handleDownloadReport}
             className="flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 transition-colors"
             aria-label="Télécharger le rapport"
           >
             <Download className="w-4 h-4 mr-2" />
             Télécharger le rapport
-          </button>
+          </button> */}
         </div>
 
         {/* Stats Grid */}
@@ -129,7 +129,7 @@ const AdminDashboard: React.FC = () => {
           ))}
         </div>
 
-        {/* Recent Orders */}
+        {/* Recent Orders
         <div className="bg-white rounded-lg shadow-sm">
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
@@ -183,7 +183,7 @@ const AdminDashboard: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </div> */}
       </div>
     </AdminLayout>
   );
