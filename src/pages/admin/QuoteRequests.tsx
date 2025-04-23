@@ -137,10 +137,15 @@ INFORMATIONS CLIENT:
 • Téléphone: ${selectedRequest.phone}
 • Société: ${selectedRequest.company || 'N/A'}
 • Catégorie: ${selectedRequest.customer_type === 'professional' ? 'Client Professionnel' : 'Client Particulier'}
+• Adresse: ${selectedRequest.billing_address || 'N/A'}
+• Code postal: ${selectedRequest.postal_code || 'N/A'}
+• Ville: ${selectedRequest.city || 'N/A'}
 
 DÉTAILS DE L'ÉVÉNEMENT:
 • Date: ${selectedRequest.event_date}
 • Durée: ${selectedRequest.event_duration}
+• Heure de début: ${selectedRequest.event_start_time || 'Non spécifiée'}
+• Heure de fin: ${selectedRequest.event_end_time || 'Non spécifiée'}
 • Nombre de participants: ${selectedRequest.guest_count}
 • Type d'espace: ${selectedRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}
 • Description: ${selectedRequest.description}
