@@ -290,6 +290,10 @@ const QuoteRequestsAdmin: React.FC = () => {
                           <p className="font-medium">{selectedRequest.first_name} {selectedRequest.last_name}</p>
                         </div>
                         <div>
+                          <p className="text-xs text-gray-500">Type de client</p>
+                          <p className="font-medium">{selectedRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</p>
+                        </div>
+                        <div>
                           <p className="text-xs text-gray-500">Société</p>
                           <p className="font-medium">{selectedRequest.company}</p>
                         </div>
@@ -300,6 +304,18 @@ const QuoteRequestsAdmin: React.FC = () => {
                         <div>
                           <p className="text-xs text-gray-500">Téléphone</p>
                           <p className="font-medium">{selectedRequest.phone}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Adresse de facturation</p>
+                          <p className="font-medium">{selectedRequest.billing_address}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Code postal</p>
+                          <p className="font-medium">{selectedRequest.postal_code}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Ville</p>
+                          <p className="font-medium">{selectedRequest.city}</p>
                         </div>
                       </div>
                     </div>
@@ -316,6 +332,22 @@ const QuoteRequestsAdmin: React.FC = () => {
                           <p className="text-xs text-gray-500">Durée</p>
                           <p className="font-medium">{selectedRequest.event_duration}</p>
                         </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Heure de début</p>
+                          <p className="font-medium">{selectedRequest.event_start_time}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Heure de fin</p>
+                          <p className="font-medium">{selectedRequest.event_end_time}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Nombre d'invités</p>
+                          <p className="font-medium">{selectedRequest.guest_count}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Lieu</p>
+                          <p className="font-medium">{selectedRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</p>
+                        </div>
                       </div>
                       <div className="mt-2">
                         <p className="text-xs text-gray-500">Description</p>
@@ -328,14 +360,73 @@ const QuoteRequestsAdmin: React.FC = () => {
                       <h3 className="text-sm font-medium text-gray-700 mb-2">Détails de livraison</h3>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <p className="text-xs text-gray-500">Adresse</p>
-                          <p className="font-medium">{selectedRequest.delivery_address}</p>
+                          <p className="text-xs text-gray-500">Type de livraison</p>
+                          <p className="font-medium">
+                            {selectedRequest.delivery_type === 'pickup' ? 'Retrait' : 
+                             selectedRequest.delivery_type === 'eco' ? 'Livraison éco' : 
+                             selectedRequest.delivery_type === 'premium' ? 'Livraison premium' : '-'}
+                          </p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500">Date livraison</p>
                           <p className="font-medium">{selectedRequest.delivery_date && formatDate(selectedRequest.delivery_date)}</p>
                         </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Créneau horaire</p>
+                          <p className="font-medium">
+                            {selectedRequest.delivery_time_slot === 'before9' ? 'Avant 9h' : 
+                             selectedRequest.delivery_time_slot === '9to13' ? '9h-13h' : 
+                             selectedRequest.delivery_time_slot === '13to19' ? '13h-19h' : '-'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Date de retrait</p>
+                          <p className="font-medium">{selectedRequest.pickup_date && formatDate(selectedRequest.pickup_date)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Adresse</p>
+                          <p className="font-medium">{selectedRequest.delivery_address}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Code postal</p>
+                          <p className="font-medium">{selectedRequest.delivery_postal_code}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Ville</p>
+                          <p className="font-medium">{selectedRequest.delivery_city}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Accès extérieur</p>
+                          <p className="font-medium">
+                            {selectedRequest.exterior_access === 'parking' ? 'Parking' : 
+                             selectedRequest.exterior_access === 'street' ? 'Rue' : '-'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Accès intérieur</p>
+                          <p className="font-medium">
+                            {selectedRequest.interior_access === 'stairs' ? 'Escaliers' : 
+                             selectedRequest.interior_access === 'flat' ? 'Plain-pied' : 
+                             selectedRequest.interior_access === 'elevator' ? 'Ascenseur' : '-'}
+                          </p>
+                        </div>
                       </div>
+                      {selectedRequest.interior_access === 'elevator' && (
+                        <div className="mt-2 grid grid-cols-3 gap-2">
+                          <div>
+                            <p className="text-xs text-gray-500">Largeur ascenseur</p>
+                            <p className="font-medium">{selectedRequest.elevator_width ? `${selectedRequest.elevator_width} cm` : '-'}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">Hauteur ascenseur</p>
+                            <p className="font-medium">{selectedRequest.elevator_height ? `${selectedRequest.elevator_height} cm` : '-'}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">Profondeur ascenseur</p>
+                            <p className="font-medium">{selectedRequest.elevator_depth ? `${selectedRequest.elevator_depth} cm` : '-'}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Informations reprise */}
@@ -343,8 +434,16 @@ const QuoteRequestsAdmin: React.FC = () => {
                       <h3 className="text-sm font-medium text-gray-700 mb-2">Détails de reprise</h3>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <p className="text-xs text-gray-500">Date reprise</p>
-                          <p className="font-medium">{selectedRequest.pickup_date && formatDate(selectedRequest.pickup_date)}</p>
+                          <p className="text-xs text-gray-500">Date de reprise</p>
+                          <p className="font-medium">{selectedRequest.pickup_return_date}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Heure de début</p>
+                          <p className="font-medium">{selectedRequest.pickup_return_start_time}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Heure de fin</p>
+                          <p className="font-medium">{selectedRequest.pickup_return_end_time}</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500">Notes</p>
@@ -383,6 +482,14 @@ const QuoteRequestsAdmin: React.FC = () => {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Commentaires */}
+                    {selectedRequest.comments && (
+                      <div className="p-3 bg-gray-50 rounded-md">
+                        <h3 className="text-sm font-medium text-gray-700 mb-2">Commentaires du client</h3>
+                        <p className="text-sm">{selectedRequest.comments}</p>
+                      </div>
+                    )}
                     
                     {/* Date de création */}
                     <div className="text-xs text-gray-500 text-right">
