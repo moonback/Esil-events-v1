@@ -7,6 +7,7 @@ import { signOut } from '../services/authService';
 import MegaMenu from './MegaMenu';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
+import TopBar from './TopBar';
 import MobileSidebar from './MobileSidebar';
 // import UserMenu from './UserMenu';
 
@@ -58,8 +59,24 @@ const Header: React.FC = () => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
+  const [showTopBar, setShowTopBar] = useState(true);
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+      {showTopBar && <TopBar onClose={() => setShowTopBar(false)} />}
+      {/* {isSearchOpen && (
+        <div className="fixed inset-x-0 top-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md z-50 py-4 px-4 shadow-lg transition-all duration-300 transform">
+          <div className="w-full h-full flex items-center justify-center">
+            <SearchBar onSearch={handleSearch} />
+            <button
+              onClick={() => setIsSearchOpen(false)}
+              className="ml-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+            >
+              <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+          </div>
+        </div>
+      )} */}
       
       <div 
         className={`transition-all duration-300 relative ${

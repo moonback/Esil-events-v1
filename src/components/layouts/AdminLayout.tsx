@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Package, Grid, LayoutDashboard, Music, Tag, LogOut, Menu, X, FileText } from 'lucide-react';
+import { 
+  Package, 
+  FileText, 
+  Users, 
+  Grid, 
+  LayoutDashboard, 
+  Music, 
+  Tag, 
+  LogOut, 
+  Menu, 
+  X, 
+  MessageSquare 
+} from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 interface MenuItem {
-  title: string;
+  label: string;
   icon: React.ReactNode;
   path: string;
 }
@@ -26,43 +38,56 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const menuItems: MenuItem[] = [
     {
-      title: 'Tableau de bord',
+      label: 'Tableau de bord',
       icon: <LayoutDashboard className="w-5 h-5" />,
       path: '/admin'
     },
     {
-      title: 'Produits',
+      label: 'Produits',
       icon: <Package className="w-5 h-5" />,
       path: '/admin/products'
     },
     {
-      title: 'Catégories',
+      label: 'Catégories',
       icon: <Grid className="w-5 h-5" />,
       path: '/admin/categories'
     },
     {
-      title: 'Catégories d\'artistes',
+      label: 'Catégories d\'artistes',
       icon: <Tag className="w-5 h-5" />,
       path: '/admin/artist-categories'
     },
     {
-      title: 'Artistes',
+      label: 'Artistes',
       icon: <Music className="w-5 h-5" />,
       path: '/admin/artists'
     },
     {
-      title: 'Demandes de devis',
+      label: 'Pages',
+      icon: <FileText className="w-5 h-5" />,
+      path: '/admin/pages'
+    },
+    {
+      label: 'Clients',
+      icon: <Users className="w-5 h-5" />,
+      path: '/admin/customers'
+    },
+    {
+      label: 'Annonces',
+      icon: <MessageSquare className="w-5 h-5" />,
+      path: '/admin/announcements'
+    },
+    {
+      label: 'Demandes de devis',
       icon: <FileText className="w-5 h-5" />,
       path: '/admin/quote-requests'
     }
-    
   ];
 
   const NavItem = ({ item, onClick }: { item: MenuItem; onClick?: () => void }) => {
     const isActive = location.pathname === item.path;
     return (
       <Link
-        key={item.path}
         to={item.path}
         onClick={onClick}
         className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
@@ -72,7 +97,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         }`}
       >
         {item.icon}
-        <span className="ml-3">{item.title}</span>
+        <span className="ml-3">{item.label}</span>
       </Link>
     );
   };
