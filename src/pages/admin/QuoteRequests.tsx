@@ -323,6 +323,36 @@ const QuoteRequestsAdmin: React.FC = () => {
                       </div>
                     </div>
                     
+                    {/* Informations livraison */}
+                    <div className="p-3 bg-gray-50 rounded-md">
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">Détails de livraison</h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-xs text-gray-500">Adresse</p>
+                          <p className="font-medium">{selectedRequest.delivery_address}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Date livraison</p>
+                          <p className="font-medium">{selectedRequest.delivery_date && formatDate(selectedRequest.delivery_date)}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Informations reprise */}
+                    <div className="p-3 bg-gray-50 rounded-md">
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">Détails de reprise</h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-xs text-gray-500">Date reprise</p>
+                          <p className="font-medium">{selectedRequest.pickup_date && formatDate(selectedRequest.pickup_date)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Notes</p>
+                          <p className="font-medium">{selectedRequest.delivery_notes}</p>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Articles commandés */}
                     <div className="p-3 bg-gray-50 rounded-md">
                       <h3 className="text-sm font-medium text-gray-700 mb-2">Articles commandés</h3>

@@ -2,6 +2,10 @@ import { supabase } from './supabaseClient';
 import { FormData } from '../components/cart/types';
 
 export interface QuoteRequest {
+  delivery_address?: string;
+  delivery_date?: string;
+  pickup_date?: string;
+  delivery_notes?: string;
   id?: string;
   first_name: string;
   last_name: string;
