@@ -63,21 +63,21 @@ const AdminHeader: React.FC = () => {
             <Search className="w-5 h-5" />
           </button>
 
-          {/* Notifications - Hidden on mobile */}
+          {/* Notifications - Hidden on mobile
           <button
             className="hidden md:block p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             aria-label="Notifications"
           >
             <Bell className="w-5 h-5" />
-          </button>
+          </button> */}
 
-          {/* Settings - Hidden on mobile */}
+          {/* Settings - Hidden on mobile
           <button
             className="hidden md:block p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             aria-label="Paramètres"
           >
             <Settings className="w-5 h-5" />
-          </button>
+          </button> */}
 
           {/* User Menu */}
           <div className="relative">
@@ -117,7 +117,7 @@ const AdminHeader: React.FC = () => {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 top-16 bg-white dark:bg-gray-800 md:hidden z-50">
           <div className="p-4 space-y-4">
-            <button
+            {/* <button
               className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
               <Bell className="w-5 h-5 mr-3" />
@@ -128,7 +128,7 @@ const AdminHeader: React.FC = () => {
             >
               <Settings className="w-5 h-5 mr-3" />
               Paramètres
-            </button>
+            </button> */}
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
               <button
                 onClick={handleSignOut}
