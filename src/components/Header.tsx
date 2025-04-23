@@ -241,12 +241,12 @@ const Header: React.FC = () => {
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{user.email}</p>
                         </div>
                         <div className="py-1">
-                          <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
+                          {/* <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
                             Mon profilc
                           </Link>
                           <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
                             Mes commandes
-                          </Link>
+                          </Link> */}
                           {isAdminUser && (
                             <Link to="/admin" className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
                               <Settings className="w-4 h-4 mr-2" />
@@ -254,14 +254,14 @@ const Header: React.FC = () => {
                             </Link>
                           )}
                         </div>
-                        <div className="py-1 border-t border-gray-200/80 dark:border-gray-700/80">
+                        {/* <div className="py-1 border-t border-gray-200/80 dark:border-gray-700/80">
                           <button 
                             onClick={handleSignOut} 
                             className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
                           >
                             Déconnexion
                           </button>
-                        </div>
+                        </div> */}
                       </div>
                     )}
                   </div>
