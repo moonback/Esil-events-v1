@@ -27,6 +27,7 @@ import RegisterForm from './components/RegisterForm';
 import ArtistPage from './pages/ArtistPage';
 import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
 import AdminArtists from './pages/admin/Artists';
+import QuoteRequestsAdmin from './pages/admin/QuoteRequests';
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import { HelmetProvider } from 'react-helmet-async';
 
@@ -71,6 +72,7 @@ const App: React.FC = () => {
           <Route path="/admin/customers" element={<AdminRoute><AdminCustomers /></AdminRoute>} />
           <Route path="/admin/artists" element={<AdminRoute><AdminArtists /></AdminRoute>} />
           <Route path="/admin/artist-categories" element={<AdminRoute><AdminArtistCategories /></AdminRoute>} />
+          <Route path="/admin/quote-requests" element={<AdminRoute><QuoteRequestsAdmin /></AdminRoute>} />
 
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />

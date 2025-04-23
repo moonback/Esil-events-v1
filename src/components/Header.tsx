@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, X, User, Settings, Mail, Phone } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, Settings, Mail, Phone, Sun, Moon } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 import { signOut } from '../services/authService';
@@ -15,6 +15,7 @@ const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMegaMenu, setShowMegaMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   // const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { items } = useCart();
@@ -71,15 +72,15 @@ const Header: React.FC = () => {
         <div className="w-full mx-auto">
           <div className="flex flex-col relative">
             {/* Logo Section - Absolute positioned to overlap */}
-            <div className="absolute left-4 top-5 md:top-5 top-10 z-10">
-  <Link to="/" className="flex items-center group">
-    <img
-      src="images/logo.png" 
-      alt="ESIL Events Logo" 
-      className="h-16 w-16 sm:h-20 sm:w-20 transition-all duration-300 transform group-hover:scale-105 hover:rotate-3"
-    />
-  </Link>
-</div>
+            <div className="absolute left-4 top-5 z-10">
+              <Link to="/" className="flex items-center group">
+                <img 
+                  src="images/logo.png" 
+                  alt="ESIL Events Logo" 
+                  className="h-20 w-20 transition-all duration-300 transform group-hover:scale-105 hover:rotate-3"
+                />
+              </Link>
+            </div>
 
             {/* Search Bar Section */}
             <div className="w-full py-2 border-b border-gray-200/80 dark:border-gray-700/80">
@@ -199,6 +200,19 @@ const Header: React.FC = () => {
               </div>
 
               <div className="flex items-center space-x-3">
+            {/* <button
+              onClick={() => {
+                setIsDarkMode(!isDarkMode);
+                document.documentElement.classList.toggle('dark', !isDarkMode);
+              }}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
+            >
+              {isDarkMode ? (
+                <Sun className="w-5 h-5 text-yellow-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+              )}
+            </button> */}
                 
                 <Link 
                   to="/cart" 
@@ -227,12 +241,12 @@ const Header: React.FC = () => {
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{user.email}</p>
                         </div>
                         <div className="py-1">
-                          <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
-                            Mon profil
+                          {/* <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
+                            Mon profilc
                           </Link>
                           <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
                             Mes commandes
-                          </Link>
+                          </Link> */}
                           {isAdminUser && (
                             <Link to="/admin" className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
                               <Settings className="w-4 h-4 mr-2" />
@@ -240,14 +254,14 @@ const Header: React.FC = () => {
                             </Link>
                           )}
                         </div>
-                        <div className="py-1 border-t border-gray-200/80 dark:border-gray-700/80">
+                        {/* <div className="py-1 border-t border-gray-200/80 dark:border-gray-700/80">
                           <button 
                             onClick={handleSignOut} 
                             className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
                           >
                             Déconnexion
                           </button>
-                        </div>
+                        </div> */}
                       </div>
                     )}
                   </div>

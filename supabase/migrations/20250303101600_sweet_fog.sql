@@ -41,11 +41,11 @@ CREATE TABLE IF NOT EXISTS quote_requests (
 ALTER TABLE quote_requests ENABLE ROW LEVEL SECURITY;
 
 -- Policy for anonymous users to insert quote requests
-CREATE POLICY "Anyone can insert quote requests"
+CREATE POLICY "Anonymous users can insert quotes"
   ON quote_requests
   FOR INSERT
   TO anon
-  WITH CHECK (true);
+  WITH CHECK (user_id IS NULL OR user_id = auth.uid());
 
 -- Policy for authenticated users to manage quote requests
 CREATE POLICY "Authenticated users can read quote requests"

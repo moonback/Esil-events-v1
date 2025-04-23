@@ -12,6 +12,7 @@ export interface CartItem {
 
 // Type pour les données du formulaire de commande
 export interface FormData {
+  user_id: string | null;
   description: string;
   eventDuration: string;
   // Étape 1 : Détails de facturation

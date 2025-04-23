@@ -2,12 +2,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { CheckoutFormProps, FormData } from './types';
+import CartSummaryPreview from './CartSummaryPreview';
+import { useCart } from '../../context/CartContext';
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ 
   onSubmit, 
   onCancel, 
   initialData = {}
 }) => {
+  // Récupérer les articles du panier
+  const { items } = useCart();
   // Utiliser le hook personnalisé pour gérer le formulaire
   const [formData, setFormData] = React.useState<FormData>({
     // Étape 1
@@ -100,6 +104,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   return (
     <div className="bg-white p-8 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6">Finaliser votre demande de devis</h2>
+      
+      {/* Afficher le récapitulatif du panier */}
+      <CartSummaryPreview items={items} />
 
       <form onSubmit={handleSubmit}>
         {/* Section 1: Customer Info */}
