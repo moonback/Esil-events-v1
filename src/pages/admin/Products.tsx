@@ -164,10 +164,10 @@ const AdminProducts: React.FC = () => {
                   <Plus className="w-4 h-4 mr-2" />
                   <span>Nouveau produit</span>
                 </button>
-                <button className="flex items-center px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm transition-colors">
+                {/* <button className="flex items-center px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm transition-colors">
                   <Filter className="w-4 h-4 lg:mr-2" />
                   <span className="hidden lg:inline">Filtres</span>
-                </button>
+                </button> */}
               </div>
             </div>
 
