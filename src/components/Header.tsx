@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, X, User, Settings, Mail, Phone } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, Settings, Mail, Phone, Sun, Moon } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 import { signOut } from '../services/authService';
@@ -15,6 +15,7 @@ const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMegaMenu, setShowMegaMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   // const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { items } = useCart();
@@ -199,6 +200,19 @@ const Header: React.FC = () => {
               </div>
 
               <div className="flex items-center space-x-3">
+            <button
+              onClick={() => {
+                setIsDarkMode(!isDarkMode);
+                document.documentElement.classList.toggle('dark', !isDarkMode);
+              }}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
+            >
+              {isDarkMode ? (
+                <Sun className="w-5 h-5 text-yellow-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+              )}
+            </button>
                 
                 <Link 
                   to="/cart" 

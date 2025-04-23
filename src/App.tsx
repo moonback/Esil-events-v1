@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -31,8 +31,18 @@ import ArtistDetailPage from './pages/ArtistDetailPage';
 import { HelmetProvider } from 'react-helmet-async';
 
 const App: React.FC = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
   return (
     <BrowserRouter>
+      <div className={isDarkMode ? 'dark' : ''}>
+        <button onClick={toggleDarkMode} className="fixed top-4 right-4 p-2 bg-gray-200 dark:bg-gray-800 rounded-full">
+          {isDarkMode ? 'Mode Jour' : 'Mode Nuit'}
+        </button>
       <CartProvider>
         <Routes>
           {/* Routes publiques avec Layout principal */}
@@ -76,6 +86,7 @@ const App: React.FC = () => {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </CartProvider>
+      </div>
     </BrowserRouter>
   );
 };
