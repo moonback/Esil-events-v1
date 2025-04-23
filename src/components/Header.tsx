@@ -71,15 +71,15 @@ const Header: React.FC = () => {
         <div className="w-full mx-auto">
           <div className="flex flex-col relative">
             {/* Logo Section - Absolute positioned to overlap */}
-            <div className="absolute left-4 top-5 z-10">
-              <Link to="/" className="flex items-center group">
-                <img 
-                  src="images/logo.png" 
-                  alt="ESIL Events Logo" 
-                  className="h-20 w-20 transition-all duration-300 transform group-hover:scale-105 hover:rotate-3"
-                />
-              </Link>
-            </div>
+            <div className="absolute left-4 top-5 md:top-5 top-10 z-10">
+  <Link to="/" className="flex items-center group">
+    <img
+      src="images/logo.png" 
+      alt="ESIL Events Logo" 
+      className="h-16 w-16 sm:h-20 sm:w-20 transition-all duration-300 transform group-hover:scale-105 hover:rotate-3"
+    />
+  </Link>
+</div>
 
             {/* Search Bar Section */}
             <div className="w-full py-2 border-b border-gray-200/80 dark:border-gray-700/80">
