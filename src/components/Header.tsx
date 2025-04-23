@@ -200,7 +200,7 @@ const Header: React.FC = () => {
               </div>
 
               <div className="flex items-center space-x-3">
-            <button
+            {/* <button
               onClick={() => {
                 setIsDarkMode(!isDarkMode);
                 document.documentElement.classList.toggle('dark', !isDarkMode);
@@ -212,7 +212,7 @@ const Header: React.FC = () => {
               ) : (
                 <Moon className="w-5 h-5 text-gray-700 dark:text-gray-200" />
               )}
-            </button>
+            </button> */}
                 
                 <Link 
                   to="/cart" 
