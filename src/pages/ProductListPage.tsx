@@ -13,6 +13,8 @@ interface Product {
   priceHT: number;
   priceTTC: number;
   images: string[];
+  colors?: string[];
+  isAvailable?: boolean;
 }
 
 const ProductListPage: React.FC = () => {
@@ -26,6 +28,9 @@ const ProductListPage: React.FC = () => {
   // Filters
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [sortBy, setSortBy] = useState<string>('name-asc');
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [availability, setAvailability] = useState<'all' | 'available' | 'unavailable'>('all');
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -118,9 +123,18 @@ const ProductListPage: React.FC = () => {
   };
 
   const filterProducts = (products: Product[]) => {
-    return products.filter(product => 
-      product.priceHT >= priceRange[0] && product.priceHT <= priceRange[1]
-    );
+    return products.filter(product => {
+      const priceMatch = product.priceHT >= priceRange[0] && product.priceHT <= priceRange[1];
+      const colorMatch = selectedColors.length === 0 || 
+        (product.colors && product.colors.some(c => selectedColors.includes(c)));
+      const categoryMatch = selectedCategories.length === 0 || 
+        selectedCategories.includes(product.category) ||
+        selectedCategories.includes(product.subCategory || '');
+      const availabilityMatch = availability === 'all' || 
+        (product.isAvailable === (availability === 'available'));
+
+      return priceMatch && colorMatch && categoryMatch && availabilityMatch;
+    });
   };
 
   const displayedProducts = sortProducts(filterProducts(products));
@@ -246,6 +260,75 @@ const ProductListPage: React.FC = () => {
                     onChange={(e) => handlePriceRangeChange(1, parseInt(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
                   />
+                </div>
+              </div>
+              
+              {/* Filtre par couleur */}
+              <div className="space-y-4 mt-6">
+                <h4 className="font-medium">Couleurs</h4>
+                <div className="flex flex-wrap gap-2">
+                  {['Rouge', 'Bleu', 'Vert', 'Noir', 'Blanc'].map(color => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColors(prev =>
+                        prev.includes(color)
+                          ? prev.filter(c => c !== color)
+                          : [...prev, color]
+                      )}
+                      className={`px-3 py-1.5 rounded-full text-sm border ${
+                        selectedColors.includes(color)
+                          ? 'bg-blue-100 border-blue-500 text-blue-700'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Filtre par catégorie */}
+              <div className="space-y-3 mt-6">
+                <h4 className="font-medium">Catégories</h4>
+                <div className="space-y-2">
+                  {categories.map(cat => (
+                    <label key={cat.id} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(cat.slug)}
+                        onChange={(e) => setSelectedCategories(prev =>
+                          e.target.checked
+                            ? [...prev, cat.slug]
+                            : prev.filter(c => c !== cat.slug)
+                        )}
+                        className="form-checkbox h-4 w-4 text-blue-500"
+                      />
+                      <span className="text-sm">{cat.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Filtre de disponibilité */}
+              <div className="space-y-3 mt-6">
+                <h4 className="font-medium">Disponibilité</h4>
+                <div className="space-y-2">
+                  {['all', 'available', 'unavailable'].map(option => (
+                    <label key={option} className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value={option}
+                        checked={availability === option}
+                        onChange={(e) => setAvailability(e.target.value as any)}
+                        className="form-radio h-4 w-4 text-blue-500"
+                      />
+                      <span className="text-sm">
+                        {option === 'all' && 'Tous'}
+                        {option === 'available' && 'Disponibles'}
+                        {option === 'unavailable' && 'Indisponibles'}
+                      </span>
+                    </label>
+                  ))}
                 </div>
               </div>
             </div>
