@@ -316,7 +316,7 @@ Génère une réponse de devis professionnelle qui inclut:
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="space-y-6 mt-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      <div className="space-y-8 mt-12 max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div className="flex justify-between items-center bg-white p-5 rounded-lg shadow-md border-l-4 border-indigo-600">
           <div className="flex items-center space-x-4">
             <h1 className="text-3xl font-bold text-gray-900">Demandes de devis</h1>
