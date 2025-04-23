@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Eye, Check, X, RefreshCw, Send, Users, Package } from 'lucide-react';
+import { FileText, Eye, Check, X, RefreshCw, Send, Users, Package, Calendar, Clock, MapPin, Truck, Search, Filter, ArrowDownUp } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { getQuoteRequests, updateQuoteRequestStatus, QuoteRequest } from '../../services/quoteRequestService';
 
 const QuoteRequestsAdmin: React.FC = () => {
   const [quoteRequests, setQuoteRequests] = useState<QuoteRequest[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<QuoteRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [selectedRequest, setSelectedRequest] = useState<QuoteRequest | null>(null);
@@ -14,6 +15,9 @@ const QuoteRequestsAdmin: React.FC = () => {
   const [generatingResponse, setGeneratingResponse] = useState(false);
   const [responseMessage, setResponseMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
   const [suggestedResponse, setSuggestedResponse] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const loadQuoteRequests = async () => {
     try {
@@ -24,7 +28,15 @@ const QuoteRequestsAdmin: React.FC = () => {
         throw new Error(error.message);
       }
       
-      setQuoteRequests(data || []);
+      // Trier les demandes par date de création (les plus récentes d'abord)
+      const sortedData = data ? [...data].sort((a, b) => {
+        const dateA = new Date(a.created_at || '').getTime();
+        const dateB = new Date(b.created_at || '').getTime();
+        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+      }) : [];
+      
+      setQuoteRequests(sortedData);
+      setFilteredRequests(sortedData);
     } catch (err) {
       setError('Erreur lors du chargement des demandes de devis');
       console.error(err);
@@ -35,7 +47,35 @@ const QuoteRequestsAdmin: React.FC = () => {
 
   useEffect(() => {
     loadQuoteRequests();
-  }, []);
+  }, [sortOrder]);
+  
+  // Filtrer les demandes en fonction des critères de recherche et de filtre
+  useEffect(() => {
+    if (!quoteRequests.length) return;
+    
+    let filtered = [...quoteRequests];
+    
+    // Filtrer par terme de recherche
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(request => 
+        request.first_name?.toLowerCase().includes(term) ||
+        request.last_name?.toLowerCase().includes(term) ||
+        request.email?.toLowerCase().includes(term) ||
+        request.company?.toLowerCase().includes(term) ||
+        request.phone?.includes(term) ||
+        request.id?.toLowerCase().includes(term)
+      );
+    }
+    
+    // Filtrer par statut
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(request => request.status === statusFilter);
+    }
+    
+    setFilteredRequests(filtered);
+    setCurrentPage(1); // Réinitialiser la pagination lors du filtrage
+  }, [searchTerm, statusFilter, quoteRequests]);
 
   const handleUpdateStatus = async (id: string, status: string) => {
     try {
@@ -65,8 +105,8 @@ const QuoteRequestsAdmin: React.FC = () => {
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = quoteRequests.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(quoteRequests.length / itemsPerPage);
+  const currentItems = filteredRequests.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
 
   // Formater la date
   const formatDate = (dateString: string) => {
@@ -109,6 +149,52 @@ const QuoteRequestsAdmin: React.FC = () => {
         return 'Terminé';
       default:
         return 'Nouveau';
+    }
+  };
+  
+  // Obtenir le libellé du type de livraison
+  const getDeliveryTypeLabel = (type?: string) => {
+    switch (type) {
+      case 'pickup':
+        return 'Retrait sur place';
+      case 'eco':
+        return 'Livraison standard';
+      case 'premium':
+        return 'Livraison premium';
+      default:
+        return 'Non spécifié';
+    }
+  };
+  
+  // Obtenir le libellé du créneau horaire
+  const getTimeSlotLabel = (slot?: string) => {
+    switch (slot) {
+      case 'before9':
+        return 'Avant 9h';
+      case '9to13':
+        return '9h - 13h';
+      case '13to19':
+        return '13h - 19h';
+      default:
+        return 'Non spécifié';
+    }
+  };
+  
+  // Obtenir le libellé du type d'accès
+  const getAccessLabel = (access?: string) => {
+    switch (access) {
+      case 'parking':
+        return 'Parking';
+      case 'street':
+        return 'Rue';
+      case 'stairs':
+        return 'Escaliers';
+      case 'flat':
+        return 'Plain-pied';
+      case 'elevator':
+        return 'Ascenseur';
+      default:
+        return 'Non spécifié';
     }
   };
 
@@ -230,7 +316,7 @@ Génère une réponse de devis professionnelle qui inclut:
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="space-y-8 mt-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      <div className="space-y-6 mt-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div className="flex justify-between items-center bg-white p-5 rounded-lg shadow-md border-l-4 border-indigo-600">
           <div className="flex items-center space-x-4">
             <h1 className="text-3xl font-bold text-gray-900">Demandes de devis</h1>
@@ -238,15 +324,81 @@ Génère une réponse de devis professionnelle qui inclut:
               {quoteRequests.length}
             </span>
           </div>
-          <button
-            onClick={() => loadQuoteRequests()}
-            className="flex items-center px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm font-medium"
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Actualiser
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => {
+                setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
+              }}
+              className="flex items-center px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors shadow-sm font-medium"
+              title={sortOrder === 'desc' ? 'Plus ancien d\'abord' : 'Plus récent d\'abord'}
+            >
+              <ArrowDownUp className="w-4 h-4 mr-2" />
+              {sortOrder === 'desc' ? 'Plus récent' : 'Plus ancien'}
+            </button>
+            <button
+              onClick={() => loadQuoteRequests()}
+              className="flex items-center px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm font-medium"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Actualiser
+            </button>
+          </div>
         </div>
 
+        {/* Filtres et recherche */}
+        <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Rechercher par nom, email, téléphone..."
+                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="flex-shrink-0">
+              <div className="flex items-center space-x-2">
+                <div className="relative inline-block">
+                  <div className="flex items-center space-x-2">
+                    <Filter className="h-5 w-5 text-gray-400" />
+                    <select
+                      className="block w-full pl-3 pr-10 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                      <option value="all">Tous les statuts</option>
+                      <option value="pending">En attente</option>
+                      <option value="approved">Approuvé</option>
+                      <option value="rejected">Rejeté</option>
+                      <option value="completed">Terminé</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-sm text-gray-500">
+              {filteredRequests.length} résultat{filteredRequests.length !== 1 ? 's' : ''} trouvé{filteredRequests.length !== 1 ? 's' : ''}
+            </div>
+            {(searchTerm || statusFilter !== 'all') && (
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setStatusFilter('all');
+                }}
+                className="text-sm text-indigo-600 hover:text-indigo-800"
+              >
+                Réinitialiser les filtres
+              </button>
+            )}
+          </div>
+        </div>
+        
         {error && (
           <div className="bg-red-50 text-red-600 p-5 rounded-lg border-l-4 border-red-500 shadow-sm flex items-start">
             <X className="h-5 w-5 mr-3 mt-0.5 flex-shrink-0" />
@@ -415,7 +567,7 @@ Génère une réponse de devis professionnelle qui inclut:
                   
                   <div className="space-y-5">
                     {/* Informations client */}
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-indigo-200 transition-colors">
                       <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
                         <Users className="h-4 w-4 mr-2 text-indigo-500" />
                         Informations client
@@ -457,7 +609,7 @@ Génère une réponse de devis professionnelle qui inclut:
                     </div>
                     
                     {/* Informations événement */}
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-indigo-200 transition-colors">
                       <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
                         <FileText className="h-4 w-4 mr-2 text-indigo-500" />
                         Détails de l'événement
@@ -495,7 +647,7 @@ Génère une réponse de devis professionnelle qui inclut:
                     </div>
                     
                     {/* Articles commandés */}
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-indigo-200 transition-colors">
                       <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
                         <Package className="h-4 w-4 mr-2 text-indigo-500" />
                         Articles commandés
@@ -530,9 +682,103 @@ Génère une réponse de devis professionnelle qui inclut:
                       </div>
                     </div>
                     
+                    {/* Informations de livraison */}
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-indigo-200 transition-colors">
+                      <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                        <Truck className="h-4 w-4 mr-2 text-indigo-500" />
+                        Informations de livraison
+                      </h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Type de livraison</p>
+                          <p className="font-medium text-gray-800">{getDeliveryTypeLabel(selectedRequest.delivery_type)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Date de livraison</p>
+                          <p className="font-medium text-gray-800">{selectedRequest.delivery_date || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Créneau horaire</p>
+                          <p className="font-medium text-gray-800">{getTimeSlotLabel(selectedRequest.delivery_time_slot)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Date de retrait</p>
+                          <p className="font-medium text-gray-800">{selectedRequest.pickup_date || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Adresse de livraison</p>
+                          <p className="font-medium text-gray-800 truncate">{selectedRequest.delivery_address || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Ville de livraison</p>
+                          <p className="font-medium text-gray-800">{selectedRequest.delivery_city || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Code postal de livraison</p>
+                          <p className="font-medium text-gray-800">{selectedRequest.delivery_postal_code || '-'}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Informations d'accès */}
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-indigo-200 transition-colors">
+                      <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                        <MapPin className="h-4 w-4 mr-2 text-indigo-500" />
+                        Informations d'accès
+                      </h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Accès extérieur</p>
+                          <p className="font-medium text-gray-800">{getAccessLabel(selectedRequest.exterior_access)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Accès intérieur</p>
+                          <p className="font-medium text-gray-800">{getAccessLabel(selectedRequest.interior_access)}</p>
+                        </div>
+                        {selectedRequest.interior_access === 'elevator' && (
+                          <>
+                            <div>
+                              <p className="text-xs font-medium text-gray-500">Dimensions ascenseur (L)</p>
+                              <p className="font-medium text-gray-800">{selectedRequest.elevator_width ? `${selectedRequest.elevator_width} cm` : '-'}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-gray-500">Dimensions ascenseur (H)</p>
+                              <p className="font-medium text-gray-800">{selectedRequest.elevator_height ? `${selectedRequest.elevator_height} cm` : '-'}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-gray-500">Dimensions ascenseur (P)</p>
+                              <p className="font-medium text-gray-800">{selectedRequest.elevator_depth ? `${selectedRequest.elevator_depth} cm` : '-'}</p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Informations de reprise */}
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-indigo-200 transition-colors">
+                      <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                        <Calendar className="h-4 w-4 mr-2 text-indigo-500" />
+                        Informations de reprise
+                      </h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Date de reprise</p>
+                          <p className="font-medium text-gray-800">{selectedRequest.pickup_return_date || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Heure de début</p>
+                          <p className="font-medium text-gray-800">{selectedRequest.pickup_return_start_time || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Heure de fin</p>
+                          <p className="font-medium text-gray-800">{selectedRequest.pickup_return_end_time || '-'}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
                     {/* Commentaires */}
                     {selectedRequest.comments && (
-                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-indigo-200 transition-colors">
                         <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
                           <FileText className="h-4 w-4 mr-2 text-indigo-500" />
                           Commentaires
@@ -544,7 +790,7 @@ Génère une réponse de devis professionnelle qui inclut:
                     )}
                     
                     {/* Actions */}
-                    <div className="flex flex-col space-y-4 mt-6">
+                    <div className="flex flex-col space-y-4 mt-6 sticky bottom-0 bg-white p-4 rounded-lg border border-gray-200 shadow-md">
                       <div className="flex justify-between items-center">
                         <h3 className="text-sm font-semibold text-gray-700">Actions</h3>
                         <div className="h-px flex-1 bg-gray-200 ml-3"></div>
