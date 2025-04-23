@@ -7,9 +7,7 @@ export const seoConfig = {
   defaultImage: '/images/logo.png',
   social: {
     facebook: 'https://facebook.com/esilevents', // À remplacer par vos liens réels
-    twitter: 'https://twitter.com/esilevents',
     instagram: 'https://instagram.com/esilevents',
-    linkedin: 'https://linkedin.com/company/esil-events'
   },
   organization: {
     name: 'ESIL Events',
