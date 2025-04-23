@@ -238,28 +238,38 @@ const ProductListPage: React.FC = () => {
             <div className="bg-white p-6 rounded-lg shadow-md mb-4 transition-all duration-300 ease-in-out">
               <h3 className="font-semibold text-lg mb-4">Fourchette de prix</h3>
               <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="1000" 
-                    value={priceRange[0]} 
-                    onChange={(e) => handlePriceRangeChange(0, parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                  />
-                  <span className="text-sm font-medium bg-gray-100 px-3 py-1 rounded-md min-w-[100px] text-center">
-                    {priceRange[0]}€ - {priceRange[1]}€
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="1000" 
-                    value={priceRange[1]} 
-                    onChange={(e) => handlePriceRangeChange(1, parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                  />
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4">
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="1000" 
+                      value={priceRange[0]} 
+                      onChange={(e) => handlePriceRangeChange(0, parseInt(e.target.value))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                    />
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="1000" 
+                      value={priceRange[1]} 
+                      onChange={(e) => handlePriceRangeChange(1, parseInt(e.target.value))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                    />
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Min: {priceRange[0]}€</span>
+                    <span>Max: {priceRange[1]}€</span>
+                  </div>
+                  <div className="relative h-1 bg-gray-200 rounded-full">
+                    <div 
+                      className="absolute h-1 bg-blue-500 rounded-full"
+                      style={{
+                        left: `${(priceRange[0] / 1000) * 100}%`,
+                        right: `${100 - (priceRange[1] / 1000) * 100}%`
+                      }}
+                    ></div>
+                  </div>
                 </div>
               </div>
               
