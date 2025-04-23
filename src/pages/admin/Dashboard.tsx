@@ -43,31 +43,31 @@ const AdminDashboard: React.FC = () => {
     {
       title: 'Produits',
       value: loading ? '...' : productsCount.toString(),
-      change: '+4.75%',
+      // change: '+4.75%',
       changeType: 'increase',
       icon: <Package className="w-8 h-8 text-black" />
     },
     {
-      title: 'Catégories',
+      title: 'Catégories principal',
       value: loading ? '...' : categoriesCount.toString(),
-      change: '+2.3%',
+      // change: '+2.3%',
       changeType: 'increase',
       icon: <FileText className="w-8 h-8 text-black" />
     },
     {
       title: 'Demandes de devis',
       value: loading ? '...' : quoteRequestsCount.toString(),
-      change: '+10.2%',
+      // change: '+10.2%',
       changeType: 'increase',
       icon: <ClipboardList className="w-8 h-8 text-black" />
     },
-    {
-      title: 'Revenus',
-      value: '2,450€',
-      change: '-3.2%',
-      changeType: 'decrease',
-      icon: <TrendingUp className="w-8 h-8 text-black" />
-    }
+    // {
+    //   title: 'Revenus',
+    //   value: '2,450€',
+    //   change: '-3.2%',
+    //   changeType: 'decrease',
+    //   icon: <TrendingUp className="w-8 h-8 text-black" />
+    // }
   ];
 
   const recentOrders = [
@@ -172,7 +172,7 @@ const AdminDashboard: React.FC = () => {
                 <span className={`text-sm font-medium ${
                   stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
                 }`}>
-                  {stat.change}
+                  {/* {stat.change} */}
                 </span>
               </div>
               <h3 className="text-2xl font-bold">{stat.value}</h3>
