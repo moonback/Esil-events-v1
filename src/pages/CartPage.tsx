@@ -8,6 +8,7 @@ import {
   SuccessMessage,
   FormData
 } from '../components/cart';
+import { createQuoteRequest } from '../services/quoteRequestService';
 
 const CartPage: React.FC = () => {
   const { items, removeFromCart, updateQuantity, clearCart } = useCart();
@@ -15,19 +16,36 @@ const CartPage: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   // Gestion de la soumission du formulaire
-  const handleFormSubmit = (formData: FormData) => {
-    // Ici, vous enverriez généralement les données à votre backend
-    console.log('Form data:', formData);
-    console.log('Cart items:', items);
-
-    // Afficher le message de succès et vider le panier
-    setFormSubmitted(true);
-    clearCart();
+  const handleFormSubmit = async (formData: FormData) => {
+    try {
+      // Envoyer les données à Supabase
+      const { data, error } = await createQuoteRequest(formData, items);
+      
+      if (error) {
+        console.error('Erreur lors de la création de la demande de devis:', error);
+        alert('Une erreur est survenue lors de l\'envoi de votre demande de devis. Veuillez réessayer.');
+        return;
+      }
+      
+      console.log('Demande de devis créée avec succès:', data);
+      
+      // Afficher le message de succès et vider le panier
+      setFormSubmitted(true);
+      clearCart();
+    } catch (error) {
+      console.error('Erreur lors de la création de la demande de devis:', error);
+      alert('Une erreur est survenue lors de l\'envoi de votre demande de devis. Veuillez réessayer.');
+    }
   };
 
   // Afficher le message de succès si le formulaire a été soumis
   if (formSubmitted) {
-    return <SuccessMessage />;
+    return <SuccessMessage 
+      title="Demande de devis envoyée !"
+      message="Nous avons bien reçu votre demande de devis. Notre équipe va l'étudier et vous contactera dans les plus brefs délais."
+      buttonText="Retour à l'accueil"
+      buttonLink="/"
+    />;
   }
 
   return (

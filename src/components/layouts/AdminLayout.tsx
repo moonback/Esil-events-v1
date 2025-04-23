@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Package, Grid, LayoutDashboard, Music, Tag, LogOut, Menu, X } from 'lucide-react';
+import { Package, Grid, LayoutDashboard, Music, Tag, LogOut, Menu, X, FileText } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 interface MenuItem {
@@ -49,6 +49,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       title: 'Artistes',
       icon: <Music className="w-5 h-5" />,
       path: '/admin/artists'
+    },
+    {
+      title: 'Demandes de devis',
+      icon: <FileText className="w-5 h-5" />,
+      path: '/admin/quote-requests'
     }
     
   ];
