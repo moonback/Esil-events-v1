@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, X, User, Settings, Search, FileText, Info, Shield, Phone } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, Settings, Mail, Phone, Sun, Moon } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 import { signOut } from '../services/authService';
@@ -8,6 +8,7 @@ import MegaMenu from './MegaMenu';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
 import TopBar from './TopBar';
+import MobileSidebar from './MobileSidebar';
 // import UserMenu from './UserMenu';
 
 const Header: React.FC = () => {
@@ -15,7 +16,8 @@ const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMegaMenu, setShowMegaMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  // const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { items } = useCart();
   const { user, isAdminUser } = useAuth();
@@ -75,6 +77,7 @@ const Header: React.FC = () => {
           </div>
         </div>
       )} */}
+      
       <div 
         className={`transition-all duration-300 relative ${
           isScrolled 
@@ -130,6 +133,13 @@ const Header: React.FC = () => {
                     <Phone className="w-4 h-4 animate-pulse" />
                     <span className="text-sm font-medium tracking-wide">07.85.95.97.23</span>
                   </a>
+                  <Link
+                    to="/contact"
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span className="text-sm font-medium tracking-wide"></span>
+                  </Link>
                 </div>
                 
                 <div className="hidden md:flex space-x-2">
@@ -149,6 +159,7 @@ const Header: React.FC = () => {
                       <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
                     </svg>
                   </a>
+                  
                   
                 </div>
               </div>
@@ -171,7 +182,7 @@ const Header: React.FC = () => {
                       onMouseLeave={() => setShowMegaMenu(false)}
                       className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 flex items-center space-x-1"
                     >
-                      <span>Nos produits</span>
+                      <span>Location matériel</span>
                       <div className={`w-1 h-1 rounded-full bg-primary-500 dark:bg-primary-400 transition-all duration-300 ${showMegaMenu ? 'opacity-100' : 'opacity-0'}`} />
                     </button>
                     {showMegaMenu && (
@@ -187,7 +198,7 @@ const Header: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <Link to="/artists" className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors duration-200">
+                  <Link to="/artists" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
                     Artistes
                   </Link>
                   <Link to="/about" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
@@ -206,6 +217,19 @@ const Header: React.FC = () => {
               </div>
 
               <div className="flex items-center space-x-3">
+            {/* <button
+              onClick={() => {
+                setIsDarkMode(!isDarkMode);
+                document.documentElement.classList.toggle('dark', !isDarkMode);
+              }}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
+            >
+              {isDarkMode ? (
+                <Sun className="w-5 h-5 text-yellow-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+              )}
+            </button> */}
                 
                 <Link 
                   to="/cart" 
@@ -234,12 +258,12 @@ const Header: React.FC = () => {
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{user.email}</p>
                         </div>
                         <div className="py-1">
-                          <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
-                            Mon profil
+                          {/* <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
+                            Mon profilc
                           </Link>
                           <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
                             Mes commandes
-                          </Link>
+                          </Link> */}
                           {isAdminUser && (
                             <Link to="/admin" className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
                               <Settings className="w-4 h-4 mr-2" />
@@ -247,14 +271,14 @@ const Header: React.FC = () => {
                             </Link>
                           )}
                         </div>
-                        <div className="py-1 border-t border-gray-200/80 dark:border-gray-700/80">
+                        {/* <div className="py-1 border-t border-gray-200/80 dark:border-gray-700/80">
                           <button 
                             onClick={handleSignOut} 
                             className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
                           >
                             Déconnexion
                           </button>
-                        </div>
+                        </div> */}
                       </div>
                     )}
                   </div>
@@ -281,88 +305,14 @@ const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu - Replaced with MobileSidebar component */}
           {isMobileMenuOpen && (
-            <>
-              {/* Overlay */}
-              <div 
-                className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[90] md:hidden"
-                onClick={() => setIsMobileMenuOpen(false)}
-              />
-              {/* Sidebar */}
-              <div 
-                className={`fixed top-0 right-0 w-64 h-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md z-[100] md:hidden transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'} shadow-xl`}
-              >
-                <div className="flex justify-between items-center p-4 border-b border-gray-200/80 dark:border-gray-700/80">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Menu</h2>
-                  <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-                  >
-                    <X className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-                  </button>
-                </div>
-                <div className="px-2 py-3 space-y-1 overflow-y-auto max-h-[calc(100vh-64px)]">
-                  <Link 
-                    to="/products" 
-                    className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Nos produits
-                  </Link>
-                  <Link 
-                    to="/about" 
-                    className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    À propos
-                  </Link>
-                  <Link 
-                    to="/contact" 
-                    className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Contact
-                  </Link>
-                  <Link 
-                    to="/delivery" 
-                    className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Livraison
-                  </Link>
-                  {user && (
-                    <>
-                      <div className="border-t border-gray-200/80 dark:border-gray-700/80 my-2" />
-                      <Link 
-                        to="/orders" 
-                        className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Mes commandes
-                      </Link>
-                      <Link 
-                        to="/profile" 
-                        className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Mon profil
-                      </Link>
-                    </>
-                  )}
-                  {isAdminUser && (
-                    <Link 
-                      to="/admin" 
-                      className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Settings className="w-4 h-4 mr-2" />
-                      Administration
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </>
+            <MobileSidebar 
+              isOpen={isMobileMenuOpen}
+              onClose={() => setIsMobileMenuOpen(false)}
+              user={user}
+              isAdminUser={isAdminUser}
+            />
           )}
         </div>
       </div>

@@ -1,10 +1,59 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { ArrowRight, CheckCircle, Package, Truck } from 'lucide-react';
 
 const HomePage: React.FC = () => {
   return (
     <div>
+      <Helmet>
+        <title>ESIL Events | Location de Matériel Événementiel & Agence Événementielle</title>
+        <meta name="description" content="ESIL Events, votre partenaire événementiel depuis 30 ans. Location de matériel, organisation d'événements d'entreprise, solutions clé en main pour vos événements professionnels." />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="ESIL Events | Location de Matériel Événementiel & Agence Événementielle" />
+        <meta property="og:description" content="Location de matériel événementiel et organisation d'événements professionnels. Sonorisation, éclairage, mobilier et plus encore." />
+        <meta property="og:image" content="/images/og-image.jpg" />
+        <meta property="og:url" content="https://esil-events.fr" />
+        
+        
+        {/* Additional SEO tags */}
+        <meta name="keywords" content="location matériel événementiel, agence événementielle, sonorisation, éclairage, mobilier événementiel, organisation événement entreprise, location jeux, signalétique événementielle" />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="ESIL Events" />
+        <link rel="canonical" href="https://esil-events.fr" />
+
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "ESIL Events",
+            "description": "Location de matériel événementiel et organisation d'événements professionnels",
+            "url": "https://esil-events.fr",
+            "logo": "https://esil-events.fr/images/logo.png",
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "telephone": "+33-620-461-385",
+              "contactType": "customer service",
+              "areaServed": "FR",
+              "availableLanguage": "French"
+            },
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Mantes-la-Ville",
+              "addressRegion": "Île-de-France",
+              "addressCountry": "FR"
+            },
+            "sameAs": [
+              "https://www.facebook.com/profile.php?id=61574583021091",
+              "https://www.instagram.com/esilevents"
+            ]
+          })}
+        </script>
+      </Helmet>
+
       {/* Hero Section with Video */}
       <section className="relative h-screen">
         <video 

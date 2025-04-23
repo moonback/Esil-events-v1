@@ -14,6 +14,7 @@ import AdminPages from './pages/admin/Pages';
 import AdminCustomers from './pages/admin/Customers';
 import AdminCategories from './pages/admin/Categories';
 import AdminAnnouncements from './pages/admin/Announcements';
+import AdminArtistCategories from './pages/admin/ArtistCategories';
 import NotFoundPage from './pages/NotFoundPage';
 import ProfilePage from './pages/ProfilePage';
 import OrdersPage from './pages/OrdersPage';
@@ -26,6 +27,10 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import ArtistPage from './pages/ArtistPage';
 import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
+import AdminArtists from './pages/admin/Artists';
+import QuoteRequestsAdmin from './pages/admin/QuoteRequests';
+import ArtistDetailPage from './pages/ArtistDetailPage';
+import { HelmetProvider } from 'react-helmet-async';
 
 const App: React.FC = () => {
   return (
@@ -50,6 +55,7 @@ const App: React.FC = () => {
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/artists" element={<ArtistPage />} />
+            <Route path="/artist/:id" element={<ArtistDetailPage />} />
             <Route path="/agence-evenementielle" element={<EventsPage />} />
           </Route>
 
@@ -66,6 +72,9 @@ const App: React.FC = () => {
           <Route path="/admin/pages" element={<AdminRoute><AdminPages /></AdminRoute>} />
           <Route path="/admin/customers" element={<AdminRoute><AdminCustomers /></AdminRoute>} />
           <Route path="/admin/announcements" element={<AdminRoute><AdminAnnouncements /></AdminRoute>} />
+          <Route path="/admin/artists" element={<AdminRoute><AdminArtists /></AdminRoute>} />
+          <Route path="/admin/artist-categories" element={<AdminRoute><AdminArtistCategories /></AdminRoute>} />
+          <Route path="/admin/quote-requests" element={<AdminRoute><QuoteRequestsAdmin /></AdminRoute>} />
 
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />

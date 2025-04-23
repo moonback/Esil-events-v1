@@ -86,7 +86,7 @@ const AdminProducts: React.FC = () => {
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="space-y-6">
+      <div className="space-y-6 mt-12">
         
 
         {error && (
@@ -141,8 +141,8 @@ const AdminProducts: React.FC = () => {
           </div>
         ) : (
           <>
-            {/* Filters and Search */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
+            {/* Filters and Search - Made responsive */}
+            <div className="flex flex-col lg:flex-row gap-4 mb-6">
               <div className="flex-1 relative">
                 <input
                   type="text"
@@ -153,186 +153,198 @@ const AdminProducts: React.FC = () => {
                 />
                 <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
               </div>
-              <button className="flex items-center px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm transition-colors">
-                <Filter className="w-4 h-4 mr-2" />
-                Filtres
-              </button>
-							<div className="flex items-center justify-between">
-          
-        </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setEditingProduct(null);
+                    setShowForm(true);
+                  }}
+                  className="flex-1 lg:flex-none flex items-center justify-center px-4 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors shadow-sm"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  <span>Nouveau produit</span>
+                </button>
+                {/* <button className="flex items-center px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm transition-colors">
+                  <Filter className="w-4 h-4 lg:mr-2" />
+                  <span className="hidden lg:inline">Filtres</span>
+                </button> */}
+              </div>
             </div>
 
-            {/* Products Table */}
-            
+            {/* Products Table - Made responsive */}
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="overflow-x-auto p-6">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                  <h1 className="text-2xl font-bold text-gray-900">Gestion des produits</h1>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        setEditingProduct(null);
-                        setShowForm(true);
-                      }}
-                      className="flex items-center px-4 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors shadow-sm"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Nouveau produit
-                    </button>
-                    {/* <button
-                      onClick={() => {
-                        // Add your filter logic here
-                      }}
-                      className="flex items-center px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
-                    >
-                      <Filter className="w-4 h-4 mr-2" />
-                      Filtres
-                    </button> */}
-                  </div>
-                </div>
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Produit
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Catégorie
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Prix HT
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Stock
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Statut
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {currentItems.map((product) => (
-                      <tr key={product.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            {product.images && product.images.length > 0 ? (
-                              <ProductImage
-                                src={product.images[0]}
-                                alt={product.name}
-                              />
-                            ) : (
-                              <div className="h-10 w-10 rounded-md bg-gray-200 flex items-center justify-center">
-                                <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                              </div>
-                            )}
-                            <div className="ml-3">
-                              <div className="font-medium text-gray-900">{product.name}</div>
-                              <div className="text-sm text-gray-500">{product.reference}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{product.category}</div>
-                          <div className="text-sm text-gray-500">{product.subCategory}</div>
-                          <div className="text-sm text-gray-400">{product.subSubCategory}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{product.priceHT} €</div>
-                          <div className="text-sm text-gray-500">{product.priceTTC} € TTC</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {product.stock}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              product.isAvailable
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {product.isAvailable ? 'Disponible' : 'Indisponible'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button
-                            onClick={() => {
-                              setEditingProduct(product);
-                              setShowForm(true);
-                            }}
-                            className="text-gray-600 hover:text-gray-900 mr-3"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(product.id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </td>
+              <div className="overflow-x-auto">
+                <div className="min-w-full">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Produit
+                        </th>
+                        <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Catégorie
+                        </th>
+                        <th className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Prix
+                        </th>
+                        <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Stock
+                        </th>
+                        <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Statut
+                        </th>
+                        <th className="px-3 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 flex justify-between sm:hidden">
-                      <button
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                        disabled={currentPage === 1}
-                        className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                      >
-                        Précédent
-                      </button>
-                      <button
-                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                        disabled={currentPage === totalPages}
-                        className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                      >
-                        Suivant
-                      </button>
-                    </div>
-                    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-sm text-gray-700">
-                          Affichage de{' '}
-                          <span className="font-medium">{indexOfFirstItem + 1}</span>
-                          {' à '}
-                          <span className="font-medium">
-                            {Math.min(indexOfLastItem, filteredProducts.length)}
-                          </span>
-                          {' sur '}
-                          <span className="font-medium">{filteredProducts.length}</span>
-                          {' produits'}
-                        </p>
-                      </div>
-                      <div>
-                        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                            <button
-                              key={page}
-                              onClick={() => setCurrentPage(page)}
-                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                currentPage === page
-                                  ? 'z-10 bg-black border-black text-white'
-                                  : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {currentItems.map((product) => (
+                        <tr key={product.id} className="hover:bg-gray-50">
+                          <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="hidden lg:block">
+                                {product.images && product.images.length > 0 ? (
+                                  <ProductImage
+                                    src={product.images[0]}
+                                    alt={product.name}
+                                  />
+                                ) : (
+                                  <div className="h-10 w-10 rounded-md bg-gray-200 flex items-center justify-center">
+                                    <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="ml-0 lg:ml-3">
+                                <div className="font-medium text-gray-900">{product.name}</div>
+                                <div className="text-sm text-gray-500">{product.reference}</div>
+                                <div className="lg:hidden text-xs text-gray-400 mt-1">
+                                  {product.category} • {product.stock} en stock
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">{product.category}</div>
+                            <div className="text-sm text-gray-500">{product.subCategory}</div>
+                            <div className="text-sm text-gray-400">{product.subSubCategory}</div>
+                          </td>
+                          <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">{product.priceHT} €</div>
+                            <div className="text-xs text-gray-500">{product.priceTTC} € TTC</div>
+                          </td>
+                          <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {product.stock}
+                          </td>
+                          <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                product.isAvailable
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
                               }`}
                             >
-                              {page}
+                              {product.isAvailable ? 'Disponible' : 'Indisponible'}
+                            </span>
+                          </td>
+                          <td className="px-3 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button
+                              onClick={() => {
+                                setEditingProduct(product);
+                                setShowForm(true);
+                              }}
+                              className="text-gray-600 hover:text-gray-900 mr-3"
+                            >
+                              <Edit className="w-4 h-4" />
                             </button>
-                          ))}
-                        </nav>
-                      </div>
+                            <button
+                              onClick={() => handleDelete(product.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Pagination - Made responsive */}
+              {totalPages > 1 && (
+                <div className="bg-white px-3 lg:px-6 py-3 border-t border-gray-200">
+                  <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                    <div className="w-full lg:w-auto">
+                      <p className="text-sm text-gray-700 text-center lg:text-left">
+                        <span className="font-medium">{indexOfFirstItem + 1}</span>
+                        {' - '}
+                        <span className="font-medium">
+                          {Math.min(indexOfLastItem, filteredProducts.length)}
+                        </span>
+                        {' sur '}
+                        <span className="font-medium">{filteredProducts.length}</span>
+                      </p>
+                    </div>
+                    <div className="flex justify-center w-full lg:w-auto">
+                      <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        <button
+                          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                          disabled={currentPage === 1}
+                          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                        >
+                          <span className="sr-only">Précédent</span>
+                          &larr;
+                        </button>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                          .filter(page => {
+                            const distance = Math.abs(page - currentPage);
+                            return distance === 0 || distance === 1 || page === 1 || page === totalPages;
+                          })
+                          .map((page, index, array) => {
+                            if (index > 0 && array[index - 1] !== page - 1) {
+                              return [
+                                <span key={`ellipsis-${page}`} className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                  ...
+                                </span>,
+                                <button
+                                  key={page}
+                                  onClick={() => setCurrentPage(page)}
+                                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                    currentPage === page
+                                      ? 'z-10 bg-black border-black text-white'
+                                      : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                                  }`}
+                                >
+                                  {page}
+                                </button>
+                              ];
+                            }
+                            return (
+                              <button
+                                key={page}
+                                onClick={() => setCurrentPage(page)}
+                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                  currentPage === page
+                                    ? 'z-10 bg-black border-black text-white'
+                                    : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                                }`}
+                              >
+                                {page}
+                              </button>
+                            );
+                          })}
+                        <button
+                          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                          disabled={currentPage === totalPages}
+                          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                        >
+                          <span className="sr-only">Suivant</span>
+                          &rarr;
+                        </button>
+                      </nav>
                     </div>
                   </div>
                 </div>

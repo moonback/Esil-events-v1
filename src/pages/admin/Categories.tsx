@@ -285,7 +285,7 @@ const AdminCategories: React.FC = () => {
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="space-y-6">
+      <div className="space-y-6 mt-12">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Gestion des catégories</h1>
           <div className="flex gap-4">
@@ -317,10 +317,10 @@ const AdminCategories: React.FC = () => {
             />
             <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
           </div>
-          <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+          {/* <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
             <Filter className="w-4 h-4 mr-2" />
             Filtres
-          </button>
+          </button> */}
         </div>
 
         {/* Categories List */}
