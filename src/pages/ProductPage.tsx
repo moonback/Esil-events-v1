@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus } from 'lucide-r
 import { useCart } from '../context/CartContext';
 import { getProductById } from '../services/productService';
 import { Product } from '../types/Product';
+import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,7 +51,7 @@ const ProductPage: React.FC = () => {
     addToCart({
       id: product.id,
       name: product.name,
-      image: product.images[0],
+      image: product.images && product.images.length > 0 ? product.images[0] : DEFAULT_PRODUCT_IMAGE,
       quantity,
       color: selectedColor,
       priceTTC: product.priceTTC // Add the price
@@ -109,13 +110,24 @@ const ProductPage: React.FC = () => {
           {/* Product Images */}
           <div>
             <div className="relative">
-              <img 
-                src={product.images[currentImageIndex]} 
-                alt={product.name} 
-                className="w-full h-auto rounded-lg"
-              />
+              {product.images && product.images.length > 0 ? (
+                <img 
+                  src={product.images[currentImageIndex]} 
+                  alt={product.name} 
+                  className="w-full h-auto rounded-lg"
+                  onError={(e) => {
+                    e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
+                  }}
+                />
+              ) : (
+                <img 
+                  src={DEFAULT_PRODUCT_IMAGE} 
+                  alt={product.name} 
+                  className="w-full h-auto rounded-lg"
+                />
+              )}
               
-              {product.images.length > 1 && (
+              {product.images && product.images.length > 1 && (
                 <>
                   <button 
                     onClick={handlePrevImage}
@@ -134,7 +146,7 @@ const ProductPage: React.FC = () => {
             </div>
             
             {/* Thumbnails */}
-            {product.images.length > 1 && (
+            {product.images && product.images.length > 1 && (
               <div className="flex overflow-x-auto py-2 space-x-2">
                 {product.images.map((image, index) => (
                   <div 
