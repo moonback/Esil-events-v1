@@ -98,9 +98,9 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
   return (
     <div className="bg-white shadow-xl animate-fadeIn rounded-b-lg overflow-hidden">
       <div className="max-w-7xl mx-auto p-6">
-        <div className="flex">
+        <div className="flex flex-col md:flex-row">
           {/* Colonne de gauche - Catégories principales */}
-          <div className="w-1/4 border-r border-gray-100 pr-4">
+          <div className="w-full md:w-1/4 border-r border-gray-100 pr-4">
             {categories.map((category) => (
               <div 
                 key={category.id} 
@@ -123,7 +123,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
           </div>
 
           {/* Colonne de droite - Sous-catégories */}
-          <div className="w-3/4 pl-6">
+          <div className="w-full md:w-3/4 pl-0 md:pl-6 mt-4 md:mt-0">
             {activeCat && (
               <>
                 <h2 className="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
@@ -150,7 +150,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
                         
                         {subsubcategories.length > 0 && (
                           <ul className="space-y-1 pl-1">
-                            {subsubcategories.slice(0, 4).map((subSubCategory) => (
+                            {subsubcategories.map((subSubCategory) => (
                               <li key={subSubCategory.id}>
                                 <Link
                                   to={`/products/${activeCat.slug}/${subCategory.slug}/${subSubCategory.slug}`}
@@ -164,26 +164,18 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
                                 </Link>
                               </li>
                             ))}
-                            
-                            {subsubcategories.length > 4 && (
-                              <li className="text-sm text-violet-500 hover:text-violet-700 transition-colors duration-200">
-                                <Link 
-                                  to={`/products/${activeCat.slug}/${subCategory.slug}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (onLinkClick) onLinkClick();
-                                  }}
-                                >
-                                  + {subsubcategories.length - 4} autres...
-                                </Link>
-                              </li>
-                            )}
                           </ul>
                         )}
                       </div>
                     );
                   })}
                 </div>
+
+                {activeSubcategories.length === 0 && (
+                  <div className="text-center p-6 bg-gray-50 rounded-lg">
+                    <p className="text-gray-600">Aucune sous-catégorie disponible</p>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -199,7 +191,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
           </p>
           
           <div className="flex space-x-4">
-            <Link 
+            {/* <Link 
               to="/products/new" 
               className="text-violet-600 font-medium hover:text-violet-800 transition-colors duration-200"
               onClick={(e) => {
@@ -218,7 +210,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
               }}
             >
               Promotions
-            </Link>
+            </Link> */}
             <Link 
               to="/products" 
               className="text-black font-medium hover:text-violet-800 transition-colors duration-200"
