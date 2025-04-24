@@ -16,7 +16,6 @@ const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMegaMenu, setShowMegaMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   // const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { items } = useCart();
@@ -32,14 +31,6 @@ const Header: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate('/');
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-    }
-  };
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
@@ -64,19 +55,7 @@ const Header: React.FC = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
       {showTopBar && <TopBar onClose={() => setShowTopBar(false)} />}
-      {/* {isSearchOpen && (
-        <div className="fixed inset-x-0 top-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md z-50 py-4 px-4 shadow-lg transition-all duration-300 transform">
-          <div className="w-full h-full flex items-center justify-center">
-            <SearchBar onSearch={handleSearch} />
-            <button
-              onClick={() => setIsSearchOpen(false)}
-              className="ml-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-            >
-              <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </button>
-          </div>
-        </div>
-      )} */}
+      
       
       <div 
         className={`transition-all duration-300 relative ${
@@ -188,8 +167,8 @@ const Header: React.FC = () => {
                     </button>
                     {showMegaMenu && (
                       <div
-                        className="fixed left-0 right-0 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg z-50 border-t border-gray-200/80 dark:border-gray-700/80 transition-all duration-300"
-                        style={{ top: 'calc(var(--header-height) - 1px)' }}
+                        className="fixed left-0 right-0 w-full  dark:bg-gray-900/95 backdrop-blur-md shadow-lg z-50 border-t border-gray-200/80 dark:border-gray-700/80 transition-all duration-300"
+                        style={{ top: 'calc(var(--header-height) - px)' }}
                         onMouseEnter={() => setShowMegaMenu(true)}
                         onMouseLeave={() => setShowMegaMenu(false)}
                       >
