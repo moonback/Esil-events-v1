@@ -90,17 +90,16 @@ const AdminProducts: React.FC = () => {
         
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-md">
+          <div className="bg-red-50 text-red-600 p-4 rounded-md animate-fade-in">
             {error}
           </div>
         )}
 
         {showForm ? (
 			
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-						
+          <div className="bg-white p-6 rounded-lg shadow-sm transform transition-all duration-300 ease-in-out">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">
+              <h2 className="text-2xl font-semibold text-gray-800">
                 {editingProduct ? 'Modifier le produit' : 'Nouveau produit'}
               </h2>
               <button
@@ -109,13 +108,13 @@ const AdminProducts: React.FC = () => {
                   setEditingProduct(null);
                   setFormError('');
                 }}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
               >
                 Fermer
               </button>
             </div>
             {formError && (
-              <div className="mb-4 bg-red-50 text-red-600 p-4 rounded-md">
+              <div className="mb-4 bg-red-50 text-red-600 p-4 rounded-md animate-fade-in">
                 {formError}
               </div>
             )}
@@ -200,7 +199,7 @@ const AdminProducts: React.FC = () => {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {currentItems.map((product) => (
-                        <tr key={product.id} className="hover:bg-gray-50">
+                        <tr key={product.id} className="hover:bg-gray-50 transition-colors duration-150">
                           <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className="hidden lg:block">
@@ -261,7 +260,7 @@ const AdminProducts: React.FC = () => {
                             </button>
                             <button
                               onClick={() => handleDelete(product.id)}
-                              className="text-red-600 hover:text-red-900"
+                              className="text-red-600 hover:text-red-800 transition-colors duration-200"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -312,10 +311,9 @@ const AdminProducts: React.FC = () => {
                                 <button
                                   key={page}
                                   onClick={() => setCurrentPage(page)}
-                                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                    currentPage === page
-                                      ? 'z-10 bg-black border-black text-white'
-                                      : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${currentPage === page
+                                    ? 'z-10 bg-black border-black text-white'
+                                    : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
                                   }`}
                                 >
                                   {page}
@@ -326,27 +324,26 @@ const AdminProducts: React.FC = () => {
                               <button
                                 key={page}
                                 onClick={() => setCurrentPage(page)}
-                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                  currentPage === page
-                                    ? 'z-10 bg-black border-black text-white'
-                                    : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
-                                }`}
-                              >
-                                {page}
-                              </button>
-                            );
-                          })}
-                        <button
-                          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                          disabled={currentPage === totalPages}
-                          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                        >
-                          <span className="sr-only">Suivant</span>
-                          &rarr;
-                        </button>
-                      </nav>
+                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${currentPage === page
+                                  ? 'z-10 bg-black border-black text-white'
+                                  : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                                  }`}
+                                >
+                                  {page}
+                                </button>
+                              );
+                            })}
+                          <button
+                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                          >
+                            <span className="sr-only">Suivant</span>
+                            &rarr;
+                          </button>
+                        </nav>
+                      </div>
                     </div>
-                  </div>
                 </div>
               )}
             </div>
