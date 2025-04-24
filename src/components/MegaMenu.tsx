@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllCategories, type Category } from '../services/categoryService';
 
-const MegaMenu: React.FC = () => {
+interface MegaMenuProps {
+  onLinkClick?: () => void;
+}
+
+const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +77,12 @@ const MegaMenu: React.FC = () => {
                     <Link
                       to={`/products/${category.slug}/${subCategory.slug}`}
                       className="text-gray-800 hover:text-black font-medium transition-colors duration-200"
+                      onClick={(e) => {
+                        // Prevent event bubbling
+                        e.stopPropagation();
+                        // Call the onLinkClick function if it exists
+                        if (onLinkClick) onLinkClick();
+                      }}
                     >
                       {subCategory.name}
                     </Link>
@@ -83,6 +93,10 @@ const MegaMenu: React.FC = () => {
                             <Link
                               to={`/products/${category.slug}/${subCategory.slug}/${subSubCategory.slug}`}
                               className="text-gray-600 hover:text-black text-sm transition-colors duration-200"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (onLinkClick) onLinkClick();
+                              }}
                             >
                               {subSubCategory.name}
                             </Link>
@@ -118,7 +132,14 @@ const MegaMenu: React.FC = () => {
                 }, 0)} catégories disponibles`
               : 'Chargement des produits...'}
           </p>
-          <Link to="/products" className="text-black font-medium hover:text-gray-600 transition-colors duration-200">
+          <Link 
+            to="/products" 
+            className="text-black font-medium hover:text-gray-600 transition-colors duration-200"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onLinkClick) onLinkClick();
+            }}
+          >
             Voir tous les produits →
           </Link>
         </div>

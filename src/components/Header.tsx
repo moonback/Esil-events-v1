@@ -178,6 +178,7 @@ const Header: React.FC = () => {
                   </Link>
                   <div className="relative group">
                     <button
+                      onClick={() => setShowMegaMenu(!showMegaMenu)}
                       onMouseEnter={() => setShowMegaMenu(true)}
                       onMouseLeave={() => setShowMegaMenu(false)}
                       className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 flex items-center space-x-1"
@@ -193,7 +194,7 @@ const Header: React.FC = () => {
                         onMouseLeave={() => setShowMegaMenu(false)}
                       >
                         <div className="max-w-7xl mx-auto px-4 py-6">
-                          <MegaMenu />
+                          <MegaMenu onLinkClick={() => setShowMegaMenu(false)} />
                         </div>
                       </div>
                     )}
