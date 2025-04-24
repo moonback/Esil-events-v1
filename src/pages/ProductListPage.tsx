@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Filter, ChevronDown } from 'lucide-react';
 import { getAllProducts, getProductsByCategory, getProductsBySubCategory } from '../services/productService';
 import { Category, getAllCategories } from '../services/categoryService';
+import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 
 interface Product {
   id: string;
@@ -416,15 +417,24 @@ const ProductListPage: React.FC = () => {
                   role="listitem"
                 >
                   <div className="aspect-square relative">
-                    <img 
-                      src={product.images[0]} 
-                      alt={product.name}
-                      className="w-full h-full object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-                      }}
-                    />
+                    {product.images && product.images.length > 0 ? (
+                      <img 
+                        src={product.images[0]} 
+                        alt={product.name}
+                        className="w-full h-full object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE;
+                        }}
+                      />
+                    ) : (
+                      <img
+                        src={DEFAULT_PRODUCT_IMAGE}
+                        alt={product.name}
+                        className="w-full h-full object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    )}
                   </div>
                   <div className="p-4 space-y-2">
                     <h3 className="font-bold text-lg line-clamp-2">{product.name}</h3>
