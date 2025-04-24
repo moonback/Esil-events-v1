@@ -79,6 +79,14 @@ const ProductListPage: React.FC = () => {
     setIsFilterOpen(!isFilterOpen);
   };
 
+  const resetFilters = () => {
+    setPriceRange([0, 1000]);
+    setSelectedColors([]);
+    setSelectedCategories([]);
+    setAvailability('all');
+    setSortBy('name-asc');
+  };
+
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value);
   };
@@ -125,14 +133,23 @@ const ProductListPage: React.FC = () => {
 
   const filterProducts = (products: Product[]) => {
     return products.filter(product => {
+      // Vérification du prix
       const priceMatch = product.priceHT >= priceRange[0] && product.priceHT <= priceRange[1];
+      
+      // Vérification des couleurs - s'assurer que product.colors est un tableau
       const colorMatch = selectedColors.length === 0 || 
-        (product.colors && product.colors.some(c => selectedColors.includes(c)));
+        (Array.isArray(product.colors) && product.colors.some(c => selectedColors.includes(c)));
+      
+      // Vérification des catégories
       const categoryMatch = selectedCategories.length === 0 || 
         selectedCategories.includes(product.category) ||
-        selectedCategories.includes(product.subCategory || '');
-      const availabilityMatch = availability === 'all' || 
-        (product.isAvailable === (availability === 'available'));
+        (product.subCategory && selectedCategories.includes(product.subCategory));
+      
+      // Vérification de la disponibilité
+      const availabilityMatch = 
+        availability === 'all' || 
+        (availability === 'available' && product.isAvailable === true) ||
+        (availability === 'unavailable' && product.isAvailable === false);
 
       return priceMatch && colorMatch && categoryMatch && availabilityMatch;
     });
@@ -146,7 +163,15 @@ const ProductListPage: React.FC = () => {
         {/* Sidebar Filters */}
         <div className={`w-72 ${isFilterOpen ? 'block' : 'hidden'} md:block`}>
           <div className="bg-white p-6 rounded-lg shadow-md sticky top-24">
-            <h3 className="font-semibold text-lg mb-4">Filtres</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-semibold text-lg">Filtres</h3>
+              <button 
+                onClick={resetFilters}
+                className="text-xs text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                Réinitialiser
+              </button>
+            </div>
             
             {/* Price Range */}
             <div className="mb-6">
@@ -318,14 +343,14 @@ const ProductListPage: React.FC = () => {
           {/* Filters and Sorting */}
           <div className="mb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-              {/* <button 
+              <button 
                 onClick={toggleFilter}
                 className="flex items-center text-black hover:text-gray-700 transition-colors duration-200 bg-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md"
               >
                 <Filter className="mr-2 w-5 h-5" />
                 Filtres
                 <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
-              </button> */}
+              </button>
               
               <div className="w-full md:w-auto">
                 <select 
@@ -341,13 +366,28 @@ const ProductListPage: React.FC = () => {
               </div>
             </div>
             
-            {/* Filter Panel
+            {/* Filter Panel pour mobile */}
             {isFilterOpen && (
-              <div className="bg-white p-6 rounded-lg shadow-md mb-4 transition-all duration-300 ease-in-out">
-                <h3 className="font-semibold text-lg mb-4">Fourchette de prix</h3>
-                <div className="space-y-6">
-                  <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-4">
+              <div className="md:hidden bg-white p-6 rounded-lg shadow-md mb-4 transition-all duration-300 ease-in-out">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-semibold text-lg">Filtres</h3>
+                  <button 
+                    onClick={resetFilters}
+                    className="text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    Réinitialiser
+                  </button>
+                </div>
+                
+                {/* Prix */}
+                <div className="mb-6">
+                  <h4 className="font-medium mb-3">Fourchette de prix</h4>
+                  <div className="space-y-4">
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>Min: {priceRange[0]}€</span>
+                      <span>Max: {priceRange[1]}€</span>
+                    </div>
+                    <div className="space-y-2">
                       <input 
                         type="range" 
                         min="0" 
@@ -365,10 +405,6 @@ const ProductListPage: React.FC = () => {
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
                       />
                     </div>
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>Min: {priceRange[0]}€</span>
-                      <span>Max: {priceRange[1]}€</span>
-                    </div>
                     <div className="relative h-1 bg-gray-200 rounded-full">
                       <div 
                         className="absolute h-1 bg-blue-500 rounded-full"
@@ -380,10 +416,118 @@ const ProductListPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
+                
+                {/* Couleurs */}
+                <div className="mb-6">
+                  <h4 className="font-medium mb-3">Couleurs</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {['Rouge', 'Bleu', 'Vert', 'Noir', 'Blanc'].map(color => (
+                      <button
+                        key={color}
+                        onClick={() => setSelectedColors(prev =>
+                          prev.includes(color)
+                            ? prev.filter(c => c !== color)
+                            : [...prev, color]
+                        )}
+                        className={`px-3 py-1.5 rounded-full text-sm border ${
+                          selectedColors.includes(color)
+                            ? 'bg-blue-100 border-blue-500 text-blue-700'
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                      >
+                        {color}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Disponibilité */}
+                <div className="mb-6">
+                  <h4 className="font-medium mb-3">Disponibilité</h4>
+                  <div className="space-y-2">
+                    {['all', 'available', 'unavailable'].map(option => (
+                      <label key={option} className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          value={option}
+                          checked={availability === option}
+                          onChange={(e) => setAvailability(e.target.value as any)}
+                          className="form-radio h-4 w-4 text-blue-500"
+                        />
+                        <span className="text-sm">
+                          {option === 'all' && 'Tous'}
+                          {option === 'available' && 'Disponibles'}
+                          {option === 'unavailable' && 'Indisponibles'}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
-            )} */}
+            )}
           </div>
 
+          {/* Filtres actifs */}
+          {(selectedColors.length > 0 || selectedCategories.length > 0 || availability !== 'all' || priceRange[0] > 0 || priceRange[1] < 1000) && (
+            <div className="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-100">
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-sm font-medium text-blue-700">Filtres actifs:</span>
+                
+                {priceRange[0] > 0 || priceRange[1] < 1000 ? (
+                  <span className="px-2 py-1 bg-white text-xs font-medium text-blue-700 rounded-full border border-blue-200">
+                    Prix: {priceRange[0]}€ - {priceRange[1]}€
+                  </span>
+                ) : null}
+                
+                {selectedColors.map(color => (
+                  <span 
+                    key={color}
+                    className="px-2 py-1 bg-white text-xs font-medium text-blue-700 rounded-full border border-blue-200 flex items-center"
+                  >
+                    {color}
+                    <button 
+                      onClick={() => setSelectedColors(prev => prev.filter(c => c !== color))}
+                      className="ml-1 text-blue-500 hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+                
+                {selectedCategories.map(cat => {
+                  const categoryName = categories.find(c => c.slug === cat)?.name || cat;
+                  return (
+                    <span 
+                      key={cat}
+                      className="px-2 py-1 bg-white text-xs font-medium text-blue-700 rounded-full border border-blue-200 flex items-center"
+                    >
+                      {categoryName}
+                      <button 
+                        onClick={() => setSelectedCategories(prev => prev.filter(c => c !== cat))}
+                        className="ml-1 text-blue-500 hover:text-blue-700"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+                
+                {availability !== 'all' && (
+                  <span className="px-2 py-1 bg-white text-xs font-medium text-blue-700 rounded-full border border-blue-200">
+                    {availability === 'available' ? 'Disponibles' : 'Indisponibles'}
+                  </span>
+                )}
+                
+                <button 
+                  onClick={resetFilters}
+                  className="px-2 py-1 bg-blue-600 text-xs font-medium text-white rounded-full hover:bg-blue-700 transition-colors ml-auto"
+                >
+                  Effacer tous les filtres
+                </button>
+              </div>
+            </div>
+          )}
+          
           {/* Products Grid */}
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
