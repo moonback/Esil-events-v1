@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Filter, Search } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import { Product } from '../../types/Product';
-import { getAllProducts, deleteProduct, seedDatabase, createProduct, updateProduct } from '../../services/productService';
+import { getAllProducts, deleteProduct, createProduct, updateProduct } from '../../services/productService';
 import ProductForm from '../../components/ProductForm';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { DEFAULT_PRODUCT_IMAGE } from '../../constants/images';
 const AdminProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
