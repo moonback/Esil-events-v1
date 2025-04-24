@@ -268,7 +268,6 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
 3.  Valorise ESIL Events : Mentionne brièvement l'expertise et le positionnement premium.
 4.  Confirme la bonne compréhension des besoins (mobilier, date, lieu).
 5.  Si des articles sont listés, commente brièvement leur pertinence ou qualité. Sinon, propose d'aider à la sélection.
-6.  Intègre subtilement l'offre spéciale (-5% pour confirmation rapide) et l'urgence (disponibilité).
 7.  Précise les prochaines étapes : envoi du devis détaillé formel, discussion téléphonique.
 8.  Inclue un appel à l'action clair pour planifier un échange.
 9.  Termine par une formule de politesse professionnelle et la signature complète d'ESIL Events (incluant slogan, tel, email, site web).

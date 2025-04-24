@@ -1,0 +1,74 @@
+/* animations.css - Fichier dédié aux animations pour l'interface */
+
+/* Animation de fondu pour les messages de feedback */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+.feedback-message-enter {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.feedback-message-exit {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* Animation pour la copie dans le presse-papiers */
+@keyframes copySuccess {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.copy-success {
+  animation: copySuccess 0.4s ease-in-out;
+}
+
+/* Animation pour le chargement */
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.pulse {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Animation pour l'apparition du ResponseEditor */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.response-editor-enter {
+  animation: slideIn 0.4s ease-out forwards;
+}
+
+/* Animation pour la sauvegarde */
+@keyframes savePulse {
+  0% { color: #4f46e5; }
+  50% { color: #818cf8; }
+  100% { color: #4f46e5; }
+}
+
+.save-pulse {
+  animation: savePulse 1.5s infinite ease-in-out;
+}
+
+/* Animation pour le bouton de copie */
+@keyframes clipboardPulse {
+  0% { background-color: #f3f4f6; }
+  50% { background-color: #d1fae5; }
+  100% { background-color: #f3f4f6; }
+}
+
+.clipboard-pulse {
+  animation: clipboardPulse 0.8s ease-in-out;
+}
