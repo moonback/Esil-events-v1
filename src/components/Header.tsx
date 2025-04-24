@@ -188,7 +188,7 @@ const Header: React.FC = () => {
                     </button>
                     {showMegaMenu && (
                       <div
-                        className="fixed left-0 right-0 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg z-50 border-t border-gray-200/80 dark:border-gray-700/80 transition-all duration-300"
+                        className="fixed left-0 right-0 w-full  dark:bg-gray-900/95 backdrop-blur-md shadow-lg z-50 border-t border-gray-200/80 dark:border-gray-700/80 transition-all duration-300"
                         style={{ top: 'calc(var(--header-height) - 1px)' }}
                         onMouseEnter={() => setShowMegaMenu(true)}
                         onMouseLeave={() => setShowMegaMenu(false)}
