@@ -12,6 +12,7 @@ interface Product {
   reference: string;
   category: string;
   subCategory?: string;
+  subSubCategory?: string;
   priceHT: number;
   priceTTC: number;
   images: string[];
@@ -20,7 +21,7 @@ interface Product {
 }
 
 const ProductListPage: React.FC = () => {
-  const { category, subcategory } = useParams<{ category: string; subcategory?: string }>();
+  const { category, subcategory, subsubcategory } = useParams<{ category: string; subcategory?: string; subsubcategory?: string }>();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,6 +58,10 @@ const ProductListPage: React.FC = () => {
         if (category) {
           if (subcategory) {
             productsData = await getProductsBySubCategory(category, subcategory);
+            // Si on a une sous-sous-catégorie, filtrer les produits qui correspondent
+            if (subsubcategory && productsData.length > 0) {
+              productsData = productsData.filter(product => product.subSubCategory === subsubcategory);
+            }
           } else {
             productsData = await getProductsByCategory(category);
           }
@@ -74,7 +79,7 @@ const ProductListPage: React.FC = () => {
     };
 
     fetchProducts();
-  }, [category, subcategory]);
+  }, [category, subcategory, subsubcategory]);
 
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
