@@ -90,7 +90,7 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                ESIL Events : Votre Partenaire pour des événements d'Entreprise sur-mesure
+                ESIL Events : <span className="text-violet-700">Partenaire pour des événements</span> d'Entreprise sur-mesure
               </h2>
               <p className="mb-4">
                 Depuis plus de 30 ans, ESIL Events accompagne les entreprises dans la conception et la réalisation de leurs événements professionnels. De la planification stratégique à l'exécution terrain, nous orchestrons chaque détail pour garantir des séminaires d'entreprise, conférences, cérémonies internes et soirées d'exception à la hauteur de vos ambitions.
@@ -114,7 +114,7 @@ const HomePage: React.FC = () => {
       <section className="section bg-gray-100">
         <div className="container-custom">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
-            Louez votre matériel évènementiel !
+            Louez votre<span className="text-violet-700"> matériel évènementiel</span>  !
           </h2>
           {/* <h3 className="text-xl md:text-2xl font-medium mb-8 text-center">
             Besoin de matériel pour organiser un événement réussi ?
@@ -242,7 +242,7 @@ const HomePage: React.FC = () => {
       <section className="section bg-gray-100">
         <div className="container-custom">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
-            Livraison et installation du matériel événementiel : 3 formules au choix !
+          <span className="text-violet-700">Livraison et installation</span> du matériel événementiel : 3 formules au choix !
           </h2>
           <p className="mb-12 max-w-4xl mx-auto text-center">
             Chez ESIL Events, nous vous proposons trois solutions adaptées à vos besoins pour la livraison et l'installation de votre matériel événementiel. Que ce soit pour une soirée d'exception, un séminaire d'entreprise, une conférence ou toute autre manifestation professionnelle, choisissez la formule qui vous convient :
