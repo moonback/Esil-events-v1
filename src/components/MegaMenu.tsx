@@ -114,9 +114,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-lg">{category.name}</span>
-                  <span className="text-sm bg-gray-100 px-2 py-1 rounded-full">
-                    {category.subcategories?.length || 0}
-                  </span>
+                  
                 </div>
               </div>
             ))}
