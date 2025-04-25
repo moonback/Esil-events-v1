@@ -887,7 +887,7 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
           <div className="flex flex-col lg:flex-row gap-8 items-start"> {/* Use items-start */}
 
             {/* Requests List */}
-            <div className="w-full lg:w-3/5 xl:w-2/3"> {/* Adjust width */}
+            <div className="w-full lg:w-3/5 xl:w-1/2"> {/* Adjust width */}
               <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -1017,7 +1017,7 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
             </div>
 
             {/* Selected Request Details Panel */}
-            <div className="w-full lg:w-2/5 xl:w-1/3 lg:sticky lg:top-24 self-start space-y-6">
+            <div className="w-full lg:w-2/5 xl:w-1/2 lg:sticky lg:top-24 self-start space-y-6">
               {selectedRequest ? (
                 <div className="bg-white rounded-lg shadow-md border border-gray-200 transition-all max-h-[calc(100vh-8rem)] overflow-y-auto"> {/* Scrollable container */}
                   {/* Details Header */}
