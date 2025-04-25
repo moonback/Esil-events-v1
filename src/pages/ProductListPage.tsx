@@ -210,30 +210,30 @@ const ProductListPage: React.FC = () => {
 
             {/* Colors */}
             <div className="mb-6">
-              <h4 className="font-medium mb-3">Couleurs</h4>
-              <div className="flex flex-wrap gap-2">
-                {['Rouge', 'Bleu', 'Vert', 'Noir', 'Blanc'].map(color => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColors(prev =>
-                      prev.includes(color)
-                        ? prev.filter(c => c !== color)
-                        : [...prev, color]
-                    )}
-                    className={`px-3 py-1.5 rounded-full text-sm border ${
-                      selectedColors.includes(color)
-                        ? 'bg-blue-100 border-blue-500 text-blue-700'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    {color}
-                  </button>
-                ))}
-              </div>
+            {Array.from(new Set(products.flatMap(product => product.colors || []))).map(color => (
+              <><h4 className="font-medium mb-3">Couleurs</h4><div className="flex flex-wrap gap-2">
+                {/* Get unique colors from all products */}
+
+                <button
+                  key={color}
+                  onClick={() => setSelectedColors(prev => prev.includes(color)
+                    ? prev.filter(c => c !== color)
+                    : [...prev, color]
+                  )}
+                  className={`px-3 py-1.5 rounded-full text-sm border ${selectedColors.includes(color)
+                      ? 'bg-blue-100 border-blue-500 text-blue-700'
+                      : 'border-gray-300 hover:border-gray-400'}`}
+                >
+                  {color}
+                </button>
+
+              </div></>
+            ))}
             </div>
+        
 
             {/* Categories */}
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <h4 className="font-medium mb-3">Catégories</h4>
               <div className="space-y-2">
                 {categories.map(cat => (
@@ -252,7 +252,7 @@ const ProductListPage: React.FC = () => {
                   </label>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Availability */}
             <div className="mb-6">
