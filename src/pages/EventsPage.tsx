@@ -218,7 +218,7 @@ export const EventsPage: React.FC = () => {
             className="mt-12 text-center"
             variants={fadeInUp}
           >
-            <motion.button
+            {/* <motion.button
               className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-violet-700 hover:bg-violet-800 transition-colors duration-300"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
@@ -227,7 +227,7 @@ export const EventsPage: React.FC = () => {
               <svg className="ml-3 -mr-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
               </svg>
-            </motion.button>
+            </motion.button> */}
           </motion.div>
         </motion.div>
       </section>
