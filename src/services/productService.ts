@@ -113,6 +113,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
       createdAt: new Date(product.created_at),
       updatedAt: new Date(product.updated_at),
       images: product.images || [],
+      mainImageIndex: product.main_image_index,
       colors: product.colors || [],
       relatedProducts: product.related_products || [],
       technicalSpecs: product.technical_specs || {},
@@ -164,6 +165,7 @@ export const getProductsByCategory = async (category: string): Promise<Product[]
       createdAt: new Date(product.created_at),
       updatedAt: new Date(product.updated_at),
       images: product.images || [],
+      mainImageIndex: product.main_image_index,
       colors: product.colors || [],
       relatedProducts: product.related_products || [],
       technicalSpecs: product.technical_specs || {},
@@ -220,6 +222,7 @@ export const searchProducts = async (query: string): Promise<Product[]> => {
       createdAt: new Date(product.created_at),
       updatedAt: new Date(product.updated_at),
       images: product.images || [],
+      mainImageIndex: product.main_image_index,
       colors: product.colors || [],
       relatedProducts: product.related_products || [],
       technicalSpecs: product.technical_specs || {},
@@ -274,6 +277,7 @@ export const getProductsBySubCategory = async (category: string, subCategory: st
       createdAt: new Date(product.created_at),
       updatedAt: new Date(product.updated_at),
       images: product.images || [],
+      mainImageIndex: product.main_image_index,
       colors: product.colors || [],
       relatedProducts: product.related_products || [],
       technicalSpecs: product.technical_specs || {},
@@ -329,6 +333,7 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       createdAt: new Date(data.created_at),
       updatedAt: new Date(data.updated_at),
       images: data.images,
+      mainImageIndex: data.main_image_index,
       colors: data.colors || [],
       technicalSpecs: data.technical_specs,
       technicalDocUrl: data.technical_doc_url,
@@ -369,6 +374,7 @@ export const createProduct = async (product: ProductFormData): Promise<Product> 
       stock: product.stock,
       is_available: true,
       images: product.images || [],
+      main_image_index: product.mainImageIndex,
       colors: product.colors || [],
       technical_specs: product.technicalSpecs || {},
       technical_doc_url: product.technicalDocUrl || null,
@@ -427,6 +433,7 @@ export const createProduct = async (product: ProductFormData): Promise<Product> 
       createdAt: new Date(data.created_at),
       updatedAt: new Date(data.updated_at),
       images: data.images,
+      mainImageIndex: data.main_image_index,
       colors: data.colors || [],
       technicalSpecs: data.technical_specs,
       technicalDocUrl: data.technical_doc_url,
@@ -483,6 +490,7 @@ export const updateProduct = async (id: string, product: Partial<Product>): Prom
       stock: product.stock,
       is_available: product.isAvailable,
       images: product.images,
+      main_image_index: product.mainImageIndex,
       colors: product.colors || [],
       technical_specs: product.technicalSpecs,
       technical_doc_url: product.technicalDocUrl,
@@ -529,7 +537,8 @@ export const updateProduct = async (id: string, product: Partial<Product>): Prom
       technicalSpecs: data.technical_specs,
       technicalDocUrl: data.technical_doc_url,
       videoUrl: data.video_url,
-      isAvailable: data.is_available
+      isAvailable: data.is_available,
+      mainImageIndex: data.main_image_index
     };
 
     console.log('Product updated successfully');

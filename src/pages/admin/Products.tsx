@@ -206,7 +206,7 @@ const AdminProducts: React.FC = () => {
                               <div className="hidden lg:block">
                                 {product.images && product.images.length > 0 ? (
                                   <ProductImage
-                                    src={product.images[0]}
+                                    src={product.mainImageIndex !== undefined && product.mainImageIndex >= 0 && product.mainImageIndex < product.images.length ? product.images[product.mainImageIndex] : product.images[0]}
                                     alt={product.name}
                                   />
                                 ) : (

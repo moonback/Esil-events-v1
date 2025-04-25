@@ -6,6 +6,7 @@ import { Category, getAllCategories } from '../services/categoryService';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 
 interface Product {
+  mainImageIndex?: number;
   id: string;
   name: string;
   reference: string;
@@ -563,13 +564,16 @@ const ProductListPage: React.FC = () => {
                   <div className="aspect-square relative">
                     {product.images && product.images.length > 0 ? (
                       <img 
-                        src={product.images[0]} 
+                        src={
+                          product.images && product.images.length > 0
+                            ? (typeof product.mainImageIndex === 'number' && product.mainImageIndex >= 0 && product.mainImageIndex < product.images.length
+                                ? product.images[product.mainImageIndex]
+                                : product.images[0])
+                            : DEFAULT_PRODUCT_IMAGE
+                        }
                         alt={product.name}
-                        className="w-full h-full object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
-                        loading="lazy"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE;
-                        }}
+                        className="w-full h-40 object-cover rounded-t-lg mb-4 bg-gray-100"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE; }}
                       />
                     ) : (
                       <img

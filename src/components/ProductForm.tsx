@@ -34,6 +34,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
       priceTTC: 0,
       stock: 0,
       images: [],
+      mainImageIndex: undefined, // Pas d'image principale par défaut
       colors: [],
       technicalSpecs: {},
       technicalDocUrl: null,
@@ -53,6 +54,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
         priceTTC: initialData.priceTTC,
         stock: initialData.stock,
         images: initialData.images || [],
+        mainImageIndex: initialData.mainImageIndex,
         colors: initialData.colors || [],
         technicalSpecs: initialData.technicalSpecs || {},
         technicalDocUrl: initialData.technicalDocUrl || null,
@@ -317,9 +319,32 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
   };
 
   const handleRemoveImage = (indexToRemove: number) => {
+    setFormData(prev => {
+      // Si on supprime l'image principale, réinitialiser mainImageIndex
+      let newMainImageIndex = prev.mainImageIndex;
+      
+      // Si l'image supprimée est l'image principale
+      if (prev.mainImageIndex === indexToRemove) {
+        newMainImageIndex = undefined;
+      } 
+      // Si l'image supprimée est avant l'image principale, décaler l'index
+      else if (prev.mainImageIndex !== undefined && indexToRemove < prev.mainImageIndex) {
+        newMainImageIndex = prev.mainImageIndex - 1;
+      }
+      
+      return {
+        ...prev,
+        images: prev.images.filter((_, index) => index !== indexToRemove),
+        mainImageIndex: newMainImageIndex
+      };
+    });
+  };
+  
+  // Nouvelle fonction pour définir l'image principale
+  const handleSetMainImage = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      images: prev.images.filter((_, index) => index !== indexToRemove)
+      mainImageIndex: index
     }));
   };
 
@@ -582,7 +607,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {formData.images.length > 0 ? (
               formData.images.map((url, index) => (
-                <ImagePreview key={index} url={url} onRemove={() => handleRemoveImage(index)} />
+                <ImagePreview 
+                  key={index} 
+                  url={url} 
+                  onRemove={() => handleRemoveImage(index)}
+                  isMain={formData.mainImageIndex === index}
+                  onSetAsMain={() => handleSetMainImage(index)}
+                />
               ))
             ) : (
               <div className="col-span-full flex flex-col items-center justify-center p-4 border border-dashed border-gray-300 rounded-lg">
@@ -595,6 +626,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
               </div>
             )}
           </div>
+          
+          {/* Information sur l'image principale */}
+          {formData.images.length > 0 && formData.mainImageIndex === undefined && (
+            <div className="mt-2 text-sm text-amber-600 bg-amber-50 p-2 rounded">
+              Conseil : Sélectionnez une image principale en cliquant sur l'icône d'étoile.
+            </div>
+          )}
         </div>
 
 
@@ -693,13 +731,28 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
   );
 };
 
-// --- Composant ImagePreview (inchangé) ---
-const ImagePreview = ({ url, onRemove }: { url: string; onRemove: () => void }) => {
+// --- Composant ImagePreview (modifié pour gérer l'image principale) ---
+const ImagePreview = ({ 
+  url, 
+  onRemove, 
+  isMain, 
+  onSetAsMain 
+}: { 
+  url: string; 
+  onRemove: () => void; 
+  isMain?: boolean; 
+  onSetAsMain?: () => void 
+}) => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
 
   return (
-    <div className="relative group">
+    <div className={`relative group ${isMain ? 'ring-2 ring-black' : ''}`}>
+      {isMain && (
+        <div className="absolute top-0 right-0 z-10 bg-black text-white text-xs px-2 py-1 rounded-bl-md">
+          Principale
+        </div>
+      )}
       <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200">
         {!error ? (
           <img
@@ -717,8 +770,25 @@ const ImagePreview = ({ url, onRemove }: { url: string; onRemove: () => void }) 
           />
         )}
         {loading && ( <div className="absolute inset-0 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div> )}
-        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <button type="button" onClick={onRemove} className="text-white p-2 hover:text-red-500">
+        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+          {!isMain && onSetAsMain && (
+            <button 
+              type="button" 
+              onClick={onSetAsMain} 
+              className="text-white p-2 hover:text-yellow-400" 
+              title="Définir comme image principale"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </button>
+          )}
+          <button 
+            type="button" 
+            onClick={onRemove} 
+            className="text-white p-2 hover:text-red-500" 
+            title="Supprimer l'image"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
