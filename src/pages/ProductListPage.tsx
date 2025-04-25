@@ -572,7 +572,7 @@ const ProductListPage: React.FC = () => {
                             : DEFAULT_PRODUCT_IMAGE
                         }
                         alt={product.name}
-                        className="w-full h-40 object-cover rounded-t-lg mb-4 bg-gray-100"
+                        className="w-full h-full object-cover rounded-t-lg mb-4 bg-gray-100"
                         onError={(e) => { (e.currentTarget as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE; }}
                       />
                     ) : (
