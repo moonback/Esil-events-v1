@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Filter, ChevronDown } from 'lucide-react';
 import { getAllProducts, getProductsByCategory, getProductsBySubCategory } from '../services/productService';
-import { Category, getAllCategories } from '../services/categoryService';
+import { Category, Subcategory, getAllCategories } from '../services/categoryService';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 
 interface Product {
@@ -247,14 +247,14 @@ const ProductListPage: React.FC = () => {
                     </label>
                     {cat.subcategories && cat.subcategories.length > 0 && (
                       <div className="ml-6 space-y-1">
-                        {cat.subcategories.map((subCat: { slug: React.Key | null | undefined; name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }) => (
+                        {cat.subcategories.map((subCat: Subcategory) => (
                           <label key={subCat.slug} className="flex items-center space-x-2">
                             <input
                               type="checkbox"
-                              checked={selectedCategories.includes(subCat.slug as string)}
+                              checked={selectedCategories.includes(subCat.slug)}
                               onChange={(e) => setSelectedCategories(prev =>
                                 e.target.checked
-                                  ? [...prev, subCat.slug as string]
+                                  ? [...prev, subCat.slug]
                                   : prev.filter(c => c !== subCat.slug)
                               )}
                               className="form-checkbox h-4 w-4 text-blue-500"
@@ -458,6 +458,49 @@ const ProductListPage: React.FC = () => {
                       >
                         {color}
                       </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Catégories */}
+                <div className="mb-6">
+                  <h4 className="font-medium mb-3">Catégories</h4>
+                  <div className="space-y-2">
+                    {categories.map(cat => (
+                      <div key={cat.id} className="space-y-1">
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedCategories.includes(cat.slug)}
+                            onChange={(e) => setSelectedCategories(prev =>
+                              e.target.checked
+                                ? [...prev, cat.slug]
+                                : prev.filter(c => c !== cat.slug)
+                            )}
+                            className="form-checkbox h-4 w-4 text-blue-500"
+                          />
+                          <span className="text-sm font-medium">{cat.name}</span>
+                        </label>
+                        {cat.subcategories && cat.subcategories.length > 0 && (
+                          <div className="ml-6 space-y-1">
+                            {cat.subcategories.map((subCat: Subcategory) => (
+                              <label key={subCat.slug} className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedCategories.includes(subCat.slug)}
+                                  onChange={(e) => setSelectedCategories(prev =>
+                                    e.target.checked
+                                      ? [...prev, subCat.slug]
+                                      : prev.filter(c => c !== subCat.slug)
+                                  )}
+                                  className="form-checkbox h-4 w-4 text-blue-500"
+                                />
+                                <span className="text-sm text-gray-600">{subCat.name}</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
