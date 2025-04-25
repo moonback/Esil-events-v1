@@ -183,9 +183,9 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
       <div className="bg-gray-50 p-4 border-t border-gray-100">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
           <p className="text-sm text-gray-600">
-            {categories.length > 0 
-              ? `${getTotalItemsCount()} produits dans ${categories.length} catégories principales`
-              : 'Chargement des produits...'}
+            {/* {categories.length > 0 
+              ? ` ${categories.length} catégories principales`
+              : 'Chargement des produits...'} */}
           </p>
           
           <div className="flex space-x-4">
