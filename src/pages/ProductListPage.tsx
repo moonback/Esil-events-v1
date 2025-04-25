@@ -233,7 +233,7 @@ const ProductListPage: React.FC = () => {
         
 
             {/* Categories */}
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <h4 className="font-medium mb-3">Catégories</h4>
               <div className="space-y-2">
                 {categories.map(cat => (
@@ -252,7 +252,7 @@ const ProductListPage: React.FC = () => {
                   </label>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Availability */}
             <div className="mb-6">
