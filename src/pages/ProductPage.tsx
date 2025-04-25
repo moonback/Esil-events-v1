@@ -22,13 +22,18 @@ const ProductPage: React.FC = () => {
       try {
         const productData = await getProductById(id);
         setProduct(productData);
-        // Initialiser l'index de l'image courante avec mainImageIndex si disponible
-        if (productData?.mainImageIndex !== undefined && 
-            productData.images && 
-            productData.mainImageIndex >= 0 && 
-            productData.mainImageIndex < productData.images.length) {
-          setCurrentImageIndex(productData.mainImageIndex);
+        
+        // Vérifier et définir l'index de l'image principale
+        if (productData?.images && productData.images.length > 0) {
+          if (productData.mainImageIndex !== undefined && 
+              productData.mainImageIndex >= 0 && 
+              productData.mainImageIndex < productData.images.length) {
+            setCurrentImageIndex(productData.mainImageIndex);
+          } else {
+            setCurrentImageIndex(0); // Utiliser la première image par défaut
+          }
         }
+
         if (productData?.colors && productData.colors.length > 0) {
           setSelectedColor(productData.colors[0]);
         }
@@ -271,7 +276,7 @@ const ProductPage: React.FC = () => {
             {/* Video (if available) */}
             {product.videoUrl && (
               <div className="mb-8">
-                <h2 className="text-xl font-bold mb-4">Vidéo de présentation</h2>
+                <h2 className="text-xl font-bold mb-4">Présentation</h2>
                 <div className="aspect-w-16 aspect-h-9">
                   <iframe 
                     src={product.videoUrl} 
