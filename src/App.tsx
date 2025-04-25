@@ -8,13 +8,6 @@ import ProductListPage from './pages/ProductListPage';
 import CartPage from './pages/CartPage';
 import ContactPage from './pages/ContactPage';
 import DeliveryPage from './pages/DeliveryPage';
-import AdminDashboard from './pages/admin/Dashboard';
-import AdminProducts from './pages/admin/Products';
-import AdminPages from './pages/admin/Pages';
-import AdminCustomers from './pages/admin/Customers';
-import AdminCategories from './pages/admin/Categories';
-import AdminAnnouncements from './pages/admin/Announcements';
-import AdminArtistCategories from './pages/admin/ArtistCategories';
 import NotFoundPage from './pages/NotFoundPage';
 import ProfilePage from './pages/ProfilePage';
 import OrdersPage from './pages/OrdersPage';
@@ -23,12 +16,11 @@ import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import { CartProvider } from './context/CartContext';
 import AdminRoute from './components/AdminRoute';
+import AdminRoutes from './components/AdminRoutes';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import ArtistPage from './pages/ArtistPage';
 import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
-import AdminArtists from './pages/admin/Artists';
-import QuoteRequestsAdmin from './pages/admin/QuoteRequests';
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import { HelmetProvider } from 'react-helmet-async';
 
@@ -65,16 +57,9 @@ const App: React.FC = () => {
             <Route path="/orders" element={<AdminRoute><OrdersPage /></AdminRoute>} />
           </Route>
 
-          {/* Routes admin sans Layout principal */}
-          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-          <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
-          <Route path="/admin/categories" element={<AdminRoute><AdminCategories /></AdminRoute>} />
-          <Route path="/admin/pages" element={<AdminRoute><AdminPages /></AdminRoute>} />
-          <Route path="/admin/customers" element={<AdminRoute><AdminCustomers /></AdminRoute>} />
-          <Route path="/admin/announcements" element={<AdminRoute><AdminAnnouncements /></AdminRoute>} />
-          <Route path="/admin/artists" element={<AdminRoute><AdminArtists /></AdminRoute>} />
-          <Route path="/admin/artist-categories" element={<AdminRoute><AdminArtistCategories /></AdminRoute>} />
-          <Route path="/admin/quote-requests" element={<AdminRoute><QuoteRequestsAdmin /></AdminRoute>} />
+          {/* Routes admin avec AdminLayout */}
+          {/* Route admin avec le composant AdminRoutes */}
+          <Route path="/admin/*" element={<AdminRoutes />} />
 
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />

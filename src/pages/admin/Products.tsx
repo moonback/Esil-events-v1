@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, ExternalLink } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Plus, Edit, Trash2, Filter, Search } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import { Product } from '../../types/Product';
 import { getAllProducts, deleteProduct, createProduct, updateProduct } from '../../services/productService';
@@ -219,14 +218,7 @@ const AdminProducts: React.FC = () => {
                                 )}
                               </div>
                               <div className="ml-0 lg:ml-3">
-                                <Link
-                                  to={`/product/${product.id}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="hover:text-violet-600 transition-colors duration-200"
-                                >
-                                  <div className="font-medium text-gray-900">{product.name}</div>
-                                </Link>
+                                <div className="font-medium text-gray-900">{product.name}</div>
                                 <div className="text-sm text-gray-500">{product.reference}</div>
                                 <div className="lg:hidden text-xs text-gray-400 mt-1">
                                   {product.category} • {product.stock} en stock
@@ -258,34 +250,21 @@ const AdminProducts: React.FC = () => {
                             </span>
                           </td>
                           <td className="px-3 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex items-center justify-end space-x-2">
-                              <Link
-                                to={`/product/${product.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-2 rounded-full hover:bg-violet-50 text-violet-600 hover:text-violet-800 transition-all duration-200"
-                                title="Voir le produit"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </Link>
-                              <button
-                                onClick={() => {
-                                  setEditingProduct(product);
-                                  setShowForm(true);
-                                }}
-                                className="p-2 rounded-full hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-all duration-200"
-                                title="Modifier"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(product.id)}
-                                className="p-2 rounded-full hover:bg-red-50 text-red-600 hover:text-red-800 transition-all duration-200"
-                                title="Supprimer"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
+                            <button
+                              onClick={() => {
+                                setEditingProduct(product);
+                                setShowForm(true);
+                              }}
+                              className="text-gray-600 hover:text-gray-900 mr-3"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(product.id)}
+                              className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </td>
                         </tr>
                       ))}
