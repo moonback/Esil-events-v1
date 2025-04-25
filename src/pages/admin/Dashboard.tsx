@@ -43,34 +43,22 @@ const AdminDashboard: React.FC = () => {
     {
       title: 'Produits',
       value: loading ? '...' : productsCount.toString(),
-      // change: '+4.75%',
-      changeType: 'increase',
-      icon: <Package className="w-8 h-8 text-black" />
+      icon: <Package className="w-6 h-6 text-gray-700" />,
+      bgColor: 'bg-blue-100'
     },
     {
-      title: 'Catégories principal',
+      title: 'Catégories principales', // Fixed French plural
       value: loading ? '...' : categoriesCount.toString(),
-      // change: '+2.3%',
-      changeType: 'increase',
-      icon: <FileText className="w-8 h-8 text-black" />
+      icon: <FileText className="w-6 h-6 text-green-700" />,
+      bgColor: 'bg-green-100'
     },
     {
       title: 'Demandes de devis',
       value: loading ? '...' : quoteRequestsCount.toString(),
-      // change: '+10.2%',
-      changeType: 'increase',
-      icon: <ClipboardList className="w-8 h-8 text-black" />
+      icon: <ClipboardList className="w-6 h-6 text-purple-700" />,
+      bgColor: 'bg-purple-100'
     },
-    // {
-    //   title: 'Revenus',
-    //   value: '2,450€',
-    //   change: '-3.2%',
-    //   changeType: 'decrease',
-    //   icon: <TrendingUp className="w-8 h-8 text-black" />
-    // }
   ];
-
-
 
   const [error, setError] = useState<string | null>(null);
 
@@ -81,12 +69,15 @@ const AdminDashboard: React.FC = () => {
     return (
       <AdminLayout>
         <AdminHeader />
-        <div className="pt-24 space-y-6">
-          <div className="flex items-center justify-between">
+        <div className="pt-24">
+          <div className="flex items-center justify-between mb-8 px-6">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Tableau de bord</h1>
           </div>
-          <div className="flex items-center justify-center min-h-[200px]">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+          <div className="flex items-center justify-center min-h-[300px]">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black dark:border-white"></div>
+              <p className="text-gray-600 dark:text-gray-400">Chargement des données...</p>
+            </div>
           </div>
         </div>
       </AdminLayout>
@@ -115,30 +106,32 @@ const AdminDashboard: React.FC = () => {
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="pt-24 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="pt-24">
+        <div className="flex items-center justify-between mb-8 px-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Tableau de bord</h1>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Enhanced Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4">
           {stats.map((stat, index) => (
-            <div key={index} className="bg-white p-6 rounded-lg shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-gray-50 rounded-lg">{stat.icon}</div>
-                <span className={`text-sm font-medium ${
-                  stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {/* {stat.change} */}
-                </span>
+            <div 
+              key={index} 
+              className="group bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+            >
+              <div className="flex items-center space-x-4">
+                <div className={`${stat.bgColor} p-3 rounded-lg transition-transform group-hover:scale-105`}>
+                  {stat.icon}
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{stat.title}</p>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {stat.value}
+                  </h3>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold">{stat.value}</h3>
-              <p className="text-sm text-gray-500 mt-1">{stat.title}</p>
             </div>
           ))}
         </div>
-
-        
       </div>
     </AdminLayout>
   );
