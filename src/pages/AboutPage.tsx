@@ -252,7 +252,7 @@ const AboutPage = () => {
         viewport={{ once: true, margin: "-100px" }}
         variants={staggerContainer}
       >
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-12xl mx-auto px-6">
           <motion.div 
             className="text-center mb-16"
             variants={fadeInUp}
