@@ -22,6 +22,13 @@ const ProductPage: React.FC = () => {
       try {
         const productData = await getProductById(id);
         setProduct(productData);
+        // Initialiser l'index de l'image courante avec mainImageIndex si disponible
+        if (productData?.mainImageIndex !== undefined && 
+            productData.images && 
+            productData.mainImageIndex >= 0 && 
+            productData.mainImageIndex < productData.images.length) {
+          setCurrentImageIndex(productData.mainImageIndex);
+        }
         if (productData?.colors && productData.colors.length > 0) {
           setSelectedColor(productData.colors[0]);
         }

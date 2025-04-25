@@ -6,11 +6,13 @@ import { Category, getAllCategories } from '../services/categoryService';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 
 interface Product {
+  mainImageIndex?: number;
   id: string;
   name: string;
   reference: string;
   category: string;
   subCategory?: string;
+  subSubCategory?: string;
   priceHT: number;
   priceTTC: number;
   images: string[];
@@ -19,7 +21,7 @@ interface Product {
 }
 
 const ProductListPage: React.FC = () => {
-  const { category, subcategory } = useParams<{ category: string; subcategory?: string }>();
+  const { category, subcategory, subsubcategory } = useParams<{ category: string; subcategory?: string; subsubcategory?: string }>();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,6 +58,10 @@ const ProductListPage: React.FC = () => {
         if (category) {
           if (subcategory) {
             productsData = await getProductsBySubCategory(category, subcategory);
+            // Si on a une sous-sous-catégorie, filtrer les produits qui correspondent
+            if (subsubcategory && productsData.length > 0) {
+              productsData = productsData.filter(product => product.subSubCategory === subsubcategory);
+            }
           } else {
             productsData = await getProductsByCategory(category);
           }
@@ -73,7 +79,7 @@ const ProductListPage: React.FC = () => {
     };
 
     fetchProducts();
-  }, [category, subcategory]);
+  }, [category, subcategory, subsubcategory]);
 
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
@@ -530,26 +536,41 @@ const ProductListPage: React.FC = () => {
           
           {/* Products Grid */}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((index) => (
                 <div 
                   key={index} 
-                  className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300"
+                  className="product-card group bg-white rounded-xl shadow-sm overflow-hidden"
                   aria-busy="true"
                   aria-label="Loading product..."
                 >
-                  <div className="aspect-square bg-gray-200 animate-pulse"></div>
+                  <div className="aspect-square bg-gray-200 animate-pulse relative">
+                    {/* Skeleton pour le badge de disponibilité */}
+                    <div className="absolute top-2 right-2 w-16 h-5 bg-gray-300 rounded-full animate-pulse"></div>
+                    {/* Skeleton pour les indicateurs de couleur */}
+                    <div className="absolute bottom-2 left-2 flex space-x-1">
+                      <div className="w-3 h-3 rounded-full bg-gray-300 animate-pulse"></div>
+                      <div className="w-3 h-3 rounded-full bg-gray-300 animate-pulse"></div>
+                      <div className="w-3 h-3 rounded-full bg-gray-300 animate-pulse"></div>
+                    </div>
+                  </div>
                   <div className="p-4 space-y-3">
                     <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
                     <div className="h-4 bg-gray-200 rounded animate-pulse w-2/3"></div>
-                    <div className="h-5 bg-gray-200 rounded animate-pulse w-1/2"></div>
+                    <div className="flex justify-between items-end pt-2">
+                      <div className="space-y-1">
+                        <div className="h-3 bg-gray-200 rounded animate-pulse w-12"></div>
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-16"></div>
+                      </div>
+                      <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           ) : displayedProducts.length > 0 ? (
             <div 
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6"
               role="list"
               aria-label="Products grid"
             >
@@ -557,47 +578,103 @@ const ProductListPage: React.FC = () => {
                 <Link 
                   key={product.id} 
                   to={`/product/${product.id}`}
-                  className="product-card group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="product-card group bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 transform hover:-translate-y-1"
                   role="listitem"
                 >
-                  <div className="aspect-square relative">
+                  <div className="aspect-square relative overflow-hidden">
                     {product.images && product.images.length > 0 ? (
                       <img 
-                        src={product.images[0]} 
+                        src={
+                          product.images && product.images.length > 0
+                            ? (typeof product.mainImageIndex === 'number' && product.mainImageIndex >= 0 && product.mainImageIndex < product.images.length
+                                ? product.images[product.mainImageIndex]
+                                : product.images[0])
+                            : DEFAULT_PRODUCT_IMAGE
+                        }
                         alt={product.name}
-                        className="w-full h-full object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 bg-gray-100"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE; }}
                         loading="lazy"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE;
-                        }}
                       />
                     ) : (
                       <img
                         src={DEFAULT_PRODUCT_IMAGE}
                         alt={product.name}
-                        className="w-full h-full object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         loading="lazy"
                       />
                     )}
+                    
+                    {/* Badge de disponibilité */}
+                    {product.isAvailable !== undefined && (
+                      <div className={`absolute top-2 right-2 px-2 py-1 text-xs font-medium rounded-full ${product.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {product.isAvailable ? 'Disponible' : 'Indisponible'}
+                      </div>
+                    )}
+                    
+                    {/* Indicateur de couleurs disponibles */}
+                    {product.colors && product.colors.length > 0 && (
+                      <div className="absolute bottom-2 left-2 flex space-x-1">
+                        {product.colors.slice(0, 3).map((color, index) => (
+                          <div 
+                            key={index} 
+                            className="w-3 h-3 rounded-full border border-white shadow-sm" 
+                            style={{ backgroundColor: color.toLowerCase() }}
+                            title={color}
+                          />
+                        ))}
+                        {product.colors.length > 3 && (
+                          <div className="w-3 h-3 rounded-full bg-gray-200 border border-white shadow-sm flex items-center justify-center text-[8px] font-bold">+</div>
+                        )}
+                      </div>
+                    )}
                   </div>
+                  
                   <div className="p-4 space-y-2">
-                    <h3 className="font-bold text-lg line-clamp-2">{product.name}</h3>
+                    <h3 className="font-bold text-lg line-clamp-2 group-hover:text-violet-700 transition-colors duration-300">{product.name}</h3>
                     <p className="text-sm text-gray-500">Réf: {product.reference}</p>
-                    <p className="font-bold text-lg text-blue-600">{product.priceHT.toFixed(2)}€ HT / jour</p>
+                    <div className="flex justify-between items-end pt-2">
+                      <div>
+                        <p className="text-xs text-gray-500">Prix HT / jour</p>
+                        <p className="font-bold text-lg text-violet-600">{product.priceHT.toFixed(2)}€</p>
+                      </div>
+                      <div className="bg-violet-100 hover:bg-violet-200 rounded-full p-2 transition-colors duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-600"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <h3 className="text-xl font-medium mb-3">Aucun produit trouvé</h3>
-              <p className="text-gray-600">Essayez de modifier vos filtres ou revenez plus tard.</p>
-              <button 
-                onClick={() => window.location.reload()} 
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Rafraîchir la page
-              </button>
+            <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100">
+              <div className="mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-gray-400"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-gray-800">Aucun produit trouvé</h3>
+              <p className="text-gray-600 max-w-md mx-auto mb-6">Essayez de modifier vos filtres ou revenez plus tard pour découvrir nos nouveaux produits.</p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <div className="flex gap-2">
+                  {/* <button 
+                    onClick={resetFilters} 
+                    className="px-5 py-2.5 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 transition-colors font-medium"
+                  >
+                    Réinitialiser les filtres
+                  </button> */}
+                  <Link
+                    to="/"
+                    className="px-5 py-2.5 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 transition-colors font-medium"
+                  >
+                    Retour à l'accueil
+                  </Link>
+                </div>
+                <Link
+                  to={`/products/${category}`}
+                  className="px-5 py-2.5 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors font-medium"
+                >
+                  Retour à la catégorie
+                </Link>
+              </div>
             </div>
           )}
         </div>

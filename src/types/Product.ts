@@ -9,6 +9,7 @@ export interface Product {
   priceHT: number;
   priceTTC: number;
   images: string[];
+  mainImageIndex?: number; // Index de l'image principale dans le tableau images
   colors?: string[];
   relatedProducts?: string[];
   technicalSpecs: Record<string, string>;
