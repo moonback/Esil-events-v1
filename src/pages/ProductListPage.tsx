@@ -297,11 +297,21 @@ const ProductListPage: React.FC = () => {
                   </div>
                 </li>
                 {subcategory && (
+                  <li>
+                    <div className="flex items-center">
+                      <span className="mx-2 text-gray-400">/</span>
+                      <Link to={`/products/${category}/${subcategory}`} className="text-gray-700 hover:text-black">
+                        {subcategory.charAt(0).toUpperCase() + subcategory.slice(1)}
+                      </Link>
+                    </div>
+                  </li>
+                )}
+                {subsubcategory && (
                   <li aria-current="page">
                     <div className="flex items-center">
                       <span className="mx-2 text-gray-400">/</span>
                       <span className="text-gray-500">
-                        {subcategory.charAt(0).toUpperCase() + subcategory.slice(1)}
+                        {subsubcategory.charAt(0).toUpperCase() + subsubcategory.slice(1)}
                       </span>
                     </div>
                   </li>
