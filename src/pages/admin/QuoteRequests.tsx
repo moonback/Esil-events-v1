@@ -1118,7 +1118,7 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
                             <div><span className="text-gray-500">Type:</span> <span className="font-medium text-gray-800">{getDeliveryTypeLabel(selectedRequest.delivery_type)}</span></div>
                             <div><span className="text-gray-500">Date:</span> <span className="font-medium text-gray-800">{selectedRequest.delivery_date ? formatDate(selectedRequest.delivery_date).split(' ')[0] : '-'}</span></div>
                             <div><span className="text-gray-500">Créneau:</span> <span className="font-medium text-gray-800">{getTimeSlotLabel(selectedRequest.delivery_time_slot)}</span></div>
-                            <div><span className="text-gray-500">Date Reprise:</span> <span className="font-medium text-gray-800">{selectedRequest.pickup_date ? formatDate(selectedRequest.pickup_date).split(' ')[0] : '-'}</span></div>
+                            {/* <div><span className="text-gray-500">Date Reprise:</span> <span className="font-medium text-gray-800">{selectedRequest.pickup_date ? formatDate(selectedRequest.pickup_date).split(' ')[0] : '-'}</span></div> */}
                              <div className="sm:col-span-2 truncate"><span className="text-gray-500">Adresse Livr.:</span> <span className="font-medium text-gray-800">{[selectedRequest.delivery_address, selectedRequest.delivery_postal_code, selectedRequest.delivery_city].filter(Boolean).join(', ') || '-'}</span></div>
                          </div>
                     </div>
@@ -1147,7 +1147,7 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
                      {(selectedRequest.pickup_return_date || selectedRequest.pickup_return_start_time) && (
                         <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
                             <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                                <Clock className="h-4 w-4 text-indigo-500" /> Détails retour (si retrait)
+                                <Clock className="h-4 w-4 text-indigo-500" /> Détails reprise
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
                                 <div><span className="text-gray-500">Date:</span> <span className="font-medium text-gray-800">{selectedRequest.pickup_return_date ? formatDate(selectedRequest.pickup_return_date).split(' ')[0] : '-'}</span></div>
