@@ -206,7 +206,7 @@ const ProductListPage: React.FC = () => {
             <div className="mb-6">
               <h4 className="font-medium mb-3">Couleurs</h4>
               <div className="flex flex-wrap gap-2">
-                {Array.from(new Set(products.flatMap(p => Array.isArray(p.colors) ? p.colors : []))).sort().map(color => (
+                {['Rouge', 'Bleu', 'Vert', 'Noir', 'Blanc'].map(color => (
                   <button
                     key={color}
                     onClick={() => setSelectedColors(prev =>
@@ -231,40 +231,19 @@ const ProductListPage: React.FC = () => {
               <h4 className="font-medium mb-3">Catégories</h4>
               <div className="space-y-2">
                 {categories.map(cat => (
-                  <div key={cat.id} className="space-y-1">
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedCategories.includes(cat.slug)}
-                        onChange={(e) => setSelectedCategories(prev =>
-                          e.target.checked
-                            ? [...prev, cat.slug]
-                            : prev.filter(c => c !== cat.slug)
-                        )}
-                        className="form-checkbox h-4 w-4 text-blue-500"
-                      />
-                      <span className="text-sm font-medium">{cat.name}</span>
-                    </label>
-                    {cat.subcategories && cat.subcategories.length > 0 && (
-                      <div className="ml-6 space-y-1">
-                        {cat.subcategories.map((subCat: { slug: React.Key | null | undefined; name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }) => (
-                          <label key={subCat.slug} className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={selectedCategories.includes(subCat.slug as string)}
-                              onChange={(e) => setSelectedCategories(prev =>
-                                e.target.checked
-                                  ? [...prev, subCat.slug as string]
-                                  : prev.filter(c => c !== subCat.slug)
-                              )}
-                              className="form-checkbox h-4 w-4 text-blue-500"
-                            />
-                            <span className="text-sm text-gray-600">{subCat.name}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <label key={cat.id} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedCategories.includes(cat.slug)}
+                      onChange={(e) => setSelectedCategories(prev =>
+                        e.target.checked
+                          ? [...prev, cat.slug]
+                          : prev.filter(c => c !== cat.slug)
+                      )}
+                      className="form-checkbox h-4 w-4 text-blue-500"
+                    />
+                    <span className="text-sm">{cat.name}</span>
+                  </label>
                 ))}
               </div>
             </div>
@@ -442,7 +421,7 @@ const ProductListPage: React.FC = () => {
                 <div className="mb-6">
                   <h4 className="font-medium mb-3">Couleurs</h4>
                   <div className="flex flex-wrap gap-2">
-                    {Array.from(new Set(products.filter(p => Array.isArray(p.colors) && p.colors.length > 0).flatMap(p => p.colors!))).map(color => (
+                    {['Rouge', 'Bleu', 'Vert', 'Noir', 'Blanc'].map(color => (
                       <button
                         key={color}
                         onClick={() => setSelectedColors(prev =>
