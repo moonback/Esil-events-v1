@@ -118,16 +118,38 @@ const QuoteRequests: React.FC = () => {
 
   // Exporter en PDF
   const handleExportPDF = async (): Promise<void> => {
-    // Implémentation de l'export PDF
-    console.log('Export PDF pour la demande:', selectedRequest?.id);
-    setFeedbackMessage({ type: 'success', text: 'Export PDF en cours de développement' });
+    if (!selectedRequest) return;
+    
+    try {
+      setLoading(true);
+      // Importer dynamiquement l'utilitaire d'exportation PDF
+      const { generateQuoteRequestPDF } = await import('../../utils/pdfExport');
+      await generateQuoteRequestPDF(selectedRequest);
+      setFeedbackMessage({ type: 'success', text: 'Le PDF a été généré avec succès' });
+    } catch (err) {
+      console.error('Erreur lors de la génération du PDF:', err);
+      setFeedbackMessage({ type: 'error', text: 'Erreur lors de la génération du PDF' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Imprimer la demande
-  const handlePrint = () => {
-    // Implémentation de l'impression
-    console.log('Impression de la demande:', selectedRequest?.id);
-    setFeedbackMessage({ type: 'success', text: 'Fonctionnalité d\'impression en cours de développement' });
+  const handlePrint = async () => {
+    if (!selectedRequest) return;
+    
+    try {
+      setLoading(true);
+      // Importer dynamiquement l'utilitaire d'impression
+      const { printQuoteRequest } = await import('../../utils/pdfExport');
+      await printQuoteRequest(selectedRequest);
+      setFeedbackMessage({ type: 'success', text: 'La page d\'impression a été générée' });
+    } catch (err) {
+      console.error('Erreur lors de la préparation de l\'impression:', err);
+      setFeedbackMessage({ type: 'error', text: 'Erreur lors de la préparation de l\'impression' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Générer une réponse avec l'IA
