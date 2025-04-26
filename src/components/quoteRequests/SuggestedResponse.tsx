@@ -1,5 +1,5 @@
-import React from 'react';
-import { Send, Clipboard, Edit } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Send, Clipboard, Edit, Check, MessageSquare } from 'lucide-react';
 import { QuoteRequest } from '../../services/quoteRequestService';
 
 interface SuggestedResponseProps {
@@ -9,20 +9,51 @@ interface SuggestedResponseProps {
 }
 
 const SuggestedResponse: React.FC<SuggestedResponseProps> = ({
-  suggestedResponse,
+  suggestedResponse: initialSuggestedResponse,
   selectedRequest,
   setFeedbackMessage
 }) => {
+  const [suggestedResponse, setSuggestedResponse] = useState(initialSuggestedResponse);
+  const [isCopied, setIsCopied] = useState(false);
+  
+  useEffect(() => {
+    setSuggestedResponse(initialSuggestedResponse);
+  }, [initialSuggestedResponse]);
+
+  // Listen for messages from the editor window
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Verify origin for security
+      if (event.origin !== window.location.origin) return;
+      
+      if (event.data?.type === 'SAVE_RESPONSE' && event.data?.requestId === selectedRequest?.id) {
+        setSuggestedResponse(event.data.response);
+        setFeedbackMessage({
+          type: 'success',
+          text: 'Réponse mise à jour avec succès.'
+        });
+        setTimeout(() => setFeedbackMessage(null), 2500);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [selectedRequest, setFeedbackMessage]);
+
   if (!suggestedResponse || !selectedRequest) return null;
 
   // Fonction pour copier la réponse dans le presse-papiers
   const handleCopy = () => {
     navigator.clipboard.writeText(suggestedResponse);
+    setIsCopied(true);
     setFeedbackMessage({
       type: 'success',
       text: 'Réponse copiée dans le presse-papiers.'
     });
-    setTimeout(() => setFeedbackMessage(null), 2500);
+    setTimeout(() => {
+      setIsCopied(false);
+      setFeedbackMessage(null);
+    }, 2500);
   };
 
   // Fonction pour ouvrir l'éditeur de réponse
@@ -65,7 +96,10 @@ const SuggestedResponse: React.FC<SuggestedResponseProps> = ({
                   class="flex-grow w-full p-3 border border-gray-300 rounded-md resize-none focus:ring-indigo-500 focus:border-indigo-500 text-sm leading-relaxed mb-4 font-mono"
                   oninput="handleInput()"
               >${escapedResponse}</textarea>
-              <div class="text-xs text-gray-500 mb-4 text-right" id="saveStatus"></div>
+              <div class="flex justify-between items-center mb-4">
+                <div class="text-xs text-gray-500" id="charCount"></div>
+                <div class="text-xs text-gray-500 text-right" id="saveStatus"></div>
+              </div>
 
               <div class="flex justify-end items-center gap-3">
                  <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm font-medium" onclick="window.close()">
@@ -80,10 +114,20 @@ const SuggestedResponse: React.FC<SuggestedResponseProps> = ({
             <script>
               const textarea = document.getElementById('responseText');
               const saveStatus = document.getElementById('saveStatus');
+              const charCount = document.getElementById('charCount');
               const requestId = '${selectedRequest?.id || ''}';
               const storageKey = \`draftResponse_\${requestId}\`;
               let saveTimeout;
               let unsavedChanges = false;
+
+              // Update character count
+              function updateCharCount() {
+                const count = textarea.value.length;
+                charCount.textContent = \`\${count} caractères\`;
+              }
+              
+              // Initial character count
+              updateCharCount();
 
               // Load draft on init
               document.addEventListener('DOMContentLoaded', () => {
@@ -92,6 +136,7 @@ const SuggestedResponse: React.FC<SuggestedResponseProps> = ({
                 if (savedDraft && savedDraft !== textarea.value) {
                   if (confirm('Un brouillon non enregistré a été trouvé pour cette demande. Voulez-vous le restaurer ?')) {
                     textarea.value = savedDraft;
+                    updateCharCount();
                   } else {
                      // If user refuses, clear the draft to avoid asking again
                      localStorage.removeItem(storageKey);
@@ -103,6 +148,7 @@ const SuggestedResponse: React.FC<SuggestedResponseProps> = ({
               function handleInput() {
                 unsavedChanges = true;
                 updateSaveStatus('Modifications non enregistrées...');
+                updateCharCount();
                 clearTimeout(saveTimeout);
                 saveTimeout = setTimeout(autoSave, 1500); // Auto-save after 1.5s of inactivity
               }
@@ -171,12 +217,15 @@ const SuggestedResponse: React.FC<SuggestedResponseProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-5 border border-gray-200 transition-all">
+    <div className="bg-white rounded-lg shadow-md p-5 border border-gray-200 transition-all hover:shadow-lg">
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
         <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-          <Send className="w-5 h-5 text-indigo-600" />
+          <MessageSquare className="w-5 h-5 text-indigo-600" />
           Réponse Suggérée par IA
         </h3>
+        <div className="text-xs text-gray-500">
+          {suggestedResponse.length} caractères
+        </div>
       </div>
 
       {/* Response content */}
@@ -188,11 +237,21 @@ const SuggestedResponse: React.FC<SuggestedResponseProps> = ({
       <div className="flex flex-wrap justify-end gap-3">
         <button
           onClick={handleCopy}
-          className="px-3 py-1.5 bg-gray-100 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-200 transition-colors shadow-sm flex items-center text-xs font-medium"
+          className={`px-3 py-1.5 ${isCopied ? 'bg-green-100 border-green-300 text-green-700' : 'bg-gray-100 border-gray-300 text-gray-700'} 
+            border rounded-md hover:bg-gray-200 transition-all duration-300 shadow-sm flex items-center text-xs font-medium`}
           title="Copier la réponse"
         >
-          <Clipboard className="h-3.5 w-3.5 mr-1.5" />
-          Copier
+          {isCopied ? (
+            <>
+              <Check className="h-3.5 w-3.5 mr-1.5 text-green-600" />
+              Copié
+            </>
+          ) : (
+            <>
+              <Clipboard className="h-3.5 w-3.5 mr-1.5" />
+              Copier
+            </>
+          )}
         </button>
         <button
           onClick={handleOpenEditor}
@@ -206,7 +265,7 @@ const SuggestedResponse: React.FC<SuggestedResponseProps> = ({
           href={`mailto:${selectedRequest?.email}?subject=${encodeURIComponent(`Votre demande de devis ESIL Events - ${selectedRequest?.company || selectedRequest?.first_name || ''}`)}&body=${encodeURIComponent(suggestedResponse)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition-colors shadow-sm flex items-center text-xs font-medium"
+          className="px-3 py-1.5 bg-indigo-600 text-white border border-indigo-700 rounded-md hover:bg-indigo-700 transition-colors shadow-sm flex items-center text-xs font-medium"
           title="Ouvrir dans votre client email"
         >
           <Send className="h-3.5 w-3.5 mr-1.5" />
