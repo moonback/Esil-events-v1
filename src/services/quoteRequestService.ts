@@ -145,14 +145,28 @@ export const createQuoteRequest = async (formData: FormData, cartItems: any[]): 
           // Utiliser l'adresse email configurée
           const recipientEmail = emailConfig.defaultRecipient;
           
+          console.log(`Tentative d'envoi d'email automatique pour la demande de devis ID: ${quoteRequest.id}`);
+          console.log(`Destinataire configuré: ${recipientEmail}`);
+          
           // Envoyer l'email récapitulatif
-          await sendQuoteRequestEmail(quoteRequest, recipientEmail);
-          console.log('Email récapitulatif envoyé avec succès à', recipientEmail);
+          const emailResult = await sendQuoteRequestEmail(quoteRequest, recipientEmail);
+          
+          if (emailResult.success) {
+            console.log(`Email récapitulatif envoyé avec succès à ${recipientEmail}`);
+          } else {
+            console.error(`Échec de l'envoi automatique d'email: ${emailResult.message}`);
+            // Enregistrer l'erreur dans un journal ou une base de données si nécessaire
+          }
         } else {
           console.log('Envoi automatique d\'email désactivé dans la configuration');
         }
       } catch (emailError) {
-        console.error('Erreur lors de l\'envoi de l\'email récapitulatif:', emailError);
+        console.error('Erreur non gérée lors de l\'envoi de l\'email récapitulatif:', emailError);
+        // Journaliser plus de détails sur l'erreur
+        if (emailError instanceof Error) {
+          console.error('Message d\'erreur:', emailError.message);
+          console.error('Stack trace:', emailError.stack);
+        }
         // Ne pas bloquer le processus si l'envoi d'email échoue
       }
     }

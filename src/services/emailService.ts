@@ -180,8 +180,11 @@ const emailServiceConfig: EmailServiceConfig = {
  */
 export const sendQuoteRequestEmail = async (quoteRequest: QuoteRequest, recipientEmail: string): Promise<{ success: boolean; message: string }> => {
   try {
+    console.log(`Début de l'envoi d'email récapitulatif pour la demande de devis de ${quoteRequest.first_name} ${quoteRequest.last_name}`);
+    
     // Vérifier que l'adresse email du destinataire est valide
     if (!recipientEmail || !recipientEmail.includes('@')) {
+      console.error(`Adresse email du destinataire invalide: "${recipientEmail}"`);
       return { 
         success: false, 
         message: 'Adresse email du destinataire invalide' 
@@ -189,6 +192,7 @@ export const sendQuoteRequestEmail = async (quoteRequest: QuoteRequest, recipien
     }
 
     // Préparer les données de l'email
+    console.log(`Génération du contenu de l'email pour la demande de devis ID: ${quoteRequest.id || 'Nouvelle demande'}`);
     const emailContent = generateQuoteRequestEmailContent(quoteRequest);
     const emailConfig: EmailConfig = {
       recipient: recipientEmail,
@@ -222,17 +226,25 @@ export const sendQuoteRequestEmail = async (quoteRequest: QuoteRequest, recipien
       // En production, utiliser le service d'API d'email
       try {
         // Import dynamique du service d'API d'email
+        console.log('Import du service d\'API d\'email...');
         const { sendEmailViaApi } = await import('./emailApiService');
         
         // Vérifier si la configuration SMTP est complète
         if (!isSmtpConfigured()) {
-          console.warn('Configuration SMTP incomplète. L\'email ne peut pas être envoyé.');
+          console.error('Configuration SMTP incomplète. Vérification des variables d\'environnement:', {
+            host: emailServiceConfig.host ? 'Défini' : 'Non défini',
+            port: emailServiceConfig.port ? 'Défini' : 'Non défini',
+            secure: emailServiceConfig.secure ? 'Défini' : 'Non défini',
+            user: emailServiceConfig.auth.user ? 'Défini' : 'Non défini',
+            password: emailServiceConfig.auth.pass ? 'Défini' : 'Non défini'
+          });
           return { 
             success: false, 
             message: 'Configuration SMTP incomplète. Veuillez configurer les variables d\'environnement.' 
           };
         }
 
+        console.log(`Envoi de l'email récapitulatif à ${emailConfig.recipient}...`);
         // Utiliser le service d'API pour envoyer l'email
         const result = await sendEmailViaApi({
           to: emailConfig.recipient,
@@ -248,6 +260,12 @@ export const sendQuoteRequestEmail = async (quoteRequest: QuoteRequest, recipien
             }
           }
         });
+        
+        if (result.success) {
+          console.log(`Email récapitulatif envoyé avec succès à ${emailConfig.recipient}`);
+        } else {
+          console.error(`Échec de l'envoi de l'email récapitulatif à ${emailConfig.recipient}:`, result.message);
+        }
         
         return result;
       } catch (emailError) {
@@ -274,7 +292,7 @@ export const sendQuoteRequestEmail = async (quoteRequest: QuoteRequest, recipien
  */
 export const emailConfig = {
   // Adresse email par défaut pour recevoir les récapitulatifs de demandes de devis
-  defaultRecipient: 'votre.email@orange.fr',
+  defaultRecipient: import.meta.env.VITE_EMAIL_USER || 'contact@neurocode.fr',
   
   // Activer/désactiver l'envoi automatique d'emails
   autoSendEnabled: true,
@@ -437,10 +455,40 @@ export const emailConfig = {
 };
 
 /**
- * Utilitaire pour vérifier si la configuration SMTP est complète
+ * Vérifie si la configuration SMTP est complète
  */
 export const isSmtpConfigured = (): boolean => {
-  return !!emailServiceConfig.auth.user && !!emailServiceConfig.auth.pass;
+  // Vérifier si toutes les variables d'environnement nécessaires sont définies
+  const { isValid, missingVars } = validateSmtpConfig();
+  
+  if (!isValid) {
+    console.warn(`Configuration SMTP incomplète. Variables manquantes: ${missingVars.join(', ')}`);
+  }
+  
+  return isValid;
+};
+
+/**
+ * Importe la fonction de validation SMTP depuis emailApiService
+ */
+const validateSmtpConfig = (): { isValid: boolean; missingVars: string[]; message: string } => {
+  // Vérification locale en attendant l'import dynamique
+  const requiredVars = [
+    { name: 'VITE_EMAIL_HOST', value: emailServiceConfig.host },
+    { name: 'VITE_EMAIL_PORT', value: emailServiceConfig.port },
+    { name: 'VITE_EMAIL_USER', value: emailServiceConfig.auth.user },
+    { name: 'VITE_EMAIL_PASSWORD', value: emailServiceConfig.auth.pass }
+  ];
+  
+  const missingVars = requiredVars.filter(v => !v.value).map(v => v.name);
+  
+  return {
+    isValid: missingVars.length === 0,
+    missingVars,
+    message: missingVars.length > 0 
+      ? `Configuration SMTP incomplète. Variables manquantes: ${missingVars.join(', ')}` 
+      : 'Configuration SMTP valide'
+  };
 };
 
 // Charger la configuration au démarrage
