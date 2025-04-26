@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, Download, Printer } from 'lucide-react';
+import { Send, Download, Printer, Settings } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { QuoteRequest, getQuoteRequests, updateQuoteRequestStatus } from '../../services/quoteRequestService';
@@ -7,6 +7,7 @@ import QuoteRequestFilters from '../../components/quoteRequests/QuoteRequestFilt
 import QuoteRequestList from '../../components/quoteRequests/QuoteRequestList';
 import QuoteRequestDetails from '../../components/quoteRequests/QuoteRequestDetails';
 import QuoteRequestActions from '../../components/quoteRequests/QuoteRequestActions';
+import EmailConfigPanel from '../../components/admin/EmailConfigPanel';
 
 const QuoteRequests: React.FC = () => {
   // États pour les demandes de devis
@@ -27,6 +28,7 @@ const QuoteRequests: React.FC = () => {
   const [suggestedResponse, setSuggestedResponse] = useState<string>('');
   const [generatingResponse, setGeneratingResponse] = useState<boolean>(false);
   const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [showEmailConfig, setShowEmailConfig] = useState<boolean>(false);
 
   // Charger les demandes de devis
   const loadQuoteRequests = async () => {
@@ -178,7 +180,22 @@ const QuoteRequests: React.FC = () => {
       <div className="space-y-6 mt-12">
         <div className="flex items-center justify-between px-6">
           <h1 className="text-2xl font-bold text-gray-900">Demandes de devis</h1>
+          <button
+            onClick={() => setShowEmailConfig(!showEmailConfig)}
+            className="flex items-center px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 transition-colors text-sm font-medium"
+            title="Configurer l'envoi automatique d'emails"
+          >
+            <Settings className="w-4 h-4 mr-1.5" />
+            Config Email
+          </button>
         </div>
+        
+        {/* Panneau de configuration des emails */}
+        {showEmailConfig && (
+          <div className="px-6">
+            <EmailConfigPanel onClose={() => setShowEmailConfig(false)} />
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-50 text-red-600 p-4 rounded-md mx-6 animate-fade-in">

@@ -131,6 +131,30 @@ export const createQuoteRequest = async (formData: FormData, cartItems: any[]): 
       console.error('Erreur lors de l\'insertion de la demande de devis:', error);
     } else {
       console.log('Demande de devis insérée avec succès');
+      
+      // Envoyer un email récapitulatif automatiquement
+      try {
+        // Import dynamique pour éviter les dépendances circulaires
+        const { sendQuoteRequestEmail, emailConfig } = await import('./emailService');
+        
+        // Si data est un tableau, prendre le premier élément
+        const quoteRequest = Array.isArray(data) ? data[0] : data;
+        
+        // Vérifier si l'envoi automatique est activé
+        if (emailConfig.autoSendEnabled) {
+          // Utiliser l'adresse email configurée
+          const recipientEmail = emailConfig.defaultRecipient;
+          
+          // Envoyer l'email récapitulatif
+          await sendQuoteRequestEmail(quoteRequest, recipientEmail);
+          console.log('Email récapitulatif envoyé avec succès à', recipientEmail);
+        } else {
+          console.log('Envoi automatique d\'email désactivé dans la configuration');
+        }
+      } catch (emailError) {
+        console.error('Erreur lors de l\'envoi de l\'email récapitulatif:', emailError);
+        // Ne pas bloquer le processus si l'envoi d'email échoue
+      }
     }
 
     return { data, error };
