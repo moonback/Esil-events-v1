@@ -71,12 +71,39 @@ export const sendEmailViaApi = async (emailData: EmailData): Promise<{ success: 
       body: JSON.stringify(emailData),
     });
     
+    // Vérifier si la réponse est OK
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Erreur lors de l\'envoi de l\'email');
+      // Essayer de lire le corps de la réponse comme texte d'abord
+      const responseText = await response.text();
+      let errorMessage = 'Erreur lors de l\'envoi de l\'email';
+      
+      // Essayer de parser le texte comme JSON si possible
+      try {
+        const errorData = JSON.parse(responseText);
+        errorMessage = errorData.message || errorMessage;
+      } catch (parseError) {
+        // Si ce n'est pas du JSON, utiliser le texte brut ou un message par défaut
+        if (responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
+          errorMessage = `L'API a renvoyé une page HTML au lieu d'une réponse JSON. Vérifiez la configuration de l'API.`;
+        } else if (responseText) {
+          errorMessage = `Erreur: ${responseText}`;
+        }
+      }
+      
+      throw new Error(errorMessage);
     }
     
-    const result = await response.json();
+    // Essayer de lire la réponse comme texte d'abord
+    const responseText = await response.text();
+    let result;
+    
+    // Essayer de parser le texte comme JSON
+    try {
+      result = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Erreur lors du parsing de la réponse JSON:', parseError);
+      throw new Error('La réponse du serveur n\'est pas au format JSON valide');
+    }
     return { 
       success: true, 
       message: result.message || 'Email envoyé avec succès' 
