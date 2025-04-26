@@ -143,10 +143,51 @@ export const generateQuoteRequestEmailContent = (quoteRequest: QuoteRequest): st
 };
 
 /**
- * Envoie un email récapitulatif pour une nouvelle demande de devis
+ * Configuration pour le service d'email
  */
-export const sendQuoteRequestEmail = async (quoteRequest: QuoteRequest, recipientEmail: string): Promise<boolean> => {
+interface EmailServiceConfig {
+  host: string;
+  port: number;
+  secure: boolean;
+  auth: {
+    user: string;
+    pass: string;
+  };
+  from: string;
+}
+
+/**
+ * Configuration par défaut pour le service d'email
+ * Ces valeurs doivent être remplacées par les valeurs réelles dans un environnement de production
+ * via les variables d'environnement
+ */
+const emailServiceConfig: EmailServiceConfig = {
+  host: import.meta.env.VITE_EMAIL_HOST || 'smtp.orange.fr',
+  port: Number(import.meta.env.VITE_EMAIL_PORT) || 587,
+  secure: import.meta.env.VITE_EMAIL_SECURE === 'true',
+  auth: {
+    user: import.meta.env.VITE_EMAIL_USER || '',
+    pass: import.meta.env.VITE_EMAIL_PASSWORD || ''
+  },
+  from: import.meta.env.VITE_EMAIL_FROM || 'ESIL Events <contact@esil-events.com>'
+};
+
+/**
+ * Envoie un email récapitulatif pour une nouvelle demande de devis
+ * @param quoteRequest - La demande de devis à envoyer par email
+ * @param recipientEmail - L'adresse email du destinataire
+ * @returns Un objet contenant le statut de l'envoi et un message explicatif
+ */
+export const sendQuoteRequestEmail = async (quoteRequest: QuoteRequest, recipientEmail: string): Promise<{ success: boolean; message: string }> => {
   try {
+    // Vérifier que l'adresse email du destinataire est valide
+    if (!recipientEmail || !recipientEmail.includes('@')) {
+      return { 
+        success: false, 
+        message: 'Adresse email du destinataire invalide' 
+      };
+    }
+
     // Préparer les données de l'email
     const emailContent = generateQuoteRequestEmailContent(quoteRequest);
     const emailConfig: EmailConfig = {
@@ -155,37 +196,76 @@ export const sendQuoteRequestEmail = async (quoteRequest: QuoteRequest, recipien
       body: emailContent
     };
 
-    // Dans un environnement de production, vous utiliseriez un service d'envoi d'emails comme:
-    // - SendGrid, Mailjet, Mailchimp, etc. pour des solutions tierces
-    // - Ou un serveur SMTP directement via nodemailer côté serveur
-    
-    // Pour cette implémentation, nous allons utiliser l'API Fetch pour envoyer l'email via un endpoint backend
-    // Note: Cet endpoint doit être implémenté côté serveur
-    
-    // Exemple d'implémentation avec un endpoint backend (à adapter selon votre infrastructure)
-    try {
-      // Simuler l'envoi d'email (à remplacer par votre implémentation réelle)
-      console.log('Envoi automatique d\'email à:', emailConfig.recipient);
+    // Vérifier si nous sommes en mode développement
+    const isDevelopment = import.meta.env.DEV;
+
+    if (isDevelopment) {
+      // En mode développement, on affiche les informations dans la console
+      console.log('Mode développement: Simulation d\'envoi d\'email');
+      console.log('Destinataire:', emailConfig.recipient);
       console.log('Sujet:', emailConfig.subject);
       console.log('Contenu HTML généré pour l\'email');
       
-      // En attendant l'implémentation d'un service d'envoi d'emails côté serveur,
-      // nous proposons également une solution de secours avec mailto
+      // Solution de secours avec mailto pour le développement
       const mailtoLink = `mailto:${emailConfig.recipient}?subject=${encodeURIComponent(emailConfig.subject)}&body=${encodeURIComponent('Voir le contenu HTML dans la console du navigateur')}`;
       
       // Ouvrir le lien mailto dans une nouvelle fenêtre (solution temporaire)
-      if (confirm('Un email récapitulatif va être envoyé à ' + emailConfig.recipient + '. Voulez-vous l\'ouvrir dans votre client email?')) {
+      if (confirm('Mode développement: Un email récapitulatif va être envoyé à ' + emailConfig.recipient + '. Voulez-vous l\'ouvrir dans votre client email?')) {
         window.open(mailtoLink, '_blank');
       }
       
-      return true;
-    } catch (fetchError) {
-      console.error('Erreur lors de l\'envoi de l\'email via l\'API:', fetchError);
-      return false;
+      return { 
+        success: true, 
+        message: 'Email simulé en mode développement' 
+      };
+    } else {
+      // En production, utiliser le service d'API d'email
+      try {
+        // Import dynamique du service d'API d'email
+        const { sendEmailViaApi } = await import('./emailApiService');
+        
+        // Vérifier si la configuration SMTP est complète
+        if (!isSmtpConfigured()) {
+          console.warn('Configuration SMTP incomplète. L\'email ne peut pas être envoyé.');
+          return { 
+            success: false, 
+            message: 'Configuration SMTP incomplète. Veuillez configurer les variables d\'environnement.' 
+          };
+        }
+
+        // Utiliser le service d'API pour envoyer l'email
+        const result = await sendEmailViaApi({
+          to: emailConfig.recipient,
+          subject: emailConfig.subject,
+          html: emailConfig.body,
+          from: emailServiceConfig.from,
+          smtpConfig: {
+            host: emailServiceConfig.host,
+            port: emailServiceConfig.port,
+            secure: emailServiceConfig.secure,
+            auth: {
+              user: emailServiceConfig.auth.user
+            }
+          }
+        });
+        
+        return result;
+      } catch (emailError) {
+        console.error('Erreur lors de l\'envoi de l\'email:', emailError);
+        
+        // Message d'erreur détaillé pour faciliter le débogage
+        return { 
+          success: false, 
+          message: `Erreur d'envoi: ${emailError instanceof Error ? emailError.message : 'Erreur inconnue'}` 
+        };
+      }
     }
   } catch (error) {
     console.error('Erreur lors de la préparation de l\'email récapitulatif:', error);
-    return false;
+    return { 
+      success: false, 
+      message: `Erreur de préparation: ${error instanceof Error ? error.message : 'Erreur inconnue'}` 
+    };
   }
 };
 
@@ -226,8 +306,152 @@ export const emailConfig = {
       console.error('Erreur lors du chargement de la configuration email:', error);
     }
     return emailConfig;
+  },
+
+  // Tester la connexion au serveur SMTP
+  testConnection: async (): Promise<{ success: boolean; message: string }> => {
+    try {
+      // Vérifier si nous sommes en mode développement
+      if (import.meta.env.DEV && !emailServiceConfig.auth.user) {
+        return { 
+          success: false, 
+          message: 'Configuration SMTP incomplète. Veuillez configurer les variables d\'environnement.' 
+        };
+      }
+
+      // Import dynamique du service d'API d'email
+      const { testSmtpConnectionViaApi } = await import('./emailApiService');
+      
+      // Utiliser le service d'API pour tester la connexion SMTP
+      return await testSmtpConnectionViaApi();
+
+    } catch (error) {
+      console.error('Erreur lors du test de connexion SMTP:', error);
+      return { 
+        success: false, 
+        message: `Erreur de connexion: ${error instanceof Error ? error.message : 'Erreur inconnue'}` 
+      };
+    }
+  },
+  
+  // Envoyer un email de test pour vérifier la configuration
+  sendTestEmail: async (testEmail: string): Promise<{ success: boolean; message: string }> => {
+    try {
+      if (!isSmtpConfigured()) {
+        return {
+          success: false,
+          message: 'Configuration SMTP incomplète. Veuillez configurer les variables d\'environnement.'
+        };
+      }
+      
+      // Contenu de l'email de test
+      const testEmailContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Test de configuration email</title>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+            h1 { color: #4f46e5; font-size: 24px; margin-top: 0; }
+            .container { background-color: #f9fafb; padding: 20px; border-radius: 5px; }
+            .footer { margin-top: 30px; font-size: 12px; color: #6b7280; text-align: center; }
+          </style>
+        </head>
+        <body>
+          <h1>Test de configuration email</h1>
+          <div class="container">
+            <p>Cet email confirme que votre configuration SMTP pour ESIL Events fonctionne correctement.</p>
+            <p>Vous pouvez maintenant recevoir les notifications de demandes de devis.</p>
+          </div>
+          <div class="footer">
+            <p>Cet email a été envoyé automatiquement par le système ESIL Events.</p>
+          </div>
+        </body>
+        </html>
+      `;
+      
+      // Vérifier si nous sommes en mode développement
+      if (import.meta.env.DEV) {
+        console.log('Mode développement: Simulation d\'envoi d\'email de test');
+        console.log('Destinataire:', testEmail);
+        console.log('Contenu HTML généré pour l\'email de test');
+        
+        // Solution de secours avec mailto pour le développement
+        const mailtoLink = `mailto:${testEmail}?subject=${encodeURIComponent('Test de configuration email - ESIL Events')}&body=${encodeURIComponent('Ceci est un email de test pour ESIL Events.')}`;        
+        
+        // Ouvrir le lien mailto dans une nouvelle fenêtre (solution temporaire)
+        if (confirm('Mode développement: Un email de test va être envoyé à ' + testEmail + '. Voulez-vous l\'ouvrir dans votre client email?')) {
+          window.open(mailtoLink, '_blank');
+        }
+        
+        return { 
+          success: true, 
+          message: 'Email de test simulé en mode développement' 
+        };
+      } else {
+        // En production, faire une requête à un endpoint API pour envoyer l'email
+        const response = await fetch('/api/send-test-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: testEmail,
+            subject: 'Test de configuration email - ESIL Events',
+            html: testEmailContent,
+            from: emailServiceConfig.from,
+            smtpConfig: {
+              host: emailServiceConfig.host,
+              port: emailServiceConfig.port,
+              secure: emailServiceConfig.secure,
+              auth: {
+                user: emailServiceConfig.auth.user
+                // Note: Pour des raisons de sécurité, le mot de passe ne devrait pas être envoyé depuis le frontend
+              }
+            }
+          }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Erreur lors de l\'envoi de l\'email de test');
+        }
+        
+        const result = await response.json();
+        console.log('Email de test envoyé avec succès:', result);
+        return {
+          success: true,
+          message: 'Email de test envoyé avec succès à ' + testEmail
+        };
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email de test:', error);
+      return {
+        success: false,
+        message: `Erreur d'envoi: ${error instanceof Error ? error.message : 'Erreur inconnue'}`
+      };
+    }
   }
+};
+
+/**
+ * Utilitaire pour vérifier si la configuration SMTP est complète
+ */
+export const isSmtpConfigured = (): boolean => {
+  return !!emailServiceConfig.auth.user && !!emailServiceConfig.auth.pass;
 };
 
 // Charger la configuration au démarrage
 emailConfig.loadConfig();
+
+// Instructions pour configurer le service d'email:
+// 1. Créer un fichier .env à la racine du projet avec les variables suivantes:
+//    VITE_EMAIL_HOST=smtp.votredomaine.com
+//    VITE_EMAIL_PORT=587
+//    VITE_EMAIL_SECURE=false
+//    VITE_EMAIL_USER=votre_email@votredomaine.com
+//    VITE_EMAIL_PASSWORD=votre_mot_de_passe
+//    VITE_EMAIL_FROM="ESIL Events <contact@esil-events.com>"
+// 2. Redémarrer l'application pour prendre en compte les nouvelles variables d'environnement
