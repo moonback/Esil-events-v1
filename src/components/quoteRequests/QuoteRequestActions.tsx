@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, X, RefreshCw, FileDown, Printer, Send } from 'lucide-react';
+import { Check, X, RefreshCw, FileDown, Printer, Send, Mail } from 'lucide-react';
 import { QuoteRequest } from '../../services/quoteRequestService';
 
 interface QuoteRequestActionsProps {
@@ -8,8 +8,10 @@ interface QuoteRequestActionsProps {
   handleExportPDF: () => Promise<void>;
   handlePrint: () => void;
   handleGenerateResponse: () => Promise<void>;
+  handleTestEmail?: () => Promise<void>;
   generatingResponse: boolean;
   loading: boolean;
+  testingEmail?: boolean;
 }
 
 const QuoteRequestActions: React.FC<QuoteRequestActionsProps> = ({
@@ -18,8 +20,10 @@ const QuoteRequestActions: React.FC<QuoteRequestActionsProps> = ({
   handleExportPDF,
   handlePrint,
   handleGenerateResponse,
+  handleTestEmail,
   generatingResponse,
-  loading
+  loading,
+  testingEmail = false
 }) => {
   return (
     <div className="sticky bottom-0 bg-white/95 backdrop-blur-md p-6 border-t border-gray-200 mt-auto shadow-lg">
@@ -78,6 +82,27 @@ const QuoteRequestActions: React.FC<QuoteRequestActionsProps> = ({
             Imprimer
           </button>
         </div>
+
+        {/* Test Email Button */}
+        {handleTestEmail && (
+          <button
+            onClick={handleTestEmail}
+            disabled={testingEmail || loading || !selectedRequest}
+            className="w-full flex items-center justify-center px-6 py-4 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mb-4"
+          >
+            {testingEmail ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Envoi de l'email de test...
+              </>
+            ) : (
+              <>
+                <Mail className="w-5 h-5 mr-2" />
+                Tester l'envoi d'email
+              </>
+            )}
+          </button>
+        )}
 
         {/* AI Response Button */}
         <button

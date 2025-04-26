@@ -197,6 +197,44 @@ const QuoteRequests: React.FC = () => {
     }
   };
 
+  // Tester l'envoi d'email
+  const [testingEmail, setTestingEmail] = useState<boolean>(false);
+  
+  const handleTestEmail = async () => {
+    if (!selectedRequest) return;
+    
+    try {
+      setTestingEmail(true);
+      
+      // Importer dynamiquement le service d'email
+      const { emailConfig, sendQuoteRequestEmail } = await import('../../services/emailService');
+      
+      // Récupérer l'adresse email configurée
+      const config = emailConfig.loadConfig();
+      const recipientEmail = config.defaultRecipient;
+      
+      // Envoyer l'email de test
+      const result = await sendQuoteRequestEmail(selectedRequest, recipientEmail);
+      
+      if (result.success) {
+        setFeedbackMessage({ 
+          type: 'success', 
+          text: `Email de test envoyé avec succès à ${recipientEmail}` 
+        });
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (err) {
+      console.error('Erreur lors de l\'envoi de l\'email de test:', err);
+      setFeedbackMessage({ 
+        type: 'error', 
+        text: err instanceof Error ? err.message : 'Erreur lors de l\'envoi de l\'email de test' 
+      });
+    } finally {
+      setTestingEmail(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <AdminHeader />
@@ -333,7 +371,9 @@ const QuoteRequests: React.FC = () => {
                   handleExportPDF={handleExportPDF}
                   handlePrint={handlePrint}
                   handleGenerateResponse={handleGenerateResponse}
+                  handleTestEmail={handleTestEmail}
                   generatingResponse={generatingResponse}
+                  testingEmail={testingEmail}
                   loading={loading}
                 />
               </div>
