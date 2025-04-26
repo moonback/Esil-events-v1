@@ -77,18 +77,38 @@ export const sendEmailViaApi = async (emailData: EmailData): Promise<{ success: 
       const responseText = await response.text();
       let errorMessage = 'Erreur lors de l\'envoi de l\'email';
       
+      // Ajouter le code de statut HTTP dans le message d'erreur
+      errorMessage = `Erreur HTTP ${response.status}: ${errorMessage}`;
+      
       // Essayer de parser le texte comme JSON si possible
       try {
         const errorData = JSON.parse(responseText);
-        errorMessage = errorData.message || errorMessage;
+        if (errorData.message) {
+          errorMessage = `${errorMessage} - ${errorData.message}`;
+        }
+        if (errorData.error) {
+          errorMessage = `${errorMessage} (${errorData.error})`;
+        }
       } catch (parseError) {
         // Si ce n'est pas du JSON, utiliser le texte brut ou un message par défaut
         if (responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
-          errorMessage = `L'API a renvoyé une page HTML au lieu d'une réponse JSON. Vérifiez la configuration de l'API.`;
+          errorMessage = `${errorMessage} - L'API a renvoyé une page HTML au lieu d'une réponse JSON. Vérifiez la configuration de l'API et les logs du serveur.`;
         } else if (responseText) {
-          errorMessage = `Erreur: ${responseText}`;
+          // Limiter la longueur du message d'erreur brut
+          const maxLength = 200;
+          const truncatedText = responseText.length > maxLength 
+            ? responseText.substring(0, maxLength) + '...'
+            : responseText;
+          errorMessage = `${errorMessage} - ${truncatedText}`;
         }
       }
+      
+      console.error('Détails de la réponse d\'erreur:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        body: responseText
+      });
       
       throw new Error(errorMessage);
     }
