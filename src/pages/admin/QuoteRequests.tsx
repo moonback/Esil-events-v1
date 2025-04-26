@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, Download, Printer, Settings } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { QuoteRequest, getQuoteRequests, updateQuoteRequestStatus } from '../../services/quoteRequestService';
@@ -8,6 +8,7 @@ import QuoteRequestList from '../../components/quoteRequests/QuoteRequestList';
 import QuoteRequestDetails from '../../components/quoteRequests/QuoteRequestDetails';
 import QuoteRequestActions from '../../components/quoteRequests/QuoteRequestActions';
 import EmailConfigPanel from '../../components/admin/EmailConfigPanel';
+import SuggestedResponse from '../../components/quoteRequests/SuggestedResponse';
 
 const QuoteRequests: React.FC = () => {
   // États pour les demandes de devis
@@ -274,26 +275,14 @@ const QuoteRequests: React.FC = () => {
                 <div className="p-5 overflow-y-auto flex-grow">
                   <QuoteRequestDetails selectedRequest={selectedRequest} />
                   
-                  {/* Réponse suggérée par l'IA */}
+                  {/* Utiliser le composant SuggestedResponse au lieu du code dupliqué */}
                   {suggestedResponse && (
-                    <div className="mt-6 p-4 bg-indigo-50 rounded-lg border border-indigo-100">
-                      <h3 className="text-sm font-semibold text-indigo-700 mb-2 flex items-center gap-2">
-                        <Send className="h-4 w-4" /> Réponse suggérée (IA)
-                      </h3>
-                      <div className="bg-white p-3 rounded border border-indigo-100 text-sm text-gray-800 whitespace-pre-wrap">
-                        {suggestedResponse}
-                      </div>
-                      <div className="mt-2 flex justify-end">
-                        <button 
-                          onClick={() => {
-                            navigator.clipboard.writeText(suggestedResponse);
-                            setFeedbackMessage({ type: 'success', text: 'Réponse copiée dans le presse-papier' });
-                          }}
-                          className="text-xs text-indigo-600 hover:text-indigo-800 font-medium hover:underline"
-                        >
-                          Copier le texte
-                        </button>
-                      </div>
+                    <div className="mt-6">
+                      <SuggestedResponse 
+                        suggestedResponse={suggestedResponse}
+                        selectedRequest={selectedRequest}
+                        setFeedbackMessage={setFeedbackMessage}
+                      />
                     </div>
                   )}
                 </div>

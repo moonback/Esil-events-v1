@@ -217,58 +217,63 @@ const SuggestedResponse: React.FC<SuggestedResponseProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-5 border border-gray-200 transition-all hover:shadow-lg">
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
-        <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-indigo-600" />
-          Réponse Suggérée par IA
+    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 transition-all hover:shadow-xl">
+      <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-3">
+          <MessageSquare className="w-6 h-6 text-indigo-600" />
+          Réponse IA Professionnelle
         </h3>
-        <div className="text-xs text-gray-500">
-          {suggestedResponse.length} caractères
+        <div className="flex items-center gap-2">
+          <span className="px-2.5 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600">
+            {suggestedResponse.length} caractères
+          </span>
         </div>
       </div>
 
       {/* Response content */}
-      <div className="bg-gray-50 p-4 rounded-md border border-gray-200 whitespace-pre-wrap max-h-[400px] overflow-y-auto text-gray-800 text-sm leading-relaxed shadow-inner mb-4 font-mono text-xs">
+      <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 whitespace-pre-wrap max-h-[500px] overflow-y-auto text-gray-800 text-sm leading-relaxed shadow-inner mb-5 font-mono">
         {suggestedResponse}
       </div>
 
       {/* Response Actions */}
-      <div className="flex flex-wrap justify-end gap-3">
+      <div className="flex flex-wrap justify-end gap-4">
         <button
           onClick={handleCopy}
-          className={`px-3 py-1.5 ${isCopied ? 'bg-green-100 border-green-300 text-green-700' : 'bg-gray-100 border-gray-300 text-gray-700'} 
-            border rounded-md hover:bg-gray-200 transition-all duration-300 shadow-sm flex items-center text-xs font-medium`}
+          className={`px-4 py-2 ${
+            isCopied 
+              ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100' 
+              : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+          } border rounded-lg transition-all duration-300 shadow-sm flex items-center text-sm font-medium`}
           title="Copier la réponse"
         >
           {isCopied ? (
             <>
-              <Check className="h-3.5 w-3.5 mr-1.5 text-green-600" />
+              <Check className="h-4 w-4 mr-2 text-green-600" />
               Copié
             </>
           ) : (
             <>
-              <Clipboard className="h-3.5 w-3.5 mr-1.5" />
+              <Clipboard className="h-4 w-4 mr-2" />
               Copier
             </>
           )}
         </button>
         <button
           onClick={handleOpenEditor}
-          className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition-colors shadow-sm flex items-center text-xs font-medium"
+          className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center text-sm font-medium"
           title="Éditer la réponse dans une nouvelle fenêtre"
         >
-          <Edit className="h-3.5 w-3.5 mr-1.5" />
+          <Edit className="h-4 w-4 mr-2" />
           Éditer
         </button>
         <a
           href={`mailto:${selectedRequest?.email}?subject=${encodeURIComponent(`Votre demande de devis ESIL Events - ${selectedRequest?.company || selectedRequest?.first_name || ''}`)}&body=${encodeURIComponent(suggestedResponse)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="px-3 py-1.5 bg-indigo-600 text-white border border-indigo-700 rounded-md hover:bg-indigo-700 transition-colors shadow-sm flex items-center text-xs font-medium"
+          className="px-4 py-2 bg-indigo-600 text-white border border-indigo-700 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex items-center text-sm font-medium group"
           title="Ouvrir dans votre client email"
         >
-          <Send className="h-3.5 w-3.5 mr-1.5" />
+          <Send className="h-4 w-4 mr-2 group-hover:translate-x-0.5 transition-transform" />
           Envoyer Email
         </a>
       </div>
