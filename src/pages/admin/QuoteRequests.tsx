@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings } from 'lucide-react';
+import { Settings, BrainCircuit } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { QuoteRequest, getQuoteRequests, updateQuoteRequestStatus } from '../../services/quoteRequestService';
@@ -8,7 +8,9 @@ import QuoteRequestList from '../../components/quoteRequests/QuoteRequestList';
 import QuoteRequestDetails from '../../components/quoteRequests/QuoteRequestDetails';
 import QuoteRequestActions from '../../components/quoteRequests/QuoteRequestActions';
 import EmailConfigPanel from '../../components/admin/EmailConfigPanel';
+import DeepseekConfigPanel from '../../components/admin/DeepseekConfigPanel';
 import SuggestedResponse from '../../components/quoteRequests/SuggestedResponse';
+import { generateAIResponse, deepseekConfig } from '../../services/deepseekService';
 
 const QuoteRequests: React.FC = () => {
   // États pour les demandes de devis
@@ -30,6 +32,7 @@ const QuoteRequests: React.FC = () => {
   const [generatingResponse, setGeneratingResponse] = useState<boolean>(false);
   const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [showEmailConfig, setShowEmailConfig] = useState<boolean>(false);
+  const [showDeepseekConfig, setShowDeepseekConfig] = useState<boolean>(false);
 
   // Charger les demandes de devis
   const loadQuoteRequests = async () => {
@@ -161,16 +164,35 @@ const QuoteRequests: React.FC = () => {
     
     try {
       setGeneratingResponse(true);
-      // Simulation d'appel à une API d'IA
-      setTimeout(() => {
-        const response = `Bonjour ${selectedRequest.first_name} ${selectedRequest.last_name},\n\nNous vous remercions pour votre demande de devis concernant votre événement prévu le ${selectedRequest.event_date ? new Date(selectedRequest.event_date).toLocaleDateString('fr-FR') : '[date]'}.\n\nNous avons bien pris en compte tous les détails que vous nous avez fournis et nous sommes ravis de pouvoir vous accompagner dans l'organisation de cet événement.\n\nNotre équipe est en train de préparer une offre personnalisée qui répondra parfaitement à vos besoins. Vous recevrez votre devis détaillé dans les 48 heures.\n\nN'hésitez pas à nous contacter si vous avez des questions ou des précisions à apporter.\n\nCordialement,\nL'équipe ESIL Events`;
-        setSuggestedResponse(response);
-        setGeneratingResponse(false);
-        setFeedbackMessage({ type: 'success', text: 'Réponse générée avec succès' });
-      }, 2000);
+      
+      // Vérifier si l'intégration DeepSeek est activée
+      const config = deepseekConfig.loadConfig();
+      
+      if (!config.enabled || !config.apiKey) {
+        // Utiliser la réponse par défaut si DeepSeek n'est pas configuré
+        setTimeout(() => {
+          const response = `Bonjour ${selectedRequest.first_name} ${selectedRequest.last_name},\n\nNous vous remercions pour votre demande de devis concernant votre événement prévu le ${selectedRequest.event_date ? new Date(selectedRequest.event_date).toLocaleDateString('fr-FR') : '[date]'}.\n\nNous avons bien pris en compte tous les détails que vous nous avez fournis et nous sommes ravis de pouvoir vous accompagner dans l'organisation de cet événement.\n\nNotre équipe est en train de préparer une offre personnalisée qui répondra parfaitement à vos besoins. Vous recevrez votre devis détaillé dans les 48 heures.\n\nN'hésitez pas à nous contacter si vous avez des questions ou des précisions à apporter.\n\nCordialement,\nL'équipe ESIL Events`;
+          setSuggestedResponse(response);
+          setGeneratingResponse(false);
+          setFeedbackMessage({ 
+            type: 'success', 
+            text: 'Réponse générée avec succès (mode hors ligne - DeepSeek non configuré)' 
+          });
+        }, 1000);
+        return;
+      }
+      
+      // Appel à l'API DeepSeek
+      const response = await generateAIResponse(selectedRequest);
+      setSuggestedResponse(response);
+      setFeedbackMessage({ type: 'success', text: 'Réponse générée avec succès via DeepSeek AI' });
     } catch (err) {
       console.error('Erreur lors de la génération de la réponse:', err);
-      setFeedbackMessage({ type: 'error', text: 'Erreur lors de la génération de la réponse' });
+      setFeedbackMessage({ 
+        type: 'error', 
+        text: err instanceof Error ? err.message : 'Erreur lors de la génération de la réponse' 
+      });
+    } finally {
       setGeneratingResponse(false);
     }
   };
@@ -181,15 +203,32 @@ const QuoteRequests: React.FC = () => {
       <div className="space-y-6 mt-12">
         <div className="flex items-center justify-between px-6">
           <h1 className="text-2xl font-bold text-gray-900">Demandes de devis</h1>
-          <button
-            onClick={() => setShowEmailConfig(!showEmailConfig)}
-            className="flex items-center px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 transition-colors text-sm font-medium"
-            title="Configurer l'envoi automatique d'emails"
-          >
-            <Settings className="w-4 h-4 mr-1.5" />
-            Config Email
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setShowDeepseekConfig(!showDeepseekConfig)}
+              className="flex items-center px-3 py-1.5 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors text-sm font-medium"
+              title="Configurer l'intégration DeepSeek AI"
+            >
+              <BrainCircuit className="w-4 h-4 mr-1.5" />
+              Config IA
+            </button>
+            <button
+              onClick={() => setShowEmailConfig(!showEmailConfig)}
+              className="flex items-center px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 transition-colors text-sm font-medium"
+              title="Configurer l'envoi automatique d'emails"
+            >
+              <Settings className="w-4 h-4 mr-1.5" />
+              Config Email
+            </button>
+          </div>
         </div>
+        
+        {/* Panneau de configuration DeepSeek */}
+        {showDeepseekConfig && (
+          <div className="px-6">
+            <DeepseekConfigPanel onClose={() => setShowDeepseekConfig(false)} />
+          </div>
+        )}
         
         {/* Panneau de configuration des emails */}
         {showEmailConfig && (
