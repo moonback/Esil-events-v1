@@ -88,7 +88,18 @@ export const generateQuoteRequestPDF = async (quoteRequest: QuoteRequest): Promi
   yPosition += lineHeight;
   pdf.text(`Adresse: ${[quoteRequest.delivery_address, quoteRequest.delivery_postal_code, quoteRequest.delivery_city].filter(Boolean).join(', ') || 'N/A'}`, margin, yPosition);
   yPosition += lineHeight * 2;
+// Ajouter les informations de reprise
+pdf.setFontSize(12);
+pdf.setFont('helvetica', 'bold');
+pdf.text('Informations de Reprise', margin, yPosition);
+yPosition += lineHeight;
 
+pdf.setFontSize(10);
+pdf.setFont('helvetica', 'normal');
+pdf.text(`Date: ${quoteRequest.pickup_return_date ? formatDate(quoteRequest.pickup_return_date).split(' ')[0] : 'N/A'}`, margin, yPosition);
+yPosition += lineHeight;
+pdf.text(`Horaires: ${quoteRequest.pickup_return_start_time || 'N/A'} - ${quoteRequest.pickup_return_end_time || 'N/A'}`, margin, yPosition);
+yPosition += lineHeight * 2;
   // Ajouter les articles demandés
   pdf.setFontSize(12);
   pdf.setFont('helvetica', 'bold');
@@ -158,6 +169,7 @@ export const generateQuoteRequestPDF = async (quoteRequest: QuoteRequest): Promi
   pdf.setFont('helvetica', 'normal');
   pdf.text(`Statut actuel: ${getStatusLabel(quoteRequest.status)}`, margin, yPosition);
   yPosition += lineHeight * 2;
+
 
   // Ajouter les commentaires
   if (quoteRequest.comments) {
