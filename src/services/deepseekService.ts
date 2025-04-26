@@ -1,3 +1,4 @@
+import { formatDate, getDeliveryTypeLabel, getTimeSlotLabel } from '../utils/formatters';
 import { QuoteRequest } from './quoteRequestService';
 
 // Configuration pour l'API DeepSeek
@@ -88,7 +89,7 @@ export const generateAIResponse = async (quoteRequest: QuoteRequest): Promise<st
         messages: [
           {
             role: 'system',
-            content: 'Vous êtes un assistant professionnel spécialisé dans la rédaction de réponses personnalisées pour des demandes de devis d\'événements. Votre ton est courtois, professionnel et chaleureux.'
+            content: 'Vous êtes un expert en communication événementielle haut de gamme, spécialisé dans la création de réponses sur-mesure pour des demandes de devis d\'événements d\'exception. Votre style d\'écriture allie élégance, raffinement et précision, reflétant l\'identité premium d\'ESIL Events. Votre ton est à la fois sophistiqué, chaleureux et inspirant, créant une expérience de marque distinctive dès le premier contact.'
           },
           {
             role: 'user',
@@ -122,28 +123,60 @@ const buildPrompt = (quoteRequest: QuoteRequest): string => {
     : '[date non spécifiée]';
   
   return `
-    Rédige une réponse professionnelle et personnalisée pour une demande de devis avec les informations suivantes:
+    ✦─────────── RÉCAPITULATIF DEMANDE DE DEVIS ESIL EVENTS ───────────✦
     
-    Client: ${quoteRequest.first_name} ${quoteRequest.last_name}
-    Type de client: ${quoteRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}
-    ${quoteRequest.company ? `Société: ${quoteRequest.company}` : ''}
-    Email: ${quoteRequest.email}
-    Téléphone: ${quoteRequest.phone || 'Non fourni'}
-    
-    Détails de l'événement:
-    Date: ${eventDate}
-    Durée: ${quoteRequest.event_duration || 'Non spécifiée'}
-    Nombre d'invités: ${quoteRequest.guest_count || 'Non spécifié'}
-    Lieu: ${quoteRequest.event_location === 'indoor' ? 'Intérieur' : quoteRequest.event_location === 'outdoor' ? 'Extérieur' : 'Non spécifié'}
-    Description: ${quoteRequest.description || 'Non fournie'}
-    
-    La réponse doit:
-    1. Être adressée personnellement au client
-    2. Remercier pour la demande de devis
-    3. Confirmer la réception des détails de l'événement
-    4. Mentionner que nous préparons une offre personnalisée
-    5. Indiquer un délai de réponse (48 heures)
-    6. Inviter le client à nous contacter pour toute question
-    7. Se terminer par une formule de politesse et la signature "L'équipe ESIL Events"
-  `;
+    Merci de bien vouloir traiter cette demande de devis avec la plus grande attention. Voici le récapitulatif complet des informations fournies :
+
+INFORMATIONS CLIENT
+━━━━━━━━━━━━━━━━━
+• Identité: ${quoteRequest.first_name || ''} ${quoteRequest.last_name || ''}
+• Coordonnées: 
+  - Email: ${quoteRequest.email || 'Non renseigné'}
+  - Téléphone: ${quoteRequest.phone || 'Non renseigné'}
+• Profil: ${quoteRequest.customer_type === 'professional' ? 'Client Professionnel' : 'Client Particulier'}
+• Entreprise: ${quoteRequest.company || 'Non applicable'}
+• Adresse de facturation: ${[quoteRequest.billing_address, quoteRequest.postal_code, quoteRequest.city].filter(Boolean).join(', ') || 'Non communiquée'}
+
+DÉTAILS DE L'ÉVÉNEMENT
+━━━━━━━━━━━━━━━━━━━━
+• Date prévue: ${eventDate}
+• Configuration:
+  - Durée totale: ${quoteRequest.event_duration || 'À préciser'}
+  - Horaires: ${quoteRequest.event_start_time || '?'} à ${quoteRequest.event_end_time || '?'}
+  - Nombre de participants: ${quoteRequest.guest_count || 'À confirmer'}
+• Environnement: ${quoteRequest.event_location === 'indoor' ? 'Configuration Intérieure' : 'Configuration Extérieure'}
+• Brief événement: ${quoteRequest.description || 'Aucune précision fournie'}
+
+COMMANDE PRÉVISIONNELLE
+━━━━━━━━━━━━━━━━━━━━━
+${quoteRequest.items?.map(item => `• ${item.name}: ${item.quantity} unité(s) × ${item.price}€`).join('\n') || 'Aucun article présélectionné'}
+• Estimation budgétaire TTC: ${quoteRequest.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0}€
+
+MODALITÉS LOGISTIQUES
+━━━━━━━━━━━━━━━━━━━
+• Mode: ${getDeliveryTypeLabel(quoteRequest.delivery_type)}
+• Planification:
+  - Date: ${quoteRequest.delivery_date ? formatDate(quoteRequest.delivery_date) : 'À définir'}
+  - Créneau souhaité: ${getTimeSlotLabel(quoteRequest.delivery_time_slot)}
+• Point de livraison: ${[quoteRequest.delivery_address, quoteRequest.delivery_postal_code, quoteRequest.delivery_city].filter(Boolean).join(', ') || 'Identique adresse de facturation'}
+
+REMARQUES ADDITIONNELLES
+━━━━━━━━━━━━━━━━━━━━━
+${quoteRequest.comments || 'Aucune remarque particulière'}
+
+ÉLÉMENTS DE RÉPONSE À INCLURE
+━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Formule de salutation personnalisée
+2. Accusé de réception et contextualisation
+3. Présentation des compétences ESIL Events
+4. Synthèse des besoins identifiés
+5. Analyse des choix ou recommandations
+6. Processus et étapes suivantes
+7. Proposition de rendez-vous
+8. Signature corporative
+9. Adaptation stylistique selon profil
+10. Strict respect des informations client
+
+✦───────────────────────────────✦
+`;
 };
