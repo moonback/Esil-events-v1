@@ -1,5 +1,5 @@
-import React from 'react';
-import { Send, Clipboard } from 'lucide-react';
+import React, { useState } from 'react';
+import { Send, Clipboard, Check, Edit, Mail, ExternalLink, Sparkles } from 'lucide-react';
 import { QuoteRequest } from '../../../services/quoteRequestService';
 import { formatDate, formatItemsDetails, calculateTotalAmount, getDeliveryTypeLabel, getTimeSlotLabel } from './QuoteRequestUtils';
 
@@ -18,15 +18,50 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
   onGenerateResponse,
   onCopyResponse
 }) => {
+  const [copied, setCopied] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  
   if (!selectedRequest) return null;
+
+  const handleCopy = () => {
+    onCopyResponse();
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  
+  const openEmailClient = () => {
+    if (!selectedRequest.email) return;
+    
+    const subject = encodeURIComponent(`Votre demande de devis ESIL Events #${selectedRequest.id?.substring(0, 8).toUpperCase() || 'N/A'}`);
+    const body = encodeURIComponent(suggestedResponse);
+    window.open(`mailto:${selectedRequest.email}?subject=${subject}&body=${body}`);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-          <Send className="h-5 w-5 text-indigo-600" /> Réponse IA
+          <Sparkles className="h-5 w-5 text-indigo-600" /> Réponse IA
         </h3>
         <div className="flex space-x-2">
+          <button
+            onClick={() => setShowPreview(!showPreview)}
+            disabled={!suggestedResponse}
+            className="flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {showPreview ? (
+              <>
+                <Edit className="h-4 w-4 mr-1" />
+                Éditer
+              </>
+            ) : (
+              <>
+                <ExternalLink className="h-4 w-4 mr-1" />
+                Aperçu
+              </>
+            )}
+          </button>
+          
           <button
             onClick={onGenerateResponse}
             disabled={generatingResponse}
@@ -35,34 +70,80 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
             <Send className="h-4 w-4 mr-1" />
             {generatingResponse ? 'Génération...' : 'Générer'}
           </button>
-          {suggestedResponse && (
-            <button
-              onClick={onCopyResponse}
-              className="flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-md hover:bg-gray-200 transition-colors"
-            >
-              <Clipboard className="h-4 w-4 mr-1" />
-              Copier
-            </button>
-          )}
         </div>
       </div>
 
       {suggestedResponse ? (
         <div className="relative">
-          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm text-gray-800 whitespace-pre-wrap max-h-96 overflow-y-auto">
-            {suggestedResponse}
+          {showPreview ? (
+            <div className="bg-white p-6 rounded-lg border border-gray-200 text-sm text-gray-800 whitespace-pre-wrap max-h-[500px] overflow-y-auto shadow-inner">
+              <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: suggestedResponse.replace(/\n/g, '<br/>') }} />
+            </div>
+          ) : (
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm text-gray-800 whitespace-pre-wrap max-h-[500px] overflow-y-auto font-mono">
+              {suggestedResponse}
+            </div>
+          )}
+          
+          <div className="flex justify-between mt-4">
+            <div className="text-xs text-gray-500">
+              {suggestedResponse.length} caractères • {suggestedResponse.split(/\s+/).length} mots
+            </div>
+            <div className="flex space-x-2">
+              {selectedRequest.email && (
+                <button
+                  onClick={openEmailClient}
+                  className="flex items-center px-3 py-1.5 bg-emerald-600 text-white text-sm rounded-md hover:bg-emerald-700 transition-colors"
+                >
+                  <Mail className="h-4 w-4 mr-1" />
+                  Envoyer par email
+                </button>
+              )}
+              <button
+                onClick={handleCopy}
+                className={`flex items-center px-3 py-1.5 ${copied ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'} text-sm rounded-md hover:bg-gray-200 transition-colors`}
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4 mr-1" />
+                    Copié!
+                  </>
+                ) : (
+                  <>
+                    <Clipboard className="h-4 w-4 mr-1" />
+                    Copier
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       ) : (
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm text-gray-500 italic">
           {generatingResponse ? (
-            <div className="flex flex-col items-center justify-center py-6">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-2"></div>
-              <p>Génération de la réponse en cours...</p>
+            <div className="flex flex-col items-center justify-center py-10">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mb-3"></div>
+              <p className="font-medium">Génération de la réponse en cours...</p>
+              <p className="text-xs mt-2">Cela peut prendre quelques secondes</p>
             </div>
           ) : (
-            "Cliquez sur 'Générer' pour créer une réponse personnalisée basée sur les détails de cette demande."
+            <div className="flex flex-col items-center justify-center py-8">
+              <Sparkles className="h-10 w-10 text-indigo-300 mb-3" />
+              <p>Cliquez sur 'Générer' pour créer une réponse personnalisée basée sur les détails de cette demande.</p>
+              <p className="text-xs mt-3">La réponse sera adaptée au profil du client et aux spécificités de l'événement.</p>
+            </div>
           )}
+        </div>
+      )}
+      
+      {suggestedResponse && (
+        <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 text-xs text-indigo-700">
+          <p className="font-medium mb-1">Conseils d'utilisation:</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Personnalisez davantage la réponse si nécessaire avant de l'envoyer</li>
+            <li>Vérifiez les détails spécifiques comme les dates et les prix</li>
+            <li>Ajoutez des informations complémentaires sur les produits si pertinent</li>
+          </ul>
         </div>
       )}
     </div>
@@ -124,7 +205,15 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
 9.  Termine par une formule de politesse professionnelle et la signature complète d'ESIL Events (incluant slogan, tel, email, site web).
 10. Adapte le ton légèrement si c'est un client particulier ou professionnel.
 11. N'invente pas de détails non fournis, reste factuel sur les informations de la demande.
-12. Fournis la réponse uniquement, sans phrases comme "Voici la réponse suggérée :"."`
+12. Fournis la réponse uniquement, sans phrases comme "Voici la réponse suggérée :"."
+13. Utiliser la signature complète d'ESIL Events :
+
+L'équipe ESIL Events
+L'élégance pour chaque événement
+📞 06 20 46 13 85 | ✉ contact@esil-events.fr | 🌐 www.esil-events.fr
+📍 Showroom : 7 rue de la cellophane, 78711 Mantes-la-Ville 
+
+`
     }
   ];
 
