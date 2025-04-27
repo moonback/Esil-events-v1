@@ -285,13 +285,17 @@ const AdminCategories: React.FC = () => {
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="space-y-6 mt-12">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Gestion des catégories</h1>
-          <div className="flex gap-4">
+      <div className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 mt-12">
+        {/* Header Section */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Gestion des catégories</h1>
+              <p className="mt-1 text-sm text-gray-500">Gérez vos catégories, sous-catégories et sous-sous-catégories</p>
+            </div>
             <button
               onClick={handleAddCategory}
-              className="flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+              className="flex items-center px-4 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 shadow-sm"
             >
               <Plus className="w-4 h-4 mr-2" />
               Nouvelle catégorie
@@ -300,67 +304,67 @@ const AdminCategories: React.FC = () => {
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-md">
+          <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg animate-fade-in">
             {error}
           </div>
         )}
 
-        {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              placeholder="Rechercher une catégorie..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-            />
-            <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+        {/* Search Section */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Rechercher une catégorie..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent shadow-sm"
+              />
+              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
+            </div>
           </div>
-          {/* <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
-            <Filter className="w-4 h-4 mr-2" />
-            Filtres
-          </button> */}
         </div>
 
         {/* Categories List */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="divide-y divide-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="divide-y divide-gray-100">
             {filteredCategories.map((category) => (
-              <div key={category.id} className="p-4">
+              <div key={category.id} className="p-5 hover:bg-gray-50 transition-colors duration-150">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <button
                       onClick={() => toggleCategory(category.id)}
-                      className="p-1 hover:bg-gray-100 rounded"
+                      className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors duration-150"
                     >
                       {expandedCategories.has(category.id) ? (
-                        <ChevronUp className="w-4 h-4" />
+                        <ChevronUp className="w-5 h-5 text-gray-600" />
                       ) : (
-                        <ChevronDown className="w-4 h-4" />
+                        <ChevronDown className="w-5 h-5 text-gray-600" />
                       )}
                     </button>
-                    <span className="font-medium">{category.name}</span>
-                    <span className="text-sm text-gray-500">({category.slug})</span>
+                    <div>
+                      <span className="font-medium text-gray-900">{category.name}</span>
+                      <span className="ml-2 text-sm text-gray-500">({category.slug})</span>
+                    </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => handleAddSubcategory(category.id)}
-                      className="p-1 hover:bg-gray-100 rounded"
+                      className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors duration-150 text-gray-600 hover:text-gray-900"
                       title="Ajouter une sous-catégorie"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleEditCategory(category)}
-                      className="p-1 hover:bg-gray-100 rounded"
+                      className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors duration-150 text-gray-600 hover:text-gray-900"
                       title="Modifier la catégorie"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteCategory(category.id)}
-                      className="p-1 hover:bg-gray-100 rounded text-red-600"
+                      className="p-1.5 hover:bg-red-50 rounded-lg transition-colors duration-150 text-red-600 hover:text-red-700"
                       title="Supprimer la catégorie"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -372,39 +376,41 @@ const AdminCategories: React.FC = () => {
                   <div className="mt-4 ml-8 space-y-3">
                     {category.subcategories.map((subcategory) => (
                       <div key={subcategory.id} className="space-y-2">
-                        <div className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
                           <div className="flex items-center space-x-4">
                             <button
                               onClick={() => toggleSubcategory(subcategory.id)}
-                              className="p-1 hover:bg-gray-100 rounded"
+                              className="p-1.5 hover:bg-white rounded-lg transition-colors duration-150"
                             >
                               {expandedSubcategories.has(subcategory.id) ? (
-                                <ChevronUp className="w-4 h-4" />
+                                <ChevronUp className="w-4 h-4 text-gray-600" />
                               ) : (
-                                <ChevronDown className="w-4 h-4" />
+                                <ChevronDown className="w-4 h-4 text-gray-600" />
                               )}
                             </button>
-                            <span>{subcategory.name}</span>
-                            <span className="text-sm text-gray-500">({subcategory.slug})</span>
+                            <div>
+                              <span className="text-gray-900">{subcategory.name}</span>
+                              <span className="ml-2 text-sm text-gray-500">({subcategory.slug})</span>
+                            </div>
                           </div>
                           <div className="flex items-center space-x-2">
                             <button
                               onClick={() => handleAddSubSubcategory(subcategory.id)}
-                              className="p-1 hover:bg-gray-100 rounded"
+                              className="p-1.5 hover:bg-white rounded-lg transition-colors duration-150 text-gray-600 hover:text-gray-900"
                               title="Ajouter une sous-sous-catégorie"
                             >
                               <Plus className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleEditSubcategory(subcategory)}
-                              className="p-1 hover:bg-gray-100 rounded"
+                              className="p-1.5 hover:bg-white rounded-lg transition-colors duration-150 text-gray-600 hover:text-gray-900"
                               title="Modifier la sous-catégorie"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteSubcategory(subcategory.id)}
-                              className="p-1 hover:bg-gray-100 rounded text-red-600"
+                              className="p-1.5 hover:bg-red-50 rounded-lg transition-colors duration-150 text-red-600 hover:text-red-700"
                               title="Supprimer la sous-catégorie"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -417,23 +423,25 @@ const AdminCategories: React.FC = () => {
                             {subcategory.subsubcategories.map((subsubcategory) => (
                               <div
                                 key={subsubcategory.id}
-                                className="flex items-center justify-between p-2 bg-gray-100 rounded-md"
+                                className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100"
                               >
                                 <div className="flex items-center space-x-4">
-                                  <span>{subsubcategory.name}</span>
-                                  <span className="text-sm text-gray-500">({subsubcategory.slug})</span>
+                                  <div>
+                                    <span className="text-gray-900">{subsubcategory.name}</span>
+                                    <span className="ml-2 text-sm text-gray-500">({subsubcategory.slug})</span>
+                                  </div>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                   <button
                                     onClick={() => handleEditSubSubcategory(subsubcategory)}
-                                    className="p-1 hover:bg-gray-200 rounded"
+                                    className="p-1.5 hover:bg-gray-50 rounded-lg transition-colors duration-150 text-gray-600 hover:text-gray-900"
                                     title="Modifier la sous-sous-catégorie"
                                   >
                                     <Edit className="w-4 h-4" />
                                   </button>
                                   <button
                                     onClick={() => handleDeleteSubSubcategory(subsubcategory.id)}
-                                    className="p-1 hover:bg-gray-200 rounded text-red-600"
+                                    className="p-1.5 hover:bg-red-50 rounded-lg transition-colors duration-150 text-red-600 hover:text-red-700"
                                     title="Supprimer la sous-sous-catégorie"
                                   >
                                     <Trash2 className="w-4 h-4" />
