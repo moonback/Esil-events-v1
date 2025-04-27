@@ -13,15 +13,20 @@ export interface SmtpConfig {
 }
 
 // Valeurs par défaut pour la configuration SMTP
+// Note: Pour Gmail, vous devez utiliser un mot de passe d'application et non votre mot de passe habituel
+// Voir: https://support.google.com/accounts/answer/185833
+// Si vous rencontrez des erreurs de connexion, vérifiez que:
+// 1. Vous avez activé l'authentification à deux facteurs sur votre compte Google
+// 2. Vous avez généré un mot de passe d'application spécifique pour cette application
 let smtpConfig: SmtpConfig = {
-  host: 'neurocode.fr',
-  port: 465,
-  secure: true, // true pour 465, false pour les autres ports
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // true pour 465, false pour les autres ports comme 587
   auth: {
-    user: 'contact@neurocode.fr',
-    pass: '' // Le mot de passe sera défini via la page de configuration
+    user: 'mayssondevoye78@gmail.com',
+    pass: '' // Le mot de passe d'application sera défini via la page de configuration
   },
-  from: 'contact@neurocode.fr'
+  from: 'mayssondevoye78@gmail.com'
 };
 
 // Fonction pour mettre à jour la configuration SMTP
@@ -39,6 +44,57 @@ export const getSmtpConfig = (): Omit<SmtpConfig, 'auth'> & { auth: { user: stri
       user: auth.user
     }
   };
+};
+
+// Fonction pour tester la connexion SMTP
+export const testSmtpConnection = async (): Promise<{ success: boolean; error?: any }> => {
+  try {
+    // Vérifier si la configuration SMTP est complète
+    if (!smtpConfig.auth.pass) {
+      console.error('Erreur: Mot de passe SMTP non configuré');
+      return { success: false, error: 'Configuration SMTP incomplète' };
+    }
+
+    // Construire l'URL complète de l'API
+    const apiUrl = 'http://localhost:3001/api/email/test-connection';
+    console.log('URL de l\'API de test SMTP:', apiUrl);
+
+    // Envoyer la requête de test
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ smtpConfig })
+    });
+
+    // Récupérer le texte de la réponse
+    const textData = await response.text();
+    console.log('Réponse brute du serveur:', textData);
+
+    // Tenter de parser la réponse JSON
+    let responseData = null;
+    try {
+      if (textData) {
+        responseData = JSON.parse(textData);
+      }
+    } catch (parseError) {
+      console.error('Erreur lors du parsing de la réponse:', parseError);
+      return { success: false, error: `Erreur de format dans la réponse du serveur: ${textData}` };
+    }
+
+    if (!response.ok) {
+      const errorMessage = responseData?.error || `Erreur HTTP ${response.status}: ${response.statusText}`;
+      console.error('Réponse d\'erreur du serveur:', errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    console.log('Test de connexion SMTP réussi');
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur lors du test de connexion SMTP:', error);
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
+  }
 };
 
 // Fonction pour envoyer un email via l'API

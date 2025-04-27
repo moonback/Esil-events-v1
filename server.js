@@ -6,6 +6,63 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Endpoint pour tester la connexion SMTP
+app.post('/api/email/test-connection', async (req, res) => {
+  console.log('Requête reçue sur /api/email/test-connection');
+  try {
+    const { smtpConfig } = req.body;
+
+    // Vérifier si la configuration SMTP est complète
+    if (!smtpConfig?.auth?.pass) {
+      console.error('Configuration SMTP incomplète');
+      return res.status(400).json({ error: 'Configuration SMTP incomplète' });
+    }
+
+    console.log('Configuration SMTP reçue:', {
+      host: smtpConfig.host,
+      port: smtpConfig.port,
+      secure: smtpConfig.secure,
+      auth: { user: smtpConfig.auth.user, pass: '***' }
+    });
+
+    // Créer un transporteur SMTP réutilisable
+    const transporter = nodemailer.createTransport({
+      host: smtpConfig.host,
+      port: smtpConfig.port,
+      secure: smtpConfig.secure,
+      auth: {
+        user: smtpConfig.auth.user,
+        pass: smtpConfig.auth.pass
+      },
+      // Ajouter des options de timeout pour éviter les longs délais d'attente
+      connectionTimeout: 10000, // 10 secondes
+      greetingTimeout: 10000,   // 10 secondes
+      socketTimeout: 15000      // 15 secondes
+    });
+
+    // Vérifier la connexion au serveur SMTP
+    try {
+      console.log('Vérification de la connexion au serveur SMTP...');
+      await transporter.verify();
+      console.log('Connexion au serveur SMTP réussie');
+      return res.json({ success: true, message: 'Connexion au serveur SMTP réussie' });
+    } catch (verifyError) {
+      console.error('Erreur de connexion au serveur SMTP:', verifyError);
+      return res.status(500).json({ 
+        error: `Erreur de connexion au serveur SMTP: ${verifyError.message}`,
+        details: verifyError.toString()
+      });
+    }
+  } catch (error) {
+    console.error('Erreur lors du test de connexion SMTP:', error);
+    res.status(500).json({ 
+      error: error.message,
+      details: error.toString(),
+      stack: error.stack
+    });
+  }
+});
+
 app.post('/api/email/send', async (req, res) => {
   console.log('Requête reçue sur /api/email/send');
   try {
@@ -38,7 +95,11 @@ app.post('/api/email/send', async (req, res) => {
       auth: {
         user: smtpConfig.auth.user,
         pass: smtpConfig.auth.pass
-      }
+      },
+      // Ajouter des options de timeout pour éviter les longs délais d'attente
+      connectionTimeout: 10000, // 10 secondes
+      greetingTimeout: 10000,   // 10 secondes
+      socketTimeout: 15000      // 15 secondes
     });
 
     // Vérifier la connexion au serveur SMTP
