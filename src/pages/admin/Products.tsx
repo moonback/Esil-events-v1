@@ -187,9 +187,9 @@ const AdminProducts: React.FC = () => {
         )}
 
         {showForm ? (
-          <div className="bg-white p-6 rounded-lg shadow-sm transform transition-all duration-300 ease-in-out">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold text-gray-800">
+          <div className="bg-white p-8 rounded-xl shadow-md transform transition-all duration-300 ease-in-out max-w-5xl mx-auto">
+            <div className="flex justify-between items-center mb-8 border-b pb-4">
+              <h2 className="text-2xl font-bold text-gray-800">
                 {editingProduct ? 'Modifier le produit' : 'Nouveau produit'}
               </h2>
               <button
@@ -198,35 +198,41 @@ const AdminProducts: React.FC = () => {
                   setEditingProduct(null);
                   setFormError('');
                 }}
-                className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                className="text-gray-500 hover:text-gray-700 transition-colors duration-200 flex items-center"
               >
-                Fermer
+                <span className="mr-2">Fermer</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
             {formError && (
-              <div className="mb-4 bg-red-50 text-red-600 p-4 rounded-md animate-fade-in">
+              <div className="mb-6 bg-red-50 text-red-600 p-4 rounded-md animate-fade-in border border-red-200">
                 {formError}
               </div>
             )}
-            <ProductForm
-              initialData={editingProduct || undefined}
-              onSubmit={async (data) => {
-                try {
-                  setFormError('');
-                  if (editingProduct) {
-                    await updateProduct(editingProduct.id, data);
-                  } else {
-                    await createProduct(data);
+            <div className="px-2">
+              <ProductForm
+                initialData={editingProduct || undefined}
+                onSubmit={async (data) => {
+                  try {
+                    setFormError('');
+                    if (editingProduct) {
+                      await updateProduct(editingProduct.id, data);
+                    } else {
+                      await createProduct(data);
+                    }
+                    await loadProducts();
+                    setShowForm(false);
+                    setEditingProduct(null);
+                  } catch (err: any) {
+                    setFormError(err.message || 'Une erreur est survenue lors de l\'enregistrement du produit');
+                    console.error(err);
                   }
-                  await loadProducts();
-                  setShowForm(false);
-                  setEditingProduct(null);
-                } catch (err: any) {
-                  setFormError(err.message || 'Une erreur est survenue lors de l\'enregistrement du produit');
-                  console.error(err);
-                }
-              }}
-            />
+                }}
+              />
+            </div>
           </div>
         ) : (
           <>
