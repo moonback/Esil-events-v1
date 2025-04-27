@@ -8,18 +8,18 @@ import { formatDate, formatItemsDetails, calculateTotalAmount, getDeliveryTypeLa
 /**
  * Prépare les données pour la génération de réponse IA
  */
-export const prepareAIPromptData = (selectedRequest: QuoteRequest) => {
+export const prepareAIPromptData = (selectedRequest: QuoteRequest, useReasoner: boolean = false) => {
   const itemsDetails = formatItemsDetails(selectedRequest);
   const totalAmount = calculateTotalAmount(selectedRequest);
 
-  const messages = [
-    {
-      role: "system",
-      content: "Tu es un expert commercial pour ESIL Events, spécialiste de la location de mobilier événementiel premium. Génère des réponses de devis personnalisées, professionnelles et persuasives pour maximiser la conversion. Principes clés : Ton formel mais chaleureux, créer un sentiment d'urgence (disponibilité, offre limitée), souligner l'exclusivité et l'expertise d'ESIL Events, utiliser la preuve sociale, mettre en avant la garantie de satisfaction et le service client. Structure : Accroche personnalisée, présentation valorisante d'ESIL, description de l'impact du mobilier sur l'événement, détail des articles (si fournis) avec caractéristiques premium, offre spéciale (ex: -5% si confirmation sous 7j), conditions claires (acompte 30%), appel à l'action (RDV tel, showroom), signature pro ('L'élégance pour chaque événement'), coordonnées complètes, lien portfolio/réseaux sociaux. Intègre un témoignage générique si pertinent et mentionne nos services (conseil, installation, livraison premium)."
-    },
-    {
-      role: "user",
-      content: `Génère une réponse de devis pour la demande #${selectedRequest.id?.substring(0, 8).toUpperCase() || 'N/A'}.
+  const systemMessage = {
+    role: "system",
+    content: "Tu es un expert commercial pour ESIL Events, spécialiste de la location de mobilier événementiel premium. Génère des réponses de devis personnalisées, professionnelles et persuasives pour maximiser la conversion. Principes clés : Ton formel mais chaleureux, créer un sentiment d'urgence (disponibilité, offre limitée), souligner l'exclusivité et l'expertise d'ESIL Events, utiliser la preuve sociale, mettre en avant la garantie de satisfaction et le service client. Structure : Accroche personnalisée, présentation valorisante d'ESIL, description de l'impact du mobilier sur l'événement, détail des articles (si fournis) avec caractéristiques premium, offre spéciale (ex: -5% si confirmation sous 7j), conditions claires (acompte 30%), appel à l'action (RDV tel, showroom), signature pro ('L'élégance pour chaque événement'), coordonnées complètes, lien portfolio/réseaux sociaux. Intègre un témoignage générique si pertinent et mentionne nos services (conseil, installation, livraison premium)."
+  };
+
+  const userMessage = {
+    role: "user",
+    content: `Génère une réponse de devis pour la demande #${selectedRequest.id?.substring(0, 8).toUpperCase() || 'N/A'}.
 
 CLIENT:
 • Nom: ${selectedRequest.first_name || ''} ${selectedRequest.last_name || ''}
@@ -60,17 +60,25 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
 9.  Termine par une formule de politesse professionnelle et la signature complète d'ESIL Events (incluant slogan, tel, email, site web).
 10. Adapte le ton légèrement si c'est un client particulier ou professionnel.
 11. N'invente pas de détails non fournis, reste factuel sur les informations de la demande.
-12. Fournis la réponse uniquement, sans phrases comme "Voici la réponse suggérée :".`
-    }
-  ];
+12. Fournis la réponse uniquement, sans phrases comme "Voici la réponse suggérée :".
+13. Utiliser la signature complète d'ESIL Events :
 
-  return messages;
+L'équipe ESIL Events
+L'élégance pour chaque événement
+📞 06 20 46 13 85 | ✉ contact@esil-events.fr | 🌐 www.esil-events.fr
+📍 Showroom : 7 rue de la cellophane, 78711 Mantes-la-Ville 
+`
+  };
+
+  const messages = [systemMessage, userMessage];
+
+  return { messages, useReasoner };
 };
 
 /**
  * Génère une réponse IA pour une demande de devis
  */
-export const generateAIResponse = async (selectedRequest: QuoteRequest): Promise<{ response?: string; error?: string }> => {
+export const generateAIResponse = async (selectedRequest: QuoteRequest, useReasoner: boolean = false): Promise<{ response?: string; error?: string }> => {
   try {
     const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
     
@@ -78,7 +86,7 @@ export const generateAIResponse = async (selectedRequest: QuoteRequest): Promise
       return { error: 'Erreur de configuration: Clé API DeepSeek manquante (VITE_DEEPSEEK_API_KEY).' };
     }
 
-    const messages = prepareAIPromptData(selectedRequest);
+    const { messages, useReasoner: shouldUseReasoner } = prepareAIPromptData(selectedRequest, useReasoner);
 
     const requestBody = {
       model: "deepseek-chat",
@@ -86,6 +94,14 @@ export const generateAIResponse = async (selectedRequest: QuoteRequest): Promise
       temperature: 0.7,
       max_tokens: 1024,
       top_p: 0.95,
+      tools: shouldUseReasoner ? [
+        {
+          type: "reasoner",
+          reasoner: {
+            reasoning: true
+          }
+        }
+      ] : undefined
     };
 
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {

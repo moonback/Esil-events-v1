@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, Clipboard, Check, Edit, Mail, ExternalLink, Sparkles } from 'lucide-react';
+import { Send, Clipboard, Check, Edit, Mail, ExternalLink, Sparkles, Brain } from 'lucide-react';
 import { QuoteRequest } from '../../../services/quoteRequestService';
 import { formatDate, formatItemsDetails, calculateTotalAmount, getDeliveryTypeLabel, getTimeSlotLabel } from './QuoteRequestUtils';
 
@@ -7,7 +7,7 @@ interface AIResponseGeneratorProps {
   selectedRequest: QuoteRequest | null;
   suggestedResponse: string;
   generatingResponse: boolean;
-  onGenerateResponse: () => void;
+  onGenerateResponse: (useReasoner?: boolean) => void;
   onCopyResponse: () => void;
 }
 
@@ -20,6 +20,7 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [useReasoner, setUseReasoner] = useState(false);
   
   if (!selectedRequest) return null;
 
@@ -35,6 +36,10 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
     const subject = encodeURIComponent(`Votre demande de devis ESIL Events #${selectedRequest.id?.substring(0, 8).toUpperCase() || 'N/A'}`);
     const body = encodeURIComponent(suggestedResponse);
     window.open(`mailto:${selectedRequest.email}?subject=${subject}&body=${body}`);
+  };
+
+  const handleGenerateResponse = () => {
+    onGenerateResponse(useReasoner);
   };
 
   return (
@@ -63,13 +68,62 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
           </button>
           
           <button
-            onClick={onGenerateResponse}
+            onClick={handleGenerateResponse}
             disabled={generatingResponse}
             className="flex items-center px-3 py-1.5 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="h-4 w-4 mr-1" />
             {generatingResponse ? 'Génération...' : 'Générer'}
           </button>
+        </div>
+      </div>
+
+      {/* Quote Request Summary - Using the imported utility functions */}
+      <div className="bg-gray-50 p-3 rounded-md text-xs border border-gray-200 mb-2">
+        <div className="flex justify-between items-center mb-2">
+          <span className="font-medium">Résumé de la demande</span>
+          <span className="text-indigo-600 font-medium">
+            Total: {calculateTotalAmount(selectedRequest)}€
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <span className="text-gray-500">Date événement:</span>{' '}
+            {selectedRequest.event_date ? formatDate(selectedRequest.event_date).split(' ')[0] : '-'}
+          </div>
+          <div>
+            <span className="text-gray-500">Livraison:</span>{' '}
+            {getDeliveryTypeLabel(selectedRequest.delivery_type)}
+          </div>
+          <div>
+            <span className="text-gray-500">Créneau:</span>{' '}
+            {getTimeSlotLabel(selectedRequest.delivery_time_slot)}
+          </div>
+          <div>
+            <span className="text-gray-500">Articles:</span>{' '}
+            {selectedRequest.items?.length || 0}
+          </div>
+          
+        </div>
+      </div>
+
+      {/* Reasoner toggle */}
+      <div className="flex items-center space-x-2 bg-gray-50 p-2 rounded-md">
+        <label className="flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={useReasoner}
+            onChange={() => setUseReasoner(!useReasoner)}
+            className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+            disabled={generatingResponse}
+          />
+          <span className="ml-2 text-sm text-gray-700 flex items-center">
+            <Brain className="h-4 w-4 mr-1 text-indigo-500" />
+            Utiliser le raisonnement avancé
+          </span>
+        </label>
+        <div className="text-xs text-gray-500 italic">
+          {useReasoner ? "Génère des réponses plus réfléchies (peut prendre plus de temps)" : "Mode standard"}
         </div>
       </div>
 
@@ -124,7 +178,9 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
             <div className="flex flex-col items-center justify-center py-10">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mb-3"></div>
               <p className="font-medium">Génération de la réponse en cours...</p>
-              <p className="text-xs mt-2">Cela peut prendre quelques secondes</p>
+              <p className="text-xs mt-2">
+                {useReasoner ? "Raisonnement avancé activé - cela peut prendre plus de temps" : "Cela peut prendre quelques secondes"}
+              </p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-8">
@@ -148,76 +204,6 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
       )}
     </div>
   );
-};
-
-/**
- * Prépare les données pour la génération de réponse IA
- */
-export const prepareAIPromptData = (selectedRequest: QuoteRequest) => {
-  const itemsDetails = formatItemsDetails(selectedRequest);
-  const totalAmount = calculateTotalAmount(selectedRequest);
-
-  const messages = [
-    {
-      role: "system",
-      content: "Tu es un expert commercial pour ESIL Events, spécialiste de la location de mobilier événementiel premium. Génère des réponses de devis personnalisées, professionnelles et persuasives pour maximiser la conversion. Principes clés : Ton formel mais chaleureux, créer un sentiment d'urgence (disponibilité, offre limitée), souligner l'exclusivité et l'expertise d'ESIL Events, utiliser la preuve sociale, mettre en avant la garantie de satisfaction et le service client. Structure : Accroche personnalisée, présentation valorisante d'ESIL, description de l'impact du mobilier sur l'événement, détail des articles (si fournis) avec caractéristiques premium, offre spéciale (ex: -5% si confirmation sous 7j), conditions claires (acompte 30%), appel à l'action (RDV tel, showroom), signature pro ('L'élégance pour chaque événement'), coordonnées complètes, lien portfolio/réseaux sociaux. Intègre un témoignage générique si pertinent et mentionne nos services (conseil, installation, livraison premium)."
-    },
-    {
-      role: "user",
-      content: `Génère une réponse de devis pour la demande #${selectedRequest.id?.substring(0, 8).toUpperCase() || 'N/A'}.
-
-CLIENT:
-• Nom: ${selectedRequest.first_name || ''} ${selectedRequest.last_name || ''}
-• Email: ${selectedRequest.email || 'N/A'}
-• Tél: ${selectedRequest.phone || 'N/A'}
-• Société: ${selectedRequest.company || 'N/A'}
-• Type: ${selectedRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}
-• Adresse Facturation: ${[selectedRequest.billing_address, selectedRequest.postal_code, selectedRequest.city].filter(Boolean).join(', ') || 'Non fournie'}
-
-ÉVÉNEMENT:
-• Date: ${selectedRequest.event_date ? formatDate(selectedRequest.event_date) : 'Non spécifiée'}
-• Durée: ${selectedRequest.event_duration || 'Non spécifiée'}
-• Heures: ${selectedRequest.event_start_time || '?'} - ${selectedRequest.event_end_time || '?'}
-• Invités: ${selectedRequest.guest_count || 'Non spécifié'}
-• Lieu: ${selectedRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}
-• Description: ${selectedRequest.description || 'Aucune description fournie'}
-
-ARTICLES & MONTANT (Indicatif):
-${itemsDetails}
-• Total TTC Indicatif: ${totalAmount}€
-
-LIVRAISON/RETRAIT:
-• Type: ${getDeliveryTypeLabel(selectedRequest.delivery_type)}
-• Date: ${selectedRequest.delivery_date ? formatDate(selectedRequest.delivery_date) : '-'}
-• Créneau: ${getTimeSlotLabel(selectedRequest.delivery_time_slot)}
-• Adresse: ${[selectedRequest.delivery_address, selectedRequest.delivery_postal_code, selectedRequest.delivery_city].filter(Boolean).join(', ') || 'Non fournie ou identique facturation'}
-
-COMMENTAIRES CLIENT: ${selectedRequest.comments || 'Aucun'}
-
-INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
-1.  Commence par une salutation personnalisée (Ex: "Cher Monsieur/Chère Madame [Nom de famille],", ou "Bonjour [Prénom]," si approprié).
-2.  Accroche : Remercie pour la demande et fais référence à l'événement spécifique (date, type si possible).
-3.  Valorise ESIL Events : Mentionne brièvement l'expertise et le positionnement premium.
-4.  Confirme la bonne compréhension des besoins (mobilier, date, lieu).
-5.  Si des articles sont listés, commente brièvement leur pertinence ou qualité. Sinon, propose d'aider à la sélection.
-7.  Précise les prochaines étapes : envoi du devis détaillé formel, discussion téléphonique.
-8.  Inclue un appel à l'action clair pour planifier un échange.
-9.  Termine par une formule de politesse professionnelle et la signature complète d'ESIL Events (incluant slogan, tel, email, site web).
-10. Adapte le ton légèrement si c'est un client particulier ou professionnel.
-11. N'invente pas de détails non fournis, reste factuel sur les informations de la demande.
-12. Fournis la réponse uniquement, sans phrases comme "Voici la réponse suggérée :"."
-13. Utiliser la signature complète d'ESIL Events :
-
-L'équipe ESIL Events
-L'élégance pour chaque événement
-📞 06 20 46 13 85 | ✉ contact@esil-events.fr | 🌐 www.esil-events.fr
-📍 Showroom : 7 rue de la cellophane, 78711 Mantes-la-Ville 
-
-`
-    }
-  ];
-
-  return messages;
 };
 
 export { AIResponseGenerator };
