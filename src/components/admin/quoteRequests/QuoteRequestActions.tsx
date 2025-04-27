@@ -23,9 +23,15 @@ const QuoteRequestActions: React.FC<QuoteRequestActionsProps> = ({
   loading
 }) => {
   return (
-    <div className="sticky bottom-0 bg-white/90 backdrop-blur-sm p-4 border-t border-gray-200 mt-auto">
-      <h3 className="text-sm font-semibold text-gray-700 mb-3">Actions rapides</h3>
-      <div className="flex flex-col space-y-3">
+    <div className="sticky bottom-0 bg-white/95 backdrop-blur-md p-5 border-t border-gray-200 mt-auto shadow-md">
+      <h3 className="text-sm font-semibold text-gray-800 mb-4 flex items-center">
+        <span className="w-1.5 h-5 bg-indigo-500 rounded-sm mr-2"></span>
+        <p className="text-sm text-gray-600">Statut: <span className="font-bold">{getStatusLabel(selectedRequest.status)}</span></p>
+
+        
+      </h3>
+      <div className="flex flex-col space-y-4">
+        
         {/* Status Change Buttons */}
         <div className="grid grid-cols-2 gap-3">
           {['approved', 'rejected', 'completed', 'pending'] // Define possible target statuses
@@ -37,19 +43,39 @@ const QuoteRequestActions: React.FC<QuoteRequestActionsProps> = ({
               (status === 'pending' && ['rejected', 'completed'].includes(selectedRequest.status ?? ''))
             )
             .map(targetStatus => {
-              let label = ''; let Icon = Check; let colorClass = '';
+              let label = ''; let Icon = Check; let colorClass = ''; let hoverEffect = '';
               switch(targetStatus) {
-                case 'approved': label = 'Approuver'; Icon = Check; colorClass = 'bg-green-600 hover:bg-green-700'; break;
-                case 'rejected': label = 'Rejeter'; Icon = X; colorClass = 'bg-red-600 hover:bg-red-700'; break;
-                case 'completed': label = 'Terminer'; Icon = Check; colorClass = 'bg-blue-600 hover:bg-blue-700'; break;
-                case 'pending': label = 'Réouvrir'; Icon = RefreshCw; colorClass = 'bg-yellow-500 hover:bg-yellow-600'; break;
+                case 'approved': 
+                  label = 'Approuver'; 
+                  Icon = Check; 
+                  colorClass = 'bg-gradient-to-r from-green-500 to-green-600 border border-green-600'; 
+                  hoverEffect = 'hover:from-green-600 hover:to-green-700 hover:shadow-lg hover:shadow-green-100';
+                  break;
+                case 'rejected': 
+                  label = 'Rejeter'; 
+                  Icon = X; 
+                  colorClass = 'bg-gradient-to-r from-red-500 to-red-600 border border-red-600'; 
+                  hoverEffect = 'hover:from-red-600 hover:to-red-700 hover:shadow-lg hover:shadow-red-100';
+                  break;
+                case 'completed': 
+                  label = 'Terminer'; 
+                  Icon = Check; 
+                  colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 border border-blue-600'; 
+                  hoverEffect = 'hover:from-blue-600 hover:to-blue-700 hover:shadow-lg hover:shadow-blue-100';
+                  break;
+                case 'pending': 
+                  label = 'Réouvrir'; 
+                  Icon = RefreshCw; 
+                  colorClass = 'bg-gradient-to-r from-amber-400 to-amber-500 border border-amber-500'; 
+                  hoverEffect = 'hover:from-amber-500 hover:to-amber-600 hover:shadow-lg hover:shadow-amber-100';
+                  break;
               }
               return (
                 <button
                   key={targetStatus}
                   onClick={() => selectedRequest.id && handleUpdateStatus(selectedRequest.id, targetStatus)}
-                  disabled={!selectedRequest.id || loading} // Disable during global load too
-                  className={`flex items-center justify-center px-4 py-2 ${colorClass} text-white rounded-lg transition-colors shadow-sm font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed`}
+                  disabled={!selectedRequest.id || loading}
+                  className={`flex items-center justify-center px-4 py-2.5 ${colorClass} ${hoverEffect} text-white rounded-lg transition-all duration-200 shadow-sm font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5`}
                 >
                   <Icon className="w-4 h-4 mr-2" /> {label}
                 </button>
@@ -59,11 +85,11 @@ const QuoteRequestActions: React.FC<QuoteRequestActionsProps> = ({
         </div>
 
         {/* Export PDF and Print Buttons */}
-        <div className="grid grid-cols-2 gap-3 mb-3">
+        <div className="grid grid-cols-2 gap-3">
           <button
             onClick={handleExportPDF}
             disabled={!selectedRequest}
-            className="flex items-center justify-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 border border-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 shadow-sm hover:shadow-lg hover:shadow-emerald-100 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
             title="Exporter en PDF"
           >
             <FileDown className="w-4 h-4 mr-2" />
@@ -72,7 +98,7 @@ const QuoteRequestActions: React.FC<QuoteRequestActionsProps> = ({
           <button
             onClick={handlePrint}
             disabled={!selectedRequest}
-            className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 border border-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm hover:shadow-lg hover:shadow-blue-100 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
             title="Imprimer la demande"
           >
             <Printer className="w-4 h-4 mr-2" />
@@ -80,17 +106,17 @@ const QuoteRequestActions: React.FC<QuoteRequestActionsProps> = ({
           </button>
         </div>
 
-        {/* AI Response Button */}
-        <button
+        {/* Generate Response Button */}
+        {/* <button
           onClick={handleGenerateResponse}
-          disabled={generatingResponse || loading || !selectedRequest}
-          className="w-full flex items-center justify-center px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Générer une réponse IA"
+          disabled={!selectedRequest || generatingResponse}
+          className="flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-600 border border-indigo-600 text-white rounded-lg hover:from-indigo-600 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-lg hover:shadow-indigo-100 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
         >
           <Send className="w-4 h-4 mr-2" />
-          {generatingResponse ? 'Génération en cours...' : 'Générer une réponse IA'}
-        </button>
+          {generatingResponse ? 'Génération en cours...' : 'Générer une réponse'}
+        </button> */}
       </div>
+      
     </div>
   );
 };
