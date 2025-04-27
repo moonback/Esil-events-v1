@@ -1,41 +1,130 @@
 import React, { useState, useEffect } from 'react';
-import {
-  FileText, Eye, Check, X, RefreshCw, Send, Users, Package, Calendar,
-  Clock, MapPin, Truck, Search, Filter, ArrowDownUp, Clipboard,
-  Edit, Printer, FileDown, Trash2, AlertTriangle
-} from 'lucide-react';
+import { FileText, ArrowDownUp, RefreshCw, Search, Filter, Users, Calendar, Eye, Trash2, X, Check, Package, Truck, MapPin, Clock, Send, Clipboard, Edit, Printer, FileDown } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
-import FilterPanel from '../../components/admin/FilterPanel';
-import { getQuoteRequests, updateQuoteRequestStatus, deleteQuoteRequest, QuoteRequest } from '../../services/quoteRequestService';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { getQuoteRequests, QuoteRequest } from '../../services/quoteRequestService';
+import { 
+  QuoteRequestList, 
+  QuoteRequestDetails, 
+  AIResponseGenerator, 
+  FilterPanel,
+  FeedbackMessage
+} from '../../components/admin/quoteRequests';
+import { useQuoteRequestFilters } from '../../hooks/useQuoteRequestFilters';
+import { usePagination } from '../../hooks/usePagination';
+import { useQuoteRequestActions } from '../../hooks/useQuoteRequestActions';
+
+// Add utility functions for formatting and display
+const formatDate = (dateString?: string) => {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('fr-FR', { 
+    day: '2-digit', 
+    month: '2-digit', 
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+const getStatusLabel = (status?: string) => {
+  switch(status) {
+    case 'pending': return 'En attente';
+    case 'approved': return 'Approuvé';
+    case 'rejected': return 'Rejeté';
+    case 'completed': return 'Terminé';
+    default: return 'Nouveau';
+  }
+};
+
+const getStatusColor = (status?: string) => {
+  switch(status) {
+    case 'pending': return 'bg-yellow-50 text-yellow-800 border-yellow-200';
+    case 'approved': return 'bg-green-50 text-green-800 border-green-200';
+    case 'rejected': return 'bg-red-50 text-red-800 border-red-200';
+    case 'completed': return 'bg-blue-50 text-blue-800 border-blue-200';
+    default: return 'bg-indigo-50 text-indigo-800 border-indigo-200';
+  }
+};
+
+const getDeliveryTypeLabel = (type?: string) => {
+  switch(type) {
+    case 'delivery': return 'Livraison';
+    case 'pickup': return 'Retrait';
+    default: return 'Non spécifié';
+  }
+};
+
+const getTimeSlotLabel = (slot?: string) => {
+  switch(slot) {
+    case 'morning': return 'Matin (8h-12h)';
+    case 'afternoon': return 'Après-midi (12h-18h)';
+    case 'evening': return 'Soir (18h-22h)';
+    default: return 'Non spécifié';
+  }
+};
+
+const getAccessLabel = (access?: string) => {
+  switch(access) {
+    case 'ground_floor': return 'Rez-de-chaussée';
+    case 'stairs': return 'Escaliers';
+    case 'elevator': return 'Ascenseur';
+    default: return 'Non spécifié';
+  }
+};
 
 const QuoteRequestsAdmin: React.FC = () => {
+  // État principal
   const [quoteRequests, setQuoteRequests] = useState<QuoteRequest[]>([]);
-  const [filteredRequests, setFilteredRequests] = useState<QuoteRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
   const [selectedRequest, setSelectedRequest] = useState<QuoteRequest | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  const [generatingResponse, setGeneratingResponse] = useState(false);
-  // Consolidated message state for feedback (status updates, copy, generation)
-  const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const [suggestedResponse, setSuggestedResponse] = useState<string>('');
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [customerTypeFilter, setCustomerTypeFilter] = useState<string>('all');
-  const [deliveryTypeFilter, setDeliveryTypeFilter] = useState<string>('all');
-  const [dateFilter, setDateFilter] = useState<string>('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  // Utilisation des hooks personnalisés pour le filtrage et la pagination
+  const {
+    filteredRequests,
+    searchTerm,
+    setSearchTerm,
+    statusFilter,
+    setStatusFilter,
+    customerTypeFilter,
+    setCustomerTypeFilter,
+    deliveryTypeFilter,
+    setDeliveryTypeFilter,
+    dateFilter,
+    setDateFilter,
+    resetFilters
+  } = useQuoteRequestFilters(quoteRequests);
+  
+  const {
+    currentItems,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    indexOfFirstItem,
+    indexOfLastItem
+  } = usePagination(filteredRequests);
+  
+  // Utilisation du hook pour les actions sur les demandes
+  const {
+    handleUpdateStatus,
+    handleDeleteRequest,
+    handleGenerateResponse,
+    handleExportPDF,
+    handlePrint,
+    generatingResponse,
+    suggestedResponse,
+    setSuggestedResponse,
+    feedbackMessage,
+    setFeedbackMessage,
+    error
+  } = useQuoteRequestActions(quoteRequests, setQuoteRequests, selectedRequest, setSelectedRequest);
 
-  // --- Data Loading ---
+  // --- Chargement des données ---
   const loadQuoteRequests = async () => {
     try {
       setLoading(true);
-      setError(''); // Clear previous errors
-      setFeedbackMessage(null); // Clear feedback messages on reload
+      setFeedbackMessage(null); // Effacer les messages de feedback lors du rechargement
       const { data, error: fetchError } = await getQuoteRequests();
 
       if (fetchError) {
@@ -49,10 +138,8 @@ const QuoteRequestsAdmin: React.FC = () => {
       }) : [];
 
       setQuoteRequests(sortedData);
-      // Filtering happens in the dedicated useEffect
     } catch (err: any) {
       const errorMessage = `Erreur lors du chargement des demandes de devis: ${err.message}`;
-      setError(errorMessage);
       setFeedbackMessage({ type: 'error', text: errorMessage });
       console.error(err);
     } finally {
@@ -63,358 +150,11 @@ const QuoteRequestsAdmin: React.FC = () => {
   useEffect(() => {
     loadQuoteRequests();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortOrder]); // Reload when sort order changes
+  }, [sortOrder]); // Recharger lorsque l'ordre de tri change
 
-  // --- Filtering Logic ---
-  useEffect(() => {
-    let filtered = [...quoteRequests];
-
-    // Filter by search term
-    const term = searchTerm.toLowerCase().trim();
-    if (term) {
-      filtered = filtered.filter(request =>
-        request.first_name?.toLowerCase().includes(term) ||
-        request.last_name?.toLowerCase().includes(term) ||
-        request.email?.toLowerCase().includes(term) ||
-        request.company?.toLowerCase().includes(term) ||
-        request.phone?.includes(term) ||
-        request.id?.toLowerCase().includes(term)
-      );
-    }
-
-    // Filter by status
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(request => request.status === statusFilter);
-    }
-
-    // Filter by customer type
-    if (customerTypeFilter !== 'all') {
-      filtered = filtered.filter(request => request.customer_type === customerTypeFilter);
-    }
-
-    // Filter by delivery type
-    if (deliveryTypeFilter !== 'all') {
-      filtered = filtered.filter(request => request.delivery_type === deliveryTypeFilter);
-    }
-
-    // Filter by date
-    if (dateFilter !== 'all') {
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const startOfWeek = new Date(today);
-      startOfWeek.setDate(today.getDate() - today.getDay());
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const startOfYear = new Date(now.getFullYear(), 0, 1);
-
-      filtered = filtered.filter(request => {
-        const requestDate = new Date(request.created_at || '');
-        switch (dateFilter) {
-          case 'today':
-            return requestDate >= today;
-          case 'week':
-            return requestDate >= startOfWeek;
-          case 'month':
-            return requestDate >= startOfMonth;
-          case 'year':
-            return requestDate >= startOfYear;
-          default:
-            return true;
-        }
-      });
-    }
-
-    setFilteredRequests(filtered);
-    setCurrentPage(1); // Reset pagination when filters change
-  }, [searchTerm, statusFilter, customerTypeFilter, deliveryTypeFilter, dateFilter, quoteRequests]);
-
-  // --- Status Update ---
-  const handleUpdateStatus = async (id: string, status: string) => {
-    setFeedbackMessage(null); // Clear previous messages
-    setError('');
-    try {
-      const { error: updateError } = await updateQuoteRequestStatus(id, status);
-
-      if (updateError) {
-        throw new Error(updateError.message);
-      }
-
-      // Update local state immediately for better UX
-      setQuoteRequests(prevRequests =>
-        prevRequests.map(req =>
-          req.id === id ? { ...req, status } : req
-        )
-      );
-
-      // Update selected request if it's the one being modified
-      if (selectedRequest && selectedRequest.id === id) {
-        setSelectedRequest(prev => prev ? { ...prev, status } : null);
-      }
-
-      setFeedbackMessage({ type: 'success', text: 'Statut mis à jour avec succès.' });
-      // Optionally clear message after a few seconds
-      setTimeout(() => setFeedbackMessage(null), 3000);
-
-    } catch (err: any) {
-      const errorMessage = `Erreur lors de la mise à jour du statut: ${err.message}`;
-      setError(errorMessage); // Set main error as well if needed
-      setFeedbackMessage({ type: 'error', text: errorMessage });
-      console.error(err);
-    }
-  };
-
-  // --- Delete Quote Request ---
-  const handleDeleteRequest = async (id: string) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette demande de devis ? Cette action est irréversible.')) {
-      return;
-    }
-
-    setFeedbackMessage(null); // Clear previous messages
-    setError('');
-    try {
-      const { error: deleteError } = await deleteQuoteRequest(id);
-
-      if (deleteError) {
-        throw new Error(deleteError.message);
-      }
-
-      // Update local state by removing the deleted request
-      setQuoteRequests(prevRequests => 
-        prevRequests.filter(req => req.id !== id)
-      );
-
-      // If the selected request is the one being deleted, clear the selection
-      if (selectedRequest && selectedRequest.id === id) {
-        setSelectedRequest(null);
-        setSuggestedResponse('');
-      }
-
-      setFeedbackMessage({ type: 'success', text: 'Demande de devis supprimée avec succès.' });
-      // Clear message after a few seconds
-      setTimeout(() => setFeedbackMessage(null), 3000);
-
-    } catch (err: any) {
-      const errorMessage = `Erreur lors de la suppression: ${err.message}`;
-      setError(errorMessage);
-      setFeedbackMessage({ type: 'error', text: errorMessage });
-      console.error(err);
-    }
-  };
-
-  // --- Pagination ---
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredRequests.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
-
-  // --- Utility Functions ---
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '-';
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'Date invalide'; // Check for invalid date object
-      return new Intl.DateTimeFormat('fr-FR', {
-        day: '2-digit', month: '2-digit', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
-      }).format(date);
-    } catch (e) {
-      console.error("Error formatting date:", dateString, e);
-      return 'Date invalide';
-    }
-  };
-
-  const getStatusColor = (status?: string) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'approved': return 'bg-green-100 text-green-800 border-green-300';
-      case 'rejected': return 'bg-red-100 text-red-800 border-red-300';
-      case 'completed': return 'bg-blue-100 text-blue-800 border-blue-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
-
-  const getStatusLabel = (status?: string) => {
-    switch (status) {
-      case 'pending': return 'En attente';
-      case 'approved': return 'Approuvé';
-      case 'rejected': return 'Rejeté';
-      case 'completed': return 'Terminé';
-      default: return 'Nouveau';
-    }
-  };
-
-  const getDeliveryTypeLabel = (type?: string) => { /* ... unchanged ... */
-    switch (type) {
-        case 'pickup': return 'Retrait sur place';
-        case 'eco': return 'Livraison standard';
-        case 'premium': return 'Livraison premium';
-        default: return 'Non spécifié';
-      }
-  };
-  const getTimeSlotLabel = (slot?: string) => { /* ... unchanged ... */
-    switch (slot) {
-        case 'before9': return 'Avant 9h';
-        case '9to13': return '9h - 13h';
-        case '13to19': return '13h - 19h';
-        default: return 'Non spécifié';
-      }
-  };
-  const getAccessLabel = (access?: string) => { /* ... unchanged ... */
-    switch (access) {
-        case 'parking': return 'Parking';
-        case 'street': return 'Rue';
-        case 'stairs': return 'Escaliers';
-        case 'flat': return 'Plain-pied';
-        case 'elevator': return 'Ascenseur';
-        default: return 'Non spécifié';
-      }
-  };
-
-  // --- AI Response Generation ---
-  const handleGenerateResponse = async () => {
-    if (!selectedRequest) {
-      setFeedbackMessage({ type: 'error', text: 'Aucune demande sélectionnée.' });
-      return;
-    }
-
-    console.log("Début de la génération de réponse AI...");
-    setGeneratingResponse(true);
-    setFeedbackMessage(null);
-    setSuggestedResponse('');
-    setError('');
-
-    const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
-    console.log("Clé API DeepSeek disponible:", apiKey ? "Oui" : "Non (Vérifiez VITE_DEEPSEEK_API_KEY dans .env)");
-
-
-    if (!apiKey) {
-      const errorMsg = 'Erreur de configuration: Clé API DeepSeek manquante (VITE_DEEPSEEK_API_KEY).';
-      console.error(errorMsg);
-      setFeedbackMessage({ type: 'error', text: errorMsg });
-      setError(errorMsg);
-      setGeneratingResponse(false);
-      return;
-    }
-
-    try {
-        const itemsDetails = selectedRequest.items && selectedRequest.items.length > 0
-        ? selectedRequest.items.map(item =>
-            `• ${item.name || 'Article inconnu'} (${item.quantity || 0} unité${(item.quantity || 0) > 1 ? 's' : ''} × ${(item.price || 0).toFixed(2)}€) - Sous-total: ${((item.quantity || 0) * (item.price || 0)).toFixed(2)}€`
-          ).join('\n')
-        : 'Aucun article spécifique listé dans la demande.';
-
-      const totalAmount = (selectedRequest.items?.reduce((total, item) => total + ((item.quantity || 0) * (item.price || 0)), 0) || 0).toFixed(2);
-
-      // Updated and slightly refined prompt
-      const messages = [
-        {
-          role: "system",
-          content: "Tu es un expert commercial pour ESIL Events, spécialiste de la location de mobilier événementiel premium. Génère des réponses de devis personnalisées, professionnelles et persuasives pour maximiser la conversion. Principes clés : Ton formel mais chaleureux, créer un sentiment d'urgence (disponibilité, offre limitée), souligner l'exclusivité et l'expertise d'ESIL Events, utiliser la preuve sociale, mettre en avant la garantie de satisfaction et le service client. Structure : Accroche personnalisée, présentation valorisante d'ESIL, description de l'impact du mobilier sur l'événement, détail des articles (si fournis) avec caractéristiques premium, offre spéciale (ex: -5% si confirmation sous 7j), conditions claires (acompte 30%), appel à l'action (RDV tel, showroom), signature pro ('L'élégance pour chaque événement'), coordonnées complètes, lien portfolio/réseaux sociaux. Intègre un témoignage générique si pertinent et mentionne nos services (conseil, installation, livraison premium)."
-        },
-        {
-          role: "user",
-          content: `Génère une réponse de devis pour la demande #${selectedRequest.id?.substring(0, 8).toUpperCase() || 'N/A'}.
-
-CLIENT:
-• Nom: ${selectedRequest.first_name || ''} ${selectedRequest.last_name || ''}
-• Email: ${selectedRequest.email || 'N/A'}
-• Tél: ${selectedRequest.phone || 'N/A'}
-• Société: ${selectedRequest.company || 'N/A'}
-• Type: ${selectedRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}
-• Adresse Facturation: ${[selectedRequest.billing_address, selectedRequest.postal_code, selectedRequest.city].filter(Boolean).join(', ') || 'Non fournie'}
-
-ÉVÉNEMENT:
-• Date: ${selectedRequest.event_date ? formatDate(selectedRequest.event_date) : 'Non spécifiée'}
-• Durée: ${selectedRequest.event_duration || 'Non spécifiée'}
-• Heures: ${selectedRequest.event_start_time || '?'} - ${selectedRequest.event_end_time || '?'}
-• Invités: ${selectedRequest.guest_count || 'Non spécifié'}
-• Lieu: ${selectedRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}
-• Description: ${selectedRequest.description || 'Aucune description fournie'}
-
-ARTICLES & MONTANT (Indicatif):
-${itemsDetails}
-• Total TTC Indicatif: ${totalAmount}€
-
-LIVRAISON/RETRAIT:
-• Type: ${getDeliveryTypeLabel(selectedRequest.delivery_type)}
-• Date: ${selectedRequest.delivery_date ? formatDate(selectedRequest.delivery_date) : '-'}
-• Créneau: ${getTimeSlotLabel(selectedRequest.delivery_time_slot)}
-• Adresse: ${[selectedRequest.delivery_address, selectedRequest.delivery_postal_code, selectedRequest.delivery_city].filter(Boolean).join(', ') || 'Non fournie ou identique facturation'}
-
-COMMENTAIRES CLIENT: ${selectedRequest.comments || 'Aucun'}
-
-INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
-1.  Commence par une salutation personnalisée (Ex: "Cher Monsieur/Chère Madame [Nom de famille],", ou "Bonjour [Prénom]," si approprié).
-2.  Accroche : Remercie pour la demande et fais référence à l'événement spécifique (date, type si possible).
-3.  Valorise ESIL Events : Mentionne brièvement l'expertise et le positionnement premium.
-4.  Confirme la bonne compréhension des besoins (mobilier, date, lieu).
-5.  Si des articles sont listés, commente brièvement leur pertinence ou qualité. Sinon, propose d'aider à la sélection.
-7.  Précise les prochaines étapes : envoi du devis détaillé formel, discussion téléphonique.
-8.  Inclue un appel à l'action clair pour planifier un échange.
-9.  Termine par une formule de politesse professionnelle et la signature complète d'ESIL Events (incluant slogan, tel, email, site web).
-10. Adapte le ton légèrement si c'est un client particulier ou professionnel.
-11. N'invente pas de détails non fournis, reste factuel sur les informations de la demande.
-12. Fournis la réponse uniquement, sans phrases comme "Voici la réponse suggérée :".`
-        }
-      ];
-
-      const requestBody = {
-        model: "deepseek-chat", // Verify model name if needed
-        messages: messages,
-        temperature: 0.7, // Slightly lower for more predictable professional tone
-        max_tokens: 1024, // Adjust as needed
-        top_p: 0.95,
-        // stream: false, // Assuming non-streaming for this use case
-      };
-
-      console.log("Envoi de la requête à l'API DeepSeek...", requestBody);
-
-      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      console.log("Statut de la réponse API:", response.status, response.statusText);
-
-      if (!response.ok) {
-        let errorData;
-        try {
-            const errorText = await response.text();
-            console.error("Erreur API brute:", errorText);
-            errorData = JSON.parse(errorText); // Try to parse as JSON
-        } catch (parseError) {
-            console.error("Impossible de parser la réponse d'erreur JSON:", parseError);
-            errorData = { error: { message: `Erreur ${response.status}: ${response.statusText}. Réponse non JSON.` } };
-        }
-        throw new Error(`Erreur API (${response.status}): ${errorData?.error?.message || response.statusText || 'Erreur inconnue'}`);
-      }
-
-      const data = await response.json();
-      console.log("Réponse API reçue:", data);
-
-      const generatedContent = data.choices?.[0]?.message?.content?.trim();
-
-      if (!generatedContent) {
-        throw new Error("La réponse de l'API est vide ou mal structurée.");
-      }
-
-      console.log("Réponse générée:", generatedContent);
-      setSuggestedResponse(generatedContent);
-      setFeedbackMessage({ type: 'success', text: 'Réponse IA générée avec succès.' });
-
-    } catch (err: any) {
-      console.error('Erreur détaillée lors de la génération de la réponse IA:', err);
-      const errorMessage = `Erreur lors de la génération IA: ${err.message}`;
-      setFeedbackMessage({ type: 'error', text: errorMessage });
-      setError(errorMessage); // Optionally set main error state too
-    } finally {
-      setGeneratingResponse(false);
-      console.log("Fin de la génération de réponse AI.");
-    }
-  };
+  // Les fonctions de gestion des actions sont maintenant gérées par le hook useQuoteRequestActions
+  // Les fonctions de pagination sont gérées par le hook usePagination
+  // Les fonctions utilitaires sont importées depuis QuoteRequestUtils
 
   // --- Editor Popup Message Handling ---
   useEffect(() => {
@@ -445,410 +185,9 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
     };
   }, [selectedRequest]); // Re-run if selectedRequest changes to ensure correct ID check
 
-  // --- Export PDF ---
-  const handleExportPDF = async () => {
-    if (!selectedRequest) {
-      setFeedbackMessage({ type: 'error', text: 'Aucune demande sélectionnée pour l\'export.' });
-      return;
-    }
-
-    try {
-      setFeedbackMessage({ type: 'success', text: 'Préparation du PDF en cours...' });
-      
-      // Créer un élément temporaire pour le rendu du contenu
-      const printElement = document.createElement('div');
-      printElement.className = 'pdf-export-container';
-      printElement.style.width = '210mm'; // Format A4
-      printElement.style.padding = '15mm';
-      printElement.style.position = 'absolute';
-      printElement.style.left = '-9999px';
-      printElement.style.top = '-9999px';
-      document.body.appendChild(printElement);
-
-      // Formater le contenu pour le PDF
-      const totalAmount = (selectedRequest.items?.reduce((total, item) => total + ((item.quantity || 0) * (item.price || 0)), 0) || 0).toFixed(2);
-      
-      printElement.innerHTML = `
-        <div style="font-family: Arial, sans-serif; color: #333;">
-          <div style="text-align: center; margin-bottom: 20px;">
-            <h1 style="color: #4f46e5; font-size: 24px; margin-bottom: 5px;">ESIL Events</h1>
-            <p style="font-size: 14px; margin: 0;">Location de mobilier événementiel premium</p>
-          </div>
-          
-          <div style="margin-bottom: 30px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">
-            <h2 style="font-size: 18px; margin-bottom: 10px;">Demande de Devis #${selectedRequest.id?.substring(0, 8).toUpperCase() || 'N/A'}</h2>
-            <p style="font-size: 12px; margin: 0;">Date de la demande: ${formatDate(selectedRequest.created_at)}</p>
-            <p style="font-size: 12px; margin: 0;">Statut: ${getStatusLabel(selectedRequest.status)}</p>
-          </div>
-          
-          <div style="margin-bottom: 20px;">
-            <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Informations Client</h3>
-            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-              <tr>
-                <td style="padding: 5px; width: 30%;"><strong>Nom:</strong></td>
-                <td style="padding: 5px;">${selectedRequest.first_name} ${selectedRequest.last_name}</td>
-              </tr>
-              <tr>
-                <td style="padding: 5px;"><strong>Type:</strong></td>
-                <td style="padding: 5px;">${selectedRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</td>
-              </tr>
-              <tr>
-                <td style="padding: 5px;"><strong>Société:</strong></td>
-                <td style="padding: 5px;">${selectedRequest.company || '-'}</td>
-              </tr>
-              <tr>
-                <td style="padding: 5px;"><strong>Email:</strong></td>
-                <td style="padding: 5px;">${selectedRequest.email || '-'}</td>
-              </tr>
-              <tr>
-                <td style="padding: 5px;"><strong>Téléphone:</strong></td>
-                <td style="padding: 5px;">${selectedRequest.phone || '-'}</td>
-              </tr>
-              <tr>
-                <td style="padding: 5px;"><strong>Adresse:</strong></td>
-                <td style="padding: 5px;">${[selectedRequest.billing_address, selectedRequest.postal_code, selectedRequest.city].filter(Boolean).join(', ') || '-'}</td>
-              </tr>
-            </table>
-          </div>
-          
-          <div style="margin-bottom: 20px;">
-            <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Détails de l'Événement</h3>
-            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-              <tr>
-                <td style="padding: 5px; width: 30%;"><strong>Date:</strong></td>
-                <td style="padding: 5px;">${selectedRequest.event_date ? formatDate(selectedRequest.event_date).split(' ')[0] : '-'}</td>
-              </tr>
-              <tr>
-                <td style="padding: 5px;"><strong>Durée:</strong></td>
-                <td style="padding: 5px;">${selectedRequest.event_duration || '-'}</td>
-              </tr>
-              <tr>
-                <td style="padding: 5px;"><strong>Horaires:</strong></td>
-                <td style="padding: 5px;">${selectedRequest.event_start_time || '-'} - ${selectedRequest.event_end_time || '-'}</td>
-              </tr>
-              <tr>
-                <td style="padding: 5px;"><strong>Invités:</strong></td>
-                <td style="padding: 5px;">${selectedRequest.guest_count || '-'}</td>
-              </tr>
-              <tr>
-                <td style="padding: 5px;"><strong>Lieu:</strong></td>
-                <td style="padding: 5px;">${selectedRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</td>
-              </tr>
-            </table>
-            ${selectedRequest.description ? `
-              <div style="margin-top: 10px;">
-                <p style="font-size: 12px; margin-bottom: 5px;"><strong>Description:</strong></p>
-                <p style="font-size: 12px; padding: 5px; background-color: #f9fafb; border: 1px solid #e5e7eb;">${selectedRequest.description}</p>
-              </div>
-            ` : ''}
-          </div>
-          
-          <div style="margin-bottom: 20px;">
-            <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Articles Demandés</h3>
-            ${selectedRequest.items && selectedRequest.items.length > 0 ? `
-              <table style="width: 100%; border-collapse: collapse; font-size: 12px; border: 1px solid #e5e7eb;">
-                <thead>
-                  <tr style="background-color: #f3f4f6;">
-                    <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Article</th>
-                    <th style="padding: 8px; text-align: center; border-bottom: 1px solid #e5e7eb;">Qté</th>
-                    <th style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb;">Prix U.</th>
-                    <th style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb;">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${selectedRequest.items.map(item => `
-                    <tr>
-                      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${item.name || 'N/A'}</td>
-                      <td style="padding: 8px; text-align: center; border-bottom: 1px solid #e5e7eb;">${item.quantity || 0}</td>
-                      <td style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb;">${(item.price || 0).toFixed(2)}€</td>
-                      <td style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb;">${((item.quantity || 0) * (item.price || 0)).toFixed(2)}€</td>
-                    </tr>
-                  `).join('')}
-                  <tr style="background-color: #f3f4f6; font-weight: bold;">
-                    <td colspan="3" style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb;">Total TTC Indicatif</td>
-                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb; color: #4f46e5;">${totalAmount}€</td>
-                  </tr>
-                </tbody>
-              </table>
-            ` : `
-              <p style="font-size: 12px; font-style: italic;">Aucun article spécifique listé dans cette demande.</p>
-            `}
-          </div>
-          
-          <div style="margin-bottom: 20px;">
-            <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Livraison / Retrait</h3>
-            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-              <tr>
-                <td style="padding: 5px; width: 30%;"><strong>Type:</strong></td>
-                <td style="padding: 5px;">${getDeliveryTypeLabel(selectedRequest.delivery_type)}</td>
-              </tr>
-              <tr>
-                <td style="padding: 5px;"><strong>Date:</strong></td>
-                <td style="padding: 5px;">${selectedRequest.delivery_date ? formatDate(selectedRequest.delivery_date).split(' ')[0] : '-'}</td>
-              </tr>
-              <tr>
-                <td style="padding: 5px;"><strong>Créneau:</strong></td>
-                <td style="padding: 5px;">${getTimeSlotLabel(selectedRequest.delivery_time_slot)}</td>
-              </tr>
-              <tr>
-                <td style="padding: 5px;"><strong>Adresse:</strong></td>
-                <td style="padding: 5px;">${[selectedRequest.delivery_address, selectedRequest.delivery_postal_code, selectedRequest.delivery_city].filter(Boolean).join(', ') || '-'}</td>
-              </tr>
-            </table>
-          </div>
-          
-          ${selectedRequest.comments ? `
-            <div style="margin-bottom: 20px;">
-              <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Commentaires Client</h3>
-              <p style="font-size: 12px; padding: 8px; background-color: #f9fafb; border: 1px solid #e5e7eb;">${selectedRequest.comments}</p>
-            </div>
-          ` : ''}
-          
-          <div style="margin-top: 30px; font-size: 10px; text-align: center; color: #6b7280;">
-            <p>Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
-            <p>ESIL Events - L'élégance pour chaque événement</p>
-          </div>
-        </div>
-      `;
-
-      // Générer le PDF à partir du contenu HTML
-      const canvas = await html2canvas(printElement, {
-        scale: 1,
-        useCORS: true,
-        logging: false
-      });
-
-      // Créer le PDF au format A4
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgData = canvas.toDataURL('image/png');
-      const imgWidth = 210; // A4 width in mm
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      
-      // Générer un nom de fichier basé sur les informations de la demande
-      const fileName = `ESIL_Devis_${selectedRequest.id?.substring(0, 8).toUpperCase() || 'N/A'}_${selectedRequest.last_name || 'Client'}.pdf`;
-      
-      // Télécharger le PDF
-      pdf.save(fileName);
-      
-      // Nettoyer l'élément temporaire
-      document.body.removeChild(printElement);
-      
-      setFeedbackMessage({ type: 'success', text: 'PDF exporté avec succès.' });
-      setTimeout(() => setFeedbackMessage(null), 3000);
-    } catch (err: any) {
-      console.error('Erreur lors de l\'export PDF:', err);
-      setFeedbackMessage({ type: 'error', text: `Erreur lors de l'export PDF: ${err.message}` });
-    }
-  };
-
-  // --- Impression ---
-  const handlePrint = () => {
-    if (!selectedRequest) {
-      setFeedbackMessage({ type: 'error', text: 'Aucune demande sélectionnée pour l\'impression.' });
-      return;
-    }
-
-    try {
-      // Créer une fenêtre d'impression
-      const printWindow = window.open('', '_blank', 'width=800,height=600');
-      if (!printWindow) {
-        throw new Error('Impossible d\'ouvrir la fenêtre d\'impression. Vérifiez les paramètres de votre navigateur.');
-      }
-
-      // Formater le contenu pour l'impression (réutiliser le même format que pour le PDF)
-      const totalAmount = (selectedRequest.items?.reduce((total, item) => total + ((item.quantity || 0) * (item.price || 0)), 0) || 0).toFixed(2);
-      
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html lang="fr">
-        <head>
-          <meta charset="UTF-8">
-          <title>Demande de Devis #${selectedRequest.id?.substring(0, 8).toUpperCase() || 'N/A'}</title>
-          <style>
-            body { font-family: Arial, sans-serif; color: #333; margin: 0; padding: 20px; }
-            h1, h2, h3 { color: #4f46e5; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-            th, td { padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb; }
-            th { background-color: #f3f4f6; }
-            .header { text-align: center; margin-bottom: 20px; }
-            .section { margin-bottom: 20px; }
-            .footer { margin-top: 30px; font-size: 10px; text-align: center; color: #6b7280; }
-            @media print {
-              body { padding: 0; }
-              button { display: none; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>ESIL Events</h1>
-            <p>Location de mobilier événementiel premium</p>
-          </div>
-          
-          <div class="section">
-            <h2>Demande de Devis #${selectedRequest.id?.substring(0, 8).toUpperCase() || 'N/A'}</h2>
-            <p>Date de la demande: ${formatDate(selectedRequest.created_at)}</p>
-            <p>Statut: ${getStatusLabel(selectedRequest.status)}</p>
-          </div>
-          
-          <div class="section">
-            <h3>Informations Client</h3>
-            <table>
-              <tr>
-                <td><strong>Nom:</strong></td>
-                <td>${selectedRequest.first_name} ${selectedRequest.last_name}</td>
-              </tr>
-              <tr>
-                <td><strong>Type:</strong></td>
-                <td>${selectedRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</td>
-              </tr>
-              <tr>
-                <td><strong>Société:</strong></td>
-                <td>${selectedRequest.company || '-'}</td>
-              </tr>
-              <tr>
-                <td><strong>Email:</strong></td>
-                <td>${selectedRequest.email || '-'}</td>
-              </tr>
-              <tr>
-                <td><strong>Téléphone:</strong></td>
-                <td>${selectedRequest.phone || '-'}</td>
-              </tr>
-              <tr>
-                <td><strong>Adresse:</strong></td>
-                <td>${[selectedRequest.billing_address, selectedRequest.postal_code, selectedRequest.city].filter(Boolean).join(', ') || '-'}</td>
-              </tr>
-            </table>
-          </div>
-          
-          <div class="section">
-            <h3>Détails de l'Événement</h3>
-            <table>
-              <tr>
-                <td><strong>Date:</strong></td>
-                <td>${selectedRequest.event_date ? formatDate(selectedRequest.event_date).split(' ')[0] : '-'}</td>
-              </tr>
-              <tr>
-                <td><strong>Durée:</strong></td>
-                <td>${selectedRequest.event_duration || '-'}</td>
-              </tr>
-              <tr>
-                <td><strong>Horaires:</strong></td>
-                <td>${selectedRequest.event_start_time || '-'} - ${selectedRequest.event_end_time || '-'}</td>
-              </tr>
-              <tr>
-                <td><strong>Invités:</strong></td>
-                <td>${selectedRequest.guest_count || '-'}</td>
-              </tr>
-              <tr>
-                <td><strong>Lieu:</strong></td>
-                <td>${selectedRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</td>
-              </tr>
-            </table>
-            ${selectedRequest.description ? `
-              <div>
-                <p><strong>Description:</strong></p>
-                <p style="padding: 10px; background-color: #f9fafb; border: 1px solid #e5e7eb;">${selectedRequest.description}</p>
-              </div>
-            ` : ''}
-          </div>
-          
-          <div class="section">
-            <h3>Articles Demandés</h3>
-            ${selectedRequest.items && selectedRequest.items.length > 0 ? `
-              <table>
-                <thead>
-                  <tr>
-                    <th>Article</th>
-                    <th style="text-align: center;">Qté</th>
-                    <th style="text-align: right;">Prix U.</th>
-                    <th style="text-align: right;">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${selectedRequest.items.map(item => `
-                    <tr>
-                      <td>${item.name || 'N/A'}</td>
-                      <td style="text-align: center;">${item.quantity || 0}</td>
-                      <td style="text-align: right;">${(item.price || 0).toFixed(2)}€</td>
-                      <td style="text-align: right;">${((item.quantity || 0) * (item.price || 0)).toFixed(2)}€</td>
-                    </tr>
-                  `).join('')}
-                  <tr style="font-weight: bold; background-color: #f3f4f6;">
-                    <td colspan="3" style="text-align: right;">Total TTC Indicatif</td>
-                    <td style="text-align: right; color: #4f46e5;">${totalAmount}€</td>
-                  </tr>
-                </tbody>
-              </table>
-            ` : `
-              <p style="font-style: italic;">Aucun article spécifique listé dans cette demande.</p>
-            `}
-          </div>
-          
-          <div class="section">
-            <h3>Livraison / Retrait</h3>
-            <table>
-              <tr>
-                <td><strong>Type:</strong></td>
-                <td>${getDeliveryTypeLabel(selectedRequest.delivery_type)}</td>
-              </tr>
-              <tr>
-                <td><strong>Date:</strong></td>
-                <td>${selectedRequest.delivery_date ? formatDate(selectedRequest.delivery_date).split(' ')[0] : '-'}</td>
-              </tr>
-              <tr>
-                <td><strong>Créneau:</strong></td>
-                <td>${getTimeSlotLabel(selectedRequest.delivery_time_slot)}</td>
-              </tr>
-              <tr>
-                <td><strong>Adresse:</strong></td>
-                <td>${[selectedRequest.delivery_address, selectedRequest.delivery_postal_code, selectedRequest.delivery_city].filter(Boolean).join(', ') || '-'}</td>
-              </tr>
-            </table>
-          </div>
-          
-          ${selectedRequest.comments ? `
-            <div class="section">
-              <h3>Commentaires Client</h3>
-              <p style="padding: 10px; background-color: #f9fafb; border: 1px solid #e5e7eb;">${selectedRequest.comments}</p>
-            </div>
-          ` : ''}
-          
-          <div class="footer">
-            <p>Document imprimé le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
-            <p>ESIL Events - L'élégance pour chaque événement</p>
-          </div>
-          
-          <div style="text-align: center; margin-top: 20px;">
-            <button onclick="window.print(); setTimeout(() => window.close(), 500);" style="padding: 10px 20px; background-color: #4f46e5; color: white; border: none; border-radius: 5px; cursor: pointer;">
-              Imprimer
-            </button>
-          </div>
-        </body>
-        </html>
-      `);
-      
-      printWindow.document.close();
-      
-      setFeedbackMessage({ type: 'success', text: 'Document prêt pour impression.' });
-      setTimeout(() => setFeedbackMessage(null), 3000);
-    } catch (err: any) {
-      console.error('Erreur lors de la préparation de l\'impression:', err);
-      setFeedbackMessage({ type: 'error', text: `Erreur lors de l'impression: ${err.message}` });
-    }
-  };
+ 
 
   // --- Render ---
-  const handleResetFilters = () => {
-    setSearchTerm('');
-    setStatusFilter('all');
-    setCustomerTypeFilter('all');
-    setDeliveryTypeFilter('all');
-    setDateFilter('all');
-  };
-
   return (
     <AdminLayout>
       <AdminHeader />
@@ -863,7 +202,7 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
         setDeliveryTypeFilter={setDeliveryTypeFilter}
         dateFilter={dateFilter}
         setDateFilter={setDateFilter}
-        onReset={handleResetFilters}
+        onReset={resetFilters}
       />
       <div className="space-y-8 mt-12 max-w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12"> {/* Use max-w-full or adjust as needed */}
         {/* Header */}
@@ -1083,13 +422,13 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
                   <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200 bg-gradient-to-r from-indigo-50 to-indigo-100">
                     <div className="flex-1 flex justify-between sm:hidden">
                         <button
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                             disabled={currentPage === 1}
                             className="relative inline-flex items-center px-4 py-2 border border-indigo-300 text-sm font-medium rounded-lg text-indigo-700 bg-white hover:bg-indigo-50 transition-all duration-200 disabled:opacity-50 shadow-sm"
                         > Précédent </button>
                         <span className="text-sm font-medium text-indigo-700 my-auto"> Page {currentPage} sur {totalPages} </span>
                         <button
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
                             disabled={currentPage === totalPages}
                             className="ml-3 relative inline-flex items-center px-4 py-2 border border-indigo-300 text-sm font-medium rounded-lg text-indigo-700 bg-white hover:bg-indigo-50 transition-all duration-200 disabled:opacity-50 shadow-sm"
                         > Suivant </button>
@@ -1103,7 +442,7 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
                         <div>
                             <nav className="relative z-0 inline-flex rounded-lg shadow-sm" aria-label="Pagination">
                                 <button
-                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                                     disabled={currentPage === 1}
                                     className="relative inline-flex items-center px-3 py-2 rounded-l-lg border border-indigo-300 bg-white text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-all duration-200 disabled:opacity-50"
                                 > <span className="sr-only">Précédent</span>{'<'} </button>
@@ -1115,11 +454,11 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
                                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-all duration-200 ${currentPage === page ? 'z-10 bg-indigo-100 border-indigo-500 text-indigo-600 font-bold' : 'bg-white border-indigo-300 text-indigo-600 hover:bg-indigo-50'}`}
                                     > {page} </button>
                                 ))}
-                                <button
+                                {/* <button
                                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                     disabled={currentPage === totalPages}
                                     className="relative inline-flex items-center px-3 py-2 rounded-r-lg border border-indigo-300 bg-white text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-all duration-200 disabled:opacity-50"
-                                > <span className="sr-only">Suivant</span>{'>'} </button>
+                                > <span className="sr-only">Suivant</span>{'>'} </button> */}
                             </nav>
                         </div>
                     </div>
