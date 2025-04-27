@@ -11,7 +11,8 @@ import {
   LogOut, 
   Menu, 
   X, 
-  MessageSquare 
+  MessageSquare,
+  Mail
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -81,6 +82,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       label: 'Demandes de devis',
       icon: <FileText className="w-5 h-5" />,
       path: '/admin/quote-requests'
+    },
+    {
+      label: 'Configuration Email',
+      icon: <Mail className="w-5 h-5" />,
+      path: '/admin/email-config'
     }
   ];
 

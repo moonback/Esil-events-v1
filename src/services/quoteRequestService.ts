@@ -1,7 +1,16 @@
 import { supabase } from './supabaseClient';
 import { FormData } from '../components/cart/types';
+import { sendQuoteRequestConfirmation, sendAdminNotification } from './emailService';
 
 export interface QuoteRequest {
+  billing_postal_code: string;
+  billing_city: string;
+  has_elevator: any;
+  elevator_dimensions: string;
+  floor_number: undefined;
+  pickup_time_slot: string;
+  additional_comments: any;
+  privacy_accepted: any;
   delivery_address?: string;
   delivery_date?: string;
   pickup_date?: string;
@@ -131,6 +140,26 @@ export const createQuoteRequest = async (formData: FormData, cartItems: any[]): 
       console.error('Erreur lors de l\'insertion de la demande de devis:', error);
     } else {
       console.log('Demande de devis insérée avec succès');
+      
+      // Envoyer un email de confirmation au client
+      if (data && data.length > 0) {
+        try {
+          // Envoi d'email de confirmation au client
+          const confirmationResult = await sendQuoteRequestConfirmation(data[0]);
+          if (!confirmationResult.success) {
+            console.error('Erreur lors de l\'envoi de l\'email de confirmation:', confirmationResult.error);
+          }
+          
+          // Envoi d'une notification à l'administrateur
+          const notificationResult = await sendAdminNotification(data[0]);
+          if (!notificationResult.success) {
+            console.error('Erreur lors de l\'envoi de la notification admin:', notificationResult.error);
+          }
+        } catch (emailError) {
+          console.error('Exception lors de l\'envoi des emails:', emailError);
+          // Ne pas bloquer le processus si l'envoi d'email échoue
+        }
+      }
     }
 
     return { data, error };
