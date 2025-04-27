@@ -175,16 +175,7 @@ const QuoteRequestDetails: React.FC<QuoteRequestDetailsProps> = ({
         )}
       </div>
 
-      {/* Actions Footer */}
-      <QuoteRequestActions 
-        selectedRequest={selectedRequest}
-        handleUpdateStatus={handleUpdateStatus}
-        handleExportPDF={handleExportPDF}
-        handlePrint={handlePrint}
-        handleGenerateResponse={handleGenerateResponse}
-        generatingResponse={generatingResponse}
-        loading={loading}
-      />
+      
     </div>
   );
 };
