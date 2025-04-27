@@ -15,64 +15,6 @@ import { useQuoteRequestFilters } from '../../hooks/useQuoteRequestFilters';
 import { usePagination } from '../../hooks/usePagination';
 import { useQuoteRequestActions } from '../../hooks/useQuoteRequestActions';
 
-// Add utility functions for formatting and display
-const formatDate = (dateString?: string) => {
-  if (!dateString) return '-';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('fr-FR', { 
-    day: '2-digit', 
-    month: '2-digit', 
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
-
-const getStatusLabel = (status?: string) => {
-  switch(status) {
-    case 'pending': return 'En attente';
-    case 'approved': return 'Approuvé';
-    case 'rejected': return 'Rejeté';
-    case 'completed': return 'Terminé';
-    default: return 'Nouveau';
-  }
-};
-
-const getStatusColor = (status?: string) => {
-  switch(status) {
-    case 'pending': return 'bg-yellow-50 text-yellow-800 border-yellow-200';
-    case 'approved': return 'bg-green-50 text-green-800 border-green-200';
-    case 'rejected': return 'bg-red-50 text-red-800 border-red-200';
-    case 'completed': return 'bg-blue-50 text-blue-800 border-blue-200';
-    default: return 'bg-indigo-50 text-indigo-800 border-indigo-200';
-  }
-};
-
-const getDeliveryTypeLabel = (type?: string) => {
-  switch(type) {
-    case 'delivery': return 'Livraison';
-    case 'pickup': return 'Retrait';
-    default: return 'Non spécifié';
-  }
-};
-
-const getTimeSlotLabel = (slot?: string) => {
-  switch(slot) {
-    case 'morning': return 'Matin (8h-12h)';
-    case 'afternoon': return 'Après-midi (12h-18h)';
-    case 'evening': return 'Soir (18h-22h)';
-    default: return 'Non spécifié';
-  }
-};
-
-const getAccessLabel = (access?: string) => {
-  switch(access) {
-    case 'ground_floor': return 'Rez-de-chaussée';
-    case 'stairs': return 'Escaliers';
-    case 'elevator': return 'Ascenseur';
-    default: return 'Non spécifié';
-  }
-};
 
 const QuoteRequestsAdmin: React.FC = () => {
   // État principal
@@ -300,13 +242,12 @@ const QuoteRequestsAdmin: React.FC = () => {
           </div>
         )}
 
-        {/* Feedback Message Display */}
-        {/* {feedbackMessage && (
-          <FeedbackMessage 
-            messageType={feedbackMessage.type} 
-            text={feedbackMessage.text} 
-          />
-        )} */}
+         {/* Feedback Message Display */}
+                <FeedbackMessage 
+          message={feedbackMessage}
+          setMessage={setFeedbackMessage}
+          autoHideDuration={3000}
+        />
 
         {/* Loading State or Main Content */}
         {loading && !quoteRequests.length ? (
@@ -333,9 +274,6 @@ const QuoteRequestsAdmin: React.FC = () => {
               indexOfLastItem={indexOfLastItem}
               filteredRequestsLength={filteredRequests.length}
             />
-
-            {/* Selected Request Details Panel */}
-
             {/* Selected Request Details Panel */}
             <div className="w-full lg:w-2/5 xl:w-1/2 lg:sticky lg:top-24 self-start space-y-6">
               {selectedRequest ? (
@@ -350,8 +288,7 @@ const QuoteRequestsAdmin: React.FC = () => {
                     generatingResponse={generatingResponse}
                     loading={loading}
                   />
-                  
-                  
+                      
                   <QuoteRequestActions 
                     selectedRequest={selectedRequest}
                     handleUpdateStatus={handleUpdateStatus}
@@ -361,7 +298,6 @@ const QuoteRequestsAdmin: React.FC = () => {
                     generatingResponse={generatingResponse}
                     loading={loading}
                   />
-                  
                   
                 </div>
               ) : (
