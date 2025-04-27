@@ -19,14 +19,14 @@ export interface SmtpConfig {
 // 1. Vous avez activé l'authentification à deux facteurs sur votre compte Google
 // 2. Vous avez généré un mot de passe d'application spécifique pour cette application
 let smtpConfig: SmtpConfig = {
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // true pour 465, false pour les autres ports comme 587
+  host: 'mail.dresscodeia.fr',
+  port: 465,
+  secure: true, // true pour 465, false pour les autres ports comme 587
   auth: {
-    user: 'mayssondevoye78@gmail.com',
-    pass: '' // Le mot de passe d'application sera défini via la page de configuration
+    user: 'contact@dresscodeia.fr',
+    pass: 'Maysson78711!' // Le mot de passe d'application sera défini via la page de configuration
   },
-  from: 'mayssondevoye78@gmail.com'
+  from: 'contact@dresscodeia.fr'
 };
 
 // Fonction pour mettre à jour la configuration SMTP
@@ -171,7 +171,35 @@ export const sendEmail = async (
 
 // Fonction pour envoyer un email de confirmation de demande de devis
 export const sendQuoteRequestConfirmation = async (quoteRequest: QuoteRequest): Promise<{ success: boolean; error?: any }> => {
-  const { first_name, last_name, email, items } = quoteRequest;
+  const { 
+    first_name, 
+    last_name, 
+    email, 
+    phone,
+    company,
+    customer_type,
+    billing_address,
+    billing_city,
+    billing_postal_code,
+    event_date,
+    event_duration,
+    event_start_time,
+    event_end_time,
+    guest_count,
+    event_location,
+    delivery_address,
+    delivery_city,
+    delivery_postal_code,
+    delivery_date,
+    delivery_time_slot,
+    has_elevator,
+    elevator_dimensions,
+    floor_number,
+    pickup_date,
+    pickup_time_slot,
+    additional_comments,
+    items 
+  } = quoteRequest;
   
   if (!email) {
     return { success: false, error: 'Adresse email manquante' };
@@ -205,6 +233,54 @@ export const sendQuoteRequestConfirmation = async (quoteRequest: QuoteRequest): 
         <p>Nous vous remercions pour votre demande de devis. Notre équipe va l'étudier dans les plus brefs délais et vous contactera prochainement.</p>
         
         <h3>Récapitulatif de votre demande :</h3>
+        
+        <h4>Informations personnelles :</h4>
+        <ul>
+          <li><strong>Nom complet :</strong> ${first_name} ${last_name}</li>
+          <li><strong>Email :</strong> ${email}</li>
+          <li><strong>Téléphone :</strong> ${phone || 'Non spécifié'}</li>
+          <li><strong>Société :</strong> ${company || 'Non spécifié'}</li>
+          <li><strong>Type de client :</strong> ${customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</li>
+        </ul>
+        
+        <h4>Adresse de facturation :</h4>
+        <p>
+          ${billing_address || 'Non spécifiée'}<br>
+          ${billing_postal_code || ''} ${billing_city || ''}
+        </p>
+        
+        <h4>Détails de l'événement :</h4>
+        <ul>
+          <li><strong>Date :</strong> ${event_date || 'Non spécifiée'}</li>
+          <li><strong>Durée :</strong> ${event_duration || 'Non spécifiée'}</li>
+          <li><strong>Heure de début :</strong> ${event_start_time || 'Non spécifiée'}</li>
+          <li><strong>Heure de fin :</strong> ${event_end_time || 'Non spécifiée'}</li>
+          <li><strong>Nombre d'invités :</strong> ${guest_count || 'Non spécifié'}</li>
+          <li><strong>Lieu :</strong> ${event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</li>
+        </ul>
+        
+        <h4>Informations de livraison :</h4>
+        <ul>
+          <li><strong>Adresse :</strong> ${delivery_address || 'Non spécifiée'}</li>
+          <li><strong>Code postal :</strong> ${delivery_postal_code || 'Non spécifié'}</li>
+          <li><strong>Ville :</strong> ${delivery_city || 'Non spécifiée'}</li>
+          <li><strong>Date de livraison :</strong> ${delivery_date || 'Non spécifiée'}</li>
+          <li><strong>Créneau horaire :</strong> ${delivery_time_slot || 'Non spécifié'}</li>
+          <li><strong>Présence d'ascenseur :</strong> ${has_elevator ? 'Oui' : 'Non'}</li>
+          ${has_elevator ? `<li><strong>Dimensions de l'ascenseur :</strong> ${elevator_dimensions || 'Non spécifiées'}</li>` : ''}
+          <li><strong>Étage :</strong> ${floor_number !== undefined ? floor_number : 'Non spécifié'}</li>
+        </ul>
+        
+        <h4>Informations de reprise :</h4>
+        <ul>
+          <li><strong>Date de reprise :</strong> ${pickup_date || 'Non spécifiée'}</li>
+          <li><strong>Créneau horaire :</strong> ${pickup_time_slot || 'Non spécifié'}</li>
+        </ul>
+        
+        ${additional_comments ? `
+        <h4>Commentaires supplémentaires :</h4>
+        <p>${additional_comments}</p>
+        ` : ''}
         
         <h4>Articles demandés :</h4>
         <ul>
@@ -254,6 +330,11 @@ export const sendAdminNotification = async (quoteRequest: QuoteRequest): Promise
     ).join('')
     : '<li>Aucun article spécifié</li>';
 
+  // Calculer le total
+  const total = quoteRequest.items
+    ? quoteRequest.items.reduce((sum, item) => sum + ((item.quantity || 0) * (item.price || 0)), 0).toFixed(2)
+    : '0.00';
+
   // Créer le contenu HTML de l'email
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -274,17 +355,56 @@ export const sendAdminNotification = async (quoteRequest: QuoteRequest): Promise
           <li><strong>Type de client :</strong> ${quoteRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</li>
         </ul>
         
+        <h3>Adresse de facturation :</h3>
+        <p>
+          ${quoteRequest.billing_address || 'Non spécifiée'}<br>
+          ${quoteRequest.billing_postal_code || ''} ${quoteRequest.billing_city || ''}
+        </p>
+        
         <h3>Détails de l'événement :</h3>
         <ul>
           <li><strong>Date :</strong> ${quoteRequest.event_date || 'Non spécifiée'}</li>
           <li><strong>Durée :</strong> ${quoteRequest.event_duration || 'Non spécifiée'}</li>
+          <li><strong>Heure de début :</strong> ${quoteRequest.event_start_time || 'Non spécifiée'}</li>
+          <li><strong>Heure de fin :</strong> ${quoteRequest.event_end_time || 'Non spécifiée'}</li>
           <li><strong>Nombre d'invités :</strong> ${quoteRequest.guest_count || 'Non spécifié'}</li>
           <li><strong>Lieu :</strong> ${quoteRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</li>
+        </ul>
+        
+        <h3>Informations de livraison :</h3>
+        <ul>
+          <li><strong>Adresse :</strong> ${quoteRequest.delivery_address || 'Non spécifiée'}</li>
+          <li><strong>Code postal :</strong> ${quoteRequest.delivery_postal_code || 'Non spécifié'}</li>
+          <li><strong>Ville :</strong> ${quoteRequest.delivery_city || 'Non spécifiée'}</li>
+          <li><strong>Date de livraison :</strong> ${quoteRequest.delivery_date || 'Non spécifiée'}</li>
+          <li><strong>Créneau horaire :</strong> ${quoteRequest.delivery_time_slot || 'Non spécifié'}</li>
+          <li><strong>Présence d'ascenseur :</strong> ${quoteRequest.has_elevator ? 'Oui' : 'Non'}</li>
+          ${quoteRequest.has_elevator ? `<li><strong>Dimensions de l'ascenseur :</strong> ${quoteRequest.elevator_dimensions || 'Non spécifiées'}</li>` : ''}
+          <li><strong>Étage :</strong> ${quoteRequest.floor_number !== undefined ? quoteRequest.floor_number : 'Non spécifié'}</li>
+        </ul>
+        
+        <h3>Informations de reprise :</h3>
+        <ul>
+          <li><strong>Date de reprise :</strong> ${quoteRequest.pickup_date || 'Non spécifiée'}</li>
+          <li><strong>Créneau horaire :</strong> ${quoteRequest.pickup_time_slot || 'Non spécifié'}</li>
         </ul>
         
         <h3>Articles demandés :</h3>
         <ul>
           ${itemsList}
+        </ul>
+        
+        <p><strong>Total estimatif : ${total}€</strong></p>
+        
+        ${quoteRequest.additional_comments ? `
+        <h3>Commentaires supplémentaires :</h3>
+        <p>${quoteRequest.additional_comments}</p>
+        ` : ''}
+        
+        <h3>Conditions acceptées :</h3>
+        <ul>
+          <li><strong>CGV :</strong> ${quoteRequest.terms_accepted ? 'Oui' : 'Non'}</li>
+          <li><strong>Politique de confidentialité :</strong> ${quoteRequest.privacy_accepted ? 'Oui' : 'Non'}</li>
         </ul>
         
         <p>Veuillez vous connecter au <a href="https://esil-events.fr/admin/quote-requests">panneau d'administration</a> pour plus de détails et pour traiter cette demande.</p>

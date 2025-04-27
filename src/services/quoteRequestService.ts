@@ -3,6 +3,14 @@ import { FormData } from '../components/cart/types';
 import { sendQuoteRequestConfirmation, sendAdminNotification } from './emailService';
 
 export interface QuoteRequest {
+  billing_postal_code: string;
+  billing_city: string;
+  has_elevator: any;
+  elevator_dimensions: string;
+  floor_number: undefined;
+  pickup_time_slot: string;
+  additional_comments: any;
+  privacy_accepted: any;
   delivery_address?: string;
   delivery_date?: string;
   pickup_date?: string;
