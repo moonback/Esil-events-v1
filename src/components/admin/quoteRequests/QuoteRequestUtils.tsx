@@ -116,40 +116,234 @@ export const exportToPDF = async (request: QuoteRequest, setFeedbackMessage: (me
   try {
     const doc = new jsPDF();
     let yPos = 20;
+    const leftMargin = 20;
+    const rightCol = 105;
 
     // Header
     doc.setFontSize(20);
-    doc.text('Demande de Devis', 105, yPos, { align: 'center' });
+    doc.setTextColor(79, 70, 229); // Indigo color
+    doc.text('ESIL Events - Demande de Devis', 105, yPos, { align: 'center' });
+    yPos += 10;
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Référence: ${request.id?.substring(0, 8).toUpperCase() || 'N/A'}`, 105, yPos, { align: 'center' });
+    yPos += 10;
+    doc.text(`Date de création: ${formatDate(request.created_at)}`, 105, yPos, { align: 'center' });
+    yPos += 10;
+    doc.text(`Statut: ${getStatusLabel(request.status)}`, 105, yPos, { align: 'center' });
     yPos += 20;
 
     // Client Info
     doc.setFontSize(16);
-    doc.text('Informations Client', 20, yPos);
+    doc.setTextColor(79, 70, 229);
+    doc.text('Informations Client', leftMargin, yPos);
+    yPos += 8;
+    
+    // Horizontal line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(leftMargin, yPos, 190, yPos);
     yPos += 10;
-    doc.setFontSize(12);
-    doc.text(`Nom: ${request.first_name} ${request.last_name}`, 20, yPos);
-    yPos += 10;
-    doc.text(`Email: ${request.email || '-'}`, 20, yPos);
-    yPos += 10;
-    doc.text(`Téléphone: ${request.phone || '-'}`, 20, yPos);
-    yPos += 10;
-    doc.text(`Société: ${request.company || '-'}`, 20, yPos);
-    yPos += 20;
+    
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Nom: ${request.first_name} ${request.last_name}`, leftMargin, yPos);
+    doc.text(`Type: ${request.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}`, rightCol, yPos);
+    yPos += 8;
+    doc.text(`Email: ${request.email || '-'}`, leftMargin, yPos);
+    doc.text(`Téléphone: ${request.phone || '-'}`, rightCol, yPos);
+    yPos += 8;
+    doc.text(`Société: ${request.company || '-'}`, leftMargin, yPos);
+    yPos += 8;
+    doc.text(`Adresse: ${[request.billing_address, request.postal_code, request.city].filter(Boolean).join(', ') || '-'}`, leftMargin, yPos);
+    yPos += 15;
 
     // Event Info
     doc.setFontSize(16);
-    doc.text('Détails Événement', 20, yPos);
+    doc.setTextColor(79, 70, 229);
+    doc.text('Détails de l\'Événement', leftMargin, yPos);
+    yPos += 8;
+    
+    // Horizontal line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(leftMargin, yPos, 190, yPos);
     yPos += 10;
-    doc.setFontSize(12);
-    doc.text(`Date: ${request.event_date ? formatDate(request.event_date) : '-'}`, 20, yPos);
+    
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Date: ${request.event_date ? formatDate(request.event_date).split(' ')[0] : '-'}`, leftMargin, yPos);
+    doc.text(`Durée: ${request.event_duration || '-'}`, rightCol, yPos);
+    yPos += 8;
+    doc.text(`Horaires: ${request.event_start_time || '-'} - ${request.event_end_time || '-'}`, leftMargin, yPos);
+    doc.text(`Invités: ${request.guest_count || '-'}`, rightCol, yPos);
+    yPos += 8;
+    doc.text(`Lieu: ${request.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}`, leftMargin, yPos);
+    yPos += 12;
+    
+    if (request.description) {
+      doc.text('Description:', leftMargin, yPos);
+      yPos += 6;
+      
+      // Add description with word wrap
+      const splitDescription = doc.splitTextToSize(request.description, 170);
+      doc.text(splitDescription, leftMargin, yPos);
+      yPos += splitDescription.length * 6 + 8;
+    }
+
+    // Items
+    doc.setFontSize(16);
+    doc.setTextColor(79, 70, 229);
+    doc.text('Articles Demandés', leftMargin, yPos);
+    yPos += 8;
+    
+    // Horizontal line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(leftMargin, yPos, 190, yPos);
     yPos += 10;
-    doc.text(`Lieu: ${request.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}`, 20, yPos);
+    
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+    
+    if (request.items && request.items.length > 0) {
+      // Table header
+      doc.setFillColor(245, 245, 245);
+      doc.rect(leftMargin, yPos - 5, 170, 10, 'F');
+      doc.text('Article', leftMargin + 2, yPos);
+      doc.text('Qté', leftMargin + 90, yPos);
+      doc.text('Prix U.', leftMargin + 110, yPos);
+      doc.text('Total', leftMargin + 150, yPos);
+      yPos += 8;
+      
+      // Table rows
+      let totalAmount = 0;
+      request.items.forEach(item => {
+        const itemTotal = (item.quantity || 0) * (item.price || 0);
+        totalAmount += itemTotal;
+        
+        doc.text(item.name || 'N/A', leftMargin + 2, yPos);
+        doc.text(`${item.quantity || 0}`, leftMargin + 90, yPos);
+        doc.text(`${(item.price || 0).toFixed(2)}€`, leftMargin + 110, yPos);
+        doc.text(`${itemTotal.toFixed(2)}€`, leftMargin + 150, yPos);
+        yPos += 8;
+      });
+      
+      // Total
+      yPos += 2;
+      doc.setDrawColor(200, 200, 200);
+      doc.line(leftMargin, yPos, 190, yPos);
+      yPos += 8;
+      // doc.setFontStyle('bold');
+      doc.text('Total TTC Indicatif:', leftMargin + 100, yPos);
+      doc.setTextColor(79, 70, 229);
+      doc.text(`${totalAmount.toFixed(2)}€`, leftMargin + 150, yPos);
+      // doc.setFontStyle('normal');
+      doc.setTextColor(0, 0, 0);
+    } else {
+      doc.text('Aucun article spécifique listé dans cette demande.', leftMargin, yPos);
+    }
+    yPos += 15;
+
+    // Check if we need a new page for delivery info
+    if (yPos > 250) {
+      doc.addPage();
+      yPos = 20;
+    }
+
+    // Delivery Info
+    doc.setFontSize(16);
+    doc.setTextColor(79, 70, 229);
+    doc.text('Livraison / Retrait', leftMargin, yPos);
+    yPos += 8;
+    
+    // Horizontal line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(leftMargin, yPos, 190, yPos);
     yPos += 10;
-    doc.text(`Invités: ${request.guest_count || '-'}`, 20, yPos);
-    yPos += 20;
+    
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Type: ${getDeliveryTypeLabel(request.delivery_type)}`, leftMargin, yPos);
+    doc.text(`Date: ${request.delivery_date ? formatDate(request.delivery_date).split(' ')[0] : '-'}`, rightCol, yPos);
+    yPos += 8;
+    doc.text(`Créneau: ${getTimeSlotLabel(request.delivery_time_slot)}`, leftMargin, yPos);
+    yPos += 8;
+    doc.text(`Adresse: ${[request.delivery_address, request.delivery_postal_code, request.delivery_city].filter(Boolean).join(', ') || '-'}`, leftMargin, yPos);
+    yPos += 15;
+
+    // Access Info
+    if (request.exterior_access || request.interior_access) {
+      doc.setFontSize(16);
+      doc.setTextColor(79, 70, 229);
+      doc.text('Accès', leftMargin, yPos);
+      yPos += 8;
+      
+      // Horizontal line
+      doc.setDrawColor(200, 200, 200);
+      doc.line(leftMargin, yPos, 190, yPos);
+      yPos += 10;
+      
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Extérieur: ${getAccessLabel(request.exterior_access)}`, leftMargin, yPos);
+      doc.text(`Intérieur: ${getAccessLabel(request.interior_access)}`, rightCol, yPos);
+      yPos += 8;
+      
+      if (request.interior_access === 'elevator') {
+        doc.text(`Dimensions ascenseur: ${request.elevator_width || '-'} × ${request.elevator_depth || '-'} × ${request.elevator_height || '-'} cm`, leftMargin, yPos);
+        yPos += 8;
+      }
+      yPos += 7;
+    }
+
+    // Pickup Return Info
+    if (request.pickup_return_date || request.pickup_return_start_time) {
+      doc.setFontSize(16);
+      doc.setTextColor(79, 70, 229);
+      doc.text('Détails reprise', leftMargin, yPos);
+      yPos += 8;
+      
+      // Horizontal line
+      doc.setDrawColor(200, 200, 200);
+      doc.line(leftMargin, yPos, 190, yPos);
+      yPos += 10;
+      
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Date: ${request.pickup_return_date ? formatDate(request.pickup_return_date).split(' ')[0] : '-'}`, leftMargin, yPos);
+      yPos += 8;
+      doc.text(`Horaires: ${request.pickup_return_start_time || '-'} - ${request.pickup_return_end_time || '-'}`, leftMargin, yPos);
+      yPos += 15;
+    }
+
+    // Comments
+    if (request.comments) {
+      doc.setFontSize(16);
+      doc.setTextColor(79, 70, 229);
+      doc.text('Commentaires Client', leftMargin, yPos);
+      yPos += 8;
+      
+      // Horizontal line
+      doc.setDrawColor(200, 200, 200);
+      doc.line(leftMargin, yPos, 190, yPos);
+      yPos += 10;
+      
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+      
+      // Add comments with word wrap
+      const splitComments = doc.splitTextToSize(request.comments, 170);
+      doc.text(splitComments, leftMargin, yPos);
+    }
+
+    // Footer
+    doc.setFontSize(9);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, 105, 285, { align: 'center' });
+    doc.text('ESIL Events - L\'élégance pour chaque événement', 105, 290, { align: 'center' });
 
     // Save the PDF
-    doc.save(`devis_${request.id}.pdf`);
+    const fileName = `ESIL_Devis_${request.id?.substring(0, 8).toUpperCase() || 'N/A'}_${request.last_name || 'Client'}.pdf`;
+    doc.save(fileName);
+    
     setFeedbackMessage({ type: 'success', text: 'PDF exporté avec succès.' });
     setTimeout(() => setFeedbackMessage(null), 3000);
   } catch (error) {
