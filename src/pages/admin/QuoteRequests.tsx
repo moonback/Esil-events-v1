@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, ArrowDownUp, RefreshCw, Search, Filter, Users, Calendar, Eye, Trash2, X, Check, Package, Truck, MapPin, Clock, Send, Clipboard, Edit, Printer, FileDown } from 'lucide-react';
+import { FileText, ArrowDownUp, RefreshCw, Search, Filter, X } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { getQuoteRequests, QuoteRequest } from '../../services/quoteRequestService';
@@ -134,22 +134,8 @@ const QuoteRequestsAdmin: React.FC = () => {
   return (
     <AdminLayout>
       <AdminHeader />
-      <FilterPanel
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        customerTypeFilter={customerTypeFilter}
-        setCustomerTypeFilter={setCustomerTypeFilter}
-        deliveryTypeFilter={deliveryTypeFilter}
-        setDeliveryTypeFilter={setDeliveryTypeFilter}
-        dateFilter={dateFilter}
-        setDateFilter={setDateFilter}
-        onReset={resetFilters}
-      />
-      <div className="space-y-8 mt-12 max-w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12"> {/* Use max-w-full or adjust as needed */}
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 rounded-lg shadow-md border-l-4 border-indigo-600 gap-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 rounded-lg shadow-md border-l-4 border-indigo-600 gap-4">
           <div className="flex items-center space-x-4">
             <FileText className="h-8 w-8 text-indigo-600" /> {/* Icon for context */}
             <div>
@@ -179,57 +165,24 @@ const QuoteRequestsAdmin: React.FC = () => {
             </button>
           </div>
         </div>
+      <FilterPanel
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        customerTypeFilter={customerTypeFilter}
+        setCustomerTypeFilter={setCustomerTypeFilter}
+        deliveryTypeFilter={deliveryTypeFilter}
+        setDeliveryTypeFilter={setDeliveryTypeFilter}
+        dateFilter={dateFilter}
+        setDateFilter={setDateFilter}
+        onReset={resetFilters}
+      />
+      
+      <div className="space-y-8 mt-12 max-w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12"> {/* Use max-w-full or adjust as needed */}
+        
 
-        {/* Filters and Search */}
-        <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-2 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Rechercher par nom, email, société, ID..."
-                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex-shrink-0">
-              <div className="flex items-center h-full border border-gray-200 rounded-md p-2">
-                <Filter className="h-5 w-5 text-gray-400 mr-2" />
-                <select
-                  className="block w-full pl-3 pr-10 py-2.5 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                  <option value="all">Tous les statuts</option>
-                  <option value="pending">En attente</option>
-                  <option value="approved">Approuvé</option>
-                  <option value="rejected">Rejeté</option>
-                  <option value="completed">Terminé</option>
-                  {/* Add 'new' if it's a distinct status */}
-                </select>
-              </div>
-            </div>
-          </div>
-          <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-gray-500">
-              {filteredRequests.length} résultat{filteredRequests.length !== 1 ? 's' : ''} trouvé{filteredRequests.length !== 1 ? 's' : ''}
-            </div>
-            {(searchTerm || statusFilter !== 'all') && (
-              <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setStatusFilter('all');
-                }}
-                className="text-sm text-indigo-600 hover:text-indigo-800 font-medium hover:underline"
-              >
-                Réinitialiser les filtres
-              </button>
-            )}
-          </div>
-        </div>
+        
 
         {/* Main Error Display */}
         {error && !feedbackMessage && ( // Show main error only if no specific feedback is active
