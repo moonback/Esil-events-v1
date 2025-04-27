@@ -986,7 +986,7 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
           <div className="flex flex-col lg:flex-row gap-8 items-start"> {/* Use items-start */}
 
             {/* Requests List */}
-            <div className="w-full lg:w-3/5 xl:w-2/3">
+            <div className="w-full lg:w-3/5 xl:w-1/2">
               <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 transition-all duration-200 hover:shadow-xl">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
