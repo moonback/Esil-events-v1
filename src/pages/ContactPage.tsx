@@ -1,6 +1,28 @@
-import React, { useState } from 'react';
-import { Phone, Mail, MapPin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Phone, Mail, MapPin, Clock, Navigation } from 'lucide-react';
 import { sendContactFormEmail } from '../services/contactService';
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import '../styles/map.css';
+import L from 'leaflet';
+
+// Composant pour ajouter des fonctionnalités supplémentaires à la carte
+const MapFeatures: React.FC = () => {
+  const map = useMap();
+  
+  // Ajout d'un gestionnaire d'événements pour le double-clic
+  useEffect(() => {
+    map.on('dblclick', () => {
+      map.zoomIn();
+    });
+    
+    return () => {
+      map.off('dblclick');
+    };
+  }, [map]);
+  
+  return null;
+};
 
 interface FormData {
   firstName: string;
@@ -14,6 +36,26 @@ interface FormData {
 }
 
 const ContactPage: React.FC = () => {
+  // Configuration personnalisée de l'icône de marqueur Leaflet
+  const [customIcon, setCustomIcon] = useState<L.Icon | null>(null);
+  
+  useEffect(() => {
+    // Correction pour les icônes Leaflet
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    
+    // Création d'une icône personnalisée
+    const icon = new L.Icon({
+      iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+    
+    setCustomIcon(icon);
+  }, []);
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -264,6 +306,62 @@ const ContactPage: React.FC = () => {
                   </div>
                 </li>
               </ul>
+            </div>
+
+            {/* Carte */}
+            <div className="bg-white p-8 rounded-lg shadow-md mb-8">
+              <h2 className="text-2xl font-bold mb-6">Notre localisation</h2>
+              <div className="h-[350px] w-full rounded-lg overflow-hidden shadow-lg">
+                {customIcon && (
+                  <MapContainer 
+                    center={[48.98064744242492, 1.7254724964374457]}
+                    zoom={15} 
+                    style={{ height: '100%', width: '100%' }}
+                    zoomControl={false}
+                    scrollWheelZoom={true}
+                    className="map-container"
+                  >
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <ZoomControl position="bottomright" />
+                    <MapFeatures />
+                    <Marker position={[48.98064744242492, 1.7254724964374457]} icon={customIcon}>
+                      <Popup className="custom-popup" minWidth={220} maxWidth={300}>
+                        <div className="font-medium">
+                          <div className="flex items-center mb-2">
+                            <MapPin className="w-4 h-4 mr-1" />
+                            <span className="font-bold">ESIL Events</span>
+                          </div>
+                          <p>7 rue de la cellophane<br />78711 Mantes-la-Ville</p>
+                          <div className="mt-2 pt-2 border-t border-gray-200">
+                            <div className="flex items-center mb-1">
+                              <Phone className="w-4 h-4 mr-1" />
+                              <span>06 20 46 13 85</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Clock className="w-4 h-4 mr-1" />
+                              <span>Lun-Ven: 9h-18h</span>
+                            </div>
+                          </div>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  </MapContainer>
+                )}
+              </div>
+              <div className="mt-4">
+                <a 
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${48.98064744242492},${1.7254724964374457}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:text-blue-800 flex items-center justify-center map-directions-link"
+                >
+                  <Navigation className="w-4 h-4 mr-1" />
+                  Obtenir l'itinéraire
+                </a>
+              </div>
             </div>
 
             <div className="bg-white p-8 rounded-lg shadow-md">
