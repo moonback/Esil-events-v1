@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, X, User, Settings, Mail, Phone, Sun, Moon } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, Settings, Mail, Phone, Sun, Moon, ChevronDown, Package, LogOut } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 import { signOut } from '../services/authService';
@@ -9,6 +9,7 @@ import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
 import TopBar from './TopBar';
 import MobileSidebar from './MobileSidebar';
+import '../styles/header-animations.css';
 // import UserMenu from './UserMenu';
 
 const Header: React.FC = () => {
@@ -18,9 +19,12 @@ const Header: React.FC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   // const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const { items } = useCart();
   const { user, isAdminUser } = useAuth();
   const navigate = useNavigate();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const megaMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,6 +34,8 @@ const Header: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  
+
 
 
   const handleSearch = (query: string) => {
@@ -41,14 +47,28 @@ const Header: React.FC = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (!target.closest('.user-menu-container')) {
+      if (userMenuRef.current && !userMenuRef.current.contains(target) && !target.closest('.user-menu-container')) {
         setShowUserMenu(false);
+      }
+      
+      if (showMegaMenu && megaMenuButtonRef.current && !megaMenuButtonRef.current.contains(target) && 
+          !target.closest('.mega-menu-container')) {
+        setShowMegaMenu(false);
       }
     };
 
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+  }, [showMegaMenu]);
+  
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+    }
+  };
 
   const [showTopBar, setShowTopBar] = useState(true);
 
@@ -59,8 +79,8 @@ const Header: React.FC = () => {
       <div 
         className={`transition-all duration-300 relative ${
           isScrolled 
-            ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg' 
-            : 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm'
+            ? 'glassmorphism shadow-lg border-b border-gray-200/20 dark:border-gray-700/20' 
+            : 'bg-white/85 dark:bg-gray-900/85 backdrop-blur-sm'
         }`} 
         style={{ '--header-height': 'calc(2.5rem + 44px)' } as React.CSSProperties}
       >
@@ -69,16 +89,23 @@ const Header: React.FC = () => {
             {/* Logo Section - Absolute positioned to overlap */}
             <div className="absolute left-4 top-5 z-10">
               <Link to="/" className="flex items-center group">
+                {/* Desktop version */}
                 <img 
                   src="images/logo.png" 
                   alt="ESIL Events Logo" 
-                  className="h-20 w-20 transition-all duration-300 transform group-hover:scale-105 hover:rotate-3 filter drop-shadow-md"
+                  className="hidden md:block h-20 w-20 transition-all duration-300 transform group-hover:scale-105 hover:rotate-3 filter drop-shadow-lg"
+                />
+                {/* Mobile version */}
+                <img 
+                  src="images/logo.png" 
+                  alt="ESIL Events Logo" 
+                  className="md:hidden h-12 w-12 mt-[35px] transition-all duration-300 transform group-hover:scale-105 hover:rotate-3 filter drop-shadow-lg"
                 />
               </Link>
             </div>
 
             {/* Search Bar Section */}
-            <div className="w-full py-2 border-b border-gray-200/80 dark:border-gray-700/80">
+            <div className="w-full py-3 border-b border-gray-200/60 dark:border-gray-700/60">
               <div className="px-4 flex items-center justify-center">
                 <div className="flex-1 max-w-3xl relative">
                   <SearchBar 
@@ -86,34 +113,36 @@ const Header: React.FC = () => {
                     onChange={(query) => setSearchQuery(query)}
                     value={searchQuery}
                   />
-                  <SearchResults 
-                    query={searchQuery} 
-                    onClose={() => setSearchQuery('')} 
-                    results={[]} 
-                    onSelect={(product) => {
-                      setSearchQuery('');
-                      navigate(`/product/${product.id}`);
-                    }} 
-                  />
+                  {searchQuery.trim().length > 0 && (
+                    <SearchResults 
+                      query={searchQuery} 
+                      onClose={() => setSearchQuery('')} 
+                      results={[]} 
+                      onSelect={(product) => {
+                        setSearchQuery('');
+                        navigate(`/product/${product.id}`);
+                      }} 
+                    />
+                  )}
                 </div>
                 <div className="hidden md:flex space-x-2 ml-4">
                   <a 
                     href="tel:0620461385" 
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
                   >
                     <Phone className="w-4 h-4 animate-pulse" />
                     <span className="text-sm font-medium tracking-wide">06 20 46 13 85</span>
                   </a>
                   <a 
                     href="tel:07.85.95.97.23" 
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
                   >
                     <Phone className="w-4 h-4 animate-pulse" />
                     <span className="text-sm font-medium tracking-wide">07.85.95.97.23</span>
                   </a>
                   <Link
                     to="/contact"
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
                   >
                     <Mail className="w-4 h-4" />
                     <span className="text-sm font-medium tracking-wide">Contact</span>
@@ -122,7 +151,7 @@ const Header: React.FC = () => {
                 
                 <div className="hidden md:flex space-x-3 ml-3">
                   <a href="https://www.facebook.com/profile.php?id=61574583021091" target="_blank" rel="noopener noreferrer" 
-                    className="p-2 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-300 transform hover:scale-110 group"
+                    className="p-2 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-300 transform hover:scale-110 hover:shadow-md group"
                     aria-label="Facebook">
                     <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors duration-300" 
                       fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -130,7 +159,7 @@ const Header: React.FC = () => {
                     </svg>
                   </a>
                   <a href="https://www.instagram.com/esilevents" target="_blank" rel="noopener noreferrer" 
-                    className="p-2 rounded-full hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all duration-300 transform hover:scale-110 group"
+                    className="p-2 rounded-full hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all duration-300 transform hover:scale-110 hover:shadow-md group"
                     aria-label="Instagram">
                     <svg className="w-5 h-5 text-pink-600 dark:text-pink-400 group-hover:text-pink-700 dark:group-hover:text-pink-300 transition-colors duration-300" 
                       fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -151,23 +180,24 @@ const Header: React.FC = () => {
 
               <div className="flex-1 flex justify-center">
                 <nav className="hidden md:flex items-center space-x-8">
-                  <Link to="/" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
+                  <Link to="/" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 border-b-2 border-transparent hover:border-primary-500 dark:hover:border-primary-400">
                     Accueil
                   </Link>
-                  <div className="relative group">
+                  <div className="relative group mega-menu-container">
                     <button
+                      ref={megaMenuButtonRef}
                       onClick={() => setShowMegaMenu(!showMegaMenu)}
                       onMouseEnter={() => setShowMegaMenu(true)}
                       onMouseLeave={() => setShowMegaMenu(false)}
-                      className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 flex items-center space-x-1"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 flex items-center space-x-1 py-1 nav-link-border"
                     >
                       <span>Location matériel</span>
-                      <div className={`w-1 h-1 rounded-full bg-primary-500 dark:bg-primary-400 transition-all duration-300 ${showMegaMenu ? 'opacity-100' : 'opacity-0'}`} />
+                      <ChevronDown className={`w-4 h-4 ml-1 transition-transform duration-300 ${showMegaMenu ? 'rotate-180' : 'rotate-0'}`} />
                     </button>
                     {showMegaMenu && (
                       <div
-                        className="fixed left-0 right-0 w-full  dark:bg-gray-900/95 backdrop-blur-md shadow-lg z-50 border-t border-gray-200/80 dark:border-gray-700/80 transition-all duration-300"
-                        style={{ top: 'calc(var(--header-height) - px)' }}
+                        className="fixed left-0 right-0 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg z-50 border-t border-gray-200/60 dark:border-gray-700/60 transition-all duration-300 animate-fadeIn"
+                        style={{ top: 'calc(var(--header-height) - 1px)' }}
                         onMouseEnter={() => setShowMegaMenu(true)}
                         onMouseLeave={() => setShowMegaMenu(false)}
                       >
@@ -177,105 +207,99 @@ const Header: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <Link to="/artists" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
+                  <Link to="/artists" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     Artistes
                   </Link>
-                  <Link to="/about" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
+                  <Link to="/about" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     À propos
                   </Link>
-                  <Link to="/delivery" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
+                  <Link to="/delivery" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     Livraison
                   </Link>
-                  <Link to="/contact" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
+                  <Link to="/contact" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     Contact
                   </Link>
-                  <Link to="/agence-evenementielle" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
+                  <Link to="/agence-evenementielle" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     <i>Agence événementielle</i>
                   </Link>
                 </nav>
               </div>
 
               <div className="flex items-center space-x-3">
-            {/* <button
-              onClick={() => {
-                setIsDarkMode(!isDarkMode);
-                document.documentElement.classList.toggle('dark', !isDarkMode);
-              }}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
-            >
-              {isDarkMode ? (
-                <Sun className="w-5 h-5 text-yellow-400" />
-              ) : (
-                <Moon className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-              )}
-            </button> */}
-                
+                {/* Cart Button with Animation */}
                 <Link 
                   to="/cart" 
                   className="relative group p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
+                  aria-label="Panier"
                 >
                   <ShoppingCart className="w-5 h-5 text-gray-700 dark:text-gray-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-all duration-300 transform group-hover:rotate-12" />
                   {items.length > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-violet-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
+                    <span className="absolute -top-0.5 -right-0.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-md animate-pulse-slow">
                       {items.length}
                     </span>
                   )}
                 </Link>
 
+                
+
+                {/* User Menu */}
                 {user ? (
-                  <div className="relative user-menu-container">
+                  <div className="relative user-menu-container" ref={userMenuRef}>
                     <button
                       onClick={() => setShowUserMenu(!showUserMenu)}
-                      className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
+                      className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30 flex items-center space-x-1"
+                      aria-label="Menu utilisateur"
+                      aria-expanded={showUserMenu}
                     >
-                      <User className="w-5 h-5 text-gray-700 dark:text-gray-200 transition-all duration-300 transform hover:rotate-12" />
+                      <User className="w-5 h-5 text-gray-700 dark:text-gray-200 transition-all duration-300 transform group-hover:rotate-12" />
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showUserMenu ? 'rotate-180' : 'rotate-0'}`} />
                     </button>
                     {showUserMenu && (
-                      <div className="absolute right-0 mt-2 w-56 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-lg shadow-xl py-2 z-50 border border-gray-200/80 dark:border-gray-700/80 transition-all duration-200 animate-fadeIn">
-                        <div className="px-4 py-3 border-b border-gray-200/80 dark:border-gray-700/80">
+                      <div className="absolute right-0 mt-2 w-56 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-lg shadow-xl py-2 z-50 border border-gray-200/60 dark:border-gray-700/60 transition-all duration-300 animate-fadeIn">
+                        <div className="px-4 py-3 border-b border-gray-200/60 dark:border-gray-700/60">
                           <p className="text-sm font-medium text-gray-900 dark:text-white">{user.user_metadata.first_name || 'Mon compte'}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{user.email}</p>
                         </div>
                         <div className="py-1">
-                          {/* <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
-                            Mon profilc
-                          </Link>
-                          <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
-                            Mes commandes
-                          </Link> */}
+                          
                           {isAdminUser && (
                             <Link to="/admin" className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
-                              <Settings className="w-4 h-4 mr-2" />
+                              <Settings className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
                               Administration
                             </Link>
                           )}
                         </div>
-                        {/* <div className="py-1 border-t border-gray-200/80 dark:border-gray-700/80">
+                        <div className="py-1 border-t border-gray-200/60 dark:border-gray-700/60">
                           <button 
                             onClick={handleSignOut} 
-                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
+                            className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
                           >
+                            <LogOut className="w-4 h-4 mr-2" />
                             Déconnexion
                           </button>
-                        </div> */}
+                        </div>
                       </div>
                     )}
                   </div>
                 ) : (
                   <Link 
                     to="/login" 
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
+                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30 flex items-center space-x-1"
                   >
                     <User className="w-5 h-5 text-gray-700 dark:text-gray-200 transition-all duration-300 transform hover:rotate-12" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Connexion</span>
                   </Link>
                 )}
 
+                {/* Mobile Menu Toggle */}
                 <button
-                  className="md:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+                  className="md:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  aria-label="Menu mobile"
+                  aria-expanded={isMobileMenuOpen}
                 >
                   {isMobileMenuOpen ? (
-                    <X className="w-5 h-5 text-gray-700 dark:text-gray-200 transition-all duration-300 transform hover:rotate-12" />
+                    <X className="w-5 h-5 text-gray-700 dark:text-gray-200 transition-all duration-300 transform hover:rotate-90" />
                   ) : (
                     <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200 transition-all duration-300 transform hover:rotate-12" />
                   )}
