@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, Mail, MapPin, Clock, Navigation } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Navigation, Facebook, Instagram, Linkedin } from 'lucide-react';
 import { sendContactFormEmail } from '../services/contactService';
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -108,9 +108,24 @@ const ContactPage: React.FC = () => {
           {/* Contact Form */}
           <div className="bg-white p-8 rounded-lg shadow-md">
             {formSubmitted ? (
-              <div className="text-center py-12">
-                <h2 className="text-2xl font-bold mb-4">Message envoyé avec succès !</h2>
-                <p className="mb-6">
+              <div className="text-center py-12 animate-fade-in">
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                  <svg
+                    className="h-6 w-6 text-green-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold mb-4 text-green-600">Message envoyé avec succès !</h2>
+                <p className="mb-6 text-gray-600 max-w-md mx-auto">
                   Merci de nous avoir contacté. Notre équipe vous répondra dans les plus brefs délais.
                 </p>
                 <button 
@@ -127,7 +142,7 @@ const ContactPage: React.FC = () => {
                       description: '',
                     });
                   }}
-                  className="btn-primary"
+                  className="btn-primary hover:bg-violet-700 transition-colors duration-300"
                 >
                   Envoyer un nouveau message
                 </button>
@@ -278,34 +293,67 @@ const ContactPage: React.FC = () => {
 
           {/* Contact Info */}
           <div>
-            <div className="bg-black text-white p-8 rounded-lg shadow-md mb-8">
-              <h2 className="text-2xl font-bold mb-6">Nos coordonnées</h2>
+            <div className="bg-gradient-to-br from-black to-gray-900 text-white p-8 rounded-xl shadow-2xl mb-8 transform transition-all duration-300 hover:shadow-violet-200/10">
+              <h2 className="text-2xl font-bold mb-8 border-b border-gray-700 pb-4">Nos coordonnées</h2>
               
-              <ul className="space-y-6">
-                <li className="flex items-start">
-                  <MapPin className="w-6 h-6 mr-3 mt-1" />
+              <ul className="space-y-8">
+                <li className="flex items-start group">
+                  <MapPin className="w-6 h-6 mr-4 mt-1 text-violet-400 group-hover:text-violet-300 transition-colors" />
                   <div>
-                    <h3 className="font-bold mb-1">Adresse</h3>
-                    <p>ESIL Events</p>
-                     <p>7 rue de la cellophane</p>
-                    <p>78711 Mantes-la-Ville</p>
+                    <h3 className="font-bold mb-2 text-violet-300">Adresse</h3>
+                    <p className="text-gray-300">ESIL Events</p>
+                    <p className="text-gray-300">7 rue de la cellophane</p>
+                    <p className="text-gray-300">78711 Mantes-la-Ville</p>
                   </div>
                 </li>
-                <li className="flex items-start">
-                  <Phone className="w-6 h-6 mr-3 mt-1" />
+                <li className="flex items-start group">
+                  <Phone className="w-6 h-6 mr-4 mt-1 text-violet-400 group-hover:text-violet-300 transition-colors" />
                   <div>
-                    <h3 className="font-bold mb-1">Téléphone</h3>
-                    <p>06 20 46 13 85</p>
+                    <h3 className="font-bold mb-2 text-violet-300">Téléphone</h3>
+                    <a href="tel:+33620461385" className="text-gray-300 hover:text-violet-300 transition-colors">06 20 46 13 85</a>
                   </div>
                 </li>
-                <li className="flex items-start">
-                  <Mail className="w-6 h-6 mr-3 mt-1" />
+                <li className="flex items-start group">
+                  <Mail className="w-6 h-6 mr-4 mt-1 text-violet-400 group-hover:text-violet-300 transition-colors" />
                   <div>
-                    <h3 className="font-bold mb-1">Email</h3>
-                    <p>contact@esil-events.fr</p>
+                    <h3 className="font-bold mb-2 text-violet-300">Email</h3>
+                    <a href="mailto:contact@esil-events.fr" className="text-gray-300 hover:text-violet-300 transition-colors">contact@esil-events.fr</a>
                   </div>
                 </li>
               </ul>
+
+              <div className="mt-10 pt-8 border-t border-gray-700">
+                <h3 className="font-bold mb-6 text-violet-300">Suivez-nous</h3>
+                <div className="flex space-x-6">
+                  <a
+                    href="https://facebook.com/esilevents"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gray-800 hover:bg-violet-600 text-white p-3 rounded-full transition-all duration-300 transform hover:-translate-y-1"
+                    aria-label="Suivez-nous sur Facebook"
+                  >
+                    <Facebook className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="https://instagram.com/esilevents"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gray-800 hover:bg-violet-600 text-white p-3 rounded-full transition-all duration-300 transform hover:-translate-y-1"
+                    aria-label="Suivez-nous sur Instagram"
+                  >
+                    <Instagram className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="https://linkedin.com/company/esil-events"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gray-800 hover:bg-violet-600 text-white p-3 rounded-full transition-all duration-300 transform hover:-translate-y-1"
+                    aria-label="Suivez-nous sur LinkedIn"
+                  >
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* Carte */}
