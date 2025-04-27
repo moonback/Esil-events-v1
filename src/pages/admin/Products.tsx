@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Filter, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import { Product } from '../../types/Product';
 import { getAllProducts, deleteProduct, createProduct, updateProduct } from '../../services/productService';
 import ProductForm from '../../components/ProductForm';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { DEFAULT_PRODUCT_IMAGE } from '../../constants/images';
+
 const AdminProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [, setLoading] = useState(true);
@@ -16,6 +17,10 @@ const AdminProducts: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [formError, setFormError] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [sortField, setSortField] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   const loadProducts = async () => {
     try {
@@ -29,8 +34,6 @@ const AdminProducts: React.FC = () => {
       setLoading(false);
     }
   };
-
-  
 
   useEffect(() => {
     loadProducts();
@@ -50,16 +53,54 @@ const AdminProducts: React.FC = () => {
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.reference.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Get unique categories
+  const categories = ['Tous', ...Array.from(new Set(products.map(p => p.category)))];
+
+  // Filter products by search term and category
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.reference.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === '' || selectedCategory === 'Tous' || product.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Sort products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    let comparison = 0;
+    
+    if (sortField === 'name') {
+      comparison = a.name.localeCompare(b.name);
+    } else if (sortField === 'price') {
+      comparison = a.priceHT - b.priceHT;
+    } else if (sortField === 'stock') {
+      comparison = a.stock - b.stock;
+    } else if (sortField === 'category') {
+      comparison = a.category.localeCompare(b.category);
+    }
+    
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
 
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const currentItems = sortedProducts.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
+
+  // Statistics
+  const totalProducts = products.length;
+  const totalStock = products.reduce((sum, product) => sum + product.stock, 0);
+  const lowStockProducts = products.filter(p => p.stock < 5).length;
+  const unavailableProducts = products.filter(p => !p.isAvailable).length;
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
 
   const ProductImage = ({ src, alt }: { src: string; alt: string }) => {
     const [error, setError] = useState(false);
@@ -88,7 +129,56 @@ const AdminProducts: React.FC = () => {
     <AdminLayout>
       <AdminHeader />
       <div className="space-y-6 mt-12">
-        
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-indigo-50 text-indigo-600 mr-4">
+                <Package className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Total Produits</p>
+                <p className="text-2xl font-semibold">{totalProducts}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-emerald-50 text-emerald-600 mr-4">
+                <Layers className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Stock Total</p>
+                <p className="text-2xl font-semibold">{totalStock}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-amber-50 text-amber-600 mr-4">
+                <Tag className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Stock Faible</p>
+                <p className="text-2xl font-semibold">{lowStockProducts}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-red-50 text-red-600 mr-4">
+                <ShoppingCart className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Indisponibles</p>
+                <p className="text-2xl font-semibold">{unavailableProducts}</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {error && (
           <div className="bg-red-50 text-red-600 p-4 rounded-md animate-fade-in">
@@ -97,10 +187,9 @@ const AdminProducts: React.FC = () => {
         )}
 
         {showForm ? (
-			
-          <div className="bg-white p-6 rounded-lg shadow-sm transform transition-all duration-300 ease-in-out">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold text-gray-800">
+          <div className="bg-white p-8 rounded-xl shadow-md transform transition-all duration-300 ease-in-out max-w-5xl mx-auto">
+            <div className="flex justify-between items-center mb-8 border-b pb-4">
+              <h2 className="text-2xl font-bold text-gray-800">
                 {editingProduct ? 'Modifier le produit' : 'Nouveau produit'}
               </h2>
               <button
@@ -109,35 +198,41 @@ const AdminProducts: React.FC = () => {
                   setEditingProduct(null);
                   setFormError('');
                 }}
-                className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                className="text-gray-500 hover:text-gray-700 transition-colors duration-200 flex items-center"
               >
-                Fermer
+                <span className="mr-2">Fermer</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
             {formError && (
-              <div className="mb-4 bg-red-50 text-red-600 p-4 rounded-md animate-fade-in">
+              <div className="mb-6 bg-red-50 text-red-600 p-4 rounded-md animate-fade-in border border-red-200">
                 {formError}
               </div>
             )}
-            <ProductForm
-              initialData={editingProduct || undefined}
-              onSubmit={async (data) => {
-                try {
-                  setFormError('');
-                  if (editingProduct) {
-                    await updateProduct(editingProduct.id, data);
-                  } else {
-                    await createProduct(data);
+            <div className="px-2">
+              <ProductForm
+                initialData={editingProduct || undefined}
+                onSubmit={async (data) => {
+                  try {
+                    setFormError('');
+                    if (editingProduct) {
+                      await updateProduct(editingProduct.id, data);
+                    } else {
+                      await createProduct(data);
+                    }
+                    await loadProducts();
+                    setShowForm(false);
+                    setEditingProduct(null);
+                  } catch (err: any) {
+                    setFormError(err.message || 'Une erreur est survenue lors de l\'enregistrement du produit');
+                    console.error(err);
                   }
-                  await loadProducts();
-                  setShowForm(false);
-                  setEditingProduct(null);
-                } catch (err: any) {
-                  setFormError(err.message || 'Une erreur est survenue lors de l\'enregistrement du produit');
-                  console.error(err);
-                }
-              }}
-            />
+                }}
+              />
+            </div>
           </div>
         ) : (
           <>
@@ -153,6 +248,25 @@ const AdminProducts: React.FC = () => {
                 />
                 <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
               </div>
+              
+              {/* Category Filter */}
+              <div className="lg:w-64">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => {
+                    setSelectedCategory(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full py-2.5 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent shadow-sm"
+                >
+                  {categories.map((category, index) => (
+                    <option key={index} value={category === 'Tous' ? '' : category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
               <div className="flex gap-2">
                 <button
                   onClick={() => {
@@ -164,10 +278,6 @@ const AdminProducts: React.FC = () => {
                   <Plus className="w-4 h-4 mr-2" />
                   <span>Nouveau produit</span>
                 </button>
-                {/* <button className="flex items-center px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm transition-colors">
-                  <Filter className="w-4 h-4 lg:mr-2" />
-                  <span className="hidden lg:inline">Filtres</span>
-                </button> */}
               </div>
             </div>
 
@@ -178,17 +288,49 @@ const AdminProducts: React.FC = () => {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Produit
+                        <th 
+                          className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                          onClick={() => handleSort('name')}
+                        >
+                          <div className="flex items-center">
+                            Produit
+                            {sortField === 'name' && (
+                              <ArrowUpDown className="ml-1 h-3 w-3" />
+                            )}
+                          </div>
                         </th>
-                        <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Catégorie
+                        <th 
+                          className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                          onClick={() => handleSort('category')}
+                        >
+                          <div className="flex items-center">
+                            Catégorie
+                            {sortField === 'category' && (
+                              <ArrowUpDown className="ml-1 h-3 w-3" />
+                            )}
+                          </div>
                         </th>
-                        <th className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Prix
+                        <th 
+                          className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                          onClick={() => handleSort('price')}
+                        >
+                          <div className="flex items-center">
+                            Prix
+                            {sortField === 'price' && (
+                              <ArrowUpDown className="ml-1 h-3 w-3" />
+                            )}
+                          </div>
                         </th>
-                        <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Stock
+                        <th 
+                          className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                          onClick={() => handleSort('stock')}
+                        >
+                          <div className="flex items-center">
+                            Stock
+                            {sortField === 'stock' && (
+                              <ArrowUpDown className="ml-1 h-3 w-3" />
+                            )}
+                          </div>
                         </th>
                         <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Statut
@@ -229,14 +371,25 @@ const AdminProducts: React.FC = () => {
                           <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">{product.category}</div>
                             <div className="text-sm text-gray-500">{product.subCategory}</div>
-                            <div className="text-sm text-gray-400">{product.subSubCategory}</div>
+                            {product.subSubCategory && (
+                              <div className="text-sm text-gray-400">{product.subSubCategory}</div>
+                            )}
                           </td>
                           <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">{product.priceHT} €</div>
                             <div className="text-xs text-gray-500">{product.priceTTC} € TTC</div>
                           </td>
-                          <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {product.stock}
+                          <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <span className={`text-sm ${product.stock < 5 ? 'text-amber-600 font-medium' : 'text-gray-500'}`}>
+                                {product.stock}
+                              </span>
+                              {product.stock < 5 && (
+                                <span className="ml-2 px-2 py-0.5 text-xs bg-amber-100 text-amber-800 rounded-full">
+                                  Faible
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
                             <span
@@ -251,17 +404,26 @@ const AdminProducts: React.FC = () => {
                           </td>
                           <td className="px-3 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button
+                              onClick={() => setQuickViewProduct(product)}
+                              className="text-indigo-600 hover:text-indigo-900 mr-3"
+                              title="Aperçu rapide"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
                               onClick={() => {
                                 setEditingProduct(product);
                                 setShowForm(true);
                               }}
                               className="text-gray-600 hover:text-gray-900 mr-3"
+                              title="Modifier"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(product.id)}
                               className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                              title="Supprimer"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -282,10 +444,10 @@ const AdminProducts: React.FC = () => {
                         <span className="font-medium">{indexOfFirstItem + 1}</span>
                         {' - '}
                         <span className="font-medium">
-                          {Math.min(indexOfLastItem, filteredProducts.length)}
+                          {Math.min(indexOfLastItem, sortedProducts.length)}
                         </span>
                         {' sur '}
-                        <span className="font-medium">{filteredProducts.length}</span>
+                        <span className="font-medium">{sortedProducts.length}</span>
                       </p>
                     </div>
                     <div className="flex justify-center w-full lg:w-auto">
@@ -351,6 +513,136 @@ const AdminProducts: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-gray-900">Détails du produit</h3>
+                <button 
+                  onClick={() => setQuickViewProduct(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  {quickViewProduct.images && quickViewProduct.images.length > 0 ? (
+                    <img 
+                      src={quickViewProduct.mainImageIndex !== undefined && 
+                           quickViewProduct.mainImageIndex >= 0 && 
+                           quickViewProduct.mainImageIndex < quickViewProduct.images.length 
+                           ? quickViewProduct.images[quickViewProduct.mainImageIndex] 
+                           : quickViewProduct.images[0]} 
+                      alt={quickViewProduct.name}
+                      className="w-full h-64 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                      <svg className="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  )}
+                  
+                  {quickViewProduct.images && quickViewProduct.images.length > 1 && (
+                    <div className="flex mt-2 space-x-2 overflow-x-auto pb-2">
+                      {quickViewProduct.images.map((img, idx) => (
+                        <img 
+                          key={idx} 
+                          src={img} 
+                          alt={`${quickViewProduct.name} - ${idx + 1}`}
+                          className="w-16 h-16 object-cover rounded border-2 border-gray-200"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-lg font-medium text-gray-900">{quickViewProduct.name}</h4>
+                    <p className="text-sm text-gray-500">Réf: {quickViewProduct.reference}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-500">Prix HT</p>
+                      <p className="text-lg font-medium">{quickViewProduct.priceHT} €</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Prix TTC</p>
+                      <p className="text-lg font-medium">{quickViewProduct.priceTTC} €</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Stock</p>
+                      <p className={`text-lg font-medium ${quickViewProduct.stock < 5 ? 'text-amber-600' : ''}`}>
+                        {quickViewProduct.stock}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Statut</p>
+                      <span
+                        className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
+                          quickViewProduct.isAvailable
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {quickViewProduct.isAvailable ? 'Disponible' : 'Indisponible'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-gray-500">Catégorie</p>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
+                        {quickViewProduct.category}
+                      </span>
+                      {quickViewProduct.subCategory && (
+                        <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
+                          {quickViewProduct.subCategory}
+                        </span>
+                      )}
+                      {quickViewProduct.subSubCategory && (
+                        <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
+                          {quickViewProduct.subSubCategory}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {quickViewProduct.description && (
+                    <div>
+                      <p className="text-sm text-gray-500">Description</p>
+                      <p className="text-sm text-gray-700 mt-1">{quickViewProduct.description}</p>
+                    </div>
+                  )}
+                  
+                  <div className="pt-4 flex space-x-3">
+                    <button
+                      onClick={() => {
+                        setEditingProduct(quickViewProduct);
+                        setShowForm(true);
+                        setQuickViewProduct(null);
+                      }}
+                      className="flex-1 flex items-center justify-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Modifier
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 };
