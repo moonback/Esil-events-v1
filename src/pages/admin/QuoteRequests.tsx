@@ -986,16 +986,16 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
           <div className="flex flex-col lg:flex-row gap-8 items-start"> {/* Use items-start */}
 
             {/* Requests List */}
-            <div className="w-full lg:w-3/5 xl:w-1/2"> {/* Adjust width */}
-              <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+            <div className="w-full lg:w-3/5 xl:w-2/3">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 transition-all duration-200 hover:shadow-xl">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gradient-to-r from-indigo-50 to-indigo-100">
                       <tr>
-                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Client</th>
-                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date Demande</th>
-                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Statut</th>
-                        <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Action</th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-indigo-600 uppercase tracking-wider">Client</th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-indigo-600 uppercase tracking-wider">Date Demande</th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-indigo-600 uppercase tracking-wider">Statut</th>
+                        <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-indigo-600 uppercase tracking-wider">Action</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -1003,54 +1003,57 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
                         currentItems.map((request) => (
                           <tr
                             key={request.id}
-                            className={`hover:bg-indigo-50/50 cursor-pointer transition-colors duration-150 ${selectedRequest?.id === request.id ? 'bg-indigo-100 border-l-4 border-indigo-500' : ''}`}
-                            onClick={() => {setSelectedRequest(request); setSuggestedResponse(''); setFeedbackMessage(null);}} // Select, clear response/feedback
+                            className={`hover:bg-indigo-50 cursor-pointer transition-all duration-200 ${selectedRequest?.id === request.id ? 'bg-indigo-100 border-l-4 border-indigo-500 shadow-inner' : ''}`}
+                            onClick={() => {setSelectedRequest(request); setSuggestedResponse(''); setFeedbackMessage(null);}}
                           >
                             <td className="px-6 py-5 whitespace-nowrap">
                               <div className="flex items-center">
-                                <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600">
-                                  {/* Simple initial or icon */}
-                                  {request.first_name ? request.first_name[0].toUpperCase() : <Users size={20} />}
+                                <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md">
+                                  {request.first_name ? request.first_name[0].toUpperCase() : <Users size={24} />}
                                 </div>
                                 <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                                  <div className="text-sm font-semibold text-gray-900 truncate max-w-xs">
                                     {request.first_name} {request.last_name}
                                   </div>
-                                  <div className="text-sm text-gray-500 truncate max-w-xs">
+                                  <div className="text-sm text-gray-500 truncate max-w-xs flex items-center gap-1">
+                                    <span className="inline-block w-2 h-2 rounded-full bg-indigo-400"></span>
                                     {request.email || request.company || '-'}
                                   </div>
                                 </div>
                               </div>
                             </td>
                             <td className="px-6 py-5 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">{formatDate(request.created_at)}</div>
-                                <div className="text-xs text-gray-500">Événement: {request.event_date ? formatDate(request.event_date).split(' ')[0] : '-'}</div>
+                                <div className="text-sm font-medium text-gray-900">{formatDate(request.created_at)}</div>
+                                <div className="text-xs text-gray-500 flex items-center gap-1">
+                                  <Calendar size={12} className="text-indigo-400" />
+                                  Événement: {request.event_date ? formatDate(request.event_date).split(' ')[0] : '-'}
+                                </div>
                             </td>
                             <td className="px-6 py-5 whitespace-nowrap">
-                              <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(request.status)}`}>
+                              <span className={`px-4 py-1.5 inline-flex text-xs leading-5 font-semibold rounded-full border shadow-sm ${getStatusColor(request.status)}`}>
                                 {getStatusLabel(request.status)}
                               </span>
                             </td>
                             <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-center">
-                              <div className="flex space-x-1">
+                              <div className="flex space-x-2 justify-center">
                                 <button
                                   onClick={(e) => {
-                                    e.stopPropagation(); // Prevent row click from double-triggering
+                                    e.stopPropagation();
                                     setSelectedRequest(request);
                                     setSuggestedResponse('');
                                     setFeedbackMessage(null);
                                   }}
-                                  className="p-2 rounded-md text-indigo-600 hover:bg-indigo-100 transition-colors"
+                                  className="p-2 rounded-lg text-indigo-600 hover:bg-indigo-100 transition-all duration-200 hover:shadow-md"
                                   title="Voir les détails"
                                 >
                                   <Eye className="h-5 w-5" />
                                 </button>
                                 <button
                                   onClick={(e) => {
-                                    e.stopPropagation(); // Prevent row click from double-triggering
+                                    e.stopPropagation();
                                     handleDeleteRequest(request.id || '');
                                   }}
-                                  className="p-2 rounded-md text-red-600 hover:bg-red-100 transition-colors"
+                                  className="p-2 rounded-lg text-red-600 hover:bg-red-100 transition-all duration-200 hover:shadow-md"
                                   title="Supprimer la demande"
                                 >
                                   <Trash2 className="h-5 w-5" />
@@ -1063,9 +1066,11 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
                         <tr>
                           <td colSpan={4} className="px-6 py-16 text-center">
                             <div className="flex flex-col items-center justify-center text-gray-500">
-                              <Search className="h-12 w-12 text-gray-300 mb-4" />
+                              <div className="p-4 bg-gray-50 rounded-full mb-4">
+                                <Search className="h-12 w-12 text-indigo-300" />
+                              </div>
                               <p className="font-semibold text-lg text-gray-700">Aucune demande trouvée</p>
-                              <p className="text-sm mt-1">Vérifiez vos filtres ou le terme de recherche.</p>
+                              <p className="text-sm mt-1 text-gray-500">Vérifiez vos filtres ou le terme de recherche.</p>
                             </div>
                           </td>
                         </tr>
@@ -1074,55 +1079,51 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
                   </table>
                 </div>
 
-                {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="px-4 py-3 flex items-center justify-between border-t border-gray-200 bg-gray-50 sm:px-6">
-                    {/* Mobile Pagination */}
+                  <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200 bg-gradient-to-r from-indigo-50 to-indigo-100">
                     <div className="flex-1 flex justify-between sm:hidden">
                         <button
                             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                             disabled={currentPage === 1}
-                            className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                            className="relative inline-flex items-center px-4 py-2 border border-indigo-300 text-sm font-medium rounded-lg text-indigo-700 bg-white hover:bg-indigo-50 transition-all duration-200 disabled:opacity-50 shadow-sm"
                         > Précédent </button>
-                        <span className="text-sm text-gray-700 my-auto"> Page {currentPage} sur {totalPages} </span>
+                        <span className="text-sm font-medium text-indigo-700 my-auto"> Page {currentPage} sur {totalPages} </span>
                         <button
                             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                             disabled={currentPage === totalPages}
-                            className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                            className="ml-3 relative inline-flex items-center px-4 py-2 border border-indigo-300 text-sm font-medium rounded-lg text-indigo-700 bg-white hover:bg-indigo-50 transition-all duration-200 disabled:opacity-50 shadow-sm"
                         > Suivant </button>
                     </div>
-                    {/* Desktop Pagination */}
                     <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
-                            <p className="text-sm text-gray-700">
-                                Affichage de <span className="font-medium">{Math.max(indexOfFirstItem + 1, 1)}</span> à <span className="font-medium">{Math.min(indexOfLastItem, filteredRequests.length)}</span> sur <span className="font-medium">{filteredRequests.length}</span> résultats
+                            <p className="text-sm text-indigo-700 font-medium">
+                                Affichage de <span className="font-bold">{Math.max(indexOfFirstItem + 1, 1)}</span> à <span className="font-bold">{Math.min(indexOfLastItem, filteredRequests.length)}</span> sur <span className="font-bold">{filteredRequests.length}</span> résultats
                             </p>
                         </div>
                         <div>
-                            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <nav className="relative z-0 inline-flex rounded-lg shadow-sm" aria-label="Pagination">
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                     disabled={currentPage === 1}
-                                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                                    className="relative inline-flex items-center px-3 py-2 rounded-l-lg border border-indigo-300 bg-white text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-all duration-200 disabled:opacity-50"
                                 > <span className="sr-only">Précédent</span>{'<'} </button>
-                                {/* Consider implementing truncated pagination for many pages */}
                                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                                     <button
                                         key={page}
                                         onClick={() => setCurrentPage(page)}
                                         aria-current={currentPage === page ? 'page' : undefined}
-                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${ currentPage === page ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-100'}`}
+                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-all duration-200 ${currentPage === page ? 'z-10 bg-indigo-100 border-indigo-500 text-indigo-600 font-bold' : 'bg-white border-indigo-300 text-indigo-600 hover:bg-indigo-50'}`}
                                     > {page} </button>
                                 ))}
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                     disabled={currentPage === totalPages}
-                                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                                    className="relative inline-flex items-center px-3 py-2 rounded-r-lg border border-indigo-300 bg-white text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-all duration-200 disabled:opacity-50"
                                 > <span className="sr-only">Suivant</span>{'>'} </button>
                             </nav>
                         </div>
                     </div>
-                 </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -1143,72 +1144,72 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
                   </div>
 
                   {/* Details Content */}
-                  <div className="p-5 space-y-5">
+                  <div className="p-6 space-y-6">
                      {/* --- Sections: Client, Event, Items, Delivery, Access, Pickup Return, Comments --- */}
                      {/* Client Info */}
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                            <Users className="h-4 w-4 text-indigo-500" /> Informations client
+                    <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                        <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <Users className="h-5 w-5 text-indigo-600" /> Informations client
                         </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                            <div><span className="text-gray-500">Nom:</span> <span className="font-medium text-gray-800">{selectedRequest.first_name} {selectedRequest.last_name}</span></div>
-                            <div><span className="text-gray-500">Type:</span> <span className="font-medium text-gray-800">{selectedRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</span></div>
-                            <div><span className="text-gray-500">Société:</span> <span className="font-medium text-gray-800">{selectedRequest.company || '-'}</span></div>
-                            <div className="truncate"><span className="text-gray-500">Email:</span> <span className="font-medium text-gray-800">{selectedRequest.email || '-'}</span></div>
-                            <div><span className="text-gray-500">Téléphone:</span> <span className="font-medium text-gray-800">{selectedRequest.phone || '-'}</span></div>
-                            <div className="sm:col-span-2 truncate"><span className="text-gray-500">Facturation:</span> <span className="font-medium text-gray-800">{[selectedRequest.billing_address, selectedRequest.postal_code, selectedRequest.city].filter(Boolean).join(', ') || '-'}</span></div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Nom</span> <span className="font-medium text-gray-900">{selectedRequest.first_name} {selectedRequest.last_name}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Type</span> <span className="font-medium text-gray-900">{selectedRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Société</span> <span className="font-medium text-gray-900">{selectedRequest.company || '-'}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg truncate"><span className="text-gray-600 block mb-1">Email</span> <span className="font-medium text-gray-900">{selectedRequest.email || '-'}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Téléphone</span> <span className="font-medium text-gray-900">{selectedRequest.phone || '-'}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg sm:col-span-2"><span className="text-gray-600 block mb-1">Facturation</span> <span className="font-medium text-gray-900">{[selectedRequest.billing_address, selectedRequest.postal_code, selectedRequest.city].filter(Boolean).join(', ') || '-'}</span></div>
                         </div>
                     </div>
 
                     {/* Event Info */}
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-indigo-500" /> Détails de l'événement
+                    <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                        <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <Calendar className="h-5 w-5 text-indigo-600" /> Détails de l'événement
                         </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                            <div><span className="text-gray-500">Date:</span> <span className="font-medium text-gray-800">{selectedRequest.event_date ? formatDate(selectedRequest.event_date).split(' ')[0] : '-'}</span></div>
-                            <div><span className="text-gray-500">Durée:</span> <span className="font-medium text-gray-800">{selectedRequest.event_duration || '-'}</span></div>
-                            <div><span className="text-gray-500">Début:</span> <span className="font-medium text-gray-800">{selectedRequest.event_start_time || '-'}</span></div>
-                            <div><span className="text-gray-500">Fin:</span> <span className="font-medium text-gray-800">{selectedRequest.event_end_time || '-'}</span></div>
-                            <div><span className="text-gray-500">Invités:</span> <span className="font-medium text-gray-800">{selectedRequest.guest_count || '-'}</span></div>
-                            <div><span className="text-gray-500">Lieu:</span> <span className="font-medium text-gray-800">{selectedRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</span></div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Date</span> <span className="font-medium text-gray-900">{selectedRequest.event_date ? formatDate(selectedRequest.event_date).split(' ')[0] : '-'}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Durée</span> <span className="font-medium text-gray-900">{selectedRequest.event_duration || '-'}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Début</span> <span className="font-medium text-gray-900">{selectedRequest.event_start_time || '-'}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Fin</span> <span className="font-medium text-gray-900">{selectedRequest.event_end_time || '-'}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Invités</span> <span className="font-medium text-gray-900">{selectedRequest.guest_count || '-'}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Lieu</span> <span className="font-medium text-gray-900">{selectedRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</span></div>
                         </div>
                         {selectedRequest.description && (
-                        <div className="mt-3">
-                            <p className="text-xs font-medium text-gray-500 mb-1">Description:</p>
-                            <p className="text-sm text-gray-800 bg-white p-2 rounded border border-gray-200 whitespace-pre-wrap">{selectedRequest.description}</p>
+                        <div className="mt-4">
+                            <p className="text-sm font-medium text-gray-600 mb-2">Description</p>
+                            <p className="text-sm text-gray-800 bg-gray-50 p-4 rounded-lg border border-gray-200 whitespace-pre-wrap">{selectedRequest.description}</p>
                         </div>
                         )}
                     </div>
 
                     {/* Items */}
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
-                      <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                        <Package className="h-4 w-4 text-indigo-500" /> Articles demandés
+                    <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                      <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <Package className="h-5 w-5 text-indigo-600" /> Articles demandés
                       </h3>
                       {selectedRequest.items && selectedRequest.items.length > 0 ? (
-                        <div className="overflow-hidden rounded-md border border-gray-200">
+                        <div className="overflow-hidden rounded-lg border border-gray-200">
                             <table className="min-w-full divide-y divide-gray-200 bg-white">
-                            <thead className="bg-gray-100">
+                            <thead className="bg-gray-50">
                                 <tr>
-                                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Article</th>
-                                <th scope="col" className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Qté</th>
-                                <th scope="col" className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Prix U.</th>
-                                <th scope="col" className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Article</th>
+                                <th scope="col" className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Qté</th>
+                                <th scope="col" className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Prix U.</th>
+                                <th scope="col" className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Total</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 text-sm">
                                 {selectedRequest.items.map((item, index) => (
-                                <tr key={index} className="hover:bg-gray-50">
-                                    <td className="px-3 py-2 whitespace-nowrap font-medium text-gray-800">{item.name || 'N/A'}</td>
-                                    <td className="px-3 py-2 whitespace-nowrap text-gray-800 text-center">{item.quantity || 0}</td>
-                                    <td className="px-3 py-2 whitespace-nowrap text-gray-800 text-right">{(item.price || 0).toFixed(2)}€</td>
-                                    <td className="px-3 py-2 whitespace-nowrap font-medium text-gray-800 text-right">{((item.quantity || 0) * (item.price || 0)).toFixed(2)}€</td>
+                                <tr key={index} className="hover:bg-gray-50 transition-colors">
+                                    <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-900">{item.name || 'N/A'}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-gray-800 text-center">{item.quantity || 0}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-gray-800 text-right">{(item.price || 0).toFixed(2)}€</td>
+                                    <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-900 text-right">{((item.quantity || 0) * (item.price || 0)).toFixed(2)}€</td>
                                 </tr>
                                 ))}
-                                <tr className="bg-gray-100 font-semibold">
-                                    <td colSpan={3} className="px-3 py-2 text-sm text-gray-800 text-right">Total TTC Indicatif</td>
-                                    <td className="px-3 py-2 text-sm font-bold text-indigo-700 text-right">
+                                <tr className="bg-indigo-50">
+                                    <td colSpan={3} className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">Total TTC Indicatif</td>
+                                    <td className="px-4 py-3 text-sm font-bold text-indigo-700 text-right">
                                         {(selectedRequest.items.reduce((total, item) => total + ((item.quantity || 0) * (item.price || 0)), 0)).toFixed(2)}€
                                     </td>
                                 </tr>
@@ -1216,38 +1217,39 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
                             </table>
                         </div>
                         ) : (
-                            <p className="text-sm text-gray-500 italic">Aucun article spécifique listé dans cette demande.</p>
+                            <div className="text-sm text-gray-500 italic bg-gray-50 p-4 rounded-lg border border-gray-200">
+                              Aucun article spécifique listé dans cette demande.
+                            </div>
                         )}
                     </div>
 
                     {/* Delivery / Pickup */}
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                            <Truck className="h-4 w-4 text-indigo-500" /> Livraison / Retrait
+                    <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                        <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <Truck className="h-5 w-5 text-indigo-600" /> Livraison / Retrait
                         </h3>
-                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                            <div><span className="text-gray-500">Type:</span> <span className="font-medium text-gray-800">{getDeliveryTypeLabel(selectedRequest.delivery_type)}</span></div>
-                            <div><span className="text-gray-500">Date:</span> <span className="font-medium text-gray-800">{selectedRequest.delivery_date ? formatDate(selectedRequest.delivery_date).split(' ')[0] : '-'}</span></div>
-                            <div><span className="text-gray-500">Créneau:</span> <span className="font-medium text-gray-800">{getTimeSlotLabel(selectedRequest.delivery_time_slot)}</span></div>
-                            {/* <div><span className="text-gray-500">Date Reprise:</span> <span className="font-medium text-gray-800">{selectedRequest.pickup_date ? formatDate(selectedRequest.pickup_date).split(' ')[0] : '-'}</span></div> */}
-                             <div className="sm:col-span-2 truncate"><span className="text-gray-500">Adresse Livr.:</span> <span className="font-medium text-gray-800">{[selectedRequest.delivery_address, selectedRequest.delivery_postal_code, selectedRequest.delivery_city].filter(Boolean).join(', ') || '-'}</span></div>
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Type</span> <span className="font-medium text-gray-900">{getDeliveryTypeLabel(selectedRequest.delivery_type)}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Date</span> <span className="font-medium text-gray-900">{selectedRequest.delivery_date ? formatDate(selectedRequest.delivery_date).split(' ')[0] : '-'}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Créneau</span> <span className="font-medium text-gray-900">{getTimeSlotLabel(selectedRequest.delivery_time_slot)}</span></div>
+                            <div className="p-3 bg-gray-50 rounded-lg sm:col-span-2"><span className="text-gray-600 block mb-1">Adresse Livraison</span> <span className="font-medium text-gray-900">{[selectedRequest.delivery_address, selectedRequest.delivery_postal_code, selectedRequest.delivery_city].filter(Boolean).join(', ') || '-'}</span></div>
                          </div>
                     </div>
 
                      {/* Access Info */}
                      {(selectedRequest.exterior_access || selectedRequest.interior_access) && (
-                        <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
-                            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                                <MapPin className="h-4 w-4 text-indigo-500" /> Accès
+                        <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                            <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <MapPin className="h-5 w-5 text-indigo-600" /> Accès
                             </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                                <div><span className="text-gray-500">Extérieur:</span> <span className="font-medium text-gray-800">{getAccessLabel(selectedRequest.exterior_access)}</span></div>
-                                <div><span className="text-gray-500">Intérieur:</span> <span className="font-medium text-gray-800">{getAccessLabel(selectedRequest.interior_access)}</span></div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                                <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Extérieur</span> <span className="font-medium text-gray-900">{getAccessLabel(selectedRequest.exterior_access)}</span></div>
+                                <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Intérieur</span> <span className="font-medium text-gray-900">{getAccessLabel(selectedRequest.interior_access)}</span></div>
                                 {selectedRequest.interior_access === 'elevator' && (
                                 <>
-                                    <div><span className="text-gray-500">Asc. L:</span> <span className="font-medium text-gray-800">{selectedRequest.elevator_width ? `${selectedRequest.elevator_width} cm` : '-'}</span></div>
-                                    <div><span className="text-gray-500">Asc. P:</span> <span className="font-medium text-gray-800">{selectedRequest.elevator_depth ? `${selectedRequest.elevator_depth} cm` : '-'}</span></div>
-                                    <div><span className="text-gray-500">Asc. H:</span> <span className="font-medium text-gray-800">{selectedRequest.elevator_height ? `${selectedRequest.elevator_height} cm` : '-'}</span></div>
+                                    <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Ascenseur Largeur</span> <span className="font-medium text-gray-900">{selectedRequest.elevator_width ? `${selectedRequest.elevator_width} cm` : '-'}</span></div>
+                                    <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Ascenseur Profondeur</span> <span className="font-medium text-gray-900">{selectedRequest.elevator_depth ? `${selectedRequest.elevator_depth} cm` : '-'}</span></div>
+                                    <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Ascenseur Hauteur</span> <span className="font-medium text-gray-900">{selectedRequest.elevator_height ? `${selectedRequest.elevator_height} cm` : '-'}</span></div>
                                 </>
                                 )}
                             </div>
@@ -1256,25 +1258,25 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
 
                      {/* Pickup Return */}
                      {(selectedRequest.pickup_return_date || selectedRequest.pickup_return_start_time) && (
-                        <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
-                            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                                <Clock className="h-4 w-4 text-indigo-500" /> Détails reprise
+                        <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                            <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <Clock className="h-5 w-5 text-indigo-600" /> Détails reprise
                             </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                                <div><span className="text-gray-500">Date:</span> <span className="font-medium text-gray-800">{selectedRequest.pickup_return_date ? formatDate(selectedRequest.pickup_return_date).split(' ')[0] : '-'}</span></div>
-                                <div><span className="text-gray-500">Début:</span> <span className="font-medium text-gray-800">{selectedRequest.pickup_return_start_time || '-'}</span></div>
-                                <div><span className="text-gray-500">Fin:</span> <span className="font-medium text-gray-800">{selectedRequest.pickup_return_end_time || '-'}</span></div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                                <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Date</span> <span className="font-medium text-gray-900">{selectedRequest.pickup_return_date ? formatDate(selectedRequest.pickup_return_date).split(' ')[0] : '-'}</span></div>
+                                <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Début</span> <span className="font-medium text-gray-900">{selectedRequest.pickup_return_start_time || '-'}</span></div>
+                                <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Fin</span> <span className="font-medium text-gray-900">{selectedRequest.pickup_return_end_time || '-'}</span></div>
                             </div>
                         </div>
                      )}
 
                     {/* Comments */}
                     {selectedRequest.comments && (
-                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-indigo-500" /> Commentaires client
+                      <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                        <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-indigo-600" /> Commentaires client
                         </h3>
-                        <div className="bg-white p-3 rounded border border-gray-200 text-sm text-gray-800 whitespace-pre-wrap">
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm text-gray-800 whitespace-pre-wrap">
                           {selectedRequest.comments}
                         </div>
                       </div>
