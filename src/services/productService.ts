@@ -349,6 +349,78 @@ export const getProductById = async (id: string): Promise<Product | null> => {
   }
 };
 
+// Fetch similar products based on category and subcategory
+export const getSimilarProducts = async (product: Product, limit: number = 4): Promise<Product[]> => {
+  try {
+    console.log('Fetching similar products for:', product.id);
+    
+    // First try to get products from the same subcategory
+    let { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('category', product.category)
+      .eq('sub_category', product.subCategory)
+      .neq('id', product.id) // Exclude the current product
+      .limit(limit);
+
+    // If not enough products found in the same subcategory, get more from the same category
+    if (!error && (!data || data.length < limit)) {
+      const neededMore = limit - (data?.length || 0);
+      const { data: moreData, error: moreError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('category', product.category)
+        .neq('sub_category', product.subCategory) // Different subcategory
+        .neq('id', product.id) // Exclude the current product
+        .limit(neededMore);
+
+      if (!moreError && moreData) {
+        data = [...(data || []), ...moreData];
+      }
+    }
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return [];
+    }
+
+    if (!data || data.length === 0) {
+      console.log('No similar products found');
+      return [];
+    }
+
+    // Convert snake_case to camelCase
+    const formattedData = data.map((product) => ({
+      id: product.id,
+      name: product.name,
+      reference: product.reference,
+      category: product.category,
+      subCategory: product.sub_category,
+      subSubCategory: product.sub_sub_category || '',
+      description: product.description,
+      priceHT: parseFloat(product.price_ht),
+      priceTTC: parseFloat(product.price_ttc),
+      stock: product.stock,
+      isAvailable: product.is_available,
+      createdAt: new Date(product.created_at),
+      updatedAt: new Date(product.updated_at),
+      images: product.images || [],
+      mainImageIndex: product.main_image_index,
+      colors: product.colors || [],
+      relatedProducts: product.related_products || [],
+      technicalSpecs: product.technical_specs || {},
+      technicalDocUrl: product.technical_doc_url || null,
+      videoUrl: product.video_url || null
+    }));
+
+    console.log('Similar products fetched successfully:', formattedData.length);
+    return formattedData;
+  } catch (error) {
+    console.error('Error fetching similar products:', error);
+    return [];
+  }
+};
+
 // Create a new product
 export const createProduct = async (product: ProductFormData): Promise<Product> => {
   try {

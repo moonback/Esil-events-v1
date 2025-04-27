@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { getProductById } from '../services/productService';
+import { getProductById, getSimilarProducts } from '../services/productService';
 import { Product } from '../types/Product';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 
@@ -13,6 +13,8 @@ const ProductPage: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
+  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
+  const [loadingSimilar, setLoadingSimilar] = useState(false);
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -36,6 +38,19 @@ const ProductPage: React.FC = () => {
 
         if (productData?.colors && productData.colors.length > 0) {
           setSelectedColor(productData.colors[0]);
+        }
+        
+        // Récupérer les produits similaires
+        if (productData) {
+          setLoadingSimilar(true);
+          try {
+            const similar = await getSimilarProducts(productData);
+            setSimilarProducts(similar);
+          } catch (error) {
+            console.error('Error fetching similar products:', error);
+          } finally {
+            setLoadingSimilar(false);
+          }
         }
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -318,10 +333,11 @@ const ProductPage: React.FC = () => {
           </div>
         </div>
         
-        {/* Related Products - enhanced */}
-        {product.relatedProducts && product.relatedProducts.length > 0 && (
-          <div className="mt-20">
-            <h2 className="text-3xl font-bold text-gray-900 mb-10">Produits associés</h2>
+        {/* Similar Products Section */}
+        <div className="mt-20">
+          <h2 className="text-3xl font-bold text-gray-900 mb-10">Produits similaires</h2>
+          
+          {loadingSimilar ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {[1, 2, 3, 4].map((index) => (
                 <div key={index} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
@@ -334,8 +350,44 @@ const ProductPage: React.FC = () => {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : similarProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {similarProducts.map((similarProduct) => (
+                <Link 
+                  to={`/product/${similarProduct.id}`} 
+                  key={similarProduct.id}
+                  className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group"
+                >
+                  <div className="h-56 overflow-hidden">
+                    <img 
+                      src={similarProduct.images && similarProduct.images.length > 0 ? 
+                        similarProduct.images[similarProduct.mainImageIndex || 0] : DEFAULT_PRODUCT_IMAGE} 
+                      alt={similarProduct.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
+                      }}
+                    />
+                  </div>
+                  <div className="p-5">
+                    <h3 className="font-semibold text-lg text-gray-900 mb-2 group-hover:text-violet-600 transition-colors">
+                      {similarProduct.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      {similarProduct.category.charAt(0).toUpperCase() + similarProduct.category.slice(1)} - 
+                      {similarProduct.subCategory.charAt(0).toUpperCase() + similarProduct.subCategory.slice(1)}
+                    </p>
+                    <p className="font-bold text-violet-600">
+                      {similarProduct.priceTTC.toFixed(2)} € <span className="text-xs font-normal">TTC/jour</span>
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500">Aucun produit similaire trouvé</p>
+          )}
+        </div>
       </div>
     </div>
   );
