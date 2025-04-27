@@ -91,42 +91,47 @@ const ProductPage: React.FC = () => {
   }
 
   return (
-    <div className="pt-44 pb-16 px-4">
-      <div className="container-custom mx-auto">
-        {/* Breadcrumb */}
+    <div className="pt-32 pb-16 px-4 bg-gray-50">
+      <div className="max-w-7xl mx-auto">
+        {/* Breadcrumb - improved styling */}
         <div className="mb-8">
           <nav className="flex" aria-label="Breadcrumb">
-            <ol className="inline-flex items-center space-x-1 md:space-x-3">
+            <ol className="inline-flex items-center space-x-2 text-sm">
               <li className="inline-flex items-center">
-                <Link to="/" className="text-gray-700 hover:text-black">Accueil</Link>
+                <Link to="/" className="text-gray-600 hover:text-black transition-colors">
+                  Accueil
+                </Link>
               </li>
               <li>
                 <div className="flex items-center">
-                  <span className="mx-2 text-gray-400">/</span>
-                  <Link to={`/products/${product.category}`} className="text-gray-700 hover:text-black">
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                  <Link 
+                    to={`/products/${product.category}`} 
+                    className="ml-2 text-gray-600 hover:text-black transition-colors"
+                  >
                     {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
                   </Link>
                 </div>
               </li>
               <li aria-current="page">
                 <div className="flex items-center">
-                  <span className="mx-2 text-gray-400">/</span>
-                  <span className="text-gray-500">{product.name}</span>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                  <span className="ml-2 text-gray-500 font-medium">{product.name}</span>
                 </div>
               </li>
             </ol>
           </nav>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Product Images */}
-          <div>
-            <div className="relative">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          {/* Product Images - improved gallery */}
+          <div className="bg-white p-4 rounded-xl shadow-sm">
+            <div className="relative group">
               {product.images && product.images.length > 0 ? (
                 <img 
                   src={product.images[currentImageIndex]} 
                   alt={product.name} 
-                  className="w-full h-auto rounded-lg"
+                  className="w-full h-96 object-contain rounded-lg transition-opacity duration-300"
                   onError={(e) => {
                     e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
                   }}
@@ -135,7 +140,7 @@ const ProductPage: React.FC = () => {
                 <img 
                   src={DEFAULT_PRODUCT_IMAGE} 
                   alt={product.name} 
-                  className="w-full h-auto rounded-lg"
+                  className="w-full h-96 object-contain rounded-lg"
                 />
               )}
               
@@ -143,13 +148,13 @@ const ProductPage: React.FC = () => {
                 <>
                   <button 
                     onClick={handlePrevImage}
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md"
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-all opacity-0 group-hover:opacity-100"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                   <button 
                     onClick={handleNextImage}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-all opacity-0 group-hover:opacity-100"
                   >
                     <ChevronRight className="w-5 h-5" />
                   </button>
@@ -157,13 +162,13 @@ const ProductPage: React.FC = () => {
               )}
             </div>
             
-            {/* Thumbnails */}
+            {/* Thumbnails - improved styling */}
             {product.images && product.images.length > 1 && (
-              <div className="flex overflow-x-auto py-2 space-x-2">
+              <div className="mt-4 flex overflow-x-auto py-2 space-x-3 scrollbar-hide">
                 {product.images.map((image, index) => (
                   <div 
                     key={index}
-                    className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden cursor-pointer transition-all duration-200 ${currentImageIndex === index ? 'ring-2 ring-black' : 'opacity-70 hover:opacity-100'}`}
+                    className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden cursor-pointer transition-all duration-200 border-2 ${currentImageIndex === index ? 'border-violet-500' : 'border-transparent hover:border-gray-200'}`}
                     onClick={() => setCurrentImageIndex(index)}
                   >
                     <img 
@@ -177,34 +182,37 @@ const ProductPage: React.FC = () => {
             )}
           </div>
 
-          {/* Product Info */}
-          <div>
-            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <p className="text-gray-600 mb-4">Réf: {product.reference}</p>
-            
-            <div className="flex items-center mb-6">
-              <div className="mr-8">
-                <p className="text-sm text-gray-500">Prix HT / jour</p>
-                <p className="text-2xl font-bold">{product.priceHT.toFixed(2)} €</p>
+          {/* Product Info - improved layout */}
+          <div className="bg-white p-6 rounded-xl shadow-sm">
+            <div className="mb-6 pb-6 border-b border-gray-100">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              <p className="text-gray-500 text-sm mb-4">Réf: {product.reference}</p>
+              
+              {/* Price section - improved */}
+              <div className="flex items-center space-x-8 mb-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Prix HT / jour</p>
+                  <p className="text-2xl font-bold text-gray-800">{product.priceHT.toFixed(2)} €</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Prix TTC / jour</p>
+                  <p className="text-2xl font-bold text-violet-600">{product.priceTTC.toFixed(2)} €</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-gray-500">Prix TTC / jour</p>
-                <p className="text-2xl text-violet-500  font-bold">{product.priceTTC.toFixed(2)} €</p>
-              </div>
+              
+              <p className="text-sm text-gray-500">
+                Tarif affiché pour une journée. Un tarif dégressif est appliqué pour toute journée supplémentaire. 
+                Ce prix ne comprend pas la livraison, l'installation et le démontage du matériel.
+              </p>
             </div>
             
-            <p className="text-sm text-gray-500 mb-6">
-              Tarif affiché pour une journée. Un tarif dégressif est appliqué pour toute journée supplémentaire. 
-              Ce prix ne comprend pas la livraison, l'installation et le démontage du matériel.
-            </p>
-            
-            {/* Quantity Selector */}
+            {/* Quantity Selector - improved */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">Quantité</label>
-              <div className="flex items-center">
+              <div className="flex items-center max-w-xs">
                 <button 
                   onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                  className="p-2 border border-gray-300 rounded-l"
+                  className="p-2 border border-gray-300 rounded-l hover:bg-gray-50 transition-colors"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
@@ -213,18 +221,18 @@ const ProductPage: React.FC = () => {
                   min="1" 
                   value={quantity} 
                   onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="p-2 w-16 text-center border-t border-b border-gray-300"
+                  className="p-2 w-16 text-center border-t border-b border-gray-300 focus:outline-none focus:ring-1 focus:ring-violet-500"
                 />
                 <button 
                   onClick={() => setQuantity(prev => prev + 1)}
-                  className="p-2 border border-gray-300 rounded-r"
+                  className="p-2 border border-gray-300 rounded-r hover:bg-gray-50 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
             </div>
             
-            {/* Color Selector (if available) */}
+            {/* Color Selector - improved */}
             {product.colors && product.colors.length > 0 && (
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Couleur</label>
@@ -233,7 +241,7 @@ const ProductPage: React.FC = () => {
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`px-4 py-2 border ${selectedColor === color ? 'border-black bg-gray-100' : 'border-gray-300'} rounded-md`}
+                      className={`px-4 py-2 text-sm rounded-md transition-all ${selectedColor === color ? 'bg-violet-100 text-violet-700 border border-violet-300' : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300'}`}
                     >
                       {color}
                     </button>
@@ -242,30 +250,34 @@ const ProductPage: React.FC = () => {
               </div>
             )}
             
-            {/* Add to Cart Button */}
+            {/* Add to Cart Button - improved */}
             <button 
               onClick={handleAddToCart}
-              className="w-full bg-violet-500 hover:bg-violet-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 mb-8"
+              className="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 mb-8 flex items-center justify-center space-x-2"
             >
-              Ajouter au devis
+              <span>Ajouter au devis</span>
+              <Plus className="w-4 h-4" />
             </button>
             
-            {/* Description */}
+            {/* Description - improved */}
             <div className="mb-8">
-              <h2 className="text-xl font-bold mb-4">Description</h2>
-              <p>{product.description}</p>
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <Info className="w-5 h-5 mr-2 text-violet-600" />
+                Description
+              </h2>
+              <p className="text-gray-600 leading-relaxed">{product.description}</p>
             </div>
             
-            {/* Technical Specifications */}
+            {/* Technical Specifications - improved */}
             <div className="mb-8">
-              <h2 className="text-xl font-bold mb-4">Caractéristiques techniques</h2>
-              <div className="border rounded-lg overflow-hidden">
-                <table className="w-full">
-                  <tbody>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Caractéristiques techniques</h2>
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <table className="w-full divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-200">
                     {Object.entries(product.technicalSpecs).map(([key, value]) => (
-                      <tr key={key} className="border-b last:border-b-0 hover:bg-gray-50">
-                        <td className="py-3 px-4 font-medium">{key}</td>
-                        <td className="py-3 px-4">{value}</td>
+                      <tr key={key} className="hover:bg-gray-50 transition-colors">
+                        <td className="py-3 px-4 font-medium text-gray-700 whitespace-nowrap">{key}</td>
+                        <td className="py-3 px-4 text-gray-600">{value}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -273,30 +285,30 @@ const ProductPage: React.FC = () => {
               </div>
             </div>
             
-            {/* Video (if available) */}
+            {/* Video - improved */}
             {product.videoUrl && (
               <div className="mb-8">
-                <h2 className="text-xl font-bold mb-4">Présentation</h2>
-                <div className="aspect-w-16 aspect-h-9">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Présentation</h2>
+                <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden">
                   <iframe 
                     src={product.videoUrl} 
                     title="Product video"
-                    className="w-full h-64 rounded-lg"
+                    className="w-full h-64"
                     allowFullScreen
                   ></iframe>
                 </div>
               </div>
             )}
             
-            {/* Technical Document (if available) */}
+            {/* Technical Document - improved */}
             {product.technicalDocUrl && (
               <div className="mb-8">
-                <h2 className="text-xl font-bold mb-4">Documentation technique</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Documentation technique</h2>
                 <a 
                   href={product.technicalDocUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center text-black hover:underline"
+                  className="inline-flex items-center text-violet-600 hover:text-violet-700 hover:underline transition-colors"
                 >
                   <FileText className="mr-2" />
                   Télécharger la documentation technique (PDF)
@@ -306,19 +318,18 @@ const ProductPage: React.FC = () => {
           </div>
         </div>
         
-        {/* Related Products */}
+        {/* Related Products - improved */}
         {product.relatedProducts && product.relatedProducts.length > 0 && (
           <div className="mt-16">
-            <h2 className="text-2xl font-bold mb-8">Produits associés</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">Produits associés</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Related products would be rendered here */}
-              {/* This is a placeholder since we don't have actual related products data */}
               {[1, 2, 3, 4].map((index) => (
-                <div key={index} className="product-card">
-                  <div className="h-48 bg-gray-200 animate-pulse"></div>
+                <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                  <div className="h-48 bg-gray-100 animate-pulse"></div>
                   <div className="p-4">
-                    <div className="h-6 bg-gray-200 rounded animate-pulse mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2 mb-4"></div>
+                    <div className="h-5 bg-gray-200 rounded animate-pulse mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4 mb-4"></div>
                     <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
                   </div>
                 </div>
