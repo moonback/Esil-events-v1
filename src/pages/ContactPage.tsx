@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Phone, Mail, MapPin } from 'lucide-react';
+import { sendContactFormEmail } from '../services/contactService';
 
 interface FormData {
   firstName: string;
@@ -24,20 +25,36 @@ const ContactPage: React.FC = () => {
     description: '',
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
     
-    // Here you would typically send the data to your backend
-    console.log('Form data:', formData);
-    
-    // Show success message
-    setFormSubmitted(true);
+    try {
+      // Envoyer les données du formulaire via le service d'email
+      const result = await sendContactFormEmail(formData);
+      
+      if (result.success) {
+        // Afficher le message de succès
+        setFormSubmitted(true);
+      } else {
+        // Afficher l'erreur
+        setError(result.error || 'Une erreur est survenue lors de l\'envoi du message.');
+      }
+    } catch (err) {
+      console.error('Erreur lors de l\'envoi du formulaire:', err);
+      setError('Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer plus tard.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -76,6 +93,12 @@ const ContactPage: React.FC = () => {
             ) : (
               <>
                 <h2 className="text-2xl font-bold mb-6">Parlons de votre projet</h2>
+                
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+                    <p>{error}</p>
+                  </div>
+                )}
                 
                 <form onSubmit={handleSubmit}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -202,8 +225,9 @@ const ContactPage: React.FC = () => {
                   <button 
                     type="submit"
                     className="w-full btn-primary"
+                    disabled={isSubmitting}
                   >
-                    Envoyer
+                    {isSubmitting ? 'Envoi en cours...' : 'Envoyer'}
                   </button>
                 </form>
               </>
