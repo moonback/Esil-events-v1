@@ -55,8 +55,22 @@ export const sendEmail = async (
       return { success: false, error: 'Configuration SMTP incomplète' };
     }
 
+    // Afficher les informations de configuration (sans le mot de passe)
+    console.log('Tentative d\'envoi d\'email avec la configuration:', { 
+      host: smtpConfig.host,
+      port: smtpConfig.port,
+      secure: smtpConfig.secure,
+      auth: { user: smtpConfig.auth.user, pass: '***' },
+      from: smtpConfig.from
+    });
+
+    // Construire l'URL complète de l'API
+    // Utiliser l'URL du serveur Express qui fonctionne sur le port 3001
+    const apiUrl = 'http://localhost:3001/api/email/send';
+    console.log('URL de l\'API d\'envoi d\'email:', apiUrl);
+
     // Envoyer l'email via l'API
-    const response = await fetch('/api/email/send', {
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -70,17 +84,32 @@ export const sendEmail = async (
       })
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Erreur lors de l\'envoi de l\'email');
+    // Récupérer le texte de la réponse
+    const textData = await response.text();
+    console.log('Réponse brute du serveur:', textData);
+
+    // Tenter de parser la réponse JSON
+    let responseData = null;
+    try {
+      if (textData) {
+        responseData = JSON.parse(textData);
+      }
+    } catch (parseError) {
+      console.error('Erreur lors du parsing de la réponse:', parseError);
+      return { success: false, error: `Erreur de format dans la réponse du serveur: ${textData}` };
     }
 
-    const result = await response.json();
-    console.log('Email envoyé:', result.messageId);
+    if (!response.ok) {
+      const errorMessage = responseData?.error || `Erreur HTTP ${response.status}: ${response.statusText}`;
+      console.error('Réponse d\'erreur du serveur:', errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    console.log('Email envoyé avec succès:', responseData?.messageId);
     return { success: true };
   } catch (error) {
     console.error('Erreur lors de l\'envoi de l\'email:', error);
-    return { success: false, error };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 };
 
