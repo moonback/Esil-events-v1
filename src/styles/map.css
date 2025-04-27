@@ -51,14 +51,43 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 12px;
-  background-color: #f8f8f8;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  margin-top: 8px;
+  padding: 8px 16px;
+  background-color: #4f46e5; /* Couleur violette pour correspondre au thème */
+  color: white !important;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  margin-top: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Prend toute la largeur disponible */
 }
 
 .map-directions-link:hover {
-  background-color: #eaeaea;
-  transform: translateY(-1px);
+  background-color: #4338ca; /* Légèrement plus foncé au survol */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Style pour les options de transport */
+.transport-options {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.transport-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  background-color: #f8f8f8;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  color: #4b5563;
+}
+
+.transport-option:hover {
+  background-color: #e5e7eb;
+  color: #1f2937;
 }
