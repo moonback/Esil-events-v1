@@ -12,21 +12,21 @@ export interface SmtpConfig {
   from: string; // Adresse email d'expédition par défaut
 }
 
-// Valeurs par défaut pour la configuration SMTP
+// Récupération des valeurs depuis les variables d'environnement
 // Note: Pour Gmail, vous devez utiliser un mot de passe d'application et non votre mot de passe habituel
 // Voir: https://support.google.com/accounts/answer/185833
 // Si vous rencontrez des erreurs de connexion, vérifiez que:
 // 1. Vous avez activé l'authentification à deux facteurs sur votre compte Google
 // 2. Vous avez généré un mot de passe d'application spécifique pour cette application
 let smtpConfig: SmtpConfig = {
-  host: 'mail.dresscodeia.fr',
-  port: 465,
-  secure: true, // true pour 465, false pour les autres ports comme 587
+  host: import.meta.env.VITE_SMTP_HOST || 'mail.dresscodeia.fr',
+  port: Number(import.meta.env.VITE_SMTP_PORT) || 465,
+  secure: import.meta.env.VITE_SMTP_SECURE === 'false' ? false : true, // true pour 465, false pour les autres ports comme 587
   auth: {
-    user: 'contact@dresscodeia.fr',
-    pass: 'Maysson78711!' // Le mot de passe d'application sera défini via la page de configuration
+    user: import.meta.env.VITE_SMTP_USER || 'contact@dresscodeia.fr',
+    pass: import.meta.env.VITE_SMTP_PASS || '' // Le mot de passe doit être défini dans les variables d'environnement
   },
-  from: 'contact@dresscodeia.fr'
+  from: import.meta.env.VITE_SMTP_FROM || 'contact@dresscodeia.fr'
 };
 
 // Fonction pour mettre à jour la configuration SMTP
