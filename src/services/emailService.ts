@@ -1,4 +1,3 @@
-import nodemailer from 'nodemailer';
 import { QuoteRequest } from './quoteRequestService';
 
 // Interface pour les paramètres SMTP
@@ -42,7 +41,7 @@ export const getSmtpConfig = (): Omit<SmtpConfig, 'auth'> & { auth: { user: stri
   };
 };
 
-// Fonction pour envoyer un email
+// Fonction pour envoyer un email via l'API
 export const sendEmail = async (
   to: string,
   subject: string,
@@ -56,26 +55,28 @@ export const sendEmail = async (
       return { success: false, error: 'Configuration SMTP incomplète' };
     }
 
-    // Créer un transporteur SMTP réutilisable
-    const transporter = nodemailer.createTransport({
-      host: smtpConfig.host,
-      port: smtpConfig.port,
-      secure: smtpConfig.secure,
-      auth: {
-        user: smtpConfig.auth.user,
-        pass: smtpConfig.auth.pass
-      }
+    // Envoyer l'email via l'API
+    const response = await fetch('/api/email/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: from || smtpConfig.from,
+        to,
+        subject,
+        html,
+        smtpConfig
+      })
     });
 
-    // Envoyer l'email
-    const info = await transporter.sendMail({
-      from: from || smtpConfig.from,
-      to,
-      subject,
-      html
-    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erreur lors de l\'envoi de l\'email');
+    }
 
-    console.log('Email envoyé:', info.messageId);
+    const result = await response.json();
+    console.log('Email envoyé:', result.messageId);
     return { success: true };
   } catch (error) {
     console.error('Erreur lors de l\'envoi de l\'email:', error);
