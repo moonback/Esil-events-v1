@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Package, FileText, Users, TrendingUp, ShoppingCart, Download, ClipboardList, ArrowUp, ArrowDown } from 'lucide-react';
+import { Package, FileText, Download, ClipboardList } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
+import StatCard from '../../components/admin/StatCard';
+import { NotificationContainer } from '../../components/admin/AdminNotification';
 import { getAllProducts } from '../../services/productService';
 import { getAllCategories } from '../../services/categoryService';
 import { getQuoteRequests } from '../../services/quoteRequestService';
@@ -14,54 +16,7 @@ const AdminDashboard: React.FC = () => {
   const [quoteRequestsCount, setQuoteRequestsCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  // const [recentActivity, setRecentActivity] = useState([
-  //   {
-  //     id: 1,
-  //     type: 'product',
-  //     action: 'add',
-  //     description: 'Nouveau produit "Chaise de bureau" ajouté',
-  //     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-  //     icon: <Package className="w-4 h-4 text-blue-600" />,
-  //     bgColor: 'bg-blue-50'
-  //   },
-  //   {
-  //     id: 2,
-  //     type: 'category',
-  //     action: 'edit',
-  //     description: 'Catégorie "Mobilier" modifiée',
-  //     timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
-  //     icon: <FileText className="w-4 h-4 text-emerald-600" />,
-  //     bgColor: 'bg-emerald-50'
-  //   },
-  //   {
-  //     id: 3,
-  //     type: 'quote',
-  //     action: 'new',
-  //     description: 'Nouvelle demande de devis reçue',
-  //     timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
-  //     icon: <ClipboardList className="w-4 h-4 text-purple-600" />,
-  //     bgColor: 'bg-purple-50'
-  //   },
-  //   {
-  //     id: 4,
-  //     type: 'product',
-  //     action: 'edit',
-  //     description: 'Produit "Table de conférence" mis à jour',
-  //     timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000),
-  //     icon: <Package className="w-4 h-4 text-blue-600" />,
-  //     bgColor: 'bg-blue-50'
-  //   },
-  //   {
-  //     id: 5,
-  //     type: 'quote',
-  //     action: 'status',
-  //     description: 'Devis #1234 marqué comme traité',
-  //     timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-  //     icon: <ClipboardList className="w-4 h-4 text-purple-600" />,
-  //     bgColor: 'bg-purple-50'
-  //   }
-  // ]);
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -89,35 +44,6 @@ const AdminDashboard: React.FC = () => {
     fetchData();
   }, []);
 
-  const stats = [
-    {
-      title: 'Total Produits',
-      value: loading ? '...' : productsCount.toString(),
-      icon: <Package className="w-6 h-6 text-blue-600" />,
-      bgColor: 'bg-blue-50',
-      // trend: '+12%',
-      trendUp: true
-    },
-    {
-      title: 'Catégories',
-      value: loading ? '...' : categoriesCount.toString(),
-      icon: <FileText className="w-6 h-6 text-emerald-600" />,
-      bgColor: 'bg-emerald-50',
-      // trend: '+5%',
-      trendUp: true
-    },
-    {
-      title: 'Demandes de devis',
-      value: loading ? '...' : quoteRequestsCount.toString(),
-      icon: <ClipboardList className="w-6 h-6 text-purple-600" />,
-      bgColor: 'bg-purple-50',
-      // trend: '+18%',
-      trendUp: true
-    },
-  ];
-
-
-  
   // Afficher un indicateur de chargement pendant le chargement des données
   if (loading) {
     return (
@@ -218,53 +144,81 @@ const AdminDashboard: React.FC = () => {
   return (
     <AdminLayout>
       <AdminHeader />
+      <NotificationContainer />
       <div className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-8">
           {/* Welcome Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Bonjour, Admin 👋</h1>
-            <p className="mt-2 text-gray-600">Voici un aperçu de votre activité aujourd'hui</p>
+          <div className="mb-8 bg-gradient-to-r from-violet-600/10 to-indigo-600/10 p-6 rounded-2xl border border-violet-100 dark:border-violet-900/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Bonjour, Admin 👋</h1>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">Voici un aperçu de votre activité aujourd'hui</p>
+              </div>
+              <div className="hidden md:block">
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {stats.map((stat, index) => (
-              <div 
-                key={index} 
-                className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300"
-              >
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`${stat.bgColor} p-3 rounded-xl`}>
-                      {stat.icon}
-                    </div>
-                    
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                    {stat.value}
-                  </h3>
-                  <p className="text-gray-600">{stat.title}</p>
-                </div>
-              </div>
-            ))}
+            <StatCard 
+              title="Total Produits"
+              value={loading ? '...' : productsCount.toString()}
+              icon={<Package className="w-6 h-6" />}
+              bgColor="bg-blue-50"
+              // trend="+12%"
+              // trendUp={true}
+              colorScheme="blue"
+              description="Nombre total de produits disponibles"
+            />
+            <StatCard 
+              title="Catégories"
+              value={loading ? '...' : categoriesCount.toString()}
+              icon={<FileText className="w-6 h-6" />}
+              bgColor="bg-emerald-50"
+              // trend="+5%"
+              // trendUp={true}
+              colorScheme="green"
+              description="Nombre total de catégories"
+            />
+            <StatCard 
+              title="Demandes de devis"
+              value={loading ? '...' : quoteRequestsCount.toString()}
+              icon={<ClipboardList className="w-6 h-6" />}
+              bgColor="bg-purple-50"
+              // trend="+18%"
+              // trendUp={true}
+              colorScheme="purple"
+              description="Nombre total de demandes de devis"
+            />
           </div>
 
           {/* Quick Actions */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Actions rapides</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Actions rapides</h2>
+              <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700 mx-4"></div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {quickActions.map((action, index) => (
                 <button
                   key={index}
                   onClick={action.onClick}
-                  className={`p-4 bg-white rounded-xl border border-gray-100 hover:shadow-md transition-all duration-300 flex items-center space-x-3 ${action.bgHover}`}
+                  className={`p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-violet-200 dark:hover:border-violet-800 transition-all duration-300 flex items-center space-x-3 ${action.bgHover}`}
                 >
-                  {action.icon}
-                  <span className="text-gray-700">{action.title}</span>
+                  <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-700">
+                    {action.icon}
+                  </div>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">{action.title}</span>
                 </button>
               ))}
             </div>
           </div>
+
+         
         </div>
       </div>
     </AdminLayout>

@@ -74,7 +74,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
         </div>
       )}
       
-      <header className="fixed top-0 right-0 md:left-64 left-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-30 shadow-sm">
+      <header className="fixed top-0 right-0 md:left-64 left-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-30 shadow-sm transition-all duration-300">
         <div className="h-full px-4 flex items-center justify-between">
           {/* Left Side */}
           <div className="flex items-center">
@@ -88,7 +88,9 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
             
             {/* Breadcrumb - Hidden on mobile */}
             <div className="hidden md:flex items-center text-sm text-gray-500 dark:text-gray-400 ml-2">
-              <Home className="w-4 h-4 mr-1" />
+              <div className="p-1.5 bg-violet-50 dark:bg-violet-900/20 rounded-md">
+                <Home className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+              </div>
               <span className="mx-2">/</span>
               <span className="font-medium text-gray-900 dark:text-white">{title || 'Dashboard'}</span>
             </div>
