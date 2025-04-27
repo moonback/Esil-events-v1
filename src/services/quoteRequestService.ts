@@ -76,7 +76,17 @@ const mapFormDataToQuoteRequest = (formData: FormData, cartItems: any[]): QuoteR
     event_duration: formData.eventDuration,
     description: formData.description || `Événement ${formData.eventLocation === 'indoor' ? 'en intérieur' : 'en extérieur'} pour ${formData.guestCount} personnes.`,
     
-    // Ajout des champs manquants
+    // Propriétés manquantes requises par l'interface QuoteRequest
+    billing_postal_code: formData.postalCode,
+    billing_city: formData.city,
+    has_elevator: formData.interiorAccess === 'elevator',
+    elevator_dimensions: formData.interiorAccess === 'elevator' ? 
+      `Largeur: ${formData.elevatorWidth || 'N/A'}, Hauteur: ${formData.elevatorHeight || 'N/A'}, Profondeur: ${formData.elevatorDepth || 'N/A'}` : '',
+    floor_number: undefined,
+    pickup_time_slot: formData.deliveryTimeSlot || '',
+    additional_comments: formData.comments,
+    privacy_accepted: formData.termsAccepted,
+    
     // Informations de facturation
     customer_type: formData.customerType,
     billing_address: formData.billingAddress,
@@ -201,6 +211,18 @@ export const updateQuoteRequestStatus = async (id: string, status: string): Prom
   const { data, error } = await supabase
     .from('quote_requests')
     .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  return { data, error };
+};
+
+/**
+ * Supprime une demande de devis par son ID
+ */
+export const deleteQuoteRequest = async (id: string): Promise<{ data: any; error: any }> => {
+  const { data, error } = await supabase
+    .from('quote_requests')
+    .delete()
     .eq('id', id);
 
   return { data, error };

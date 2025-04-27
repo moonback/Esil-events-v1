@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import {
   FileText, Eye, Check, X, RefreshCw, Send, Users, Package, Calendar,
   Clock, MapPin, Truck, Search, Filter, ArrowDownUp, Clipboard,
-  Edit, Printer, FileDown
+  Edit, Printer, FileDown, Trash2, AlertTriangle
 } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import FilterPanel from '../../components/admin/FilterPanel';
-import { getQuoteRequests, updateQuoteRequestStatus, QuoteRequest } from '../../services/quoteRequestService';
+import { getQuoteRequests, updateQuoteRequestStatus, deleteQuoteRequest, QuoteRequest } from '../../services/quoteRequestService';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -157,6 +157,44 @@ const QuoteRequestsAdmin: React.FC = () => {
     } catch (err: any) {
       const errorMessage = `Erreur lors de la mise à jour du statut: ${err.message}`;
       setError(errorMessage); // Set main error as well if needed
+      setFeedbackMessage({ type: 'error', text: errorMessage });
+      console.error(err);
+    }
+  };
+
+  // --- Delete Quote Request ---
+  const handleDeleteRequest = async (id: string) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette demande de devis ? Cette action est irréversible.')) {
+      return;
+    }
+
+    setFeedbackMessage(null); // Clear previous messages
+    setError('');
+    try {
+      const { error: deleteError } = await deleteQuoteRequest(id);
+
+      if (deleteError) {
+        throw new Error(deleteError.message);
+      }
+
+      // Update local state by removing the deleted request
+      setQuoteRequests(prevRequests => 
+        prevRequests.filter(req => req.id !== id)
+      );
+
+      // If the selected request is the one being deleted, clear the selection
+      if (selectedRequest && selectedRequest.id === id) {
+        setSelectedRequest(null);
+        setSuggestedResponse('');
+      }
+
+      setFeedbackMessage({ type: 'success', text: 'Demande de devis supprimée avec succès.' });
+      // Clear message after a few seconds
+      setTimeout(() => setFeedbackMessage(null), 3000);
+
+    } catch (err: any) {
+      const errorMessage = `Erreur lors de la suppression: ${err.message}`;
+      setError(errorMessage);
       setFeedbackMessage({ type: 'error', text: errorMessage });
       console.error(err);
     }
@@ -994,18 +1032,30 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
                               </span>
                             </td>
                             <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-center">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation(); // Prevent row click from double-triggering
-                                  setSelectedRequest(request);
-                                  setSuggestedResponse('');
-                                  setFeedbackMessage(null);
-                                }}
-                                className="p-2 rounded-md text-indigo-600 hover:bg-indigo-100 transition-colors"
-                                title="Voir les détails"
-                              >
-                                <Eye className="h-5 w-5" />
-                              </button>
+                              <div className="flex space-x-1">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // Prevent row click from double-triggering
+                                    setSelectedRequest(request);
+                                    setSuggestedResponse('');
+                                    setFeedbackMessage(null);
+                                  }}
+                                  className="p-2 rounded-md text-indigo-600 hover:bg-indigo-100 transition-colors"
+                                  title="Voir les détails"
+                                >
+                                  <Eye className="h-5 w-5" />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // Prevent row click from double-triggering
+                                    handleDeleteRequest(request.id || '');
+                                  }}
+                                  className="p-2 rounded-md text-red-600 hover:bg-red-100 transition-colors"
+                                  title="Supprimer la demande"
+                                >
+                                  <Trash2 className="h-5 w-5" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))
