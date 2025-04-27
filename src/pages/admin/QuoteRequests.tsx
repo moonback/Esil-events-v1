@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import {
   FileText, Eye, Check, X, RefreshCw, Send, Users, Package, Calendar,
   Clock, MapPin, Truck, Search, Filter, ArrowDownUp, Clipboard,
-  Edit, Printer, FileDown // Ajout des icônes pour impression et export PDF
+  Edit, Printer, FileDown
 } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
+import FilterPanel from '../../components/admin/FilterPanel';
 import { getQuoteRequests, updateQuoteRequestStatus, QuoteRequest } from '../../services/quoteRequestService';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -24,6 +25,9 @@ const QuoteRequestsAdmin: React.FC = () => {
   const [suggestedResponse, setSuggestedResponse] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [customerTypeFilter, setCustomerTypeFilter] = useState<string>('all');
+  const [deliveryTypeFilter, setDeliveryTypeFilter] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   // --- Data Loading ---
@@ -65,7 +69,7 @@ const QuoteRequestsAdmin: React.FC = () => {
   useEffect(() => {
     let filtered = [...quoteRequests];
 
-    // Filter by search term (if term exists and is not just whitespace)
+    // Filter by search term
     const term = searchTerm.toLowerCase().trim();
     if (term) {
       filtered = filtered.filter(request =>
@@ -74,7 +78,7 @@ const QuoteRequestsAdmin: React.FC = () => {
         request.email?.toLowerCase().includes(term) ||
         request.company?.toLowerCase().includes(term) ||
         request.phone?.includes(term) ||
-        request.id?.toLowerCase().includes(term) // Assuming ID is string and searchable
+        request.id?.toLowerCase().includes(term)
       );
     }
 
@@ -83,9 +87,45 @@ const QuoteRequestsAdmin: React.FC = () => {
       filtered = filtered.filter(request => request.status === statusFilter);
     }
 
+    // Filter by customer type
+    if (customerTypeFilter !== 'all') {
+      filtered = filtered.filter(request => request.customer_type === customerTypeFilter);
+    }
+
+    // Filter by delivery type
+    if (deliveryTypeFilter !== 'all') {
+      filtered = filtered.filter(request => request.delivery_type === deliveryTypeFilter);
+    }
+
+    // Filter by date
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay());
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+      filtered = filtered.filter(request => {
+        const requestDate = new Date(request.created_at || '');
+        switch (dateFilter) {
+          case 'today':
+            return requestDate >= today;
+          case 'week':
+            return requestDate >= startOfWeek;
+          case 'month':
+            return requestDate >= startOfMonth;
+          case 'year':
+            return requestDate >= startOfYear;
+          default:
+            return true;
+        }
+      });
+    }
+
     setFilteredRequests(filtered);
-    setCurrentPage(1); // Reset pagination when filters or source data change
-  }, [searchTerm, statusFilter, quoteRequests]);
+    setCurrentPage(1); // Reset pagination when filters change
+  }, [searchTerm, statusFilter, customerTypeFilter, deliveryTypeFilter, dateFilter, quoteRequests]);
 
   // --- Status Update ---
   const handleUpdateStatus = async (id: string, status: string) => {
@@ -763,9 +803,30 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
   };
 
   // --- Render ---
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setStatusFilter('all');
+    setCustomerTypeFilter('all');
+    setDeliveryTypeFilter('all');
+    setDateFilter('all');
+  };
+
   return (
     <AdminLayout>
       <AdminHeader />
+      <FilterPanel
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        customerTypeFilter={customerTypeFilter}
+        setCustomerTypeFilter={setCustomerTypeFilter}
+        deliveryTypeFilter={deliveryTypeFilter}
+        setDeliveryTypeFilter={setDeliveryTypeFilter}
+        dateFilter={dateFilter}
+        setDateFilter={setDateFilter}
+        onReset={handleResetFilters}
+      />
       <div className="space-y-8 mt-12 max-w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12"> {/* Use max-w-full or adjust as needed */}
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 rounded-lg shadow-md border-l-4 border-indigo-600 gap-4">
