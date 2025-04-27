@@ -91,14 +91,14 @@ const ProductPage: React.FC = () => {
   }
 
   return (
-    <div className="pt-32 pb-16 px-4 bg-gray-50">
+    <div className="pt-32 pb-16 px-4 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        {/* Breadcrumb - improved styling */}
-        <div className="mb-8">
+        {/* Breadcrumb - enhanced with better spacing */}
+        <div className="mb-10">
           <nav className="flex" aria-label="Breadcrumb">
-            <ol className="inline-flex items-center space-x-2 text-sm">
+            <ol className="inline-flex items-center space-x-3 text-sm">
               <li className="inline-flex items-center">
-                <Link to="/" className="text-gray-600 hover:text-black transition-colors">
+                <Link to="/" className="text-gray-600 hover:text-black transition-colors duration-200">
                   Accueil
                 </Link>
               </li>
@@ -107,7 +107,7 @@ const ProductPage: React.FC = () => {
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                   <Link 
                     to={`/products/${product.category}`} 
-                    className="ml-2 text-gray-600 hover:text-black transition-colors"
+                    className="ml-3 text-gray-600 hover:text-black transition-colors duration-200"
                   >
                     {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
                   </Link>
@@ -116,22 +116,22 @@ const ProductPage: React.FC = () => {
               <li aria-current="page">
                 <div className="flex items-center">
                   <ChevronRight className="w-4 h-4 text-gray-400" />
-                  <span className="ml-2 text-gray-500 font-medium">{product.name}</span>
+                  <span className="ml-3 text-gray-500 font-medium">{product.name}</span>
                 </div>
               </li>
             </ol>
           </nav>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Product Images - improved gallery */}
-          <div className="bg-white p-4 rounded-xl shadow-sm">
-            <div className="relative group">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          {/* Product Images - enhanced with zoom effect */}
+          <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="relative group overflow-hidden rounded-lg">
               {product.images && product.images.length > 0 ? (
                 <img 
                   src={product.images[currentImageIndex]} 
                   alt={product.name} 
-                  className="w-full h-96 object-contain rounded-lg transition-opacity duration-300"
+                  className="w-full h-96 object-contain rounded-lg transition-transform duration-500 group-hover:scale-105"
                   onError={(e) => {
                     e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
                   }}
@@ -148,27 +148,27 @@ const ProductPage: React.FC = () => {
                 <>
                   <button 
                     onClick={handlePrevImage}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-all opacity-0 group-hover:opacity-100"
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button 
                     onClick={handleNextImage}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-all opacity-0 group-hover:opacity-100"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className="w-6 h-6" />
                   </button>
                 </>
               )}
             </div>
             
-            {/* Thumbnails - improved styling */}
+            {/* Thumbnails - enhanced with active state */}
             {product.images && product.images.length > 1 && (
-              <div className="mt-4 flex overflow-x-auto py-2 space-x-3 scrollbar-hide">
+              <div className="mt-6 flex overflow-x-auto py-2 space-x-4 scrollbar-hide">
                 {product.images.map((image, index) => (
                   <div 
                     key={index}
-                    className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden cursor-pointer transition-all duration-200 border-2 ${currentImageIndex === index ? 'border-violet-500' : 'border-transparent hover:border-gray-200'}`}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border-2 ${currentImageIndex === index ? 'border-violet-600 scale-105' : 'border-transparent hover:border-gray-300'}`}
                     onClick={() => setCurrentImageIndex(index)}
                   >
                     <img 
@@ -182,66 +182,66 @@ const ProductPage: React.FC = () => {
             )}
           </div>
 
-          {/* Product Info - improved layout */}
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <div className="mb-6 pb-6 border-b border-gray-100">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
-              <p className="text-gray-500 text-sm mb-4">Réf: {product.reference}</p>
+          {/* Product Info - enhanced with better visual hierarchy */}
+          <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="mb-8 pb-8 border-b border-gray-200">
+              <h1 className="text-4xl font-bold text-gray-900 mb-3">{product.name}</h1>
+              <p className="text-gray-500 text-sm font-medium mb-6">Réf: {product.reference}</p>
               
-              {/* Price section - improved */}
-              <div className="flex items-center space-x-8 mb-4">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Prix HT / jour</p>
+              {/* Price section - enhanced with badges */}
+              <div className="flex items-center space-x-10 mb-6">
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <p className="text-xs text-gray-500 mb-1">Prix HT / jour</p>
                   <p className="text-2xl font-bold text-gray-800">{product.priceHT.toFixed(2)} €</p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Prix TTC / jour</p>
+                <div className="bg-violet-50 p-3 rounded-lg">
+                  <p className="text-xs text-violet-600 mb-1">Prix TTC / jour</p>
                   <p className="text-2xl font-bold text-violet-600">{product.priceTTC.toFixed(2)} €</p>
                 </div>
               </div>
               
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
                 Tarif affiché pour une journée. Un tarif dégressif est appliqué pour toute journée supplémentaire. 
                 Ce prix ne comprend pas la livraison, l'installation et le démontage du matériel.
               </p>
             </div>
             
-            {/* Quantity Selector - improved */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Quantité</label>
-              <div className="flex items-center max-w-xs">
+            {/* Quantity Selector - enhanced */}
+            <div className="mb-8">
+              <label className="block text-sm font-medium text-gray-700 mb-3">Quantité</label>
+              <div className="flex items-center max-w-xs border border-gray-200 rounded-lg overflow-hidden">
                 <button 
                   onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                  className="p-2 border border-gray-300 rounded-l hover:bg-gray-50 transition-colors"
+                  className="p-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
                 >
-                  <Minus className="w-4 h-4" />
+                  <Minus className="w-5 h-5" />
                 </button>
                 <input 
                   type="number" 
                   min="1" 
                   value={quantity} 
                   onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="p-2 w-16 text-center border-t border-b border-gray-300 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                  className="p-3 w-16 text-center border-x border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500"
                 />
                 <button 
                   onClick={() => setQuantity(prev => prev + 1)}
-                  className="p-2 border border-gray-300 rounded-r hover:bg-gray-50 transition-colors"
+                  className="p-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-5 h-5" />
                 </button>
               </div>
             </div>
             
-            {/* Color Selector - improved */}
+            {/* Color Selector - enhanced */}
             {product.colors && product.colors.length > 0 && (
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Couleur</label>
-                <div className="flex flex-wrap gap-2">
+              <div className="mb-8">
+                <label className="block text-sm font-medium text-gray-700 mb-3">Couleur</label>
+                <div className="flex flex-wrap gap-3">
                   {product.colors.map((color) => (
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`px-4 py-2 text-sm rounded-md transition-all ${selectedColor === color ? 'bg-violet-100 text-violet-700 border border-violet-300' : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300'}`}
+                      className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${selectedColor === color ? 'bg-violet-600 text-white shadow-md' : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300'}`}
                     >
                       {color}
                     </button>
@@ -250,13 +250,13 @@ const ProductPage: React.FC = () => {
               </div>
             )}
             
-            {/* Add to Cart Button - improved */}
+            {/* Add to Cart Button - enhanced with pulse animation */}
             <button 
               onClick={handleAddToCart}
-              className="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 mb-8 flex items-center justify-center space-x-2"
+              className="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium py-4 px-6 rounded-lg transition-all duration-300 mb-10 flex items-center justify-center space-x-3 hover:shadow-lg hover:-translate-y-0.5"
             >
-              <span>Ajouter au devis</span>
-              <Plus className="w-4 h-4" />
+              <span className="font-semibold">Ajouter au devis</span>
+              <Plus className="w-5 h-5" />
             </button>
             
             {/* Description - improved */}
@@ -318,19 +318,18 @@ const ProductPage: React.FC = () => {
           </div>
         </div>
         
-        {/* Related Products - improved */}
+        {/* Related Products - enhanced */}
         {product.relatedProducts && product.relatedProducts.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Produits associés</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Related products would be rendered here */}
+          <div className="mt-20">
+            <h2 className="text-3xl font-bold text-gray-900 mb-10">Produits associés</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {[1, 2, 3, 4].map((index) => (
-                <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="h-48 bg-gray-100 animate-pulse"></div>
-                  <div className="p-4">
-                    <div className="h-5 bg-gray-200 rounded animate-pulse mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4 mb-4"></div>
-                    <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div key={index} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                  <div className="h-56 bg-gradient-to-r from-gray-100 to-gray-200 animate-pulse"></div>
+                  <div className="p-5">
+                    <div className="h-6 bg-gray-200 rounded animate-pulse mb-3"></div>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4 mb-5"></div>
+                    <div className="h-10 bg-gray-200 rounded-lg animate-pulse"></div>
                   </div>
                 </div>
               ))}
