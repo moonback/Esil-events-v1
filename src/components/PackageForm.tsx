@@ -518,282 +518,17 @@ const PackageForm: React.FC<PackageFormProps> = ({ initialData, onSubmit, isLoad
                       value={minQuantity || 0}
                       onChange={(e) => setMinQuantity(parseInt(e.target.value) || 0)}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Option obligatoire */}
-              <div className="flex items-center mt-2">
-                <input
-                  type="checkbox"
-                  id="newOptionRequired"
-                  checked={newOptionRequired}
-                  onChange={(e) => setNewOptionRequired(e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label htmlFor="newOptionRequired" className="ml-2 block text-sm text-gray-700">Option obligatoire</label>
-              </div>
-
-              {/* Choix disponibles */}
-              <div className="mt-4">
-                <div className="flex justify-between items-center">
-                  <h5 className="text-sm font-medium text-gray-700">Choix disponibles:</h5>
-                  <button
-                    type="button"
-                    onClick={handleAddChoice}
-                    className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-indigo-500"
-                  >
-                    <Plus className="h-3 w-3 mr-1" />
-                    Ajouter un choix
-                  </button>
-                </div>
-
-                {newOptionChoices.length > 0 ? (
-                  <div className="space-y-3 mt-3">
-                    {newOptionChoices.map((choice, index) => (
-                      <div key={index} className="bg-white p-3 rounded-md border border-gray-200 relative">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveChoice(index)}
-                          className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700">Nom du choix</label>
-                            <input
-                              type="text"
-                              value={choice.name}
-                              onChange={(e) => handleUpdateChoice(index, 'name', e.target.value)}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700">Ajustement de prix (€)</label>
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={choice.priceAdjustment}
-                              onChange={(e) => handleUpdateChoice(index, 'priceAdjustment', parseFloat(e.target.value) || 0)}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="mt-2">
-                          <label className="block text-xs font-medium text-gray-700">Description (facultative)</label>
-                          <input
-                            type="text"
-                            value={choice.description}
-                            onChange={(e) => handleUpdateChoice(index, 'description', e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs"
-                          />
-                        </div>
-                      </div>
-                    ))}
+                    />
                   </div>
-                ) : (
-                  <div className="text-center py-3 bg-gray-50 rounded-md mt-2">
-                    <p className="text-xs text-gray-500">Aucun choix ajouté</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex justify-end mt-4">
-                <button
-                  type="button"
-                  onClick={handleAddOption}
-                  disabled={!newOptionName.trim() || newOptionChoices.length === 0}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Ajouter l'option
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Boutons de soumission */}
-      <div className="flex justify-end space-x-4 pt-6 border-t">
-        <button
-          type="button"
-          onClick={() => window.history.back()}
-          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          Annuler
-        </button>
-        <button
-          type="submit"
-          disabled={isLoading || formData.items.length === 0}
-          className="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
-        >
-          {isLoading ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Enregistrement...
-            </>
-          ) : initialData ? 'Mettre à jour le package' : 'Créer le package'}
-        </button>
-      </div>
-    </form>
-  );
-};
-
-             
-{isCustomizable && (
-  <div className="flex space-x-4">
-    <div>
-      <label htmlFor="minQuantity" className="block text-sm font-medium text-gray-700">Quantité min</label>
-      <input
-        type="number"
-        id="minQuantity"
-        min="0"
-        value={minQuantity || 0}
-        onChange={(e) => setMinQuantity(parseInt(e.target.value) || 0)}
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-      />
-    </div>
-    <div>
-      <label htmlFor="maxQuantity" className="block text-sm font-medium text-gray-700">Quantité max</label>
-      <input
-        type="number"
-        id="maxQuantity"
-        min="0"
-        value={maxQuantity || 0}
-        onChange={(e) => setMaxQuantity(parseInt(e.target.value) || 0)}
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-      />
-    </div>
-  </div>
-)}
-
-              {/* Option obligatoire */}
-              <div className="flex items-center mt-2">
-                <input
-                  type="checkbox"
-                  id="newOptionRequired"
-                  checked={newOptionRequired}
-                  onChange={(e) => setNewOptionRequired(e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label htmlFor="newOptionRequired" className="ml-2 block text-sm text-gray-700">Option obligatoire</label>
-              </div>
-
-              {/* Choix disponibles */}
-              <><div className="mt-4">
-  <div className="flex justify-between items-center">
-    <h5 className="text-sm font-medium text-gray-700">Choix disponibles:</h5>
-    <button
-      type="button"
-      onClick={handleAddChoice}
-      className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-indigo-500"
-    >
-      <Plus className="h-3 w-3 mr-1" />
-      Ajouter un choix
-    </button>
-  </div>
-
-  {newOptionChoices.length > 0 ? (
-    <div className="space-y-3 mt-3">
-      {newOptionChoices.map((choice, index) => (
-        <div key={index} className="bg-white p-3 rounded-md border border-gray-200 relative">
-          <button
-            type="button"
-            onClick={() => handleRemoveChoice(index)}
-            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-          >
-            <X className="h-4 w-4" />
-          </button>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <div>
-              <label className="block text-xs font-medium text-gray-700">Nom du choix</label>
-              <input
-                type="text"
-                value={choice.name}
-                onChange={(e) => handleUpdateChoice(index, 'name', e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700">Ajustement de prix (€)</label>
-              <input
-                type="number"
-                step="0.01"
-                value={choice.priceAdjustment}
-                onChange={(e) => handleUpdateChoice(index, 'priceAdjustment', parseFloat(e.target.value) || 0)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs" />
-            </div>
-          </div>
-
-          <div className="mt-2">
-            <label className="block text-xs font-medium text-gray-700">Description (facultative)</label>
-            <input
-              type="text"
-              value={choice.description}
-              onChange={(e) => handleUpdateChoice(index, 'description', e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs" />
-          </div>
-        </div>
-      ))}
-    </div>
-  ) : (
-    <div className="text-center py-3 bg-gray-50 rounded-md mt-2">
-      <p className="text-xs text-gray-500">Aucun choix ajouté</p>
-    </div>
-  )}
-</div><div className="flex justify-end mt-4">
-    <button
-      type="button"
-      onClick={handleAddOption}
-      disabled={!newOptionName.trim() || newOptionChoices.length === 0}
-      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
-    >
-      <Plus className="h-4 w-4 mr-2" />
-      Ajouter l'option
-    </button>
-  </div></>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Boutons de soumission */}
-      <div className="flex justify-end space-x-4 pt-6 border-t">
-        <button
-          type="button"
-          onClick={() => window.history.back()}
-          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          Annuler
-        </button>
-        <button
-          type="submit"
-          disabled={isLoading || formData.items.length === 0}
-          className="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
-        >
-          {isLoading ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Enregistrement...
-            </>
-          ) : initialData ? 'Mettre à jour le package' : 'Créer le package'}
-        </button>
-      </div>
-    </form>
-  );
-};
-
-export default PackageForm;-sm"
+                  <div>
+                    <label htmlFor="maxQuantity" className="block text-sm font-medium text-gray-700">Quantité max</label>
+                    <input
+                      type="number"
+                      id="maxQuantity"
+                      min="0"
+                      value={maxQuantity || 0}
+                      onChange={(e) => setMaxQuantity(parseInt(e.target.value) || 0)}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
                   </div>
                 </div>
@@ -881,142 +616,134 @@ export default PackageForm;-sm"
                     value={newOptionName}
                     onChange={(e) => setNewOptionName(e.target.value)}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Option obligatoire */}
-              <div className="flex items-center mt-2">
-                <input
-                  type="checkbox"
-                  id="newOptionRequired"
-                  checked={newOptionRequired}
-                  onChange={(e) => setNewOptionRequired(e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label htmlFor="newOptionRequired" className="ml-2 block text-sm text-gray-700">Option obligatoire</label>
-              </div>
-
-              {/* Choix disponibles */}
-              <div className="mt-4">
-                <div className="flex justify-between items-center">
-                  <h5 className="text-sm font-medium text-gray-700">Choix disponibles:</h5>
-                  <button
-                    type="button"
-                    onClick={handleAddChoice}
-                    className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-indigo-500"
-                  >
-                    <Plus className="h-3 w-3 mr-1" />
-                    Ajouter un choix
-                  </button>
-                </div>
-
-                {newOptionChoices.length > 0 ? (
-                  <div className="space-y-3 mt-3">
-                    {newOptionChoices.map((choice, index) => (
-                      <div key={index} className="bg-white p-3 rounded-md border border-gray-200 relative">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveChoice(index)}
-                          className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700">Nom du choix</label>
-                            <input
-                              type="text"
-                              value={choice.name}
-                              onChange={(e) => handleUpdateChoice(index, 'name', e.target.value)}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs"
-                            />
+                    />
+                    </div>
+                  </div>
+    
+                  {/* Option obligatoire */}
+                  <div className="flex items-center mt-2">
+                    <input
+                      type="checkbox"
+                      id="newOptionRequired"
+                      checked={newOptionRequired}
+                      onChange={(e) => setNewOptionRequired(e.target.checked)}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="newOptionRequired" className="ml-2 block text-sm text-gray-700">Option obligatoire</label>
+                  </div>
+    
+                  {/* Choix disponibles */}
+                  <div className="mt-4">
+                    <div className="flex justify-between items-center">
+                      <h5 className="text-sm font-medium text-gray-700">Choix disponibles:</h5>
+                      <button
+                        type="button"
+                        onClick={handleAddChoice}
+                        className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-indigo-500"
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Ajouter un choix
+                      </button>
+                    </div>
+    
+                    {newOptionChoices.length > 0 ? (
+                      <div className="space-y-3 mt-3">
+                        {newOptionChoices.map((choice, index) => (
+                          <div key={index} className="bg-white p-3 rounded-md border border-gray-200 relative">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveChoice(index)}
+                              className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+    
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700">Nom du choix</label>
+                                <input
+                                  type="text"
+                                  value={choice.name}
+                                  onChange={(e) => handleUpdateChoice(index, 'name', e.target.value)}
+                                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700">Ajustement de prix (€)</label>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  value={choice.priceAdjustment}
+                                  onChange={(e) => handleUpdateChoice(index, 'priceAdjustment', parseFloat(e.target.value) || 0)}
+                                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs"
+                                />
+                              </div>
+                            </div>
+    
+                            <div className="mt-2">
+                              <label className="block text-xs font-medium text-gray-700">Description (facultative)</label>
+                              <input
+                                type="text"
+                                value={choice.description}
+                                onChange={(e) => handleUpdateChoice(index, 'description', e.target.value)}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs"
+                              />
+                            </div>
                           </div>
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700">Ajustement de prix (€)</label>
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={choice.priceAdjustment}
-                              onChange={(e) => handleUpdateChoice(index, 'priceAdjustment', parseFloat(e.target.value) || 0)}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="mt-2">
-                          <label className="block text-xs font-medium text-gray-700">Description (facultative)</label>
-                          <input
-                            type="text"
-                            value={choice.description}
-                            onChange={(e) => handleUpdateChoice(index, 'description', e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-xs"
-                          />
-                        </div>
+                        ))}
                       </div>
-                    ))}
+                    ) : (
+                      <div className="text-center py-3 bg-gray-50 rounded-md mt-2">
+                        <p className="text-xs text-gray-500">Aucun choix ajouté</p>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="text-center py-3 bg-gray-50 rounded-md mt-2">
-                    <p className="text-xs text-gray-500">Aucun choix ajouté</p>
+    
+                  <div className="flex justify-end mt-4">
+                    <button
+                      type="button"
+                      onClick={handleAddOption}
+                      disabled={!newOptionName.trim() || newOptionChoices.length === 0}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Ajouter l'option
+                    </button>
                   </div>
-                )}
-              </div>
-
-              <div className="flex justify-end mt-4">
-                <button
-                  type="button"
-                  onClick={handleAddOption}
-                  disabled={!newOptionName.trim() || newOptionChoices.length === 0}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Ajouter l'option
-                </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Boutons de soumission */}
-      <div className="flex justify-end space-x-4 pt-6 border-t">
-        <button
-          type="button"
-          onClick={() => window.history.back()}
-          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          Annuler
-        </button>
-        <button
-          type="submit"
-          disabled={isLoading || formData.items.length === 0}
-          className="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
-        >
-          {isLoading ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Enregistrement...
-            </>
-          ) : initialData ? 'Mettre à jour le package' : 'Créer le package'}
-        </button>
-      </div>
-    </form>
-  );
-};
-
-export default PackageForm;-sm"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="newOptionDescription" className="block text-sm font-medium text-gray-700">Description (facultative)</label>
-                  <input
-                    type="text"
-                    id="newOptionDescription"
-                    value={newOptionDescription}
-                    onChange={(e) => setNewOptionDescription(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow
+    
+          {/* Boutons de soumission */}
+          <div className="flex justify-end space-x-4 pt-6 border-t">
+            <button
+              type="button"
+              onClick={() => window.history.back()}
+              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading || formData.items.length === 0}
+              className="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Enregistrement...
+                </>
+              ) : initialData ? 'Mettre à jour le package' : 'Créer le package'}
+            </button>
+          </div>
+        </form>
+      );
+    };
+    
+    export default PackageForm;
+    
+                  
