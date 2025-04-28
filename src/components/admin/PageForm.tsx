@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PageFormData } from '../../services/pageService';
+import RichTextEditor from '../ui/RichTextEditor';
 
 interface PageFormProps {
   initialData?: PageFormData;
@@ -106,14 +107,13 @@ const PageForm: React.FC<PageFormProps> = ({ initialData, onSubmit, onCancel }) 
           <label htmlFor="content" className="block text-sm font-medium text-gray-700">
             Contenu <span className="text-red-500">*</span>
           </label>
-          <textarea
-            id="content"
-            name="content"
-            rows={10}
-            value={formData.content}
-            onChange={handleChange}
-            className={`mt-1 block w-full rounded-md border ${errors.content ? 'border-red-500' : 'border-gray-300'} px-3 py-2 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm`}
-          />
+          <div className={`mt-1 ${errors.content ? 'border-red-500' : 'border-gray-300'}`}>
+            <RichTextEditor
+              value={formData.content}
+              onChange={(content) => setFormData(prev => ({ ...prev, content }))}
+              placeholder="Commencez à écrire le contenu de votre page..."
+            />
+          </div>
           {errors.content && <p className="mt-1 text-sm text-red-500">{errors.content}</p>}
         </div>
 
