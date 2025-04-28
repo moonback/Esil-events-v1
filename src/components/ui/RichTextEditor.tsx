@@ -49,7 +49,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         placeholder={placeholder}
         className="min-h-[200px]"
       />
-      <style jsx global>{`
+      {/* <style jsx={true} global={true}>{`
         .rich-text-editor .ql-container {
           min-height: 200px;
           font-size: 16px;
@@ -66,7 +66,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           border-bottom-left-radius: 0.375rem;
           border-bottom-right-radius: 0.375rem;
         }
-      `}</style>
+      `}</style> */}
     </div>
   );
 };
