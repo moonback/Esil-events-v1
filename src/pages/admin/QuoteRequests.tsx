@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, ArrowDownUp, RefreshCw, Search, Filter, X } from 'lucide-react';
+import { FileText, ArrowDownUp, RefreshCw, Search, Filter, X, SlidersHorizontal } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { getQuoteRequests, QuoteRequest } from '../../services/quoteRequestService';
@@ -9,12 +9,11 @@ import {
   AIResponseGenerator, 
   FilterPanel,
   FeedbackMessage,
-  QuoteRequestActions
+  // QuoteRequestActions
 } from '../../components/admin/quoteRequests';
 import { useQuoteRequestFilters } from '../../hooks/useQuoteRequestFilters';
 import { usePagination } from '../../hooks/usePagination';
 import { useQuoteRequestActions } from '../../hooks/useQuoteRequestActions';
-
 
 const QuoteRequestsAdmin: React.FC = () => {
   // État principal
@@ -242,7 +241,7 @@ const QuoteRequestsAdmin: React.FC = () => {
                     loading={loading}
                   />
                       
-                  <QuoteRequestActions 
+                  {/* <QuoteRequestActions 
                     selectedRequest={selectedRequest}
                     handleUpdateStatus={handleUpdateStatus}
                     handleExportPDF={handleExportPDF}
@@ -250,7 +249,7 @@ const QuoteRequestsAdmin: React.FC = () => {
                     handleGenerateResponse={handleGenerateResponse}
                     generatingResponse={generatingResponse}
                     loading={loading}
-                  />
+                  /> */}
                   
                 </div>
               ) : (
