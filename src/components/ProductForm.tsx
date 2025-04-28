@@ -10,6 +10,7 @@ import {
   SubSubcategory // Import if needed elsewhere, otherwise Category/Subcategory might suffice
 } from '../services/categoryService';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
+import ProductDescriptionGenerator from './ProductDescriptionGenerator';
 
 interface ProductFormProps {
   initialData?: Product;
@@ -235,7 +236,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
   };
 
   const [descriptionLength, setDescriptionLength] = useState(formData.description.length);
-  const MAX_DESCRIPTION_LENGTH = 500;
+  const MAX_DESCRIPTION_LENGTH = 1500;
   const [newSpecKey, setNewSpecKey] = useState('');
   const [newSpecValue, setNewSpecValue] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -404,7 +405,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-md">
           {error}
@@ -521,9 +522,18 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
               className={`mt-1 block w-full rounded-md shadow-sm min-h-[150px] p-3 resize-y ${descriptionLength > MAX_DESCRIPTION_LENGTH ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-black focus:ring-black'} placeholder:text-gray-400 placeholder:text-sm`}
             />
             {descriptionLength > MAX_DESCRIPTION_LENGTH && ( <p className="mt-1 text-sm text-red-600">La description dépasse {MAX_DESCRIPTION_LENGTH} caractères</p> )}
-            {/* <div className="absolute bottom-3 right-3 text-gray-400 text-sm">Appuyez sur Tab pour indenter</div> */}
           </div>
-          {/* <p className="text-sm text-gray-500 mt-1">Conseil : Incluez dimensions, matériaux, etc.</p> */}
+          {/* Intégration du générateur de description */}
+          <ProductDescriptionGenerator 
+            productData={formData} 
+            onDescriptionGenerated={(description) => {
+              setFormData(prev => ({
+                ...prev,
+                description
+              }));
+              setDescriptionLength(description.length);
+            }}
+          />
         </div>
 
         {/* Prix */}
@@ -702,13 +712,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
           <div className="space-y-2 mb-6">
             <label className="block text-sm font-medium text-gray-700">URL Documentation Technique (PDF)</label>
             <input type="url" name="technicalDocUrl" value={formData.technicalDocUrl || ''} onChange={handleChange} placeholder="https://example.com/doc.pdf" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black" />
-            {/* <p className="text-sm text-gray-500">Lien vers la documentation technique.</p> */}
           </div>
           {/* Video URL */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">URL Vidéo de Présentation</label>
             <input type="url" name="videoUrl" value={formData.videoUrl || ''} onChange={handleChange} placeholder="https://youtube.com/watch?v=..." className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black" />
-            {/* <p className="text-sm text-gray-500">Lien vers une vidéo de démonstration.</p> */}
           </div>
         </div>
 
