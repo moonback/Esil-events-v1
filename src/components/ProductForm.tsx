@@ -10,6 +10,7 @@ import {
   SubSubcategory // Import if needed elsewhere, otherwise Category/Subcategory might suffice
 } from '../services/categoryService';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
+import ProductDescriptionGenerator from './ProductDescriptionGenerator';
 
 interface ProductFormProps {
   initialData?: Product;
@@ -235,7 +236,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
   };
 
   const [descriptionLength, setDescriptionLength] = useState(formData.description.length);
-  const MAX_DESCRIPTION_LENGTH = 500;
+  const MAX_DESCRIPTION_LENGTH = 1500;
   const [newSpecKey, setNewSpecKey] = useState('');
   const [newSpecValue, setNewSpecValue] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -523,6 +524,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
             {descriptionLength > MAX_DESCRIPTION_LENGTH && ( <p className="mt-1 text-sm text-red-600">La description dépasse {MAX_DESCRIPTION_LENGTH} caractères</p> )}
             {/* <div className="absolute bottom-3 right-3 text-gray-400 text-sm">Appuyez sur Tab pour indenter</div> */}
           </div>
+          {/* Intégration du générateur de description */}
+          <ProductDescriptionGenerator 
+            productData={formData} 
+            onDescriptionGenerated={(description) => {
+              setFormData(prev => ({
+                ...prev,
+                description
+              }));
+              setDescriptionLength(description.length);
+            }}
+          />
           {/* <p className="text-sm text-gray-500 mt-1">Conseil : Incluez dimensions, matériaux, etc.</p> */}
         </div>
 
