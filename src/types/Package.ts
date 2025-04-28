@@ -26,7 +26,7 @@ export interface PackageOption {
 }
 
 // Interface principale pour un package
-export interface Package extends Omit<Product, 'relatedProducts'> {
+export interface Package extends Product {
   type: 'package'; // Pour distinguer des produits normaux
   items: PackageItem[];
   options?: PackageOption[];

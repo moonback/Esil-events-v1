@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { Product, ProductFormData } from '../types/Product';
+import { Package } from '../types/Package';
 
 // Mock data for products
 const mockProducts: Product[] = [
@@ -462,7 +463,7 @@ export const calculatePackageTotalPrice = async (items: any[]): Promise<{ totalH
 };
 
 // Récupérer tous les packages
-export const getAllPackages = async (): Promise<Product[]> => {
+export const getAllPackages = async (): Promise<Package[]> => {
   try {
     const { data, error } = await supabase
       .from('products')
@@ -480,8 +481,8 @@ export const getAllPackages = async (): Promise<Product[]> => {
     }
 
     // Convert snake_case to camelCase
-    const formattedData: Product[] = data.map(item => {
-      const packageProduct: any = {
+    const formattedData: Package[] = data.map(item => {
+      const packageProduct: Package = {
         id: item.id,
         name: item.name,
         reference: item.reference,
