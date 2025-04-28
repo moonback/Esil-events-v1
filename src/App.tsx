@@ -14,6 +14,7 @@ import OrdersPage from './pages/OrdersPage';
 import AboutPage from './pages/AboutPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
+import DynamicPage from './pages/DynamicPage';
 import { CartProvider } from './context/CartContext';
 import AdminRoute from './components/AdminRoute';
 import AdminRoutes from './components/AdminRoutes';
@@ -49,6 +50,8 @@ const App: React.FC = () => {
             <Route path="/artists" element={<ArtistPage />} />
             <Route path="/artist/:id" element={<ArtistDetailPage />} />
             <Route path="/agence-evenementielle" element={<EventsPage />} />
+            {/* Route dynamique pour les pages créées dans l'admin */}
+            <Route path="/:slug" element={<DynamicPage />} />
           </Route>
 
           {/* Routes utilisateur avec Layout principal */}
