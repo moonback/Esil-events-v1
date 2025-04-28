@@ -66,7 +66,7 @@ const HomePage: React.FC = () => {
           <source src="video.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-center px-4">
+        <div className="absolute inset-0 bg-black bg-opacity-10 flex flex-col items-center justify-center text-center px-4">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4">
             ESIL Créateur d'Événements Inoubliables
           </h1>
