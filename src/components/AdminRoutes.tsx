@@ -3,14 +3,15 @@ import { Route, Routes } from 'react-router-dom';
 import AdminRoute from './AdminRoute';
 import AdminDashboard from '../pages/admin/Dashboard';
 import AdminProducts from '../pages/admin/Products';
+import AdminPackages from '../pages/admin/Packages';
 import AdminCategories from '../pages/admin/Categories';
 import AdminPages from '../pages/admin/Pages';
 import AdminCustomers from '../pages/admin/Customers';
 import AdminAnnouncements from '../pages/admin/Announcements';
 import AdminArtists from '../pages/admin/Artists';
 import AdminArtistCategories from '../pages/admin/ArtistCategories';
-import QuoteRequestsAdmin from '../pages/admin/QuoteRequests';
-import EmailConfigPage from '../pages/admin/EmailConfig';
+import AdminQuoteRequests from '../pages/admin/QuoteRequests';
+import AdminEmailConfig from '../pages/admin/EmailConfig';
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -24,8 +25,8 @@ const AdminRoutes: React.FC = () => {
         <Route path="announcements" element={<AdminAnnouncements />} />
         <Route path="artists" element={<AdminArtists />} />
         <Route path="artist-categories" element={<AdminArtistCategories />} />
-        <Route path="quote-requests" element={<QuoteRequestsAdmin />} />
-        <Route path="email-config" element={<EmailConfigPage />} />
+        <Route path="quote-requests" element={<AdminQuoteRequests />} />
+        <Route path="email-config" element={<AdminEmailConfig />} />
       </Routes>
     </AdminRoute>
   );

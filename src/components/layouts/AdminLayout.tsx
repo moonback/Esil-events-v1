@@ -10,7 +10,8 @@ import {
   Menu, 
   X, 
   MessageSquare,
-  Mail
+  Mail,
+  ShoppingBag
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -51,6 +52,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       label: 'Produits',
       icon: <Package className="w-5 h-5" />,
       path: '/admin/products'
+    },
+    {
+      label: 'Packages',
+      icon: <ShoppingBag className="w-5 h-5" />,
+      path: '/admin/packages'
     },
     {
       label: 'Catégories',

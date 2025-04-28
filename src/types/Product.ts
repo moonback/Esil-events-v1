@@ -19,6 +19,7 @@ export interface Product {
   isAvailable: boolean;
   createdAt: Date;
   updatedAt: Date;
+  type?: 'product' | 'package'; // Type de produit, par défaut 'product'
 }
 
 export type ProductFormData = Omit<Product, 'id' | 'createdAt' | 'updatedAt'>;

@@ -317,7 +317,7 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       return null;
     }
 
-    // Convert snake_case to camelCase
+    // Créer l'objet produit de base
     const formattedData: Product = {
       id: data.id,
       name: data.name,
@@ -338,8 +338,19 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       technicalSpecs: data.technical_specs,
       technicalDocUrl: data.technical_doc_url,
       videoUrl: data.video_url,
-      relatedProducts: data.related_products || []
+      relatedProducts: data.related_products || [],
+      type: data.type || 'product'
     };
+
+    // Si c'est un package, ajouter les propriétés spécifiques aux packages
+    if (data.type === 'package') {
+      const packageProduct = formattedData as any; // Cast temporaire
+      packageProduct.items = data.package_items || [];
+      packageProduct.options = data.package_options || [];
+      packageProduct.discountPercentage = data.discount_percentage;
+      packageProduct.originalTotalPriceHT = data.original_total_price_ht;
+      packageProduct.originalTotalPriceTTC = data.original_total_price_ttc;
+    }
 
     console.log('Product fetched successfully:', formattedData.id);
     return formattedData;
@@ -422,6 +433,133 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
 };
 
 // Create a new product
+// Fonction pour calculer le prix total d'un package basé sur ses éléments
+export const calculatePackageTotalPrice = async (items: any[]): Promise<{ totalHT: number, totalTTC: number }> => {
+  try {
+    let totalHT = 0;
+    let totalTTC = 0;
+
+    // Récupérer tous les produits inclus dans le package
+    for (const item of items) {
+      if (!item.productId || !item.quantity) continue;
+      
+      try {
+        const product = await getProductById(item.productId);
+        if (product) {
+          totalHT += product.priceHT * item.quantity;
+          totalTTC += product.priceTTC * item.quantity;
+        }
+      } catch (error) {
+        console.error(`Erreur lors de la récupération du produit ${item.productId}:`, error);
+      }
+    }
+
+    return { totalHT, totalTTC };
+  } catch (error) {
+    console.error('Erreur lors du calcul du prix total du package:', error);
+    throw new Error('Erreur lors du calcul du prix total du package');
+  }
+};
+
+// Récupérer tous les packages
+export const getAllPackages = async (): Promise<Product[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('type', 'package')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching packages:', error);
+      throw new Error(`Erreur lors de la récupération des packages: ${error.message}`);
+    }
+
+    if (!data) {
+      return [];
+    }
+
+    // Convert snake_case to camelCase
+    const formattedData: Product[] = data.map(item => {
+      const packageProduct: any = {
+        id: item.id,
+        name: item.name,
+        reference: item.reference,
+        category: item.category,
+        subCategory: item.sub_category,
+        subSubCategory: item.sub_sub_category,
+        description: item.description,
+        priceHT: parseFloat(item.price_ht),
+        priceTTC: parseFloat(item.price_ttc),
+        stock: item.stock,
+        isAvailable: item.is_available,
+        createdAt: new Date(item.created_at),
+        updatedAt: new Date(item.updated_at),
+        images: item.images || [],
+        mainImageIndex: item.main_image_index,
+        colors: item.colors || [],
+        technicalSpecs: item.technical_specs || {},
+        technicalDocUrl: item.technical_doc_url,
+        videoUrl: item.video_url,
+        relatedProducts: item.related_products || [],
+        type: 'package',
+        items: item.package_items || [],
+        options: item.package_options || [],
+        discountPercentage: item.discount_percentage,
+        originalTotalPriceHT: item.original_total_price_ht,
+        originalTotalPriceTTC: item.original_total_price_ttc
+      };
+      
+      return packageProduct;
+    });
+
+    return formattedData;
+  } catch (error: any) {
+    console.error('Error in getAllPackages:', error);
+    throw new Error(error.message || 'Erreur lors de la récupération des packages');
+  }
+};
+
+// Récupérer un package avec les détails complets des produits inclus
+export const getPackageWithDetails = async (packageId: string): Promise<any> => {
+  try {
+    // Récupérer le package de base
+    const packageData = await getProductById(packageId);
+    
+    if (!packageData || packageData.type !== 'package') {
+      throw new Error('Package non trouvé ou produit non valide');
+    }
+    
+    const packageWithDetails: any = { ...packageData };
+    
+    // Récupérer les détails de chaque produit inclus dans le package
+    if (packageWithDetails.items && packageWithDetails.items.length > 0) {
+      const detailedItems = [];
+      
+      for (const item of packageWithDetails.items) {
+        try {
+          const productDetails = await getProductById(item.productId);
+          detailedItems.push({
+            ...item,
+            product: productDetails
+          });
+        } catch (error) {
+          console.error(`Erreur lors de la récupération des détails du produit ${item.productId}:`, error);
+          // Ajouter l'item sans les détails du produit
+          detailedItems.push(item);
+        }
+      }
+      
+      packageWithDetails.detailedItems = detailedItems;
+    }
+    
+    return packageWithDetails;
+  } catch (error: any) {
+    console.error('Error in getPackageWithDetails:', error);
+    throw new Error(error.message || 'Erreur lors de la récupération des détails du package');
+  }
+};
+
 export const createProduct = async (product: ProductFormData): Promise<Product> => {
   try {
     console.log('Creating new product in Supabase...', product);
@@ -452,8 +590,19 @@ export const createProduct = async (product: ProductFormData): Promise<Product> 
       technical_doc_url: product.technicalDocUrl || null,
       video_url: product.videoUrl || null,
       created_by: session.user.id,
-      updated_by: session.user.id
+      updated_by: session.user.id,
+      type: product.type || 'product' // Ajout du type de produit
     };
+
+    // Si c'est un package, ajouter les champs spécifiques aux packages
+    if (product.type === 'package' && 'items' in product) {
+      const packageProduct = product as any; // Cast temporaire pour accéder aux propriétés de package
+      dbProduct.package_items = packageProduct.items || [];
+      dbProduct.package_options = packageProduct.options || [];
+      dbProduct.discount_percentage = packageProduct.discountPercentage;
+      dbProduct.original_total_price_ht = packageProduct.originalTotalPriceHT;
+      dbProduct.original_total_price_ttc = packageProduct.originalTotalPriceTTC;
+    }
 
     console.log('Attempting to insert product with data:', dbProduct);
 
@@ -510,7 +659,8 @@ export const createProduct = async (product: ProductFormData): Promise<Product> 
       technicalSpecs: data.technical_specs,
       technicalDocUrl: data.technical_doc_url,
       videoUrl: data.video_url,
-      relatedProducts: data.related_products || []
+      relatedProducts: data.related_products || [],
+      type: data.type || 'product'
     };
 
     console.log('Product created successfully:', formattedData.id);
@@ -568,8 +718,19 @@ export const updateProduct = async (id: string, product: Partial<Product>): Prom
       technical_doc_url: product.technicalDocUrl,
       video_url: product.videoUrl,
       updated_at: new Date().toISOString(),
-      updated_by: session.user.id
+      updated_by: session.user.id,
+      type: product.type || 'product'
     };
+
+    // Si c'est un package, ajouter les champs spécifiques aux packages
+    if (product.type === 'package' && 'items' in product) {
+      const packageProduct = product as any; // Cast temporaire pour accéder aux propriétés de package
+      dbProduct.package_items = packageProduct.items || [];
+      dbProduct.package_options = packageProduct.options || [];
+      dbProduct.discount_percentage = packageProduct.discountPercentage;
+      dbProduct.original_total_price_ht = packageProduct.originalTotalPriceHT;
+      dbProduct.original_total_price_ttc = packageProduct.originalTotalPriceTTC;
+    }
 
     // Remove undefined values
     Object.keys(dbProduct).forEach(key => 
@@ -599,19 +760,39 @@ export const updateProduct = async (id: string, product: Partial<Product>): Prom
     }
 
     // Convert back to camelCase for frontend
-    const formattedData = {
-      ...data,
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at),
+    const formattedData: Product = {
+      id: data.id,
+      name: data.name,
+      reference: data.reference,
+      category: data.category,
       subCategory: data.sub_category,
+      subSubCategory: data.sub_sub_category,
+      description: data.description,
       priceHT: parseFloat(data.price_ht),
       priceTTC: parseFloat(data.price_ttc),
+      stock: data.stock,
+      isAvailable: data.is_available,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at),
+      images: data.images,
+      mainImageIndex: data.main_image_index,
+      colors: data.colors || [],
       technicalSpecs: data.technical_specs,
       technicalDocUrl: data.technical_doc_url,
       videoUrl: data.video_url,
-      isAvailable: data.is_available,
-      mainImageIndex: data.main_image_index
+      relatedProducts: data.related_products || [],
+      type: data.type || 'product'
     };
+
+    // Si c'est un package, ajouter les propriétés spécifiques
+    if (data.type === 'package') {
+      const packageProduct = formattedData as any; // Cast temporaire
+      packageProduct.items = data.package_items || [];
+      packageProduct.options = data.package_options || [];
+      packageProduct.discountPercentage = data.discount_percentage;
+      packageProduct.originalTotalPriceHT = data.original_total_price_ht;
+      packageProduct.originalTotalPriceTTC = data.original_total_price_ttc;
+    }
 
     console.log('Product updated successfully');
     return formattedData;
