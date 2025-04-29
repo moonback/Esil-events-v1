@@ -72,7 +72,7 @@ const DynamicPage: React.FC = () => {
         <div className="container mx-auto px-4 py-12">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-red-600 mb-4">{error}</h1>
-            <p className="mb-6">Vous allez être redirigé vers la page d'accueil...</p>
+            <p className="mb-10z">Vous allez être redirigé vers la page d'accueil...</p>
             <button 
               onClick={() => navigate('/')}
               className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
@@ -99,11 +99,13 @@ const DynamicPage: React.FC = () => {
             )}
           </Helmet>
           <div className="container mx-auto px-4 py-12">
-            <h1 className="text-3xl font-bold mb-8">{pageContent.title}</h1>
-            <div 
-              className="prose max-w-none"
-              dangerouslySetInnerHTML={{ __html: pageContent.content }}
-            />
+            <h1 className="text-4xl font-bold mb-10 text-center tracking-tight">{pageContent.title}</h1>
+            <div className="max-w-7xl mx-auto">
+              <div 
+                className="prose prose-lg prose-slate max-w-none"
+                dangerouslySetInnerHTML={{ __html: pageContent.content }}
+              />
+            </div>
           </div>
         </>
       )}

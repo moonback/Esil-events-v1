@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PageFormData } from '../../services/pageService';
 import RichTextEditor from '../ui/RichTextEditor';
+import PagePreview from './PagePreview';
+import { Eye, EyeOff, Save } from 'lucide-react';
 
 interface PageFormProps {
   initialData?: PageFormData;
   onSubmit: (data: PageFormData) => void;
   onCancel: () => void;
 }
+
+const DRAFT_STORAGE_KEY = 'page_draft';
 
 const PageForm: React.FC<PageFormProps> = ({ initialData, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState<PageFormData>({
@@ -20,6 +24,13 @@ const PageForm: React.FC<PageFormProps> = ({ initialData, onSubmit, onCancel }) 
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPreview, setShowPreview] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<string>('');
+  const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Clé unique pour le stockage local du brouillon
+  const storageKey = initialData ? `${DRAFT_STORAGE_KEY}_${initialData.slug}` : DRAFT_STORAGE_KEY;
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -31,10 +42,63 @@ const PageForm: React.FC<PageFormProps> = ({ initialData, onSubmit, onCancel }) 
       setFormData(prev => ({ ...prev, slug: generatedSlug }));
     }
   }, [formData.title, initialData]);
+  
+  // Charger le brouillon sauvegardé au chargement initial
+  useEffect(() => {
+    if (!initialData) {
+      const savedDraft = localStorage.getItem(storageKey);
+      if (savedDraft) {
+        try {
+          const parsedDraft = JSON.parse(savedDraft);
+          setFormData(parsedDraft);
+          setSaveStatus('Brouillon restauré');
+          setTimeout(() => setSaveStatus(''), 3000);
+        } catch (error) {
+          console.error('Erreur lors de la restauration du brouillon:', error);
+        }
+      }
+    }
+    
+    // Nettoyer le timeout à la destruction du composant
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [initialData, storageKey]);
+  
+  // Fonction pour sauvegarder automatiquement le brouillon
+  const autoSaveDraft = () => {
+    if (!initialData) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(formData));
+        setSaveStatus('Brouillon enregistré');
+        setUnsavedChanges(false);
+        setTimeout(() => setSaveStatus(''), 3000);
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde du brouillon:', error);
+        setSaveStatus('Erreur lors de la sauvegarde');
+      }
+    }
+  };
+  
+  // Configurer la sauvegarde automatique lorsque les données du formulaire changent
+  useEffect(() => {
+    if (!initialData) {
+      setUnsavedChanges(true);
+      
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      
+      saveTimeoutRef.current = setTimeout(autoSaveDraft, 3000);
+    }
+  }, [formData, initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setUnsavedChanges(true);
   };
 
   const validateForm = (): boolean => {
@@ -65,8 +129,71 @@ const PageForm: React.FC<PageFormProps> = ({ initialData, onSubmit, onCancel }) 
     }
   };
 
+  // Fonction pour sauvegarder manuellement le brouillon
+  const handleSaveDraft = () => {
+    autoSaveDraft();
+  };
+  
+  // Fonction pour basculer l'affichage de la prévisualisation
+  const togglePreview = () => {
+    setShowPreview(!showPreview);
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
+      {/* Barre d'outils */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-2">
+          <button
+            type="button"
+            onClick={togglePreview}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+          >
+            {showPreview ? (
+              <>
+                <EyeOff className="h-4 w-4 mr-2" />
+                Masquer la prévisualisation
+              </>
+            ) : (
+              <>
+                <Eye className="h-4 w-4 mr-2" />
+                Prévisualiser
+              </>
+            )}
+          </button>
+          
+          {!initialData && (
+            <button
+              type="button"
+              onClick={handleSaveDraft}
+              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Enregistrer le brouillon
+            </button>
+          )}
+        </div>
+        
+        {saveStatus && (
+          <span className={`text-sm ${unsavedChanges ? 'text-amber-600' : 'text-green-600'}`}>
+            {saveStatus}
+          </span>
+        )}
+      </div>
+      
+      {/* Prévisualisation */}
+      {showPreview && (
+        <div className="mb-6">
+          <PagePreview 
+            title={formData.title || 'Titre de la page'}
+            content={formData.content || '<p>Contenu de la page...</p>'}
+            meta_description={formData.meta_description}
+            meta_keywords={formData.meta_keywords}
+          />
+        </div>
+      )}
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700">
@@ -179,6 +306,7 @@ const PageForm: React.FC<PageFormProps> = ({ initialData, onSubmit, onCancel }) 
         </button>
       </div>
     </form>
+    </div>
   );
 };
 

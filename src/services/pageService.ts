@@ -5,20 +5,23 @@ export interface Page {
   title: string;
   slug: string;
   content: string;
-  status: 'published' | 'draft';
+  status: 'published' | 'draft' | 'auto_draft';
   meta_description?: string;
   meta_keywords?: string;
   created_at?: string;
   updated_at?: string;
+  author_id?: string;
+  last_edited?: string;
 }
 
 export interface PageFormData {
   title: string;
   slug: string;
   content: string;
-  status: 'published' | 'draft';
+  status: 'published' | 'draft' | 'auto_draft';
   meta_description?: string;
   meta_keywords?: string;
+  author_id?: string;
 }
 
 // Fetch all pages

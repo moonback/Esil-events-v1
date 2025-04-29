@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Eye, ChevronLeft, ChevronRight, Search, Filter, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, ChevronLeft, ChevronRight, Search, Filter, X, FileText, ExternalLink } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import PageForm from '../../components/admin/PageForm';
+import PagePreview from '../../components/admin/PagePreview';
 import { Page, PageFormData, getAllPages, createPage, updatePage, deletePage, getPageById } from '../../services/pageService';
 
 const AdminPages: React.FC = () => {
@@ -16,6 +17,9 @@ const AdminPages: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingPage, setEditingPage] = useState<Page | null>(null);
+  const [previewPage, setPreviewPage] = useState<Page | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft' | 'auto_draft'>('all');
 
   // Load pages from API
   const loadPages = async () => {
@@ -36,11 +40,18 @@ const AdminPages: React.FC = () => {
     loadPages();
   }, []);
 
-  // Filter pages based on search term
-  const filteredPages = pages.filter(page =>
-    page.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    page.slug.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter pages based on search term and status
+  const filteredPages = pages.filter(page => {
+    const matchesSearch = 
+      page.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      page.slug.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = 
+      statusFilter === 'all' ||
+      page.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -109,6 +120,24 @@ const AdminPages: React.FC = () => {
   const handleCancelForm = () => {
     setShowForm(false);
     setEditingPage(null);
+  };
+
+  const handlePreviewClick = async (id: string) => {
+    try {
+      setError(null);
+      const page = await getPageById(id);
+      if (page) {
+        setPreviewPage(page);
+        setShowPreviewModal(true);
+      }
+    } catch (err) {
+      setError('Erreur lors de la récupération des détails de la page');
+      console.error(err);
+    }
+  };
+  
+  const handleViewPublishedPage = (slug: string) => {
+    window.open(`/${slug}`, '_blank');
   };
 
   const formatDate = (dateString: string) => {
@@ -190,10 +219,22 @@ const AdminPages: React.FC = () => {
                 />
                 <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
               </div>
-              <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
-                <Filter className="w-4 h-4 mr-2" />
-                Filtres
-              </button>
+              <div className="flex gap-2">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as any)}
+                  className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                >
+                  <option value="all">Tous les statuts</option>
+                  <option value="published">Publiés</option>
+                  <option value="draft">Brouillons</option>
+                  <option value="auto_draft">Brouillons auto</option>
+                </select>
+                <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Plus de filtres
+                </button>
+              </div>
             </div>
 
             {/* Pages Table */}
@@ -213,6 +254,7 @@ const AdminPages: React.FC = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dernière mise à jour</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
@@ -230,24 +272,48 @@ const AdminPages: React.FC = () => {
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                               page.status === 'published' 
                                 ? 'bg-green-100 text-green-800' 
+                                : page.status === 'auto_draft'
+                                ? 'bg-blue-100 text-blue-800'
                                 : 'bg-yellow-100 text-yellow-800'
                             }`}>
-                              {page.status === 'published' ? 'Publié' : 'Brouillon'}
+                              {page.status === 'published' 
+                                ? 'Publié' 
+                                : page.status === 'auto_draft'
+                                ? 'Brouillon auto'
+                                : 'Brouillon'}
                             </span>
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {page.author_id ? page.author_id : '-'}
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button className="text-gray-600 hover:text-gray-900 mr-3">
+                            <button 
+                              onClick={() => handlePreviewClick(page.id)}
+                              className="text-gray-600 hover:text-gray-900 mr-3"
+                              title="Prévisualiser"
+                            >
                               <Eye className="w-4 h-4" />
                             </button>
+                            {page.status === 'published' && (
+                              <button 
+                                onClick={() => handleViewPublishedPage(page.slug)}
+                                className="text-blue-600 hover:text-blue-900 mr-3"
+                                title="Voir la page publiée"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </button>
+                            )}
                             <button 
                               onClick={() => handleEditClick(page.id)}
                               className="text-gray-600 hover:text-gray-900 mr-3"
+                              title="Modifier"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             <button 
                               onClick={() => handleDeleteClick(page.id)}
                               className="text-red-600 hover:text-red-900"
+                              title="Supprimer"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -322,6 +388,49 @@ const AdminPages: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* Preview Modal */}
+      {showPreviewModal && previewPage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-4 border-b border-gray-200">
+              <h3 className="text-xl font-bold">Prévisualisation: {previewPage.title}</h3>
+              <div className="flex space-x-2">
+                {previewPage.status === 'published' && (
+                  <button
+                    onClick={() => handleViewPublishedPage(previewPage.slug)}
+                    className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-1" />
+                    Voir publiée
+                  </button>
+                )}
+                <button
+                  onClick={() => handleEditClick(previewPage.id)}
+                  className="px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center"
+                >
+                  <Edit className="w-4 h-4 mr-1" />
+                  Modifier
+                </button>
+                <button
+                  onClick={() => setShowPreviewModal(false)}
+                  className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+            <div className="p-4">
+              <PagePreview
+                title={previewPage.title}
+                content={previewPage.content}
+                meta_description={previewPage.meta_description}
+                meta_keywords={previewPage.meta_keywords}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
