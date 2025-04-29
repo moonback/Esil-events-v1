@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { PageFormData } from '../../services/pageService';
 import RichTextEditor from '../ui/RichTextEditor';
 import PagePreview from './PagePreview';
+import PageContentGenerator from './PageContentGenerator';
 import { Eye, EyeOff, Save } from 'lucide-react';
 
 interface PageFormProps {
@@ -234,6 +235,12 @@ const PageForm: React.FC<PageFormProps> = ({ initialData, onSubmit, onCancel }) 
           <label htmlFor="content" className="block text-sm font-medium text-gray-700">
             Contenu <span className="text-red-500">*</span>
           </label>
+          <div className="mb-2">
+            <PageContentGenerator
+              pageData={formData}
+              onContentGenerated={(content) => setFormData(prev => ({ ...prev, content }))}
+            />
+          </div>
           <div className={`mt-1 ${errors.content ? 'border-red-500' : 'border-gray-300'}`}>
             <RichTextEditor
               value={formData.content}

@@ -22,6 +22,7 @@ export interface PageFormData {
   meta_description?: string;
   meta_keywords?: string;
   author_id?: string;
+  custom_prompt?: string;
 }
 
 // Fetch all pages
