@@ -4,14 +4,25 @@ import { motion } from 'framer-motion';
 export const EventsPage: React.FC = () => {
   // Animation variants
   const fadeInUp = {
-    hidden: { opacity: 0, y: 40 },
+    hidden: { opacity: 0, y: 30 },
     visible: { 
       opacity: 1, 
-      y: 0, 
-      transition: { 
-        duration: 0.8, 
-        ease: [0.16, 1, 0.3, 1],
-      } 
+      y: 0,
+      transition: {
+        duration: 0.7,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const fadeIn = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut"
+      }
     }
   };
 
@@ -20,11 +31,23 @@ export const EventsPage: React.FC = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15
+        staggerChildren: 0.3
       }
     }
   };
 
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
+  };
+  
   const cardHover = {
     hover: {
       y: -10,
@@ -37,39 +60,79 @@ export const EventsPage: React.FC = () => {
   };
 
   return (
-    <div className="pt-24 pb-20 bg-white dark:bg-gray-900 min-h-screen overflow-x-hidden">
-      {/* Hero Section */}
-      <motion.section 
-        className="relative"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-50px" }}
-        variants={fadeInUp}
+    <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen overflow-hidden">
+      {/* Hero Section avec background animé */}
+      <motion.div 
+        className="bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-20 mb-16 relative overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
       >
-        {/* Hero Background with Parallax Effect */}
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-br from-violet-900 to-indigo-800 overflow-hidden"
-          initial={{ scale: 1.1 }}
-          whileInView={{ scale: 1 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-        >
+        {/* Cercles décoratifs animés */}
+        <div className="absolute inset-0 overflow-hidden z-0">
+          <motion.div 
+            className="absolute top-20 left-10 w-64 h-64 rounded-full bg-purple-500 opacity-10"
+            animate={{ 
+              x: [0, 20, 0], 
+              y: [0, -20, 0],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 10,
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-10 right-20 w-96 h-96 rounded-full bg-indigo-500 opacity-10"
+            animate={{ 
+              x: [0, -30, 0], 
+              y: [0, 20, 0],
+              scale: [1, 1.15, 1]
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 12,
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div 
+            className="absolute top-40 right-1/4 w-40 h-40 rounded-full bg-violet-400 opacity-10"
+            animate={{ 
+              x: [0, 40, 0], 
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1]
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 8,
+              ease: "easeInOut"
+            }}
+          />
+          
+          {/* Background Image with Overlay */}
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80')] bg-cover bg-center opacity-20 mix-blend-overlay" />
-        </motion.div>
-
-        <div className="container-custom mx-auto relative z-10 py-32 text-center">
+        </div>
+        
+        <motion.div 
+          className="container-custom mx-auto px-6 text-center relative z-10 py-32"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.8 }}
+        >
           <motion.h1 
-            className="text-5xl md:text-6xl font-bold mb-6 text-white"
+            className="text-5xl md:text-6xl font-bold mb-6 leading-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
           >
             ESIL <span className="text-violet-300">Events</span>
           </motion.h1>
           <motion.p 
-            className="text-xl md:text-2xl text-violet-100 max-w-3xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
+            className="text-xl md:text-2xl max-w-3xl mx-auto font-light"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.8 }}
           >
             Votre partenaire pour des événements <span className="font-semibold text-white">inoubliables</span>
           </motion.p>
@@ -91,125 +154,161 @@ export const EventsPage: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
             </svg>
           </motion.div>
+        </motion.div>
+      </motion.div>
+
+      {/* About Section avec design amélioré */}
+      <motion.section 
+        className="mb-24 relative"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={fadeIn}
+      >
+        <div className="container-custom mx-auto px-6 -mt-16 relative z-20">
+          <div className="relative">
+            {/* Formes décoratives */}
+            <div className="absolute -top-10 -right-10 w-64 h-64 bg-violet-100 rounded-full opacity-50 dark:opacity-20 blur-3xl z-0"></div>
+            <div className="absolute -bottom-10 -left-10 w-80 h-80 bg-indigo-100 rounded-full opacity-60 dark:opacity-20 blur-3xl z-0"></div>
+            
+            <motion.div 
+              className="relative z-10 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 text-center backdrop-blur-sm bg-opacity-95 dark:bg-opacity-90"
+              variants={fadeInUp}
+              whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
+              transition={{ duration: 0.5 }}
+            >
+              <motion.h2 
+                className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-violet-700 to-indigo-600 bg-clip-text text-transparent"
+                variants={fadeInUp}
+              >
+                Créateurs d'expériences mémorables
+              </motion.h2>
+              
+              <div className="space-y-6 text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
+                <motion.p variants={fadeInUp}>
+                  Chez <span className="text-violet-600 font-semibold dark:text-violet-400">ESIL Events</span>, nous transformons vos idées en réalité. Plus qu'une simple agence événementielle, nous sommes des architectes de moments uniques qui marquent les esprits.
+                </motion.p>
+                
+                <motion.p variants={fadeInUp}>
+                  Que ce soit pour des séminaires, des soirées d'entreprise, des lancements de produits ou des événements interactifs, nous mettons notre expertise et notre passion à votre service pour créer des expériences sur-mesure.
+                </motion.p>
+                
+                <motion.p variants={fadeInUp}>
+                  Notre mission ? Vous offrir une gestion complète de votre projet événementiel, de la conception à la réalisation, en garantissant une expérience fluide et sans stress, où chaque détail est pensé pour émerveiller vos invités.
+                </motion.p>
+              </div>
+              
+              <motion.div 
+                className="flex flex-wrap justify-center gap-6 mt-10"
+                variants={fadeInUp}
+              >
+                <div className="flex items-center border-2 border-violet-200 dark:border-violet-800 rounded-full py-3 px-6">
+                  <span className="text-violet-600 dark:text-violet-400 font-bold text-xl mr-2">20+</span>
+                  <span className="text-gray-600 dark:text-gray-300">années d'expérience</span>
+                </div>
+                <div className="flex items-center border-2 border-indigo-200 dark:border-indigo-800 rounded-full py-3 px-6">
+                  <span className="text-indigo-600 dark:text-indigo-400 font-bold text-xl mr-2">500+</span>
+                  <span className="text-gray-600 dark:text-gray-300">événements réalisés</span>
+                </div>
+                <div className="flex items-center border-2 border-purple-200 dark:border-purple-800 rounded-full py-3 px-6">
+                  <span className="text-purple-600 dark:text-purple-400 font-bold text-xl mr-2">100%</span>
+                  <span className="text-gray-600 dark:text-gray-300">satisfaction client</span>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
         </div>
       </motion.section>
 
-      {/* About Section */}
-      <section className="container-custom mx-auto px-4 md:px-6 -mt-16 relative z-20">
-        <motion.div 
-          className="bg-white rounded-2xl shadow-xl p-8 md:p-12 backdrop-blur-sm bg-opacity-90"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={fadeInUp}
-          whileHover={{
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)"
-          }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="max-w-4xl mx-auto">
-            <motion.h2 
-              className="text-3xl md:text-4xl font-bold mb-8 text-center text-gray-900"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-            >
-              Créateurs d'<span className="text-violet-700">expériences</span> mémorables
-            </motion.h2>
-            
-            <div className="space-y-6 text-lg text-gray-700 leading-relaxed">
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3, duration: 0.6 }}
-              >
-                Chez <span className="font-semibold text-violet-700">ESIL Events</span>, nous transformons vos idées en réalité. Plus qu'une simple agence événementielle, nous sommes des architectes de moments uniques qui marquent les esprits.
-              </motion.p>
-              
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4, duration: 0.6 }}
-              >
-                Que ce soit pour des séminaires, des soirées d'entreprise, des lancements de produits ou des événements interactifs, nous mettons notre expertise et notre passion à votre service pour créer des expériences sur-mesure.
-              </motion.p>
-              
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.5, duration: 0.6 }}
-              >
-                Notre mission ? Vous offrir une gestion complète de votre projet événementiel, de la conception à la réalisation, en garantissant une expérience fluide et sans stress, où chaque détail est pensé pour émerveiller vos invités.
-              </motion.p>
-            </div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Gallery Section */}
-      <section className="container-custom mx-auto px-4 md:px-6 mt-24">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={staggerContainer}
-        >
-          <motion.h2 
-            className="text-3xl md:text-4xl font-bold mb-4 text-center text-gray-900"
-            variants={fadeInUp}
-          >
-            Nos <span className="text-violet-700">réalisations</span>
-          </motion.h2>
-          
-          <motion.p 
-            className="text-xl text-gray-600 mb-12 text-center max-w-2xl mx-auto"
-            variants={fadeInUp}
-          >
-            Découvrez quelques-uns de nos événements récents
-          </motion.p>
-          
+      {/* Gallery Section améliorée */}
+      <motion.section 
+        className="mb-32 relative overflow-hidden"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainer}
+      >
+        <div className="container-custom mx-auto px-6">
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="text-center mb-16"
+            variants={fadeInUp}
+          >
+            <span className="inline-block text-sm font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-2">Portfolio</span>
+            <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-white">
+              Nos <span className="text-violet-700 dark:text-violet-400">réalisations</span>
+            </h2>
+            
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
+              Découvrez quelques-uns de nos événements récents qui ont marqué les esprits
+            </p>
+          </motion.div>
+
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             variants={staggerContainer}
           >
             {[
-              'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-              'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-              'https://images.unsplash.com/photo-1531058020387-3be344556be6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-              'https://images.unsplash.com/photo-1492681290082-e932832941e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-              'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-              'https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80'
-            ].map((imgSrc, index) => (
+              {
+                imgSrc: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+                title: 'Soirée d\'entreprise',
+                description: 'Événement corporate exclusif'
+              },
+              {
+                imgSrc: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+                title: 'Lancement de produit',
+                description: 'Mise en scène spectaculaire'
+              },
+              {
+                imgSrc: 'https://images.unsplash.com/photo-1531058020387-3be344556be6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+                title: 'Séminaire d\'équipe',
+                description: 'Espace de travail innovant'
+              },
+              {
+                imgSrc: 'https://images.unsplash.com/photo-1492681290082-e932832941e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+                title: 'Conférence annuelle',
+                description: 'Scénographie immersive'
+              },
+              {
+                imgSrc: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+                title: 'Soirée de gala',
+                description: 'Ambiance élégante et raffinée'
+              },
+              {
+                imgSrc: 'https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+                title: 'Festival corporate',
+                description: 'Animation et interactivité'
+              }
+            ].map((event, index) => (
               <motion.div 
                 key={index}
-                className="relative group overflow-hidden rounded-xl aspect-[4/3]"
-                variants={fadeInUp}
-                whileHover="hover"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
+                className="relative group overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 aspect-[4/3]"
+                variants={scaleIn}
+                whileHover={{ y: -10 }}
               >
                 <motion.img 
-                  src={imgSrc}
-                  alt={`Event ${index + 1}`}
+                  src={event.imgSrc}
+                  alt={event.title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   initial={{ scale: 1.1 }}
                   whileInView={{ scale: 1 }}
                   transition={{ duration: 1.2 }}
                 />
                 
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent flex flex-col justify-end p-6"
-                  initial={{ opacity: 0.8 }}
-                  whileHover={{ opacity: 1 }}
-                >
-                  <h3 className="text-white text-xl font-bold mb-2">Événement {index + 1}</h3>
-                  <p className="text-violet-200">Découvrez notre expertise</p>
-                </motion.div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
+                
+                <div className="absolute inset-0 flex flex-col justify-end p-8">
+                  <h3 className="text-white text-2xl font-bold mb-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">{event.title}</h3>
+                  <p className="text-violet-200 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 delay-100">{event.description}</p>
+                  
+                  <div className="mt-4 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 delay-150">
+                    <span className="inline-flex items-center text-white text-sm font-medium">
+                      Voir le projet
+                      <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </motion.div>
@@ -218,35 +317,32 @@ export const EventsPage: React.FC = () => {
             className="mt-12 text-center"
             variants={fadeInUp}
           >
-            {/* <motion.button
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-violet-700 hover:bg-violet-800 transition-colors duration-300"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Voir plus de réalisations
-              <svg className="ml-3 -mr-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-              </svg>
-            </motion.button> */}
+            
           </motion.div>
-        </motion.div>
-      </section>
+        </div>
+      </motion.section>
 
-      {/* Methodology Section */}
-      <section className="container-custom mx-auto px-4 md:px-6 mt-32">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={staggerContainer}
-        >
+      {/* Methodology Section améliorée */}
+      <motion.section 
+        className="mb-32 relative overflow-hidden py-16"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainer}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 transform -skew-y-3"></div>
+        
+        <div className="container-custom mx-auto px-6 relative z-10 pt-16">
           <motion.div 
             className="text-center mb-16"
             variants={fadeInUp}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">Notre méthodologie</h2>
-            <div className="w-20 h-1 bg-violet-600 mx-auto mb-6"></div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <span className="inline-block text-sm font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-2">Notre approche</span>
+            <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-white">
+              Notre <span className="text-violet-700 dark:text-violet-400">méthodologie</span>
+            </h2>
+            
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
               Créer des événements exceptionnels n'est pas le fruit du hasard
             </p>
           </motion.div>
@@ -319,11 +415,10 @@ export const EventsPage: React.FC = () => {
               </motion.div>
             ))}
           </motion.div>
-        </motion.div>
-      </section>
-
+        </div>
+        </motion.section>
       {/* Testimonials Carousel */}
-      <section className="container-custom mx-auto px-4 md:px-6 mt-32">
+      <motion.section className="container-custom mx-auto px-4 md:px-6 mt-32">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -377,10 +472,9 @@ export const EventsPage: React.FC = () => {
             </div>
           </motion.div>
         </motion.div>
-      </section>
-
+        </motion.section>
       {/* Why Choose Us Section */}
-      <section className="container-custom mx-auto px-4 md:px-6 mt-32">
+      <motion.section className="container-custom mx-auto px-4 md:px-6 mt-32">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -460,11 +554,10 @@ export const EventsPage: React.FC = () => {
               </motion.div>
             ))}
           </motion.div>
-        </motion.div>
-      </section>
-
+          </motion.div>
+        </motion.section>
       {/* CTA Section */}
-      <section className="container-custom mx-auto px-4 md:px-6 mt-32 mb-20">
+      <motion.section className="container-custom mx-auto px-4 md:px-6 mt-32 mb-20">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -501,8 +594,7 @@ export const EventsPage: React.FC = () => {
               </p>
             </div>
           </motion.div>
-        </motion.div>
-      </section>
-    </div>
+          </motion.div>
+        </motion.section>    </div>
   );
 };
