@@ -3,25 +3,13 @@ import { FormData } from '../components/cart/types';
 import { sendQuoteRequestConfirmation, sendAdminNotification } from './emailService';
 
 export interface QuoteRequest {
-  billing_postal_code: string;
-  billing_city: string;
-  has_elevator: any;
-  elevator_dimensions: string;
-  floor_number: undefined;
-  pickup_time_slot: string;
-  comments: any; // Renommé de additional_comments pour correspondre au schéma de la BDD
-  privacy_accepted: any;
-  delivery_address?: string;
-  delivery_date?: string;
-  pickup_date?: string;
-  delivery_notes?: string;
   id?: string;
   first_name: string;
   last_name: string;
   company: string;
   email: string;
   phone: string;
-  event_date: string;
+  event_date: Date;
   event_duration: string;
   description: string;
   items: any[];
@@ -29,36 +17,39 @@ export interface QuoteRequest {
   created_at?: string;
   updated_at?: string;
   
-  // Informations de facturation
-  customer_type?: 'particular' | 'professional';
-  billing_address?: string;
-  postal_code?: string;
-  city?: string;
+  // Billing information
+  customer_type: 'particular' | 'professional';
+  billing_address?: string | null;
+  postal_code?: string | null;
+  city?: string | null;
   
-  // Détails de l'événement
-  event_start_time?: string;
-  event_end_time?: string;
-  guest_count?: number;
-  event_location?: 'indoor' | 'outdoor';
+  // Event details
+  event_start_time?: string | null;
+  event_end_time?: string | null;
+  guest_count?: number | null;
+  event_location?: string | null;
   
-  // Informations de livraison
-  delivery_type?: 'pickup' | 'eco' | 'premium';
-  delivery_time_slot?: 'before9' | '9to13' | '13to19';
-  delivery_postal_code?: string;
-  delivery_city?: string;
-  exterior_access?: 'parking' | 'street';
-  interior_access?: 'stairs' | 'flat' | 'elevator';
+  // Delivery information
+  delivery_type?: string | null;
+  pickup_date?: string | null;
+  delivery_date?: string | null;
+  delivery_time_slot?: string | null;
+  delivery_address?: string | null;
+  delivery_postal_code?: string | null;
+  delivery_city?: string | null;
+  exterior_access?: string | null;
+  interior_access?: string | null;
   elevator_width?: number | null;
   elevator_height?: number | null;
   elevator_depth?: number | null;
   
-  // Informations de reprise
-  pickup_return_date?: string;
-  pickup_return_start_time?: string;
-  pickup_return_end_time?: string;
+  // Pickup information
+  pickup_return_date?: string | null;
+  pickup_return_start_time?: string | null;
+  pickup_return_end_time?: string | null;
   
-  // Commentaires et conditions
-  comments?: string;
+  // Comments and terms
+  comments?: string | null;
   terms_accepted?: boolean;
 }
 
@@ -72,34 +63,24 @@ const mapFormDataToQuoteRequest = (formData: FormData, cartItems: any[]): QuoteR
     company: formData.customerType === 'professional' ? formData.company : 'Particulier',
     email: formData.email,
     phone: formData.phone,
-    event_date: formData.eventDate,
+    event_date: new Date(formData.eventDate),
     event_duration: formData.eventDuration,
     description: formData.description || `Événement ${formData.eventLocation === 'indoor' ? 'en intérieur' : 'en extérieur'} pour ${formData.guestCount} personnes.`,
+    status: 'pending', // Default status as per DB schema
     
-    // Propriétés manquantes requises par l'interface QuoteRequest
-    billing_postal_code: formData.postalCode,
-    billing_city: formData.city,
-    has_elevator: formData.interiorAccess === 'elevator',
-    elevator_dimensions: formData.interiorAccess === 'elevator' ? 
-      `Largeur: ${formData.elevatorWidth || 'N/A'}, Hauteur: ${formData.elevatorHeight || 'N/A'}, Profondeur: ${formData.elevatorDepth || 'N/A'}` : '',
-    floor_number: undefined,
-    pickup_time_slot: formData.deliveryTimeSlot || '',
-    comments: formData.comments, // Utilisation de 'comments' au lieu de 'additional_comments' pour correspondre au schéma de la BDD
-    privacy_accepted: formData.termsAccepted,
-    
-    // Informations de facturation
-    customer_type: formData.customerType,
+    // Billing information
+    customer_type: formData.customerType || 'particular', // Default value as per DB schema
     billing_address: formData.billingAddress,
     postal_code: formData.postalCode,
     city: formData.city,
     
-    // Détails de l'événement
+    // Event details
     event_start_time: formData.eventStartTime,
     event_end_time: formData.eventEndTime,
     guest_count: formData.guestCount,
     event_location: formData.eventLocation,
     
-    // Informations de livraison
+    // Delivery information
     delivery_type: formData.deliveryType,
     pickup_date: formData.pickupDate,
     delivery_date: formData.deliveryDate,
@@ -113,16 +94,16 @@ const mapFormDataToQuoteRequest = (formData: FormData, cartItems: any[]): QuoteR
     elevator_height: formData.elevatorHeight === '' ? null : formData.elevatorHeight,
     elevator_depth: formData.elevatorDepth === '' ? null : formData.elevatorDepth,
     
-    // Informations de reprise
+    // Pickup information
     pickup_return_date: formData.pickupReturnDate,
     pickup_return_start_time: formData.pickupReturnStartTime,
     pickup_return_end_time: formData.pickupReturnEndTime,
     
-    // Commentaires et conditions
+    // Comments and terms
     comments: formData.comments,
-    terms_accepted: formData.termsAccepted,
+    terms_accepted: formData.termsAccepted ?? true, // Default value as per DB schema
     
-    // Informations sur les articles
+    // Items information
     items: cartItems.map(item => ({
       id: item.id,
       name: item.name,
