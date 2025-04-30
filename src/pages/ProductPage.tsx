@@ -109,7 +109,7 @@ const ProductPage: React.FC = () => {
 
 return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      <div className="max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8 py-24">
         {/* Breadcrumb */}
         <div className="mb-8">
           <nav className="flex" aria-label="Breadcrumb">
