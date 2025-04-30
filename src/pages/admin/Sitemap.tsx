@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, Plus, Trash2, AlertCircle, FileText } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
+import { saveSitemap, parseSitemapXml } from '../../services/sitemapService';
 
 interface SitemapEntry {
   id: string;
@@ -28,31 +29,16 @@ const AdminSitemap: React.FC = () => {
         const response = await fetch('/sitemap.xml');
         const xmlText = await response.text();
         
-        // Parser le XML
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+        // Utiliser la fonction parseSitemapXml du service pour parser le XML
+        const parsedEntries = parseSitemapXml(xmlText);
         
-        // Extraire les entrées
-        const urlElements = xmlDoc.getElementsByTagName('url');
-        const parsedEntries: SitemapEntry[] = [];
+        // Ajouter les IDs aux entrées si nécessaire
+        const entriesWithIds = parsedEntries.map((entry, index) => ({
+          ...entry,
+          id: entry.id || `entry-${index}`
+        }));
         
-        for (let i = 0; i < urlElements.length; i++) {
-          const urlElement = urlElements[i];
-          const loc = urlElement.getElementsByTagName('loc')[0]?.textContent || '';
-          const lastmod = urlElement.getElementsByTagName('lastmod')[0]?.textContent || '';
-          const changefreq = urlElement.getElementsByTagName('changefreq')[0]?.textContent || '';
-          const priority = urlElement.getElementsByTagName('priority')[0]?.textContent || '';
-          
-          parsedEntries.push({
-            id: `entry-${i}`,
-            loc,
-            lastmod,
-            changefreq,
-            priority
-          });
-        }
-        
-        setEntries(parsedEntries);
+        setEntries(entriesWithIds);
       } catch (err) {
         console.error('Erreur lors du chargement du sitemap:', err);
         setError('Impossible de charger le sitemap.xml');
@@ -108,28 +94,16 @@ const AdminSitemap: React.FC = () => {
     try {
       const sitemapXml = generateSitemapXml();
       
-      // Envoyer le XML au serveur pour qu'il soit enregistré dans le fichier sitemap.xml
-      const response = await fetch('/api/admin/sitemap', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/xml'
-        },
-        body: sitemapXml
-      });
+      // Utiliser le service sitemapService pour sauvegarder le sitemap
+      // Cette fonction gère à la fois la sauvegarde dans Supabase et l'appel à l'API
+      await saveSitemap(sitemapXml);
       
-      // Vérifier la réponse du serveur
-      if (response.ok) {
-        const result = await response.json();
-        setSuccess(result.message || 'Sitemap mis à jour avec succès');
-        // Effacer le message de succès après 3 secondes
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Erreur lors de la sauvegarde');
-      }
+      setSuccess('Sitemap mis à jour avec succès');
+      // Effacer le message de succès après 3 secondes
+      setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error('Erreur lors de la sauvegarde du sitemap:', err);
-      setError('Impossible de sauvegarder le sitemap.xml');
+      setError(`Impossible de sauvegarder le sitemap.xml: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
       // Effacer le message d'erreur après 3 secondes
       setTimeout(() => setError(null), 3000);
     }

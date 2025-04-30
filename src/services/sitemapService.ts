@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from './supabaseClient';
 
 export interface SitemapEntry {
   id: string;
@@ -13,12 +13,7 @@ export interface SitemapEntry {
  */
 export const getSitemap = async (): Promise<string> => {
   try {
-    const supabaseClient = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-    
-    const { data, error } = await supabaseClient
+    const { data, error } = await supabase
       .from('site_config')
       .select('value')
       .eq('key', 'sitemap')
@@ -114,17 +109,8 @@ export const saveSitemap = async (sitemapXml: string): Promise<void> => {
     }
 
     // Utilisation de Supabase pour stocker la configuration
-    const supabaseClient = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      throw new Error('Configuration Supabase manquante');
-    }
-
     // Vérifier si la table site_config existe et est accessible
-    const { data: checkData, error: checkError } = await supabaseClient
+    const { data: checkData, error: checkError } = await supabase
       .from('site_config')
       .select('count')
       .single();
@@ -135,7 +121,7 @@ export const saveSitemap = async (sitemapXml: string): Promise<void> => {
     }
 
     // Sauvegarder le sitemap dans Supabase
-    const { error: upsertError } = await supabaseClient
+    const { error: upsertError } = await supabase
       .from('site_config')
       .upsert({ key: 'sitemap', value: sitemapXml }, { onConflict: 'key' });
 
@@ -145,7 +131,11 @@ export const saveSitemap = async (sitemapXml: string): Promise<void> => {
     }
 
     // Mise à jour du fichier physique via l'API
-    const response = await fetch('/api/admin/sitemap', {
+    console.log('Envoi du sitemap à l\'API, taille:', sitemapXml.length);
+    // Utiliser l'URL complète du serveur Express qui fonctionne sur le port 3001
+    const apiUrl = 'http://localhost:3001/api/admin/sitemap';
+    console.log('URL de l\'API de sauvegarde du sitemap:', apiUrl);
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/xml',
@@ -154,11 +144,28 @@ export const saveSitemap = async (sitemapXml: string): Promise<void> => {
       body: sitemapXml
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Erreur inconnue' }));
-      console.error('Erreur de l\'API lors de la sauvegarde du sitemap:', errorData);
-      throw new Error(`Erreur lors de la sauvegarde du sitemap: ${errorData.message || response.statusText}`);
+    // Récupérer le texte de la réponse
+    const textData = await response.text();
+    console.log('Réponse brute du serveur:', textData);
+
+    // Tenter de parser la réponse JSON
+    let responseData = null;
+    try {
+      if (textData) {
+        responseData = JSON.parse(textData);
+      }
+    } catch (parseError) {
+      console.error('Erreur lors du parsing de la réponse:', parseError);
+      throw new Error(`Erreur de format dans la réponse du serveur: ${textData}`);
     }
+
+    if (!response.ok) {
+      const errorMessage = responseData?.message || responseData?.error || `Erreur HTTP ${response.status}: ${response.statusText}`;
+      console.error('Erreur de l\'API lors de la sauvegarde du sitemap:', responseData);
+      throw new Error(`Erreur lors de la sauvegarde du sitemap: ${errorMessage}`);
+    }
+
+    console.log('Réponse de l\'API pour la sauvegarde du sitemap:', responseData);
   } catch (error) {
     console.error('Erreur dans saveSitemap:', error);
     throw error;

@@ -159,33 +159,72 @@ app.post('/api/admin/sitemap', async (req, res) => {
     if (req.is('application/xml') || req.is('text/xml')) {
       // Si le contenu est déjà sous forme de texte/XML
       sitemapXml = req.body;
+      console.log('Contenu XML reçu directement du body');
     } else if (req.rawBody) {
       // Utiliser le corps brut si disponible
       sitemapXml = req.rawBody;
+      console.log('Contenu XML extrait de rawBody');
     } else if (typeof req.body === 'string') {
       // Si le corps est une chaîne
       sitemapXml = req.body;
+      console.log('Contenu XML extrait comme chaîne');
     } else {
       // Dernier recours: tenter de convertir l'objet en chaîne
       sitemapXml = JSON.stringify(req.body);
+      console.log('Contenu converti de JSON à chaîne');
     }
     
+    console.log('Type de contenu reçu:', req.get('Content-Type'));
+    console.log('Longueur du contenu XML:', sitemapXml?.length || 0);
+    
     // Vérifier que nous avons bien un contenu XML valide
-    if (!sitemapXml.includes('<?xml') || !sitemapXml.includes('<urlset')) {
-      throw new Error('Le contenu ne semble pas être un XML de sitemap valide');
+    if (!sitemapXml || !sitemapXml.includes('<?xml') || !sitemapXml.includes('<urlset')) {
+      console.error('Contenu XML invalide:', sitemapXml?.substring(0, 100));
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Le contenu ne semble pas être un XML de sitemap valide' 
+      });
     }
     
     const fs = await import('fs');
     const path = await import('path');
     
-    // Chemin vers le fichier sitemap.xml dans le dossier public
-    const sitemapPath = path.resolve('./public/sitemap.xml');
+    // Obtenir le chemin absolu du répertoire courant
+    const currentDir = process.cwd();
+    console.log('Répertoire courant:', currentDir);
+    
+    // Chemin vers le dossier public et le fichier sitemap.xml
+    const publicDir = path.join(currentDir, 'public');
+    const sitemapPath = path.join(publicDir, 'sitemap.xml');
+    
+    console.log('Chemin du sitemap:', sitemapPath);
+    
+    // Vérifier si le dossier public existe
+    if (!fs.existsSync(publicDir)) {
+      console.log('Le dossier public n\'existe pas, création du dossier...');
+      try {
+        fs.mkdirSync(publicDir, { recursive: true });
+      } catch (dirError) {
+        console.error('Erreur lors de la création du dossier public:', dirError);
+        return res.status(500).json({ 
+          success: false, 
+          message: `Erreur lors de la création du dossier: ${dirError.message}` 
+        });
+      }
+    }
     
     // Écrire le contenu XML dans le fichier
-    fs.writeFileSync(sitemapPath, sitemapXml, 'utf8');
-    
-    console.log('Sitemap sauvegardé avec succès');
-    res.json({ success: true, message: 'Sitemap mis à jour avec succès' });
+    try {
+      fs.writeFileSync(sitemapPath, sitemapXml, 'utf8');
+      console.log('Sitemap sauvegardé avec succès');
+      return res.status(200).json({ success: true, message: 'Sitemap mis à jour avec succès' });
+    } catch (writeError) {
+      console.error('Erreur lors de l\'écriture du fichier sitemap:', writeError);
+      return res.status(500).json({ 
+        success: false, 
+        message: `Erreur lors de l'écriture du fichier: ${writeError.message}` 
+      });
+    }
   } catch (error) {
     console.error('Erreur lors de la sauvegarde du sitemap:', error);
     res.status(500).json({ 
