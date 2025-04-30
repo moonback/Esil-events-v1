@@ -301,12 +301,12 @@ export const EventsPage: React.FC = () => {
                   <p className="text-violet-200 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 delay-100">{event.description}</p>
                   
                   <div className="mt-4 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 delay-150">
-                    <span className="inline-flex items-center text-white text-sm font-medium">
+                    {/* <span className="inline-flex items-center text-white text-sm font-medium">
                       Voir le projet
                       <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                       </svg>
-                    </span>
+                    </span> */}
                   </div>
                 </div>
               </motion.div>
