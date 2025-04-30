@@ -179,8 +179,8 @@ export const sendQuoteRequestConfirmation = async (quoteRequest: QuoteRequest): 
     company,
     customer_type,
     billing_address,
-    billing_city,
-    billing_postal_code,
+    city,
+    postal_code,
     event_date,
     event_duration,
     event_start_time,
@@ -192,13 +192,19 @@ export const sendQuoteRequestConfirmation = async (quoteRequest: QuoteRequest): 
     delivery_postal_code,
     delivery_date,
     delivery_time_slot,
-    has_elevator,
-    elevator_dimensions,
-    floor_number,
-    pickup_date,
-    pickup_time_slot,
-    additional_comments,
-    items 
+    exterior_access,
+    interior_access,
+    elevator_width,
+    elevator_height,
+    elevator_depth,
+    pickup_return_date,
+    pickup_return_start_time,
+    pickup_return_end_time,
+    comments,
+    items,
+    description,
+    delivery_type,
+    terms_accepted
   } = quoteRequest;
   
   if (!email) {
@@ -246,7 +252,7 @@ export const sendQuoteRequestConfirmation = async (quoteRequest: QuoteRequest): 
         <h4>Adresse de facturation :</h4>
         <p>
           ${billing_address || 'Non spécifiée'}<br>
-          ${billing_postal_code || ''} ${billing_city || ''}
+          ${postal_code || ''} ${city || ''}
         </p>
         
         <h4>Détails de l'événement :</h4>
@@ -266,20 +272,18 @@ export const sendQuoteRequestConfirmation = async (quoteRequest: QuoteRequest): 
           <li><strong>Ville :</strong> ${delivery_city || 'Non spécifiée'}</li>
           <li><strong>Date de livraison :</strong> ${delivery_date || 'Non spécifiée'}</li>
           <li><strong>Créneau horaire :</strong> ${delivery_time_slot || 'Non spécifié'}</li>
-          <li><strong>Présence d'ascenseur :</strong> ${has_elevator ? 'Oui' : 'Non'}</li>
-          ${has_elevator ? `<li><strong>Dimensions de l'ascenseur :</strong> ${elevator_dimensions || 'Non spécifiées'}</li>` : ''}
-          <li><strong>Étage :</strong> ${floor_number !== undefined ? floor_number : 'Non spécifié'}</li>
         </ul>
         
         <h4>Informations de reprise :</h4>
         <ul>
-          <li><strong>Date de reprise :</strong> ${pickup_date || 'Non spécifiée'}</li>
-          <li><strong>Créneau horaire :</strong> ${pickup_time_slot || 'Non spécifié'}</li>
+          <li><strong>Date de reprise :</strong> ${pickup_return_date || 'Non spécifiée'}</li>
+          <li><strong>Heure de début :</strong> ${pickup_return_start_time || 'Non spécifiée'}</li>
+          <li><strong>Heure de fin :</strong> ${pickup_return_end_time || 'Non spécifiée'}</li>
         </ul>
         
-        ${additional_comments ? `
+        ${comments ? `
         <h4>Commentaires supplémentaires :</h4>
-        <p>${additional_comments}</p>
+        <p>${comments}</p>
         ` : ''}
         
         <h4>Articles demandés :</h4>
@@ -349,44 +353,50 @@ export const sendAdminNotification = async (quoteRequest: QuoteRequest): Promise
         <h3>Informations client :</h3>
         <ul>
           <li><strong>Nom :</strong> ${quoteRequest.first_name} ${quoteRequest.last_name}</li>
-          <li><strong>Email :</strong> ${quoteRequest.email || 'Non spécifié'}</li>
-          <li><strong>Téléphone :</strong> ${quoteRequest.phone || 'Non spécifié'}</li>
-          <li><strong>Société :</strong> ${quoteRequest.company || 'Non spécifié'}</li>
+          <li><strong>Email :</strong> ${quoteRequest.email}</li>
+          <li><strong>Téléphone :</strong> ${quoteRequest.phone}</li>
+          <li><strong>Société :</strong> ${quoteRequest.company}</li>
           <li><strong>Type de client :</strong> ${quoteRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</li>
         </ul>
         
         <h3>Adresse de facturation :</h3>
         <p>
           ${quoteRequest.billing_address || 'Non spécifiée'}<br>
-          ${quoteRequest.billing_postal_code || ''} ${quoteRequest.billing_city || ''}
+          ${quoteRequest.postal_code || ''} ${quoteRequest.city || ''}
         </p>
         
         <h3>Détails de l'événement :</h3>
         <ul>
-          <li><strong>Date :</strong> ${quoteRequest.event_date || 'Non spécifiée'}</li>
-          <li><strong>Durée :</strong> ${quoteRequest.event_duration || 'Non spécifiée'}</li>
+          <li><strong>Date :</strong> ${quoteRequest.event_date}</li>
+          <li><strong>Durée :</strong> ${quoteRequest.event_duration}</li>
+          <li><strong>Description :</strong> ${quoteRequest.description}</li>
           <li><strong>Heure de début :</strong> ${quoteRequest.event_start_time || 'Non spécifiée'}</li>
           <li><strong>Heure de fin :</strong> ${quoteRequest.event_end_time || 'Non spécifiée'}</li>
           <li><strong>Nombre d'invités :</strong> ${quoteRequest.guest_count || 'Non spécifié'}</li>
-          <li><strong>Lieu :</strong> ${quoteRequest.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</li>
+          <li><strong>Lieu :</strong> ${quoteRequest.event_location || 'Non spécifié'}</li>
         </ul>
         
         <h3>Informations de livraison :</h3>
         <ul>
+          <li><strong>Type de livraison :</strong> ${quoteRequest.delivery_type || 'Non spécifié'}</li>
           <li><strong>Adresse :</strong> ${quoteRequest.delivery_address || 'Non spécifiée'}</li>
           <li><strong>Code postal :</strong> ${quoteRequest.delivery_postal_code || 'Non spécifié'}</li>
           <li><strong>Ville :</strong> ${quoteRequest.delivery_city || 'Non spécifiée'}</li>
           <li><strong>Date de livraison :</strong> ${quoteRequest.delivery_date || 'Non spécifiée'}</li>
           <li><strong>Créneau horaire :</strong> ${quoteRequest.delivery_time_slot || 'Non spécifié'}</li>
-          <li><strong>Présence d'ascenseur :</strong> ${quoteRequest.has_elevator ? 'Oui' : 'Non'}</li>
-          ${quoteRequest.has_elevator ? `<li><strong>Dimensions de l'ascenseur :</strong> ${quoteRequest.elevator_dimensions || 'Non spécifiées'}</li>` : ''}
-          <li><strong>Étage :</strong> ${quoteRequest.floor_number !== undefined ? quoteRequest.floor_number : 'Non spécifié'}</li>
+          <li><strong>Accès extérieur :</strong> ${quoteRequest.exterior_access || 'Non spécifié'}</li>
+          <li><strong>Accès intérieur :</strong> ${quoteRequest.interior_access || 'Non spécifié'}</li>
+          <li><strong>Dimensions ascenseur :</strong><br>
+            Largeur: ${quoteRequest.elevator_width || 'Non spécifiée'}<br>
+            Hauteur: ${quoteRequest.elevator_height || 'Non spécifiée'}<br>
+            Profondeur: ${quoteRequest.elevator_depth || 'Non spécifiée'}</li>
         </ul>
         
         <h3>Informations de reprise :</h3>
         <ul>
-          <li><strong>Date de reprise :</strong> ${quoteRequest.pickup_date || 'Non spécifiée'}</li>
-          <li><strong>Créneau horaire :</strong> ${quoteRequest.pickup_time_slot || 'Non spécifié'}</li>
+          <li><strong>Date de reprise :</strong> ${quoteRequest.pickup_return_date || 'Non spécifiée'}</li>
+          <li><strong>Heure de début :</strong> ${quoteRequest.pickup_return_start_time || 'Non spécifiée'}</li>
+          <li><strong>Heure de fin :</strong> ${quoteRequest.pickup_return_end_time || 'Non spécifiée'}</li>
         </ul>
         
         <h3>Articles demandés :</h3>
@@ -396,15 +406,14 @@ export const sendAdminNotification = async (quoteRequest: QuoteRequest): Promise
         
         <p><strong>Total estimatif : ${total}€</strong></p>
         
-        ${quoteRequest.additional_comments ? `
+        ${quoteRequest.comments ? `
         <h3>Commentaires supplémentaires :</h3>
-        <p>${quoteRequest.additional_comments}</p>
+        <p>${quoteRequest.comments}</p>
         ` : ''}
         
         <h3>Conditions acceptées :</h3>
         <ul>
           <li><strong>CGV :</strong> ${quoteRequest.terms_accepted ? 'Oui' : 'Non'}</li>
-          <li><strong>Politique de confidentialité :</strong> ${quoteRequest.privacy_accepted ? 'Oui' : 'Non'}</li>
         </ul>
         
         <p>Veuillez vous connecter au <a href="https://esil-events.fr/admin/quote-requests">panneau d'administration</a> pour plus de détails et pour traiter cette demande.</p>
