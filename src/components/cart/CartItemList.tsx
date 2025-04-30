@@ -140,13 +140,7 @@ const CartItemList: React.FC<CartItemListProps> = ({ items, removeFromCart, upda
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Les prix incluent la TVA
           </p>
-          <motion.button
-            className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Passer à la caisse
-          </motion.button>
+          
         </div>
       </motion.div>
     </motion.div>
