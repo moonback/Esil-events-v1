@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, ChevronDown, ChevronUp, Search, Filter, X } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
+import SeoContentGenerator from '../../components/SeoContentGenerator';
 import {
   getAllCategories,
   createCategory,
@@ -803,6 +804,34 @@ const AdminCategories: React.FC = () => {
                 />
               </div>
 
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="text-lg font-medium text-gray-900">Optimisation SEO</h4>
+                  <SeoContentGenerator
+                    item={{
+                      id: selectedItemId,
+                      name: modalName,
+                      slug: modalName.toLowerCase()
+                        .replace(/[éèêë]/g, 'e')
+                        .replace(/[àâä]/g, 'a')
+                        .replace(/[ùûü]/g, 'u')
+                        .replace(/[ôö]/g, 'o')
+                        .replace(/[îï]/g, 'i')
+                        .replace(/[ç]/g, 'c')
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, ''),
+                      description: modalDescription
+                    }}
+                    itemType={modalType || 'category'}
+                    onContentGenerated={(seoContent) => {
+                      setModalSeoTitle(seoContent.seo_title);
+                      setModalSeoDescription(seoContent.seo_description);
+                      setModalSeoKeywords(seoContent.seo_keywords);
+                    }}
+                  />
+                </div>
+              </div>
+
               <div>
                 <label htmlFor="seoTitle" className="block text-sm font-medium text-gray-700 mb-1">
                   Titre SEO
@@ -815,6 +844,7 @@ const AdminCategories: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="Titre optimisé pour les moteurs de recherche"
                 />
+                <div className="text-xs text-gray-500 mt-1">60-70 caractères recommandés</div>
               </div>
 
               <div>
@@ -829,6 +859,7 @@ const AdminCategories: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="Description optimisée pour les moteurs de recherche"
                 />
+                <div className="text-xs text-gray-500 mt-1">150-160 caractères recommandés</div>
               </div>
 
               <div>
