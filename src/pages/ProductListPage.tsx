@@ -323,7 +323,29 @@ const ProductListPage: React.FC = () => {
                 </div>
               </div>
             </div>
-
+{/* Colors */}
+<div className="mb-8">
+                <h4 className="font-medium mb-4 text-gray-900">Couleurs</h4>
+                <div className="flex flex-wrap gap-2">
+                  {Array.from(new Set(products.flatMap(product => product.colors || []))).map(color => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColors(prev =>
+                        prev.includes(color)
+                          ? prev.filter(c => c !== color)
+                          : [...prev, color]
+                      )}
+                      className={`px-3 py-1.5 rounded-full text-sm border transition-all duration-200 ${
+                        selectedColors.includes(color)
+                          ? 'bg-violet-100 border-violet-500 text-violet-700'
+                          : 'border-gray-200 hover:border-violet-300 text-gray-700 hover:bg-violet-50'
+                      }`}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
+              </div>
             {/* Sort By */}
             <div className="mb-6">
               <h3 className="text-sm font-medium text-gray-900 mb-2">Trier par</h3>
@@ -372,6 +394,7 @@ const ProductListPage: React.FC = () => {
                 </label>
               </div>
             </div>
+           
           </div>
         </div>
 
