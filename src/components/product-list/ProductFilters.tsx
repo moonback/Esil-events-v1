@@ -158,7 +158,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         </div>
 
         {/* Colors */}
-        <div className="mb-8">
+        {/* <div className="mb-8">
           <h4 className="font-medium mb-4 text-gray-900">Couleurs</h4>
           <div className="flex flex-wrap gap-2">
             {Array.from(new Set(products.flatMap(product => product.colors || []))).map(color => (
@@ -179,7 +179,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
               </button>
             ))}
           </div>
-        </div>
+        </div> */}
         
 
         {/* Sort By */}
