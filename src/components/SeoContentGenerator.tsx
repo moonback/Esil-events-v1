@@ -50,7 +50,7 @@ const SeoContentGenerator: React.FC<SeoContentGeneratorProps> = ({
         className="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Sparkles className="h-4 w-4 mr-1" />
-        {isGenerating ? 'Génération en cours...' : 'Générer avec DeepSeek'}
+        {isGenerating ? 'Génération en cours...' : 'Générer SEO'}
       </button>
       {error && (
         <div className="text-sm text-red-600">
