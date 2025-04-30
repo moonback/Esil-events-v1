@@ -52,56 +52,54 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           </button>
         </div>
 {/* Categories */}
-        <div className="mb-8">
-          <h4 className="font-medium mb-4 text-gray-900">Catégories</h4>
-          <div className="space-y-2">
+        <div className="mb-6">
+          <h4 className="font-medium mb-3 text-gray-900">Catégories</h4>
+          <div className="space-y-1">
             {Array.from(new Set(products.map(product => product.category))).map(category => (
-              <div key={category} className="space-y-2">
+              <div key={category} className="space-y-1">
                 <Link
                   to={`/products/${category}`}
-                  className="flex items-center justify-between w-full text-left text-sm text-gray-700 hover:text-violet-700 p-2 rounded hover:bg-violet-50 transition-colors"
+                  className="flex items-center justify-between w-full text-left text-sm text-gray-700 hover:text-violet-700 px-2 py-1 rounded hover:bg-violet-50 transition-colors"
                 >
                   <span className="font-medium">{category}</span>
                   <svg 
-                    className="w-4 h-4 text-gray-400" 
+                    className="w-3 h-3 text-gray-400" 
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
                   >
                     <path 
                       strokeLinecap="round" 
-                      strokeLinecap="round" 
                       strokeWidth="2" 
                       d="M9 5l7 7-7 7" 
                     />
                   </svg>
                 </Link>
-                <div className="ml-4 space-y-2 border-l border-gray-200 pl-3">
+                <div className="ml-3 space-y-1 border-l border-gray-200 pl-2">
                   {Array.from(new Set(products
                     .filter(product => product.category === category)
                     .map(product => product.subCategory)))
                     .map(subcategory => (
-                      <div key={subcategory} className="space-y-2">
+                      <div key={subcategory} className="space-y-1">
                         <Link
                           to={`/products/${category}/${subcategory}`}
-                          className="flex items-center justify-between w-full text-left text-sm text-gray-600 hover:text-violet-700 p-2 rounded hover:bg-violet-50 transition-colors"
+                          className="flex items-center justify-between w-full text-left text-sm text-gray-600 hover:text-violet-700 px-2 py-1 rounded hover:bg-violet-50 transition-colors"
                         >
                           <span>{subcategory}</span>
                           <svg 
-                            className="w-4 h-4 text-gray-400" 
+                            className="w-3 h-3 text-gray-400" 
                             fill="none" 
                             stroke="currentColor" 
                             viewBox="0 0 24 24"
                           >
                             <path 
                               strokeLinecap="round" 
-                              strokeLinecap="round" 
                               strokeWidth="2" 
                               d="M9 5l7 7-7 7" 
                             />
                           </svg>
                         </Link>
-                        <div className="ml-4 space-y-2 border-l border-gray-200 pl-3">
+                        <div className="ml-3 space-y-1 border-l border-gray-200 pl-2">
                           {Array.from(new Set(products
                             .filter(product => 
                               product.category === category && 
@@ -111,7 +109,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                               <Link
                                 key={subsubcategory}
                                 to={`/products/${category}/${subcategory}/${subsubcategory}`}
-                                className="flex items-center w-full text-left text-sm text-gray-500 hover:text-violet-700 p-2 rounded hover:bg-violet-50 transition-colors"
+                                className="flex items-center w-full text-left text-sm text-gray-500 hover:text-violet-700 px-2 py-1 rounded hover:bg-violet-50 transition-colors"
                               >
                                 <span>{subsubcategory}</span>
                               </Link>
