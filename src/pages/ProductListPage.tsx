@@ -323,8 +323,8 @@ const ProductListPage: React.FC = () => {
                 </div>
               </div>
             </div>
-{/* Colors */}
-<div className="mb-8">
+              {/* Colors */}
+              <div className="mb-8">
                 <h4 className="font-medium mb-4 text-gray-900">Couleurs</h4>
                 <div className="flex flex-wrap gap-2">
                   {Array.from(new Set(products.flatMap(product => product.colors || []))).map(color => (
@@ -412,7 +412,7 @@ const ProductListPage: React.FC = () => {
               <p className="text-gray-600">Essayez de modifier vos filtres ou revenez plus tard.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
               {filteredProducts.map((product) => (
                 <Link
                   key={product.id}
