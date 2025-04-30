@@ -795,3 +795,68 @@ export const updateProductColors = async (id: string, colors: string[]): Promise
     throw error;
   }
 };
+
+// Fetch products by subsubcategory
+export const getProductsBySubSubCategory = async (category: string, subCategory: string, subSubCategory: string): Promise<Product[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('category', category)
+      .eq('sub_category', subCategory)
+      .eq('sub_sub_category', subSubCategory)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error:', error);
+      console.log('Falling back to mock data...');
+      return mockProducts.filter(p => 
+        p.category === category && 
+        p.subCategory === subCategory && 
+        p.subSubCategory === subSubCategory
+      );
+    }
+
+    if (!data || data.length === 0) {
+      console.log('No products found in database for this subsubcategory, using mock data...');
+      return mockProducts.filter(p => 
+        p.category === category && 
+        p.subCategory === subCategory && 
+        p.subSubCategory === subSubCategory
+      );
+    }
+
+    // Convert snake_case to camelCase
+    const formattedData = data.map((product) => ({
+      id: product.id,
+      name: product.name,
+      reference: product.reference,
+      category: product.category,
+      subCategory: product.sub_category,
+      subSubCategory: product.sub_sub_category || '',
+      description: product.description,
+      priceHT: parseFloat(product.price_ht),
+      priceTTC: parseFloat(product.price_ttc),
+      stock: product.stock,
+      isAvailable: product.is_available,
+      createdAt: new Date(product.created_at),
+      updatedAt: new Date(product.updated_at),
+      images: product.images || [],
+      mainImageIndex: product.main_image_index,
+      colors: product.colors || [],
+      relatedProducts: product.related_products || [],
+      technicalSpecs: product.technical_specs || {},
+      technicalDocUrl: product.technical_doc_url || null,
+      videoUrl: product.video_url || null
+    }));
+
+    return formattedData;
+  } catch (error) {
+    console.error('Error fetching products by subsubcategory:', error);
+    return mockProducts.filter(p => 
+      p.category === category && 
+      p.subCategory === subCategory && 
+      p.subSubCategory === subSubCategory
+    );
+  }
+};
