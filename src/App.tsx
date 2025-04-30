@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import ScrollToTop from './components/ScrollToTop';
 import HomePage from './pages/HomePage';
 import ProductPage from './pages/ProductPage';
 import ProductListPage from './pages/ProductListPage';
@@ -27,6 +28,7 @@ import { HelmetProvider } from 'react-helmet-async';
 const App: React.FC = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <CartProvider>
         <Routes>
           {/* Routes publiques avec Layout principal */}
