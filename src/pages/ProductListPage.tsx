@@ -407,9 +407,32 @@ const ProductListPage: React.FC = () => {
           )}
 
           {filteredProducts.length === 0 ? (
-            <div className="bg-white p-8 rounded-lg shadow-md text-center">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun produit trouvé</h3>
-              <p className="text-gray-600">Essayez de modifier vos filtres ou revenez plus tard.</p>
+            <div className="bg-white p-12 rounded-xl shadow-lg text-center border border-gray-100">
+              <div className="mb-6">
+                <svg 
+                  className="mx-auto h-16 w-16 text-gray-400"
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={1.5} 
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 21a9 9 0 110-18 9 9 0 010 18z" 
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Aucun produit trouvé</h3>
+              <p className="text-gray-600 text-base max-w-md mx-auto">
+                Nous n'avons trouvé aucun produit correspondant à vos critères. Essayez d'ajuster vos filtres ou revenez plus tard.
+              </p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-colors duration-200"
+              >
+                Réinitialiser les filtres
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
