@@ -7,6 +7,7 @@ import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 import ProductFilters from '../components/product-list/ProductFilters';
 import { useProductFilters } from '../hooks/useProductFilters';
 import { Product } from '../types/Product';
+import SEO from '../components/SEO';
 
 // Using Product type from types/Product.ts
 
@@ -17,7 +18,7 @@ const ProductListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   // isFilterOpen is now managed by useProductFilters
   const [error, setError] = useState<string | null>(null);
-  const [categoryInfo, setCategoryInfo] = useState<{name: string, description?: string, seo_title?: string}>({name: ''});
+  const [categoryInfo, setCategoryInfo] = useState<{name: string, description?: string, seo_title?: string, seo_description?: string, seo_keywords?: string}>({name: ''});
 
   // Use the product filters hook
   const {
@@ -51,7 +52,9 @@ const ProductListPage: React.FC = () => {
               setCategoryInfo({
                 name: currentCategory.name,
                 description: currentCategory.description,
-                seo_title: currentCategory.seo_title
+                seo_title: currentCategory.seo_title,
+                seo_description: currentCategory.seo_description,
+                seo_keywords: currentCategory.seo_keywords
               });
             } else {
               const currentSubcategory = currentCategory.subcategories?.find(
@@ -62,7 +65,9 @@ const ProductListPage: React.FC = () => {
                   setCategoryInfo({
                     name: currentSubcategory.name,
                     description: currentSubcategory.description,
-                    seo_title: currentSubcategory.seo_title
+                    seo_title: currentSubcategory.seo_title,
+                    seo_description: currentSubcategory.seo_description,
+                    seo_keywords: currentSubcategory.seo_keywords
                   });
                 } else {
                   const currentSubSubcategory = currentSubcategory.subsubcategories?.find(
@@ -72,7 +77,9 @@ const ProductListPage: React.FC = () => {
                     setCategoryInfo({
                       name: currentSubSubcategory.name,
                       description: currentSubSubcategory.description,
-                      seo_title: currentSubSubcategory.seo_title
+                      seo_title: currentSubSubcategory.seo_title,
+                      seo_description: currentSubSubcategory.seo_description,
+                      seo_keywords: currentSubSubcategory.seo_keywords
                     });
                   }
                 }
@@ -171,141 +178,150 @@ const ProductListPage: React.FC = () => {
   }
 
   return (
-    <div className="mx-auto px-4 py-8">
-      {/* Breadcrumb */}
-      <nav className="mb-6 mt-5 pt-20">
-        <ol className="flex flex-wrap text-sm">
-          {getBreadcrumb().map((item, index, array) => (
-            <li key={item.path} className="flex items-center">
-              {index > 0 && <span className="mx-2 text-gray-400">/</span>}
-              {index === array.length - 1 ? (
-                <span className="font-medium text-gray-800">{item.name}</span>
-              ) : (
-                <Link to={item.path} className="text-blue-600 hover:underline">
-                  {item.name}
-                </Link>
-              )}
-            </li>
-          ))}
-        </ol>
-      </nav>
+    <>
+      {/* SEO Component */}
+      <SEO 
+        title={categoryInfo.seo_title || categoryInfo.name || 'Produits'}
+        description={categoryInfo.seo_description || categoryInfo.description || 'Découvrez notre sélection de produits de qualité pour vos événements.'}
+        keywords={categoryInfo.seo_keywords || ''}
+      />
+      
+      <div className="mx-auto px-4 py-8">
+        {/* Breadcrumb */}
+        <nav className="mb-6 mt-5 pt-20">
+          <ol className="flex flex-wrap text-sm">
+            {getBreadcrumb().map((item, index, array) => (
+              <li key={item.path} className="flex items-center">
+                {index > 0 && <span className="mx-2 text-gray-400">/</span>}
+                {index === array.length - 1 ? (
+                  <span className="font-medium text-gray-800">{item.name}</span>
+                ) : (
+                  <Link to={item.path} className="text-blue-600 hover:underline">
+                    {item.name}
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ol>
+        </nav>
 
-      {/* Category Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {categoryInfo.name || 'Tous nos produits'}
-        </h1>
-        {categoryInfo.description && (
-          <p className="text-gray-600">{categoryInfo.description}</p>
-        )}
-      </div>
-
-      {/* Filter Button (Mobile) */}
-      <div className="lg:hidden mb-4">
-        <button
-          onClick={toggleFilter}
-          className="flex items-center justify-center w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          <Filter className="h-5 w-5 mr-2" />
-          Filtres
-          <ChevronDown className={`h-5 w-5 ml-2 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
-        </button>
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Filters (Sidebar) - Using ProductFilters component */}
-        <ProductFilters
-          priceRange={priceRange}
-          setPriceRange={setPriceRange}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          selectedColors={selectedColors}
-          setSelectedColors={setSelectedColors}
-          availability={availability}
-          setAvailability={setAvailability}
-          resetFilters={resetFilters}
-          products={products}
-          isFilterOpen={isFilterOpen}
-        />
-
-        {/* Product Grid */}
-        <div className="lg:w-3/4">
-          {error && (
-            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
-              <p className="text-red-700">{error}</p>
-            </div>
-          )}
-
-          {filteredProducts.length === 0 ? (
-            <div className="bg-white p-12 rounded-xl shadow-lg text-center border border-gray-100">
-              <div className="mb-6">
-                <svg 
-                  className="mx-auto h-16 w-16 text-gray-400"
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  stroke="currentColor"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={1.5} 
-                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 21a9 9 0 110-18 9 9 0 010 18z" 
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Aucun produit trouvé</h3>
-              <p className="text-gray-600 text-base max-w-md mx-auto">
-                Nous n'avons trouvé aucun produit correspondant à vos critères. Essayez d'ajuster vos filtres ou revenez plus tard.
-              </p>
-              <button 
-                onClick={() => window.location.reload()} 
-                className="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-colors duration-200"
-              >
-                Réinitialiser les filtres
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-              {filteredProducts.map((product) => (
-                <Link
-                  key={product.id}
-                  to={`/product/${product.id}`}
-                  className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
-                >
-                  <div className="aspect-w-1 aspect-h-1 w-full h-48 overflow-hidden bg-white flex items-center justify-center">
-                    <img
-                      src={product.images && product.images.length > 0 
-                        ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
-                          ? product.images[product.mainImageIndex] 
-                          : product.images[0])
-                        : DEFAULT_PRODUCT_IMAGE}
-                      alt={product.name}
-                      className="max-w-full max-h-full object-contain group-hover:opacity-75"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
-                    <p className="mt-1 text-sm text-gray-500">{product.reference}</p>
-                    <div className="mt-2 flex justify-between items-center">
-                      <p className="text-lg font-semibold text-gray-900">{product.priceTTC.toFixed(2)}€</p>
-                      {product.isAvailable !== undefined && (
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          product.isAvailable 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {product.isAvailable ? 'Disponible' : 'Indisponible'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+        {/* Category Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {categoryInfo.name || 'Tous nos produits'}
+          </h1>
+          {categoryInfo.description && (
+            <p className="text-gray-600">{categoryInfo.description}</p>
           )}
         </div>
+
+        {/* Filter Button (Mobile) */}
+        <div className="lg:hidden mb-4">
+          <button
+            onClick={toggleFilter}
+            className="flex items-center justify-center w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <Filter className="h-5 w-5 mr-2" />
+            Filtres
+            <ChevronDown className={`h-5 w-5 ml-2 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Filters (Sidebar) - Using ProductFilters component */}
+          <ProductFilters
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            selectedColors={selectedColors}
+            setSelectedColors={setSelectedColors}
+            availability={availability}
+            setAvailability={setAvailability}
+            resetFilters={resetFilters}
+            products={products}
+            isFilterOpen={isFilterOpen}
+          />
+
+          {/* Product Grid */}
+          <div className="lg:w-3/4">
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                <p className="text-red-700">{error}</p>
+              </div>
+            )}
+
+            {filteredProducts.length === 0 ? (
+              <div className="bg-white p-12 rounded-xl shadow-lg text-center border border-gray-100">
+                <div className="mb-6">
+                  <svg 
+                    className="mx-auto h-16 w-16 text-gray-400"
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={1.5} 
+                      d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 21a9 9 0 110-18 9 9 0 010 18z" 
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Aucun produit trouvé</h3>
+                <p className="text-gray-600 text-base max-w-md mx-auto">
+                  Nous n'avons trouvé aucun produit correspondant à vos critères. Essayez d'ajuster vos filtres ou revenez plus tard.
+                </p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-colors duration-200"
+                >
+                  Réinitialiser les filtres
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                {filteredProducts.map((product) => (
+                  <Link
+                    key={product.id}
+                    to={`/product/${product.id}`}
+                    className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                  >
+                    <div className="aspect-w-1 aspect-h-1 w-full h-48 overflow-hidden bg-white flex items-center justify-center">
+                      <img
+                        src={product.images && product.images.length > 0 
+                          ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
+                            ? product.images[product.mainImageIndex] 
+                            : product.images[0])
+                          : DEFAULT_PRODUCT_IMAGE}
+                        alt={product.name}
+                        className="max-w-full max-h-full object-contain group-hover:opacity-75"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
+                      <p className="mt-1 text-sm text-gray-500">{product.reference}</p>
+                      <div className="mt-2 flex justify-between items-center">
+                        <p className="text-lg font-semibold text-gray-900">{product.priceTTC.toFixed(2)}€</p>
+                        {product.isAvailable !== undefined && (
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            product.isAvailable 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {product.isAvailable ? 'Disponible' : 'Indisponible'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
