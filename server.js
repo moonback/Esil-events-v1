@@ -4,7 +4,19 @@ import cors from 'cors';
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+
+// Middleware pour parser le JSON
+app.use(express.json({
+  verify: (req, res, buf, encoding) => {
+    // Stocker le corps brut de la requête pour les endpoints qui ont besoin du XML
+    if (req.originalUrl === '/api/admin/sitemap') {
+      req.rawBody = buf.toString(encoding || 'utf8');
+    }
+  }
+}));
+
+// Middleware pour parser le texte brut (pour le XML)
+app.use(express.text({ type: 'application/xml' }));
 
 // Endpoint pour tester la connexion SMTP
 app.post('/api/email/test-connection', async (req, res) => {
@@ -132,6 +144,53 @@ app.post('/api/email/send', async (req, res) => {
       error: error.message,
       details: error.toString(),
       stack: error.stack
+    });
+  }
+});
+
+// Endpoint pour sauvegarder le sitemap
+app.post('/api/admin/sitemap', async (req, res) => {
+  console.log('Requête reçue sur /api/admin/sitemap');
+  try {
+    // Récupérer le contenu XML du corps de la requête
+    let sitemapXml = '';
+    
+    // Vérifier le type de contenu et extraire le XML
+    if (req.is('application/xml') || req.is('text/xml')) {
+      // Si le contenu est déjà sous forme de texte/XML
+      sitemapXml = req.body;
+    } else if (req.rawBody) {
+      // Utiliser le corps brut si disponible
+      sitemapXml = req.rawBody;
+    } else if (typeof req.body === 'string') {
+      // Si le corps est une chaîne
+      sitemapXml = req.body;
+    } else {
+      // Dernier recours: tenter de convertir l'objet en chaîne
+      sitemapXml = JSON.stringify(req.body);
+    }
+    
+    // Vérifier que nous avons bien un contenu XML valide
+    if (!sitemapXml.includes('<?xml') || !sitemapXml.includes('<urlset')) {
+      throw new Error('Le contenu ne semble pas être un XML de sitemap valide');
+    }
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Chemin vers le fichier sitemap.xml dans le dossier public
+    const sitemapPath = path.resolve('./public/sitemap.xml');
+    
+    // Écrire le contenu XML dans le fichier
+    fs.writeFileSync(sitemapPath, sitemapXml, 'utf8');
+    
+    console.log('Sitemap sauvegardé avec succès');
+    res.json({ success: true, message: 'Sitemap mis à jour avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du sitemap:', error);
+    res.status(500).json({ 
+      error: 'Erreur lors de la sauvegarde',
+      details: error.toString()
     });
   }
 });
