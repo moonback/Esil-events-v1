@@ -9,7 +9,7 @@ export interface QuoteRequest {
   elevator_dimensions: string;
   floor_number: undefined;
   pickup_time_slot: string;
-  additional_comments: any;
+  comments: any; // Renommé de additional_comments pour correspondre au schéma de la BDD
   privacy_accepted: any;
   delivery_address?: string;
   delivery_date?: string;
@@ -84,7 +84,7 @@ const mapFormDataToQuoteRequest = (formData: FormData, cartItems: any[]): QuoteR
       `Largeur: ${formData.elevatorWidth || 'N/A'}, Hauteur: ${formData.elevatorHeight || 'N/A'}, Profondeur: ${formData.elevatorDepth || 'N/A'}` : '',
     floor_number: undefined,
     pickup_time_slot: formData.deliveryTimeSlot || '',
-    additional_comments: formData.comments,
+    comments: formData.comments, // Utilisation de 'comments' au lieu de 'additional_comments' pour correspondre au schéma de la BDD
     privacy_accepted: formData.termsAccepted,
     
     // Informations de facturation

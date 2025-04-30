@@ -197,7 +197,7 @@ export const sendQuoteRequestConfirmation = async (quoteRequest: QuoteRequest): 
     floor_number,
     pickup_date,
     pickup_time_slot,
-    additional_comments,
+    comments, // Renommé de additional_comments pour correspondre au schéma de la BDD
     items 
   } = quoteRequest;
   
@@ -277,9 +277,9 @@ export const sendQuoteRequestConfirmation = async (quoteRequest: QuoteRequest): 
           <li><strong>Créneau horaire :</strong> ${pickup_time_slot || 'Non spécifié'}</li>
         </ul>
         
-        ${additional_comments ? `
+        ${comments ? `
         <h4>Commentaires supplémentaires :</h4>
-        <p>${additional_comments}</p>
+        <p>${comments}</p>
         ` : ''}
         
         <h4>Articles demandés :</h4>
@@ -396,9 +396,9 @@ export const sendAdminNotification = async (quoteRequest: QuoteRequest): Promise
         
         <p><strong>Total estimatif : ${total}€</strong></p>
         
-        ${quoteRequest.additional_comments ? `
+        ${quoteRequest.comments ? `
         <h3>Commentaires supplémentaires :</h3>
-        <p>${quoteRequest.additional_comments}</p>
+        <p>${quoteRequest.comments}</p>
         ` : ''}
         
         <h3>Conditions acceptées :</h3>
