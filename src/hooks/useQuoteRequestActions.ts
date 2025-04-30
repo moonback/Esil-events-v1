@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { QuoteRequest, updateQuoteRequestStatus, deleteQuoteRequest } from '../services/quoteRequestService';
-import { generateAIResponse } from '../services/aiResponseService';
+import { generateAIResponse, ResponseOptions } from '../services/aiResponseService';
 import { exportToPDF, printQuoteRequest } from '../components/admin/quoteRequests';
 
 interface UseQuoteRequestActionsResult {
@@ -102,7 +102,7 @@ export const useQuoteRequestActions = (
   };
 
   // Génération de réponse IA
-  const handleGenerateResponse = async () => {
+  const handleGenerateResponse = async (useReasoner: boolean = false, options?: ResponseOptions) => {
     if (!selectedRequest) {
       setFeedbackMessage({ type: 'error', text: 'Aucune demande sélectionnée.' });
       return;
@@ -115,7 +115,7 @@ export const useQuoteRequestActions = (
     setError('');
 
     try {
-      const { response, error } = await generateAIResponse(selectedRequest);
+      const { response, error } = await generateAIResponse(selectedRequest, useReasoner, options);
       
       if (error) {
         throw new Error(error);

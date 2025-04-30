@@ -5,16 +5,64 @@ import { formatDate, formatItemsDetails, calculateTotalAmount, getDeliveryTypeLa
  * Service pour gérer la génération de réponses IA pour les demandes de devis
  */
 
+// Interface pour les options de réponse
+export interface ResponseOptions {
+  tone?: 'formal' | 'friendly' | 'persuasive';
+  includePromotion?: boolean;
+  focusOnDetails?: boolean;
+  responseLength?: 'concise' | 'standard' | 'detailed';
+}
+
 /**
  * Prépare les données pour la génération de réponse IA
  */
-export const prepareAIPromptData = (selectedRequest: QuoteRequest, useReasoner: boolean = false) => {
+export const prepareAIPromptData = (selectedRequest: QuoteRequest, useReasoner: boolean = false, options?: ResponseOptions) => {
   const itemsDetails = formatItemsDetails(selectedRequest);
   const totalAmount = calculateTotalAmount(selectedRequest);
 
+  // Adapter le message système en fonction des options
+  let systemContent = "Tu es un expert commercial pour ESIL Events, spécialiste de la location de mobilier événementiel premium. Génère des réponses de devis personnalisées, professionnelles et persuasives pour maximiser la conversion. ";
+  
+  // Ajuster le ton en fonction des options
+  if (options?.tone === 'formal') {
+    systemContent += "Utilise un ton formel, professionnel et respectueux. ";
+  } else if (options?.tone === 'friendly') {
+    systemContent += "Utilise un ton amical, chaleureux et accessible. ";
+  } else if (options?.tone === 'persuasive') {
+    systemContent += "Utilise un ton persuasif, convaincant et orienté conversion. ";
+  } else {
+    systemContent += "Ton formel mais chaleureux, ";
+  }
+  
+  // Ajouter les principes clés
+  systemContent += "Principes clés : créer un sentiment d'urgence (disponibilité, offre limitée), souligner l'exclusivité et l'expertise d'ESIL Events, utiliser la preuve sociale, mettre en avant la garantie de satisfaction et le service client. ";
+  
+  // Ajuster la structure en fonction des options
+  systemContent += "Structure : Accroche personnalisée, présentation valorisante d'ESIL, description de l'impact du mobilier sur l'événement, ";
+  
+  // Détailler les articles si l'option est activée
+  if (options?.focusOnDetails !== false) {
+    systemContent += "détail des articles (si fournis) avec caractéristiques premium, ";
+  }
+  
+  // Inclure une promotion si l'option est activée
+  if (options?.includePromotion !== false) {
+    systemContent += "offre spéciale (ex: -5% si confirmation sous 7j), ";
+  }
+  
+  // Compléter la structure
+  systemContent += "conditions claires (acompte 30%), appel à l'action (RDV tel, showroom), signature pro ('L'élégance pour chaque événement'), coordonnées complètes, lien portfolio/réseaux sociaux. Intègre un témoignage générique si pertinent et mentionne nos services (conseil, installation, livraison premium).";
+  
+  // Ajuster la longueur de la réponse
+  if (options?.responseLength === 'concise') {
+    systemContent += " Génère une réponse concise et directe, en te concentrant sur l'essentiel.";
+  } else if (options?.responseLength === 'detailed') {
+    systemContent += " Génère une réponse détaillée et complète, en expliquant tous les aspects de l'offre.";
+  }
+  
   const systemMessage = {
     role: "system",
-    content: "Tu es un expert commercial pour ESIL Events, spécialiste de la location de mobilier événementiel premium. Génère des réponses de devis personnalisées, professionnelles et persuasives pour maximiser la conversion. Principes clés : Ton formel mais chaleureux, créer un sentiment d'urgence (disponibilité, offre limitée), souligner l'exclusivité et l'expertise d'ESIL Events, utiliser la preuve sociale, mettre en avant la garantie de satisfaction et le service client. Structure : Accroche personnalisée, présentation valorisante d'ESIL, description de l'impact du mobilier sur l'événement, détail des articles (si fournis) avec caractéristiques premium, offre spéciale (ex: -5% si confirmation sous 7j), conditions claires (acompte 30%), appel à l'action (RDV tel, showroom), signature pro ('L'élégance pour chaque événement'), coordonnées complètes, lien portfolio/réseaux sociaux. Intègre un témoignage générique si pertinent et mentionne nos services (conseil, installation, livraison premium)."
+    content: systemContent
   };
 
   const userMessage = {
@@ -78,7 +126,7 @@ L'élégance pour chaque événement
 /**
  * Génère une réponse IA pour une demande de devis
  */
-export const generateAIResponse = async (selectedRequest: QuoteRequest, useReasoner: boolean = false): Promise<{ response?: string; error?: string }> => {
+export const generateAIResponse = async (selectedRequest: QuoteRequest, useReasoner: boolean = false, options?: ResponseOptions): Promise<{ response?: string; error?: string }> => {
   try {
     const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
     
@@ -86,7 +134,7 @@ export const generateAIResponse = async (selectedRequest: QuoteRequest, useReaso
       return { error: 'Erreur de configuration: Clé API DeepSeek manquante (VITE_DEEPSEEK_API_KEY).' };
     }
 
-    const { messages, useReasoner: shouldUseReasoner } = prepareAIPromptData(selectedRequest, useReasoner);
+    const { messages, useReasoner: shouldUseReasoner } = prepareAIPromptData(selectedRequest, useReasoner, options);
 
     const requestBody = {
       model: "deepseek-chat",
