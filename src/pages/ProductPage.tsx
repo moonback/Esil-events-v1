@@ -223,51 +223,56 @@ return (
 
               {/* Quantity Selector */}
               <div className="bg-white p-6 rounded-xl shadow-lg">
-                <label className="block text-sm font-medium text-gray-700 mb-3">Quantité</label>
-                <div className="flex items-center space-x-4">
-                  <button 
-                    onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                    className="p-3 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100"
-                  >
-                    <Minus className="w-5 h-5" />
-                  </button>
-                  <input 
-                    type="number" 
-                    min="1" 
-                    value={quantity} 
-                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-24 text-center border-gray-300 rounded-lg focus:ring-violet-500 focus:border-violet-500"
-                  />
-                  <button 
-                    onClick={() => setQuantity(prev => prev + 1)}
-                    className="p-3 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100"
-                  >
-                    <Plus className="w-5 h-5" />
-                  </button>
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Quantity Selector */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Quantité</label>
+                    <div className="flex items-center space-x-4">
+                      <button 
+                        onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                        className="p-3 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100"
+                      >
+                        <Minus className="w-5 h-5" />
+                      </button>
+                      <input 
+                        type="number" 
+                        min="1" 
+                        value={quantity} 
+                        onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="w-24 text-center border-gray-300 rounded-lg focus:ring-violet-500 focus:border-violet-500"
+                      />
+                      <button 
+                        onClick={() => setQuantity(prev => prev + 1)}
+                        className="p-3 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Color Selector */}
+                  {product.colors && product.colors.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">Couleur</label>
+                      <div className="flex flex-wrap gap-3">
+                        {product.colors.map((color) => (
+                          <button
+                            key={color}
+                            onClick={() => setSelectedColor(color)}
+                            className={`px-6 py-3 rounded-lg transition-all ${
+                              selectedColor === color 
+                                ? 'bg-violet-600 text-white' 
+                                : 'bg-violet-50 text-gray-700 hover:bg-violet-100'
+                            }`}
+                          >
+                            {color}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {/* Color Selector */}
-              {product.colors && product.colors.length > 0 && (
-                <div className="bg-white p-6 rounded-xl shadow-lg">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Couleur</label>
-                  <div className="flex flex-wrap gap-3">
-                    {product.colors.map((color) => (
-                      <button
-                        key={color}
-                        onClick={() => setSelectedColor(color)}
-                        className={`px-6 py-3 rounded-lg transition-all ${
-                          selectedColor === color 
-                            ? 'bg-violet-600 text-white' 
-                            : 'bg-violet-50 text-gray-700 hover:bg-violet-100'
-                        }`}
-                      >
-                        {color}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Add to Cart Button */}
               <button 
