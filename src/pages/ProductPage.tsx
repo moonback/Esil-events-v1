@@ -109,9 +109,9 @@ const ProductPage: React.FC = () => {
 
 return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         {/* Breadcrumb */}
-        <div className="mb-10">
+        <div className="mb-8">
           <nav className="flex" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-3 text-sm bg-white px-4 py-2 rounded-lg shadow-sm">
               <li className="inline-flex items-center">
@@ -140,12 +140,12 @@ return (
           </nav>
         </div>
 
-        <div className="space-y-12">
+        <div className="space-y-10">
           {/* Main Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Product Images */}
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <div className="relative aspect-square overflow-hidden rounded-xl">
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
                 {product.images && product.images.length > 0 ? (
                   <img 
                     src={product.images[currentImageIndex]} 
@@ -167,13 +167,13 @@ return (
                   <>
                     <button 
                       onClick={handlePrevImage}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-2 shadow-lg"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-3 shadow-lg hover:bg-violet-50 transition-colors"
                     >
                       <ChevronLeft className="w-6 h-6 text-violet-600" />
                     </button>
                     <button 
                       onClick={handleNextImage}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-2 shadow-lg"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-3 shadow-lg hover:bg-violet-50 transition-colors"
                     >
                       <ChevronRight className="w-6 h-6 text-violet-600" />
                     </button>
@@ -183,7 +183,7 @@ return (
               
               {/* Thumbnails */}
               {product.images && product.images.length > 1 && (
-                <div className="mt-6 grid grid-cols-4 gap-4">
+                <div className="mt-8 grid grid-cols-5 gap-4">
                   {product.images.map((image, index) => (
                     <button
                       key={index}
@@ -204,30 +204,30 @@ return (
             </div>
 
             {/* Product Info */}
-            <div className="space-y-8">
+            <div className="space-y-6">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900">{product.name}</h1>
+                <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">{product.name}</h1>
                 <p className="mt-2 text-gray-500">Réf: {product.reference}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white p-4 rounded-xl shadow-lg">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="bg-white p-6 rounded-xl shadow-lg">
                   <p className="text-sm text-gray-500">Prix HT / jour</p>
                   <p className="text-2xl font-bold text-gray-900">{product.priceHT.toFixed(2)} €</p>
                 </div>
-                <div className="bg-violet-50 p-4 rounded-xl shadow-lg">
+                <div className="bg-violet-50 p-6 rounded-xl shadow-lg">
                   <p className="text-sm text-violet-600">Prix TTC / jour</p>
                   <p className="text-2xl font-bold text-violet-600">{product.priceTTC.toFixed(2)} €</p>
                 </div>
               </div>
 
               {/* Quantity Selector */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Quantité</label>
+              <div className="bg-white p-6 rounded-xl shadow-lg">
+                <label className="block text-sm font-medium text-gray-700 mb-3">Quantité</label>
                 <div className="flex items-center space-x-4">
                   <button 
                     onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                    className="p-2 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100"
+                    className="p-3 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100"
                   >
                     <Minus className="w-5 h-5" />
                   </button>
@@ -236,11 +236,11 @@ return (
                     min="1" 
                     value={quantity} 
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-20 text-center border-gray-300 rounded-lg focus:ring-violet-500 focus:border-violet-500"
+                    className="w-24 text-center border-gray-300 rounded-lg focus:ring-violet-500 focus:border-violet-500"
                   />
                   <button 
                     onClick={() => setQuantity(prev => prev + 1)}
-                    className="p-2 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100"
+                    className="p-3 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100"
                   >
                     <Plus className="w-5 h-5" />
                   </button>
@@ -249,17 +249,17 @@ return (
 
               {/* Color Selector */}
               {product.colors && product.colors.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Couleur</label>
-                  <div className="flex flex-wrap gap-2">
+                <div className="bg-white p-6 rounded-xl shadow-lg">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Couleur</label>
+                  <div className="flex flex-wrap gap-3">
                     {product.colors.map((color) => (
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
-                        className={`px-4 py-2 rounded-lg transition-all ${
+                        className={`px-6 py-3 rounded-lg transition-all ${
                           selectedColor === color 
                             ? 'bg-violet-600 text-white' 
-                            : 'bg-white text-gray-700 hover:bg-violet-50'
+                            : 'bg-violet-50 text-gray-700 hover:bg-violet-100'
                         }`}
                       >
                         {color}
@@ -272,16 +272,16 @@ return (
               {/* Add to Cart Button */}
               <button 
                 onClick={handleAddToCart}
-                className="w-full bg-violet-600 text-white py-3 px-6 rounded-xl hover:bg-violet-700 transition-colors flex items-center justify-center space-x-2"
+                className="w-full bg-violet-600 text-white py-4 px-6 rounded-xl hover:bg-violet-700 transition-colors flex items-center justify-center space-x-3 text-lg font-medium"
               >
-                <ShoppingCart className="w-5 h-5" />
+                <ShoppingCart className="w-6 h-6" />
                 <span>Ajouter au devis</span>
               </button>
 
               {/* Description */}
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Description</h2>
-                <p className="text-gray-600">{product.description}</p>
+                <p className="text-gray-600 leading-relaxed">{product.description}</p>
               </div>
 
               {/* Technical Specifications */}
@@ -289,8 +289,8 @@ return (
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Caractéristiques techniques</h2>
                 <dl className="space-y-4">
                   {Object.entries(product.technicalSpecs).map(([key, value]) => (
-                    <div key={key} className="grid grid-cols-3 gap-4">
-                      <dt className="text-gray-600">{key}</dt>
+                    <div key={key} className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100 last:border-0">
+                      <dt className="text-gray-600 font-medium">{key}</dt>
                       <dd className="col-span-2 text-gray-900">{value}</dd>
                     </div>
                   ))}
@@ -301,25 +301,25 @@ return (
 
           {/* Similar Products */}
           {similarProducts.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Produits similaires</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="pt-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-8">Produits similaires</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {similarProducts.map((similarProduct) => (
                   <Link 
                     to={`/product/${similarProduct.id}`} 
                     key={similarProduct.id}
-                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all"
+                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1"
                   >
-                    <div className="aspect-square">
+                    <div className="aspect-[4/3]">
                       <img 
                         src={similarProduct.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
                         alt={similarProduct.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900">{similarProduct.name}</h3>
-                      <p className="text-violet-600 font-bold mt-2">
+                    <div className="p-6">
+                      <h3 className="font-semibold text-gray-900 text-lg mb-2">{similarProduct.name}</h3>
+                      <p className="text-violet-600 font-bold">
                         {similarProduct.priceTTC.toFixed(2)} € TTC/jour
                       </p>
                     </div>
