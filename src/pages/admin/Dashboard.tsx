@@ -100,7 +100,7 @@ const AdminDashboard: React.FC = () => {
     {
       title: 'Voir les devis',
       icon: <ClipboardList className="w-5 h-5 text-purple-600" />,
-      onClick: () => navigate('/admin/quotes'),
+      onClick: () => navigate('/admin/quote-requests'),
       bgHover: 'hover:bg-purple-50'
     },
     {
