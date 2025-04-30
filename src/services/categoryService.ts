@@ -5,6 +5,10 @@ export interface Category {
   name: string;
   slug: string;
   order_index: number;
+  description?: string;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
   created_at?: string;
   updated_at?: string;
   subcategories?: Subcategory[];
@@ -16,6 +20,10 @@ export interface Subcategory {
   name: string;
   slug: string;
   order_index: number;
+  description?: string;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
   created_at?: string;
   updated_at?: string;
   subsubcategories?: SubSubcategory[];
@@ -27,6 +35,10 @@ export interface SubSubcategory {
   name: string;
   slug: string;
   order_index: number;
+  description?: string;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
   created_at?: string;
   updated_at?: string;
 }

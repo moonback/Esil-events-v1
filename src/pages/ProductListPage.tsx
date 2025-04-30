@@ -1,52 +1,92 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Filter, ChevronDown } from 'lucide-react';
-import { getAllProducts, getProductsByCategory, getProductsBySubCategory } from '../services/productService';
+import { getAllProducts, getProductsByCategory, getProductsBySubCategory, getProductsBySubSubCategory } from '../services/productService';
 import { Category, getAllCategories } from '../services/categoryService';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
+import ProductFilters from '../components/product-list/ProductFilters';
+import { useProductFilters } from '../hooks/useProductFilters';
+import { Product } from '../types/Product';
 
-interface Product {
-  mainImageIndex?: number;
-  id: string;
-  name: string;
-  reference: string;
-  category: string;
-  subCategory?: string;
-  subSubCategory?: string;
-  priceHT: number;
-  priceTTC: number;
-  images: string[];
-  colors?: string[];
-  isAvailable?: boolean;
-}
+// Using Product type from types/Product.ts
 
 const ProductListPage: React.FC = () => {
   const { category, subcategory, subsubcategory } = useParams<{ category: string; subcategory?: string; subsubcategory?: string }>();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  // isFilterOpen is now managed by useProductFilters
   const [error, setError] = useState<string | null>(null);
+  const [categoryInfo, setCategoryInfo] = useState<{name: string, description?: string, seo_title?: string}>({name: ''});
 
-  // Filters
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
-  const [sortBy, setSortBy] = useState<string>('name-asc');
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [availability, setAvailability] = useState<'all' | 'available' | 'unavailable'>('all');
+  // Use the product filters hook
+  const {
+    priceRange,
+    setPriceRange,
+    sortBy,
+    setSortBy,
+    selectedColors,
+    setSelectedColors,
+    selectedCategories,
+    setSelectedCategories,
+    availability,
+    setAvailability,
+    resetFilters,
+    filteredProducts,
+    isFilterOpen,
+    toggleFilter
+  } = useProductFilters(products, category);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const categoriesData = await getAllCategories();
         setCategories(categoriesData);
+        
+        // Find current category/subcategory/subsubcategory info for display
+        if (category) {
+          const currentCategory = categoriesData.find(cat => cat.slug === category);
+          if (currentCategory) {
+            if (!subcategory) {
+              setCategoryInfo({
+                name: currentCategory.name,
+                description: currentCategory.description,
+                seo_title: currentCategory.seo_title
+              });
+            } else {
+              const currentSubcategory = currentCategory.subcategories?.find(
+                subcat => subcat.slug === subcategory
+              );
+              if (currentSubcategory) {
+                if (!subsubcategory) {
+                  setCategoryInfo({
+                    name: currentSubcategory.name,
+                    description: currentSubcategory.description,
+                    seo_title: currentSubcategory.seo_title
+                  });
+                } else {
+                  const currentSubSubcategory = currentSubcategory.subsubcategories?.find(
+                    subsubcat => subsubcat.slug === subsubcategory
+                  );
+                  if (currentSubSubcategory) {
+                    setCategoryInfo({
+                      name: currentSubSubcategory.name,
+                      description: currentSubSubcategory.description,
+                      seo_title: currentSubSubcategory.seo_title
+                    });
+                  }
+                }
+              }
+            }
+          }
+        }
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
     };
 
     fetchCategories();
-  }, []);
+  }, [category, subcategory, subsubcategory]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -56,17 +96,19 @@ const ProductListPage: React.FC = () => {
         
         let productsData;
         if (category) {
-          if (subcategory) {
+          if (subcategory && subsubcategory) {
+            // Get products by subsubcategory
+            productsData = await getProductsBySubSubCategory(category, subcategory, subsubcategory);
+          } else if (subcategory) {
+            // Get products by subcategory
             productsData = await getProductsBySubCategory(category, subcategory);
-            // Si on a une sous-sous-catégorie, filtrer les produits qui correspondent
-            if (subsubcategory && productsData.length > 0) {
-              productsData = productsData.filter(product => product.subSubCategory === subsubcategory);
-            }
           } else {
+            // Get products by main category
             productsData = await getProductsByCategory(category);
           }
         } else {
-          productsData = await getAllProducts(); // Add this case to fetch all products
+          // Get all products
+          productsData = await getAllProducts();
         }
         
         setProducts(productsData);
@@ -81,466 +123,186 @@ const ProductListPage: React.FC = () => {
     fetchProducts();
   }, [category, subcategory, subsubcategory]);
 
-  const toggleFilter = () => {
-    setIsFilterOpen(!isFilterOpen);
-  };
+  // Filtering and sorting logic is now handled by useProductFilters
 
-  const resetFilters = () => {
-    setPriceRange([0, 1000]);
-    setSelectedColors([]);
-    setSelectedCategories([]);
-    setAvailability('all');
-    setSortBy('name-asc');
-  };
-
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortBy(e.target.value);
-  };
-
-  const handlePriceRangeChange = (index: number, value: number) => {
-    const newRange = [...priceRange] as [number, number];
-    newRange[index] = value;
-    setPriceRange(newRange);
-  };
-
-  const getCategoryTitle = () => {
-    if (!category) return '';
+  // Get breadcrumb navigation
+  const getBreadcrumb = () => {
+    const breadcrumb = [
+      { name: 'Accueil', path: '/' },
+    ];
     
-    switch (category) {
-      case 'mobilier':
-        return 'Mobilier & Déco';
-      case 'jeux':
-        return 'Jeux';
-      case 'signaletique':
-        return 'Signalétique';
-      case 'technique':
-        return 'Technique';
-      default:
-        return category.charAt(0).toUpperCase() + category.slice(1);
-    }
-  };
-
-  const sortProducts = (products: Product[]) => {
-    const sorted = [...products];
-    
-    switch (sortBy) {
-      case 'name-asc':
-        return sorted.sort((a, b) => a.name.localeCompare(b.name));
-      case 'name-desc':
-        return sorted.sort((a, b) => b.name.localeCompare(a.name));
-      case 'price-asc':
-        return sorted.sort((a, b) => a.priceHT - b.priceHT);
-      case 'price-desc':
-        return sorted.sort((a, b) => b.priceHT - a.priceHT);
-      default:
-        return sorted;
-    }
-  };
-
-  const filterProducts = (products: Product[]) => {
-    return products.filter(product => {
-      // Vérification du prix
-      const priceMatch = product.priceHT >= priceRange[0] && product.priceHT <= priceRange[1];
-      
-      // Vérification des couleurs - s'assurer que product.colors est un tableau
-      const colorMatch = selectedColors.length === 0 || 
-        (Array.isArray(product.colors) && product.colors.some(c => selectedColors.includes(c)));
-      
-      // Vérification des catégories
-      const categoryMatch = selectedCategories.length === 0 || 
-        selectedCategories.includes(product.category) ||
-        (product.subCategory && selectedCategories.includes(product.subCategory));
-      
-      // Vérification de la disponibilité
-      const availabilityMatch = 
-        availability === 'all' || 
-        (availability === 'available' && product.isAvailable === true) ||
-        (availability === 'unavailable' && product.isAvailable === false);
-
-      return priceMatch && colorMatch && categoryMatch && availabilityMatch;
-    });
-  };
-
-  const displayedProducts = sortProducts(filterProducts(products));
-
-return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-white">
-      <div className="container-custom mx-auto px-4 pt-44 pb-16">
-        <div className="flex gap-8">
-          {/* Sidebar Filters */}
-          <div className={`w-72 ${isFilterOpen ? 'block' : 'hidden'} md:block`}>
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-24">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="font-semibold text-lg text-gray-900">Filtres</h3>
-                <button 
-                  onClick={resetFilters}
-                  className="text-xs text-violet-600 hover:text-violet-800 hover:underline"
-                >
-                  Réinitialiser
-                </button>
-              </div>
-              
-              {/* Price Range */}
-              <div className="mb-8">
-                <h4 className="font-medium mb-4 text-gray-900">Fourchette de prix</h4>
-                <div className="space-y-4">
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Min: {priceRange[0]}€</span>
-                    <span>Max: {priceRange[1]}€</span>
-                  </div>
-                  <div className="space-y-3">
-                    <input 
-                      type="range" 
-                      min="0" 
-                      max="1000" 
-                      value={priceRange[0]} 
-                      onChange={(e) => handlePriceRangeChange(0, parseInt(e.target.value))}
-                      className="w-full h-2 bg-violet-100 rounded-lg appearance-none cursor-pointer accent-violet-500"
-                    />
-                    <input 
-                      type="range" 
-                      min="0" 
-                      max="1000" 
-                      value={priceRange[1]} 
-                      onChange={(e) => handlePriceRangeChange(1, parseInt(e.target.value))}
-                      className="w-full h-2 bg-violet-100 rounded-lg appearance-none cursor-pointer accent-violet-500"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Colors */}
-              <div className="mb-8">
-                <h4 className="font-medium mb-4 text-gray-900">Couleurs</h4>
-                <div className="flex flex-wrap gap-2">
-                  {Array.from(new Set(products.flatMap(product => product.colors || []))).map(color => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColors(prev =>
-                        prev.includes(color)
-                          ? prev.filter(c => c !== color)
-                          : [...prev, color]
-                      )}
-                      className={`px-3 py-1.5 rounded-full text-sm border transition-all duration-200 ${
-                        selectedColors.includes(color)
-                          ? 'bg-violet-100 border-violet-500 text-violet-700'
-                          : 'border-gray-200 hover:border-violet-300 text-gray-700 hover:bg-violet-50'
-                      }`}
-                    >
-                      {color}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Availability */}
-              <div className="mb-6">
-                <h4 className="font-medium mb-4 text-gray-900">Disponibilité</h4>
-                <div className="space-y-3">
-                  {['all', 'available', 'unavailable'].map(option => (
-                    <label key={option} className="flex items-center space-x-3 cursor-pointer group">
-                      <input
-                        type="radio"
-                        value={option}
-                        checked={availability === option}
-                        onChange={(e) => setAvailability(e.target.value as any)}
-                        className="form-radio h-4 w-4 text-violet-500 border-gray-300 focus:ring-violet-500"
-                      />
-                      <span className="text-sm text-gray-700 group-hover:text-gray-900">
-                        {option === 'all' && 'Tous'}
-                        {option === 'available' && 'Disponibles'}
-                        {option === 'unavailable' && 'Indisponibles'}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Breadcrumb */}
-            <nav className="mb-8" aria-label="Breadcrumb">
-              <ol className="flex items-center space-x-2">
-                <li>
-                  <Link to="/" className="text-gray-600 hover:text-violet-600">Accueil</Link>
-                </li>
-                {category && (
-                  <>
-                    <span className="text-gray-400">/</span>
-                    <li>
-                      <Link to={`/products/${category}`} className="text-gray-600 hover:text-violet-600">
-                        {getCategoryTitle()}
-                      </Link>
-                    </li>
-                  </>
-                )}
-                {subcategory && (
-                  <>
-                    <span className="text-gray-400">/</span>
-                    <li>
-                      <Link to={`/products/${category}/${subcategory}`} className="text-gray-600 hover:text-violet-600">
-                        {subcategory.charAt(0).toUpperCase() + subcategory.slice(1)}
-                      </Link>
-                    </li>
-                  </>
-                )}
-                {subsubcategory && (
-                  <>
-                    <span className="text-gray-400">/</span>
-                    <li>
-                      <span className="text-gray-400">
-                        {subsubcategory.charAt(0).toUpperCase() + subsubcategory.slice(1)}
-                      </span>
-                    </li>
-                  </>
-                )}
-              </ol>
-            </nav>
-
-            {/* Categories Grid */}
-            {!category && (
-              <div className="mb-12">
-                <h2 className="text-3xl font-bold mb-8 text-gray-900">Nos catégories</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  {categories.map((cat) => (
-                    <Link 
-                      key={cat.id} 
-                      to={`/products/${cat.slug}`}
-                      className="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 flex flex-col items-center hover:-translate-y-1"
-                    >
-                      <div className="w-16 h-16 bg-violet-100 rounded-full mb-4 flex items-center justify-center group-hover:bg-violet-200 transition-colors">
-                        <span className="text-xl text-violet-600">{cat.name.charAt(0)}</span>
-                      </div>
-                      <h3 className="text-lg font-medium text-center text-gray-900">{cat.name}</h3>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Page Title */}
-            <h1 className="text-4xl font-bold mb-8 text-gray-900">
-              {subcategory 
-                ? `${subcategory.charAt(0).toUpperCase() + subcategory.slice(1)} - ${getCategoryTitle()}`
-                : getCategoryTitle()
+    if (category) {
+      const categoryObj = categories.find(cat => cat.slug === category);
+      if (categoryObj) {
+        breadcrumb.push({ name: categoryObj.name, path: `/products/${category}` });
+        
+        if (subcategory) {
+          const subcategoryObj = categoryObj.subcategories?.find(subcat => subcat.slug === subcategory);
+          if (subcategoryObj) {
+            breadcrumb.push({ name: subcategoryObj.name, path: `/products/${category}/${subcategory}` });
+            
+            if (subsubcategory) {
+              const subsubcategoryObj = subcategoryObj.subsubcategories?.find(
+                subsubcat => subsubcat.slug === subsubcategory
+              );
+              if (subsubcategoryObj) {
+                breadcrumb.push({
+                  name: subsubcategoryObj.name,
+                  path: `/products/${category}/${subcategory}/${subsubcategory}`
+                });
               }
-            </h1>
+            }
+          }
+        }
+      }
+    } else {
+      breadcrumb.push({ name: 'Tous les produits', path: '/products' });
+    }
+    
+    return breadcrumb;
+  };
 
-            {/* Error Message */}
-            {error && (
-              <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                {error}
-              </div>
-            )}
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
-            {/* Filters and Sorting */}
-            <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <button 
-                onClick={toggleFilter}
-                className="flex items-center gap-2 text-gray-700 hover:text-violet-600 transition-colors bg-white px-4 py-2 rounded-lg shadow-sm hover:shadow border border-gray-200"
-              >
-                <Filter className="w-5 h-5" />
-                <span>Filtres</span>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
-              </button>
-              
-              <select 
-                value={sortBy}
-                onChange={handleSortChange}
-                className="w-full md:w-auto p-2 border border-gray-200 rounded-lg bg-white shadow-sm hover:border-violet-300 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 transition-all duration-200"
-              >
-                <option value="name-asc">Nom (A-Z)</option>
-                <option value="name-desc">Nom (Z-A)</option>
-                <option value="price-asc">Prix (croissant)</option>
-                <option value="price-desc">Prix (décroissant)</option>
-              </select>
+  return (
+    <div className="mx-auto px-4 py-8">
+      {/* Breadcrumb */}
+      <nav className="mb-6 mt-5 pt-20">
+        <ol className="flex flex-wrap text-sm">
+          {getBreadcrumb().map((item, index, array) => (
+            <li key={item.path} className="flex items-center">
+              {index > 0 && <span className="mx-2 text-gray-400">/</span>}
+              {index === array.length - 1 ? (
+                <span className="font-medium text-gray-800">{item.name}</span>
+              ) : (
+                <Link to={item.path} className="text-blue-600 hover:underline">
+                  {item.name}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      {/* Category Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          {categoryInfo.name || 'Tous nos produits'}
+        </h1>
+        {categoryInfo.description && (
+          <p className="text-gray-600">{categoryInfo.description}</p>
+        )}
+      </div>
+
+      {/* Filter Button (Mobile) */}
+      <div className="lg:hidden mb-4">
+        <button
+          onClick={toggleFilter}
+          className="flex items-center justify-center w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          <Filter className="h-5 w-5 mr-2" />
+          Filtres
+          <ChevronDown className={`h-5 w-5 ml-2 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+        </button>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Filters (Sidebar) - Using ProductFilters component */}
+        <ProductFilters
+          priceRange={priceRange}
+          setPriceRange={setPriceRange}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          selectedColors={selectedColors}
+          setSelectedColors={setSelectedColors}
+          availability={availability}
+          setAvailability={setAvailability}
+          resetFilters={resetFilters}
+          products={products}
+          isFilterOpen={isFilterOpen}
+        />
+
+        {/* Product Grid */}
+        <div className="lg:w-3/4">
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+              <p className="text-red-700">{error}</p>
             </div>
+          )}
 
-            {/* Active Filters */}
-            {(selectedColors.length > 0 || selectedCategories.length > 0 || availability !== 'all' || priceRange[0] > 0 || priceRange[1] < 1000) && (
-              <div className="mb-6 bg-violet-50 p-4 rounded-lg border border-violet-100">
-                <div className="flex flex-wrap gap-2 items-center">
-                  <span className="text-sm font-medium text-violet-700">Filtres actifs:</span>
-                  
-                  {(priceRange[0] > 0 || priceRange[1] < 1000) && (
-                    <span className="px-3 py-1 bg-white text-sm font-medium text-violet-700 rounded-full border border-violet-200">
-                      Prix: {priceRange[0]}€ - {priceRange[1]}€
-                    </span>
-                  )}
-                  
-                  {selectedColors.map(color => (
-                    <span 
-                      key={color}
-                      className="px-3 py-1 bg-white text-sm font-medium text-violet-700 rounded-full border border-violet-200 flex items-center"
-                    >
-                      {color}
-                      <button 
-                        onClick={() => setSelectedColors(prev => prev.filter(c => c !== color))}
-                        className="ml-2 text-violet-500 hover:text-violet-700"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                  
-                  {selectedCategories.map(cat => {
-                    const categoryName = categories.find(c => c.slug === cat)?.name || cat;
-                    return (
-                      <span 
-                        key={cat}
-                        className="px-3 py-1 bg-white text-sm font-medium text-violet-700 rounded-full border border-violet-200 flex items-center"
-                      >
-                        {categoryName}
-                        <button 
-                          onClick={() => setSelectedCategories(prev => prev.filter(c => c !== cat))}
-                          className="ml-2 text-violet-500 hover:text-violet-700"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    );
-                  })}
-                  
-                  {availability !== 'all' && (
-                    <span className="px-3 py-1 bg-white text-sm font-medium text-violet-700 rounded-full border border-violet-200">
-                      {availability === 'available' ? 'Disponibles' : 'Indisponibles'}
-                    </span>
-                  )}
-                  
-                  <button 
-                    onClick={resetFilters}
-                    className="px-3 py-1 bg-violet-600 text-sm font-medium text-white rounded-full hover:bg-violet-700 transition-colors ml-auto"
-                  >
-                    Effacer tous les filtres
-                  </button>
-                </div>
+          {filteredProducts.length === 0 ? (
+            <div className="bg-white p-12 rounded-xl shadow-lg text-center border border-gray-100">
+              <div className="mb-6">
+                <svg 
+                  className="mx-auto h-16 w-16 text-gray-400"
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={1.5} 
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 21a9 9 0 110-18 9 9 0 010 18z" 
+                  />
+                </svg>
               </div>
-            )}
-
-            {/* Products Grid */}
-            {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
-                  <div 
-                    key={index}
-                    className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
-                    aria-busy="true"
-                    aria-label="Loading product..."
-                  >
-                    <div className="aspect-square bg-gray-100 animate-pulse" />
-                    <div className="p-4 space-y-3">
-                      <div className="h-6 bg-gray-100 rounded animate-pulse" />
-                      <div className="h-4 bg-gray-100 rounded animate-pulse w-2/3" />
-                      <div className="flex justify-between items-end pt-2">
-                        <div className="space-y-1">
-                          <div className="h-3 bg-gray-100 rounded animate-pulse w-12" />
-                          <div className="h-5 bg-gray-100 rounded animate-pulse w-16" />
-                        </div>
-                        <div className="w-8 h-8 bg-gray-100 rounded-full animate-pulse" />
-                      </div>
-                    </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Aucun produit trouvé</h3>
+              <p className="text-gray-600 text-base max-w-md mx-auto">
+                Nous n'avons trouvé aucun produit correspondant à vos critères. Essayez d'ajuster vos filtres ou revenez plus tard.
+              </p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 transition-colors duration-200"
+              >
+                Réinitialiser les filtres
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+              {filteredProducts.map((product) => (
+                <Link
+                  key={product.id}
+                  to={`/product/${product.id}`}
+                  className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                >
+                  <div className="aspect-w-1 aspect-h-1 w-full h-48 overflow-hidden bg-white flex items-center justify-center">
+                    <img
+                      src={product.images && product.images.length > 0 
+                        ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
+                          ? product.images[product.mainImageIndex] 
+                          : product.images[0])
+                        : DEFAULT_PRODUCT_IMAGE}
+                      alt={product.name}
+                      className="max-w-full max-h-full object-contain group-hover:opacity-75"
+                    />
                   </div>
-                ))}
-              </div>
-            ) : displayedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {displayedProducts.map((product) => (
-                  <Link 
-                    key={product.id}
-                    to={`/product/${product.id}`}
-                    className="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-                  >
-                    <div className="aspect-square relative overflow-hidden">
-                      <img 
-                        src={product.images?.[product.mainImageIndex ?? 0] || DEFAULT_PRODUCT_IMAGE}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE }}
-                        loading="lazy"
-                      />
-                      
+                  <div className="p-4">
+                    <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
+                    <p className="mt-1 text-sm text-gray-500">{product.reference}</p>
+                    <div className="mt-2 flex justify-between items-center">
+                      <p className="text-lg font-semibold text-gray-900">{product.priceTTC.toFixed(2)}€</p>
                       {product.isAvailable !== undefined && (
-                        <div className={`absolute top-3 right-3 px-3 py-1 text-xs font-medium rounded-full ${
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                           product.isAvailable 
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-red-100 text-red-800'
                         }`}>
                           {product.isAvailable ? 'Disponible' : 'Indisponible'}
-                        </div>
-                      )}
-                      
-                      {product.colors && product.colors.length > 0 && (
-                        <div className="absolute bottom-3 left-3 flex space-x-1">
-                          {product.colors.slice(0, 3).map((color, index) => (
-                            <div 
-                              key={index}
-                              className="w-3 h-3 rounded-full border border-white shadow-sm"
-                              style={{ backgroundColor: color.toLowerCase() }}
-                              title={color}
-                            />
-                          ))}
-                          {product.colors.length > 3 && (
-                            <div className="w-3 h-3 rounded-full bg-gray-200 border border-white shadow-sm flex items-center justify-center text-[8px] font-bold">
-                              +
-                            </div>
-                          )}
-                        </div>
+                        </span>
                       )}
                     </div>
-                    
-                    <div className="p-4">
-                      <h3 className="font-bold text-lg text-gray-900 group-hover:text-violet-600 transition-colors line-clamp-2">
-                        {product.name}
-                      </h3>
-                      <p className="text-sm text-gray-500 mt-1">Réf: {product.reference}</p>
-                      <div className="flex justify-between items-end mt-4">
-                        <div>
-                          <p className="text-xs text-gray-500">Prix HT / jour</p>
-                          <p className="font-bold text-lg text-violet-600">{product.priceHT.toFixed(2)}€</p>
-                        </div>
-                        <div className="bg-violet-100 rounded-full p-2 group-hover:bg-violet-200 transition-colors">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-600">
-                            <path d="M5 12h14" />
-                            <path d="M12 5v14" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100">
-                <div className="mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-gray-400">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold mb-3 text-gray-900">Aucun produit trouvé</h3>
-                <p className="text-gray-600 max-w-md mx-auto mb-8">
-                  Essayez de modifier vos filtres ou revenez plus tard pour découvrir nos nouveaux produits.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link
-                    to="/"
-                    className="px-6 py-3 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 transition-colors font-medium"
-                  >
-                    Retour à l'accueil
-                  </Link>
-                  <Link
-                    to={`/products/${category}`}
-                    className="px-6 py-3 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors font-medium"
-                  >
-                    Retour à la catégorie
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
