@@ -51,7 +51,79 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             Réinitialiser
           </button>
         </div>
-
+{/* Categories */}
+        <div className="mb-8">
+          <h4 className="font-medium mb-4 text-gray-900">Catégories</h4>
+          <div className="space-y-2">
+            {Array.from(new Set(products.map(product => product.category))).map(category => (
+              <div key={category} className="space-y-2">
+                <Link
+                  to={`/products/${category}`}
+                  className="flex items-center justify-between w-full text-left text-sm text-gray-700 hover:text-violet-700 p-2 rounded hover:bg-violet-50 transition-colors"
+                >
+                  <span className="font-medium">{category}</span>
+                  <svg 
+                    className="w-4 h-4 text-gray-400" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinecap="round" 
+                      strokeWidth="2" 
+                      d="M9 5l7 7-7 7" 
+                    />
+                  </svg>
+                </Link>
+                <div className="ml-4 space-y-2 border-l border-gray-200 pl-3">
+                  {Array.from(new Set(products
+                    .filter(product => product.category === category)
+                    .map(product => product.subCategory)))
+                    .map(subcategory => (
+                      <div key={subcategory} className="space-y-2">
+                        <Link
+                          to={`/products/${category}/${subcategory}`}
+                          className="flex items-center justify-between w-full text-left text-sm text-gray-600 hover:text-violet-700 p-2 rounded hover:bg-violet-50 transition-colors"
+                        >
+                          <span>{subcategory}</span>
+                          <svg 
+                            className="w-4 h-4 text-gray-400" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path 
+                              strokeLinecap="round" 
+                              strokeLinecap="round" 
+                              strokeWidth="2" 
+                              d="M9 5l7 7-7 7" 
+                            />
+                          </svg>
+                        </Link>
+                        <div className="ml-4 space-y-2 border-l border-gray-200 pl-3">
+                          {Array.from(new Set(products
+                            .filter(product => 
+                              product.category === category && 
+                              product.subCategory === subcategory)
+                            .map(product => product.subSubCategory)))
+                            .map(subsubcategory => (
+                              <Link
+                                key={subsubcategory}
+                                to={`/products/${category}/${subcategory}/${subsubcategory}`}
+                                className="flex items-center w-full text-left text-sm text-gray-500 hover:text-violet-700 p-2 rounded hover:bg-violet-50 transition-colors"
+                              >
+                                <span>{subsubcategory}</span>
+                              </Link>
+                            ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
         {/* Price Range Filter */}
         <div className="mb-6">
           <h3 className="text-sm font-medium text-gray-900 mb-2">Prix</h3>
@@ -110,53 +182,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             ))}
           </div>
         </div>
-        {/* Categories */}
-        <div className="mb-8">
-          <h4 className="font-medium mb-4 text-gray-900">Catégories</h4>
-          <div className="space-y-2">
-            {Array.from(new Set(products.map(product => product.category))).map(category => (
-              <div key={category} className="space-y-2">
-                <Link
-                  to={`/products/${category}`}
-                  className="flex items-center w-full text-left text-sm text-gray-700 hover:text-violet-700"
-                >
-                  <span>{category}</span>
-                </Link>
-                <div className="ml-4 space-y-2">
-                  {Array.from(new Set(products
-                    .filter(product => product.category === category)
-                    .map(product => product.subCategory)))
-                    .map(subcategory => (
-                      <div key={subcategory} className="space-y-2">
-                        <Link
-                          to={`/products/${category}/${subcategory}`}
-                          className="flex items-center w-full text-left text-sm text-gray-600 hover:text-violet-700"
-                        >
-                          <span>{subcategory}</span>
-                        </Link>
-                        <div className="ml-4 space-y-2">
-                          {Array.from(new Set(products
-                            .filter(product => 
-                              product.category === category && 
-                              product.subCategory === subcategory)
-                            .map(product => product.subSubCategory)))
-                            .map(subsubcategory => (
-                              <Link
-                                key={subsubcategory}
-                                to={`/products/${category}/${subcategory}/${subsubcategory}`}
-                                className="flex items-center w-full text-left text-sm text-gray-500 hover:text-violet-700"
-                              >
-                                <span>{subsubcategory}</span>
-                              </Link>
-                            ))}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        
 
         {/* Sort By */}
         <div className="mb-6">
