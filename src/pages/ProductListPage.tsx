@@ -419,7 +419,7 @@ const ProductListPage: React.FC = () => {
                   to={`/product/${product.id}`}
                   className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
                 >
-                  <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200">
+                  <div className="aspect-w-1 aspect-h-1 w-full h-48 overflow-hidden bg-white flex items-center justify-center">
                     <img
                       src={product.images && product.images.length > 0 
                         ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
@@ -427,7 +427,7 @@ const ProductListPage: React.FC = () => {
                           : product.images[0])
                         : DEFAULT_PRODUCT_IMAGE}
                       alt={product.name}
-                      className="w-full h-full object-center object-cover group-hover:opacity-75"
+                      className="max-w-full max-h-full object-contain group-hover:opacity-75"
                     />
                   </div>
                   <div className="p-4">
