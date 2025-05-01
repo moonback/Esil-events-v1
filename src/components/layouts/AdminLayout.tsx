@@ -10,7 +10,8 @@ import {
   Menu, 
   X, 
   MessageSquare,
-  Mail
+  Mail,
+  Globe
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -30,11 +31,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   
-  // Define a temporary logout function
-  const logout = () => {
-    console.log('Logout functionality not implemented yet');
-    // You can redirect to login page or implement actual logout later
-  };
   
   // Toggle sidebar collapse state
   const toggleSidebar = () => {
@@ -91,6 +87,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       label: 'Configuration Email',
       icon: <Mail className="w-5 h-5" />,
       path: '/admin/email-config'
+    },
+    {
+      label: 'Sitemap',
+      icon: <Globe className="w-5 h-5" />,
+      path: '/admin/sitemap'
     }
   ];
 
