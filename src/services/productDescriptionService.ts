@@ -28,7 +28,7 @@ PRODUIT:
 • Spécifications techniques: ${Object.entries(productData.technicalSpecs || {}).map(([key, value]) => `${key}: ${value}`).join(', ') || 'Non spécifiées'}
 
 INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
-1. Rédige une description détaillée et attrayante du produit en 3-4 paragraphes (300-500 caractères).
+1. Rédige une description détaillée et attrayante du produit en 3-4 paragraphes (MAXIMUM 1500 caractères au total).
 2. Mets en valeur les caractéristiques premium et l'élégance du produit.
 3. Décris l'impact visuel et pratique que ce produit peut avoir sur un événement.
 4. Suggère des utilisations idéales et des combinaisons possibles avec d'autres produits.
@@ -36,6 +36,7 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
 6. N'invente pas de détails techniques non fournis.
 7. Utilise un ton professionnel mais engageant.
 8. Fournis uniquement la description, sans phrases d'introduction comme "Voici la description suggérée :".
+9. IMPORTANT: La description complète ne doit pas dépasser 1500 caractères, espaces compris.
 `
   };
 
@@ -61,7 +62,7 @@ export const generateProductDescription = async (productData: Partial<ProductFor
       model: "deepseek-chat",
       messages: messages,
       temperature: 0.7,
-      max_tokens: 1024,
+      max_tokens: 600, // Réduit pour s'assurer que la réponse reste dans les limites
       top_p: 0.95
     };
 
@@ -86,10 +87,22 @@ export const generateProductDescription = async (productData: Partial<ProductFor
     }
 
     const data = await response.json();
-    const generatedContent = data.choices?.[0]?.message?.content?.trim();
+    let generatedContent = data.choices?.[0]?.message?.content?.trim();
 
     if (!generatedContent) {
       throw new Error("La réponse de l'API est vide ou mal structurée.");
+    }
+
+    // Tronquer la description si elle dépasse 1500 caractères
+    if (generatedContent.length > 1500) {
+      // Trouver le dernier point avant la limite de 1500 caractères
+      const lastPeriodIndex = generatedContent.lastIndexOf('.', 1500);
+      if (lastPeriodIndex > 0) {
+        generatedContent = generatedContent.substring(0, lastPeriodIndex + 1);
+      } else {
+        // Si pas de point trouvé, simplement tronquer à 1500
+        generatedContent = generatedContent.substring(0, 1500);
+      }
     }
 
     return { description: generatedContent };
