@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Plus, Trash2, AlertCircle, FileText, Tag, Info } from 'lucide-react';
+import { Save, Plus, Trash2, AlertCircle, FileText, Tag, Globe, RefreshCw, Info } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { saveSitemap, parseSitemapXml, generateProductSitemapEntries } from '../../services/sitemapService';
+import '../../styles/admin-animations.css';
 
 interface SitemapEntry {
   id: string;
@@ -18,6 +19,8 @@ const AdminSitemap: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loadingProducts, setLoadingProducts] = useState<boolean>(false);
+  const [showXmlPreview, setShowXmlPreview] = useState<boolean>(false);
+  const [selectedEntry, setSelectedEntry] = useState<string | null>(null);
 
   // Fréquences possibles pour le sitemap
   const changefreqOptions = ['always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never'];
@@ -54,7 +57,7 @@ const AdminSitemap: React.FC = () => {
   const handleAddEntry = () => {
     const today = new Date().toISOString().split('T')[0];
     const newEntry: SitemapEntry = {
-      id: `entry-${entries.length}`,
+      id: `entry-${Date.now()}`,
       loc: 'https://esil-events.com/',
       lastmod: today,
       changefreq: 'monthly',
@@ -62,6 +65,16 @@ const AdminSitemap: React.FC = () => {
     };
     
     setEntries([...entries, newEntry]);
+    
+    // Scroll to the new entry after it's added
+    setTimeout(() => {
+      const element = document.getElementById(`row-${newEntry.id}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setSelectedEntry(newEntry.id);
+        setTimeout(() => setSelectedEntry(null), 2000);
+      }
+    }, 100);
   };
 
   // Ajouter tous les produits au sitemap
@@ -128,9 +141,19 @@ const AdminSitemap: React.FC = () => {
     try {
       const sitemapXml = generateSitemapXml();
       
+      // Animation pour montrer que la sauvegarde est en cours
+      const saveBtnElement = document.getElementById('save-button');
+      if (saveBtnElement) {
+        saveBtnElement.classList.add('animate-pulse');
+      }
+      
       // Utiliser le service sitemapService pour sauvegarder le sitemap
-      // Cette fonction gère à la fois la sauvegarde dans Supabase et l'appel à l'API
       await saveSitemap(sitemapXml);
+      
+      // Enlever l'animation une fois la sauvegarde terminée
+      if (saveBtnElement) {
+        saveBtnElement.classList.remove('animate-pulse');
+      }
       
       setSuccess('Sitemap mis à jour avec succès');
       // Effacer le message de succès après 3 secondes
@@ -166,16 +189,44 @@ const AdminSitemap: React.FC = () => {
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="pt-24 px-6">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center">
-            <FileText className="w-6 h-6 mr-2 text-gray-700 dark:text-gray-300" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Gestion du Sitemap</h1>
+      <div className="pt-24 px-6 max-w-12xl mx-auto">
+        {/* Hero section with stats */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-6 mb-8 shadow-sm">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <div className="flex items-center">
+                <Globe className="w-8 h-8 mr-3 text-blue-600 dark:text-blue-400" />
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion du Sitemap</h1>
+              </div>
+              <p className="mt-2 text-gray-600 dark:text-gray-300 max-w-2xl">
+                Gérez le plan du site qui aide les moteurs de recherche à indexer votre contenu et améliore votre référencement.
+              </p>
+            </div>
+            
+            <div className="flex flex-wrap gap-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 min-w-[140px]">
+                <p className="text-sm text-gray-500 dark:text-gray-400">URLs totales</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{entries.length}</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 min-w-[140px]">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Dernière mise à jour</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{new Date().toLocaleDateString()}</p>
+              </div>
+            </div>
           </div>
-          <div className="flex space-x-4">
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
+          <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+            <Info className="w-4 h-4" />
+            <span>Les modifications ne seront appliquées qu'après avoir cliqué sur "Enregistrer".</span>
+          </div>
+          
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={handleAddEntry}
-              className="flex items-center px-4 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition-colors"
+              className="flex items-center px-4 py-2 bg-white text-gray-800 rounded-md hover:bg-gray-100 border border-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:border-gray-600 transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4 mr-2" />
               Ajouter une URL
@@ -183,11 +234,11 @@ const AdminSitemap: React.FC = () => {
             <button
               onClick={handleAddProducts}
               disabled={loadingProducts}
-              className="flex items-center px-4 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center px-4 py-2 bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 border border-indigo-200 dark:bg-indigo-900 dark:text-indigo-200 dark:hover:bg-indigo-800 dark:border-indigo-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loadingProducts ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-gray-800 dark:border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-indigo-700 dark:border-indigo-300 mr-2"></div>
                   Chargement...
                 </>
               ) : (
@@ -198,8 +249,16 @@ const AdminSitemap: React.FC = () => {
               )}
             </button>
             <button
+              onClick={() => setShowXmlPreview(!showXmlPreview)}
+              className="flex items-center px-4 py-2 bg-white text-gray-800 rounded-md hover:bg-gray-100 border border-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:border-gray-600 transition-colors shadow-sm"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              {showXmlPreview ? "Masquer l'aperçu XML" : "Afficher l'aperçu XML"}
+            </button>
+            <button
+              id="save-button"
               onClick={handleSaveSitemap}
-              className="flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 transition-colors"
+              className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 transition-colors shadow-sm"
             >
               <Save className="w-4 h-4 mr-2" />
               Enregistrer
@@ -209,21 +268,25 @@ const AdminSitemap: React.FC = () => {
 
         {/* Messages d'erreur ou de succès */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md flex items-start">
-            <AlertCircle className="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-md flex items-start animate-fade-in">
+            <AlertCircle className="w-5 h-5 text-red-500 mr-3 flex-shrink-0 mt-0.5" />
             <p className="text-red-700">{error}</p>
           </div>
         )}
 
         {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md flex items-start">
-            <AlertCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-md flex items-start animate-fade-in">
+            <div className="p-1 bg-green-100 rounded-full mr-3">
+              <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
             <p className="text-green-700">{success}</p>
           </div>
         )}
 
         {/* Tableau des entrées du sitemap */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-700">
@@ -236,62 +299,146 @@ const AdminSitemap: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {entries.map((entry) => (
-                  <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input
-                        type="text"
-                        value={entry.loc}
-                        onChange={(e) => handleEntryChange(entry.id, 'loc', e.target.value)}
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-black dark:bg-gray-700 dark:text-white"
-                      />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input
-                        type="date"
-                        value={entry.lastmod}
-                        onChange={(e) => handleEntryChange(entry.id, 'lastmod', e.target.value)}
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-black dark:bg-gray-700 dark:text-white"
-                      />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <select
-                        value={entry.changefreq}
-                        onChange={(e) => handleEntryChange(entry.id, 'changefreq', e.target.value)}
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-black dark:bg-gray-700 dark:text-white"
-                      >
-                        {changefreqOptions.map(option => (
-                          <option key={option} value={option}>{option}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input
-                        type="number"
-                        min="0"
-                        max="1"
-                        step="0.1"
-                        value={entry.priority}
-                        onChange={(e) => handleEntryChange(entry.id, 'priority', e.target.value)}
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-black dark:bg-gray-700 dark:text-white"
-                      />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                {entries.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
+                      <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                      <p>Aucune entrée dans le sitemap</p>
                       <button
-                        onClick={() => handleRemoveEntry(entry.id)}
-                        className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                        onClick={handleAddEntry}
+                        className="mt-2 inline-flex items-center px-3 py-1 text-sm bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Plus className="w-3 h-3 mr-1" />
+                        Ajouter une URL
                       </button>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  entries.map((entry) => (
+                    <tr 
+                      key={entry.id} 
+                      id={`row-${entry.id}`}
+                      className={`hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors ${selectedEntry === entry.id ? 'bg-blue-50 dark:bg-gray-700' : ''}`}
+                    >
+                      <td className="px-6 py-4">
+                        <input
+                          type="text"
+                          value={entry.loc}
+                          onChange={(e) => handleEntryChange(entry.id, 'loc', e.target.value)}
+                          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+                          placeholder="https://example.com/page"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="date"
+                          value={entry.lastmod}
+                          onChange={(e) => handleEntryChange(entry.id, 'lastmod', e.target.value)}
+                          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <select
+                          value={entry.changefreq}
+                          onChange={(e) => handleEntryChange(entry.id, 'changefreq', e.target.value)}
+                          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+                        >
+                          {changefreqOptions.map(option => (
+                            <option key={option} value={option}>
+                              {option.charAt(0).toUpperCase() + option.slice(1)}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={entry.priority}
+                            onChange={(e) => handleEntryChange(entry.id, 'priority', e.target.value)}
+                            className="w-full mr-2"
+                          />
+                          <input
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={entry.priority}
+                            onChange={(e) => handleEntryChange(entry.id, 'priority', e.target.value)}
+                            className="w-16 p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+                          />
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <button
+                          onClick={() => handleRemoveEntry(entry.id)}
+                          className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full dark:text-gray-400 dark:hover:text-red-400 dark:hover:bg-red-900/30 transition-colors"
+                          title="Supprimer cette entrée"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
+          
+          {/* Pagination (statique pour l'instant) */}
+          {entries.length > 10 && (
+            <div className="px-6 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Affichage de <span className="font-medium">{entries.length}</span> entrées
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <button className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:text-gray-300 disabled:opacity-50">
+                  Précédent
+                </button>
+                <button className="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-200 rounded-md text-sm dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800">
+                  1
+                </button>
+                <button className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:text-gray-300 disabled:opacity-50">
+                  Suivant
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-{/* Bottom help section */}
-<div className="mt-8 bg-gray-50 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+
+        {/* Aperçu du XML généré */}
+        {showXmlPreview && (
+          <div className="mt-8 animate-fade-in">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Aperçu du XML</h2>
+              <div className="flex items-center space-x-2">
+                <button 
+                  className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 flex items-center"
+                  onClick={() => {
+                    navigator.clipboard.writeText(generateSitemapXml());
+                    setSuccess('XML copié dans le presse-papier');
+                    setTimeout(() => setSuccess(null), 3000);
+                  }}
+                >
+                  <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copier
+                </button>
+              </div>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4 rounded-lg overflow-auto max-h-96 shadow-inner">
+              <pre className="text-sm text-gray-800 dark:text-gray-200 font-mono whitespace-pre-wrap">{generateSitemapXml()}</pre>
+            </div>
+          </div>
+        )}
+        
+        {/* Bottom help section */}
+        <div className="mt-8 bg-gray-50 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 flex items-center">
             <Info className="w-5 h-5 mr-2 text-blue-500" />
             Conseils pour optimiser votre sitemap
@@ -314,13 +461,6 @@ const AdminSitemap: React.FC = () => {
               <span>Mettez à jour régulièrement la date de dernière modification pour les pages qui évoluent.</span>
             </li>
           </ul>
-        </div>
-        {/* Aperçu du XML généré */}
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Aperçu du XML</h2>
-          <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md overflow-auto max-h-96">
-            <pre className="text-sm text-gray-800 dark:text-gray-200">{generateSitemapXml()}</pre>
-          </div>
         </div>
       </div>
     </AdminLayout>
