@@ -313,11 +313,22 @@ const ProductListPage: React.FC = () => {
                       </div>
                     </div>
                     
-                    <div className="p-4 flex-grow flex flex-col">
-                      <h3 className="text-sm font-medium text-gray-900 group-hover:text-violet-700 transition-colors line-clamp-2 mb-1">{product.name}</h3>
-                      <p className="text-xs text-gray-500 mb-2">{product.reference}</p>
-                      <div className="mt-auto pt-3 border-t border-gray-100">
-                        <p className="text-lg font-semibold text-gray-900">{product.priceTTC.toFixed(2)}€</p>
+                    <div className="p-6 flex-grow flex flex-col bg-white rounded-b-lg">
+                      <h3 className="text-base font-semibold text-gray-900 group-hover:text-violet-700 transition-colors line-clamp-2 mb-2">
+                        {product.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-3 font-medium">
+                        Réf: {product.reference}
+                      </p>
+                      <div className="mt-auto pt-4 border-t border-gray-100">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xl font-bold text-violet-600">
+                            {product.priceTTC.toFixed(2)}€
+                          </p>
+                          <span className="text-sm text-gray-500 font-medium">
+                            TTC / jour
+                          </span>
+                        </div>
                       </div>
                     </div>
                     
