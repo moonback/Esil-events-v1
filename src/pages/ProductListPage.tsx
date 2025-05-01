@@ -280,39 +280,55 @@ const ProductListPage: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredProducts.map((product) => (
                   <Link
                     key={product.id}
                     to={`/product/${product.id}`}
-                    className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                    className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full transform hover:-translate-y-1"
                   >
-                    <div className="aspect-w-1 aspect-h-1 w-full h-48 overflow-hidden bg-white flex items-center justify-center">
-                      <img
-                        src={product.images && product.images.length > 0 
-                          ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
-                            ? product.images[product.mainImageIndex] 
-                            : product.images[0])
-                          : DEFAULT_PRODUCT_IMAGE}
-                        alt={product.name}
-                        className="max-w-full max-h-full object-contain group-hover:opacity-75"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
-                      <p className="mt-1 text-sm text-gray-500">{product.reference}</p>
-                      <div className="mt-2 flex justify-between items-center">
-                        <p className="text-lg font-semibold text-gray-900">{product.priceTTC.toFixed(2)}€</p>
-                        {product.isAvailable !== undefined && (
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            product.isAvailable 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {product.isAvailable ? 'Disponible' : 'Indisponible'}
-                          </span>
-                        )}
+                    <div className="relative">
+                      {/* Badge for availability status */}
+                      {product.isAvailable !== undefined && (
+                        <span className={`absolute top-2 right-2 z-10 px-2 py-1 text-xs font-medium rounded-full ${
+                          product.isAvailable 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {product.isAvailable ? 'Disponible' : 'Indisponible'}
+                        </span>
+                      )}
+                      
+                      {/* Product image with hover effect */}
+                      <div className="aspect-w-1 aspect-h-1 w-full h-52 overflow-hidden bg-gray-50 flex items-center justify-center p-4">
+                        <img
+                          src={product.images && product.images.length > 0 
+                            ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
+                              ? product.images[product.mainImageIndex] 
+                              : product.images[0])
+                            : DEFAULT_PRODUCT_IMAGE}
+                          alt={product.name}
+                          className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                        />
                       </div>
+                    </div>
+                    
+                    <div className="p-4 flex-grow flex flex-col">
+                      <h3 className="text-sm font-medium text-gray-900 group-hover:text-violet-700 transition-colors line-clamp-2 mb-1">{product.name}</h3>
+                      <p className="text-xs text-gray-500 mb-2">{product.reference}</p>
+                      <div className="mt-auto pt-3 border-t border-gray-100">
+                        <p className="text-lg font-semibold text-gray-900">{product.priceTTC.toFixed(2)}€</p>
+                      </div>
+                    </div>
+                    
+                    {/* View product button that appears on hover */}
+                    <div className="bg-gray-50 px-4 py-3 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="text-sm font-medium text-violet-600 flex items-center justify-center">
+                        Voir le produit
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      </span>
                     </div>
                   </Link>
                 ))}
