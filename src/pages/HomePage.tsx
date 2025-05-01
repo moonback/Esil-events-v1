@@ -180,15 +180,34 @@ const HomePage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
           >
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link to="/agence-evenementielle" className="btn-primary">
-                Notre Agence évènementille
+            <motion.div 
+              whileHover={{ scale: 1.05, y: -5 }} 
+              whileTap={{ scale: 0.95 }}
+              className="relative"
+            >
+              <Link 
+                to="/agence-evenementielle" 
+                className="btn-primary inline-flex items-center gap-2 group"
+              >
+                Notre Agence évènementielle
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
+              <div className="absolute inset-0 bg-violet-400 opacity-20 blur-lg rounded-full transform scale-150 -z-10" />
             </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link to="/products/" className="btn-secondary">
+
+            <motion.div 
+              whileHover={{ scale: 1.05, y: -5 }} 
+              whileTap={{ scale: 0.95 }}
+              className="relative"
+            >
+              <Link 
+                to="/products/" 
+                className="btn-secondary inline-flex items-center gap-2 group"
+              >
                 Nos produits à la location
+                <Package className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
+              <div className="absolute inset-0 bg-indigo-400 opacity-20 blur-lg rounded-full transform scale-150 -z-10" />
             </motion.div>
           </motion.div>
         </div>
