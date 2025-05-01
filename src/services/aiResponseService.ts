@@ -78,7 +78,7 @@ CLIENT:
 • Adresse Facturation: ${[selectedRequest.billing_address, selectedRequest.postal_code, selectedRequest.city].filter(Boolean).join(', ') || 'Non fournie'}
 
 ÉVÉNEMENT:
-• Date: ${selectedRequest.event_date ? formatDate(selectedRequest.event_date) : 'Non spécifiée'}
+• Date: ${selectedRequest.event_date ? formatDate(selectedRequest.event_date.toString()) : 'Non spécifiée'}
 • Durée: ${selectedRequest.event_duration || 'Non spécifiée'}
 • Heures: ${selectedRequest.event_start_time || '?'} - ${selectedRequest.event_end_time || '?'}
 • Invités: ${selectedRequest.guest_count || 'Non spécifié'}
@@ -90,9 +90,9 @@ ${itemsDetails}
 • Total TTC Indicatif: ${totalAmount}€
 
 LIVRAISON/RETRAIT:
-• Type: ${getDeliveryTypeLabel(selectedRequest.delivery_type)}
+• Type: ${getDeliveryTypeLabel(selectedRequest.delivery_type || undefined)}
 • Date: ${selectedRequest.delivery_date ? formatDate(selectedRequest.delivery_date) : '-'}
-• Créneau: ${getTimeSlotLabel(selectedRequest.delivery_time_slot)}
+• Créneau: ${getTimeSlotLabel(selectedRequest.delivery_time_slot || undefined)}
 • Adresse: ${[selectedRequest.delivery_address, selectedRequest.delivery_postal_code, selectedRequest.delivery_city].filter(Boolean).join(', ') || 'Non fournie ou identique facturation'}
 
 COMMENTAIRES CLIENT: ${selectedRequest.comments || 'Aucun'}
