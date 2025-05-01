@@ -80,7 +80,7 @@ const Header: React.FC = () => {
         className={`transition-all duration-300 relative ${
           isScrolled 
             ? 'glassmorphism shadow-lg border-b border-gray-200/20 dark:border-gray-700/20' 
-            : 'bg-white/85 dark:bg-gray-900/85 backdrop-blur-sm'
+            : 'bg-white dark:bg-white backdrop-blur-sm'
         }`} 
         style={{ '--header-height': 'calc(2.5rem + 44px)' } as React.CSSProperties}
       >
