@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Music, Mic, Radio, Theater, Users } from 'lucide-react';
+import { ArrowLeft, Music, Mic, Radio, Theater, Users, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Artist, getArtistByName } from '../services/artistService';
 
@@ -41,10 +41,45 @@ const ArtistDetailPage: React.FC = () => {
     }
   };
 
+  // Animations améliorées pour correspondre au style de AboutPage
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.7,
+        ease: "easeOut"
+      }
+    }
+  };
+
   const fadeIn = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.3
+      }
+    }
+  };
+  
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
       transition: {
         duration: 0.6,
         ease: "easeOut"
@@ -77,53 +112,140 @@ const ArtistDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <Link 
-          to="/artists" 
-          className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-8"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" /> Retour aux artistes
-        </Link>
+    <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen overflow-hidden">
+      {/* Hero Section avec background animé */}
+      <motion.div 
+        className="bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-20 mb-16 relative overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
+        {/* Cercles décoratifs animés */}
+        <div className="absolute inset-0 overflow-hidden z-0">
+          <motion.div 
+            className="absolute top-20 left-10 w-64 h-64 rounded-full bg-purple-500 opacity-10"
+            animate={{ 
+              x: [0, 20, 0], 
+              y: [0, -20, 0],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 10,
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-10 right-20 w-96 h-96 rounded-full bg-indigo-500 opacity-10"
+            animate={{ 
+              x: [0, -30, 0], 
+              y: [0, 20, 0],
+              scale: [1, 1.15, 1]
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 12,
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div 
+            className="absolute top-40 right-1/4 w-40 h-40 rounded-full bg-violet-400 opacity-10"
+            animate={{ 
+              x: [0, 40, 0], 
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1]
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 8,
+              ease: "easeInOut"
+            }}
+          />
+        </div>
         
         <motion.div 
-          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden w-full"
+          className="container mx-auto px-6 text-center relative z-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.8 }}
+        >
+          <motion.h1 
+            className="text-5xl md:text-6xl font-bold mb-6 leading-tight"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            <span className="text-violet-300">{artist.name}</span>
+          </motion.h1>
+          <motion.div 
+            className="flex items-center justify-center mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+          >
+            <span className="inline-flex items-center px-4 py-2 text-base font-medium rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-lg">
+              {getCategoryIcon(artist.category)}
+              <span className="ml-2">{artist.category}</span>
+            </span>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Formes décoratives */}
+        <div className="relative">
+          <div className="absolute -top-20 -right-20 w-64 h-64 bg-violet-100 rounded-full opacity-50 dark:opacity-10 blur-3xl z-0"></div>
+          <div className="absolute -bottom-40 -left-20 w-80 h-80 bg-indigo-100 rounded-full opacity-60 dark:opacity-10 blur-3xl z-0"></div>
+        </div>
+
+        <div className="relative z-10 mb-8">
+          <Link 
+            to="/artists" 
+            className="inline-flex items-center px-4 py-2 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-lg hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors font-medium"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" /> Retour aux artistes
+          </Link>
+        </div>
+        
+        <motion.div 
+          className="relative z-10 bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-500"
+          variants={fadeInUp}
           initial="hidden"
           animate="visible"
-          variants={fadeIn}
         >
-          <div className="relative h-72 md:h-96 lg:h-[500px]">
+          <div className="relative h-72 md:h-96 lg:h-[500px] overflow-hidden">
             <img 
               src={artist.image_url} 
               alt={artist.name} 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/800x400/blue/white?text=Image+Non+Disponible';
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-6 md:p-8">
-              <h1 className="text-3xl md:text-5xl font-bold mb-2 text-white">{artist.name}</h1>
-              <span className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-blue-100/80 text-blue-600 backdrop-blur-sm">
-                {getCategoryIcon(artist.category)}
-                <span className="ml-1">{artist.category}</span>
-              </span>
-            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
           </div>
           
-          <div className="p-6 md:p-8">
-            <div className="prose prose-blue max-w-none dark:prose-invert mb-8">
+          <div className="p-8 md:p-10">
+            <motion.div 
+              className="prose prose-lg max-w-none dark:prose-invert mb-8"
+              variants={fadeIn}
+            >
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">À propos de {artist.name}</h2>
               <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">{artist.description}</p>
-            </div>
+            </motion.div>
             
-            <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
+            <motion.div 
+              className="mt-10 flex flex-col sm:flex-row sm:items-center gap-4"
+              variants={scaleIn}
+            >
               <Link 
                 to="/contact" 
-                className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-lg font-medium"
+                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-lg hover:from-violet-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-xl text-lg font-medium"
               >
+                <Calendar className="w-5 h-5 mr-2" />
                 Réserver cet artiste
               </Link>
-            </div>
+            </motion.div>
           </div>
         </motion.div>
       </div>
