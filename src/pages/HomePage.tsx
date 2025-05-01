@@ -258,7 +258,7 @@ const HomePage: React.FC = () => {
             >
               <div className="absolute -top-4 -right-4 w-full h-full bg-gradient-to-br from-violet-500 to-indigo-500 rounded-lg opacity-30 blur-sm transform rotate-3"></div>
               <img 
-                src="https://images.unsplash.com/photo-1540317580384-e5d43867caa6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                src="https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
                 alt="Événement d'entreprise" 
                 className="rounded-lg shadow-xl w-full h-auto relative z-10"
               />
