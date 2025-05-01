@@ -45,7 +45,7 @@ export const useAdminProductFilters = (products: Product[]): UseAdminProductFilt
   const [stockFilter, setStockFilter] = useState<'all' | 'inStock' | 'lowStock' | 'outOfStock'>('all');
   const [sortField, setSortField] = useState<string>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false); // Filtres cachés par défaut
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 

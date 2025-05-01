@@ -64,34 +64,34 @@ const ProductFilterPanel: React.FC<ProductFilterPanelProps> = ({
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 text-gray-500" />
-          <h2 className="text-lg font-semibold text-gray-700">Filtres</h2>
+    <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Filter className="w-6 h-6 text-violet-500" />
+          <h2 className="text-xl font-bold text-gray-800">Filtres</h2>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={onReset}
-            className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+            className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-violet-600 transition-colors duration-200"
           >
             <X className="w-4 h-4" />
             Réinitialiser
           </button>
           <button
             onClick={toggleFilter}
-            className="md:hidden flex items-center gap-1 text-sm bg-gray-100 px-2 py-1 rounded hover:bg-gray-200"
+            className="flex items-center gap-2 text-sm font-medium bg-violet-50 px-3 py-2 rounded-lg hover:bg-violet-100 transition-colors duration-200"
           >
             {isFilterOpen ? 'Fermer' : 'Filtrer'}
           </button>
         </div>
       </div>
 
-      <div className={`${isFilterOpen ? 'block' : 'hidden md:block'}`}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <div className={`${isFilterOpen ? 'block' : 'hidden'} space-y-6 transition-all duration-300 ease-in-out`}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Recherche */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-800 mb-2">
               Recherche
             </label>
             <input
@@ -99,19 +99,19 @@ const ProductFilterPanel: React.FC<ProductFilterPanelProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Nom, référence..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
             />
           </div>
 
           {/* Filtre par catégorie */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-800 mb-2">
               Catégorie
             </label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
             >
               {categories.map((category, index) => (
                 <option key={index} value={category === 'Tous' ? '' : category}>
@@ -123,13 +123,13 @@ const ProductFilterPanel: React.FC<ProductFilterPanelProps> = ({
 
           {/* Filtre par disponibilité */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-800 mb-2">
               Disponibilité
             </label>
             <select
               value={availabilityFilter}
               onChange={(e) => setAvailabilityFilter(e.target.value as 'all' | 'available' | 'unavailable')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
             >
               <option value="all">Tous</option>
               <option value="available">Disponible</option>
@@ -139,13 +139,13 @@ const ProductFilterPanel: React.FC<ProductFilterPanelProps> = ({
 
           {/* Filtre par stock */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-800 mb-2">
               Stock
             </label>
             <select
               value={stockFilter}
               onChange={(e) => setStockFilter(e.target.value as 'all' | 'inStock' | 'lowStock' | 'outOfStock')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
             >
               <option value="all">Tous</option>
               <option value="inStock">En stock</option>
@@ -156,9 +156,9 @@ const ProductFilterPanel: React.FC<ProductFilterPanelProps> = ({
         </div>
 
         {/* Filtre par prix */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Prix (HT)</h3>
-          <div className="space-y-4">
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <h3 className="text-sm font-semibold text-gray-800 mb-4">Prix (HT)</h3>
+          <div className="space-y-6">
             <div>
               <input
                 type="range"
@@ -167,9 +167,9 @@ const ProductFilterPanel: React.FC<ProductFilterPanelProps> = ({
                 step="10"
                 value={priceRange[0]}
                 onChange={(e) => handlePriceRangeChange(0, parseInt(e.target.value))}
-                className="w-full"
+                className="w-full accent-violet-500"
               />
-              <div className="flex justify-between text-xs text-gray-500">
+              <div className="flex justify-between text-sm text-gray-600 mt-2">
                 <span>Min: {priceRange[0]}€</span>
               </div>
             </div>
@@ -181,9 +181,9 @@ const ProductFilterPanel: React.FC<ProductFilterPanelProps> = ({
                 step="10"
                 value={priceRange[1]}
                 onChange={(e) => handlePriceRangeChange(1, parseInt(e.target.value))}
-                className="w-full"
+                className="w-full accent-violet-500"
               />
-              <div className="flex justify-between text-xs text-gray-500">
+              <div className="flex justify-between text-sm text-gray-600 mt-2">
                 <span>Max: {priceRange[1]}€</span>
               </div>
             </div>
@@ -192,14 +192,14 @@ const ProductFilterPanel: React.FC<ProductFilterPanelProps> = ({
 
         {/* Filtre par couleurs */}
         {uniqueColors.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Couleurs</h3>
+          <div>
+            <h3 className="text-sm font-semibold text-gray-800 mb-4">Couleurs</h3>
             <div className="flex flex-wrap gap-2">
               {uniqueColors.map(color => (
                 <button
                   key={color}
                   onClick={() => handleColorToggle(color)}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition-all duration-200 ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border-2 transition-all duration-200 ${
                     selectedColors.includes(color)
                       ? 'bg-violet-100 border-violet-500 text-violet-700'
                       : 'border-gray-200 hover:border-violet-300 text-gray-700 hover:bg-violet-50'
