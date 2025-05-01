@@ -229,7 +229,7 @@ const EmailConfigPage: React.FC = () => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="btn-primary flex items-center"
+              className="px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 md:space-x-3 font-medium"
               disabled={loading}
             >
               {loading ? <RefreshCw className="animate-spin mr-2" size={18} /> : <Save size={18} className="mr-2" />}

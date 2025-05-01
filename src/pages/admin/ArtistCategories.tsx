@@ -106,7 +106,7 @@ const AdminArtistCategories: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Gestion des Catégories d'Artistes</h1>
           <button
             onClick={handleAddCategory}
-            className="flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 transition-colors"
+            className="px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 md:space-x-3 font-medium"
           >
             <Plus className="w-4 h-4 mr-2" />
             Ajouter une catégorie
