@@ -60,7 +60,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="application-name" content="ESIL Events" />
       <meta name="msapplication-TileColor" content="#ffffff" />
       <meta name="format-detection" content="telephone=no" />
-      <link rel="alternate" hrefLang="fr" href="https://esil-events.com/fr" />
+      <link rel="alternate" hrefLang="fr" href="https://esil-events.com/" />
       
       {/* Structured Data / Schema.org */}
       <script type="application/ld+json">
