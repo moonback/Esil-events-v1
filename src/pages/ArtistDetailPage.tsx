@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Music, Mic, Radio, Theater, Users, Calendar } from 'lucide-react';
+import { ArrowLeft, Music, Mic, Radio, Theater, Users, Calendar, Star, MapPin, Award, Clock, Phone, Mail, Instagram, Facebook } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Artist, getArtistByName } from '../services/artistService';
 
@@ -226,25 +226,191 @@ const ArtistDetailPage: React.FC = () => {
           </div>
           
           <div className="p-8 md:p-10">
+            {/* Section À propos */}
             <motion.div 
-              className="prose prose-lg max-w-none dark:prose-invert mb-8"
+              className="prose prose-lg max-w-none dark:prose-invert mb-12"
               variants={fadeIn}
             >
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">À propos de {artist.name}</h2>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">À propos de {artist.name}</span>
+              </h2>
               <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">{artist.description}</p>
             </motion.div>
             
-            <motion.div 
-              className="mt-10 flex flex-col sm:flex-row sm:items-center gap-4"
-              variants={scaleIn}
+            {/* Section Informations */}
+            {/* <motion.div
+              className="mb-12"
+              variants={fadeInUp}
             >
-              <Link 
-                to="/contact" 
-                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-lg hover:from-violet-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-xl text-lg font-medium"
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">Informations</span>
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl flex items-start">
+                  <Award className="w-6 h-6 text-violet-600 dark:text-violet-400 mr-3 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-1">Spécialité</h3>
+                    <p className="text-gray-600 dark:text-gray-300">{artist.category}</p>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl flex items-start">
+                  <Clock className="w-6 h-6 text-violet-600 dark:text-violet-400 mr-3 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-1">Expérience</h3>
+                    <p className="text-gray-600 dark:text-gray-300">Plus de 5 ans</p>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl flex items-start">
+                  <MapPin className="w-6 h-6 text-violet-600 dark:text-violet-400 mr-3 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-1">Disponibilité</h3>
+                    <p className="text-gray-600 dark:text-gray-300">France entière</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div> */}
+            
+            {/* Section Performances passées */}
+            {/* <motion.div
+              className="mb-12"
+              variants={staggerContainer}
+            >
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">Performances passées</span>
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  {
+                    title: "Festival de Musique de Paris",
+                    date: "Juin 2023",
+                    description: "Performance principale sur la scène centrale"
+                  },
+                  {
+                    title: "Gala d'entreprise Microsoft",
+                    date: "Décembre 2022",
+                    description: "Animation de la soirée annuelle"
+                  },
+                  {
+                    title: "Mariage VIP à Cannes",
+                    date: "Juillet 2022",
+                    description: "Performance exclusive pour 200 invités"
+                  },
+                  {
+                    title: "Tournée nationale",
+                    date: "2021-2022",
+                    description: "15 dates dans les principales villes françaises"
+                  }
+                ].map((performance, index) => (
+                  <motion.div 
+                    key={index}
+                    className="bg-white dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+                    variants={fadeInUp}
+                  >
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{performance.title}</h3>
+                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      {performance.date}
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300">{performance.description}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div> */}
+            
+            {/* Section Témoignages */}
+            {/* <motion.div
+              className="mb-12"
+              variants={staggerContainer}
+            >
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">Ce qu'en disent nos clients</span>
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  {
+                    quote: "Une prestation exceptionnelle qui a transformé notre événement en un moment magique. Professionnalisme et talent au rendez-vous !",
+                    author: "Marie L., Responsable événementiel",
+                    rating: 5
+                  },
+                  {
+                    quote: "Nous avons été impressionnés par la qualité de la performance et la capacité à captiver notre audience. À recommander sans hésitation !",
+                    author: "Thomas D., Directeur marketing",
+                    rating: 5
+                  }
+                ].map((testimonial, index) => (
+                  <motion.div 
+                    key={index}
+                    className="bg-white dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+                    variants={fadeInUp}
+                  >
+                    <div className="flex text-yellow-400 mb-4">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="w-5 h-5 fill-current" />
+                      ))}
+                    </div>
+                    <p className="italic mb-6 text-gray-700 dark:text-gray-300">"{testimonial.quote}"</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{testimonial.author}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div> */}
+            
+            {/* Section Contact et Réservation */}
+            <motion.div
+              className="mb-8"
+              variants={fadeIn}
+            >
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">Contact et Réservation</span>
+              </h2>
+              
+              <div className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-violet-100 dark:border-violet-800/30 mb-8">
+                <p className="text-gray-700 dark:text-gray-300 mb-6">Pour réserver {artist.name} pour votre prochain événement ou pour toute demande d'information, n'hésitez pas à nous contacter directement.</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex items-center">
+                      <Phone className="w-5 h-5 text-violet-600 dark:text-violet-400 mr-3" />
+                      <span className="text-gray-800 dark:text-gray-200">06.20.46.13.85 (Eric)</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Phone className="w-5 h-5 text-violet-600 dark:text-violet-400 mr-3" />
+                      <span className="text-gray-800 dark:text-gray-200">07.85.95.97.23 (Amelie)</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <Mail className="w-5 h-5 text-violet-600 dark:text-violet-400 mr-3" />
+                    <span className="text-gray-800 dark:text-gray-200">contact@esil-events.fr</span>
+                  </div>
+                </div>
+                
+                <div className="flex space-x-4">
+                  <a href="https://www.facebook.com/esilevents" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors">
+                    <Facebook className="w-6 h-6" />
+                  </a>
+                  <a href="https://www.instagram.com/esilevents" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-pink-600 dark:text-gray-400 dark:hover:text-pink-400 transition-colors">
+                    <Instagram className="w-6 h-6" />
+                  </a>
+                </div>
+              </div>
+              
+              {/* <motion.div 
+                className="flex flex-col sm:flex-row sm:items-center gap-4"
+                variants={scaleIn}
               >
-                <Calendar className="w-5 h-5 mr-2" />
-                Réserver cet artiste
-              </Link>
+                <Link 
+                  to="/contact" 
+                  className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-lg hover:from-violet-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-xl text-lg font-medium"
+                >
+                  <Calendar className="w-5 h-5 mr-2" />
+                  Réserver cet artiste
+                </Link>
+              </motion.div> */}
             </motion.div>
           </div>
         </motion.div>
