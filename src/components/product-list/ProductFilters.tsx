@@ -164,10 +164,10 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             {Array.from(new Set(products.flatMap(product => product.colors || []))).map(color => (
               <button
                 key={color}
-                onClick={() => setSelectedColors((prev: string[]) =>
-                  prev.includes(color)
-                    ? prev.filter(c => c !== color)
-                    : [...prev, color]
+                onClick={() => setSelectedColors(
+                  selectedColors.includes(color)
+                    ? selectedColors.filter(c => c !== color)
+                    : [...selectedColors, color]
                 )}
                 className={`px-3 py-1.5 rounded-full text-sm border transition-all duration-200 ${
                   selectedColors.includes(color)
