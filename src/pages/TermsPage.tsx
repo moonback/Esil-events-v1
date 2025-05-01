@@ -2,12 +2,12 @@ import React from 'react';
 
 const TermsPage: React.FC = () => {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8 pt-32">
       <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
         {/* Header */}
         <div className="px-6 py-8 border-b border-gray-200 dark:border-gray-700">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Conditions Générales de Vente
+            Mentions Légales
           </h1>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Dernière mise à jour : {new Date().toLocaleDateString()}
@@ -16,93 +16,88 @@ const TermsPage: React.FC = () => {
 
         {/* Content */}
         <div className="px-6 py-8 space-y-8">
-          {/* Article 1 */}
+          {/* Éditeur du site */}
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Article 1 - Objet et Champ d'Application
+              Éditeur du Site
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
-              Les présentes conditions générales de vente s'appliquent à toutes les ventes conclues sur le site Internet [Nom du Site], entre le vendeur et les clients non professionnels, ci-après dénommés "le Client".
+              Le site [Nom du Site] est édité par [Nom de la société], société [forme juridique] au capital de [montant] euros, immatriculée au Registre du Commerce et des Sociétés de [ville] sous le numéro [numéro RCS], dont le siège social est situé à [adresse complète].
             </p>
           </section>
 
-          {/* Article 2 */}
+          {/* Directeur de publication */}
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Article 2 - Prix
+              Directeur de la Publication
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
-              Les prix de nos produits sont indiqués en euros toutes taxes comprises (TVA + autres taxes applicables), hors participation aux frais de traitement et d'expédition.
+              Le directeur de la publication est [Nom et Prénom], en qualité de [fonction].
             </p>
           </section>
 
-          {/* Article 3 */}
+          {/* Hébergement */}
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Article 3 - Commandes
+              Hébergement
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              Le site est hébergé par [Nom de l'hébergeur], [forme juridique], dont le siège social est situé [adresse complète de l'hébergeur].
+            </p>
+          </section>
+
+          {/* Propriété intellectuelle */}
+          <section>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              Propriété Intellectuelle
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              L'ensemble des éléments constituant le site (textes, graphismes, logiciels, photographies, images, vidéos, sons, plans, logos, marques, etc.) ainsi que le site lui-même, relèvent des lois françaises et internationales sur le droit d'auteur et la propriété intellectuelle. Ces éléments sont la propriété exclusive de [Nom de la société].
+            </p>
+          </section>
+
+          {/* Données personnelles */}
+          <section>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              Protection des Données Personnelles
             </h2>
             <div className="space-y-4">
               <p className="text-gray-600 dark:text-gray-300">
-                Les informations contractuelles sont présentées en langue française et feront l'objet d'une confirmation au plus tard au moment de la validation de votre commande.
+                Conformément à la loi Informatique et Libertés du 6 janvier 1978 modifiée, et au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité des données vous concernant.
               </p>
               <p className="text-gray-600 dark:text-gray-300">
-                La société se réserve le droit de ne pas enregistrer un paiement, et de ne pas confirmer une commande pour quelque raison que ce soit.
+                Pour exercer ces droits ou pour toute question sur le traitement de vos données, vous pouvez nous contacter à l'adresse email suivante : [adresse email de contact].
               </p>
             </div>
           </section>
 
-          {/* Article 4 */}
+          {/* Cookies */}
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Article 4 - Validation de la Commande
+              Cookies
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
-              Toute commande figurant sur le site Internet suppose l'adhésion aux présentes Conditions Générales. Toute confirmation de commande entraîne votre adhésion pleine et entière aux présentes conditions générales de vente.
+              Le site [Nom du Site] peut utiliser des cookies pour améliorer l'expérience utilisateur. Vous pouvez désactiver l'utilisation de cookies en modifiant les paramètres de votre navigateur. Pour en savoir plus sur notre politique en matière de cookies, veuillez consulter notre page dédiée.
             </p>
           </section>
 
-          {/* Article 5 */}
+          {/* Loi applicable */}
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Article 5 - Paiement
+              Loi Applicable et Juridiction
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
-              Le fait de valider votre commande implique pour vous l'obligation de payer le prix indiqué. Le règlement de vos achats peut s'effectuer par carte bancaire ou selon les autres modalités affichées sur le site.
-            </p>
-          </section>
-
-          {/* Article 6 */}
-          <section>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Article 6 - Rétractation
-            </h2>
-            <div className="space-y-4">
-              <p className="text-gray-600 dark:text-gray-300">
-                Conformément aux dispositions de l'article L.121-21 du Code de la Consommation, vous disposez d'un délai de rétractation de 14 jours à compter de la réception de vos produits pour exercer votre droit de rétraction sans avoir à justifier de motifs ni à payer de pénalité.
-              </p>
-              <p className="text-gray-600 dark:text-gray-300">
-                Les retours sont à effectuer dans leur état d'origine et complets (emballage, accessoires, notice). Dans ce cadre, votre responsabilité est engagée. Tout dommage subi par le produit à cette occasion peut être de nature à faire échec au droit de rétractation.
-              </p>
-            </div>
-          </section>
-
-          {/* Article 7 */}
-          <section>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Article 7 - Disponibilité
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              Nos produits sont proposés tant qu'ils sont visibles sur le site et dans la limite des stocks disponibles. En cas d'indisponibilité de produit après passation de votre commande, nous vous en informerons par mail.
+              Les présentes mentions légales sont soumises au droit français. En cas de litige, les tribunaux français seront compétents.
             </p>
           </section>
 
           {/* Contact Section */}
           <section className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Des Questions ?
+              Contact
             </h2>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Si vous avez des questions concernant nos conditions générales de vente, n'hésitez pas à nous contacter.
+              Pour toute question concernant nos mentions légales, n'hésitez pas à nous contacter.
             </p>
             <a
               href="/contact"

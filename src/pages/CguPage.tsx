@@ -1,13 +1,13 @@
 import React from 'react';
 
-const PrivacyPage: React.FC = () => {
+const CguPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 pt-32">
       <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
         {/* Header */}
         <div className="px-6 py-8 border-b border-gray-200 dark:border-gray-700">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Politique de Confidentialité
+            Conditions Générales d'Utilisation
           </h1>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Dernière mise à jour : {new Date().toLocaleDateString()}
@@ -22,94 +22,96 @@ const PrivacyPage: React.FC = () => {
               Introduction
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
-              Nous accordons une grande importance à la protection de vos données personnelles. Cette politique de confidentialité vous explique comment nous collectons, utilisons et protégeons vos informations personnelles.
+              Bienvenue sur notre plateforme. Les présentes Conditions Générales d'Utilisation régissent votre utilisation de notre site web et de nos services. En accédant à notre site ou en utilisant nos services, vous acceptez d'être lié par ces conditions.
             </p>
           </section>
 
-          {/* Collecte des données */}
+          {/* Acceptation des conditions */}
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Collecte des Données
+              Acceptation des Conditions
             </h2>
             <div className="space-y-4">
               <p className="text-gray-600 dark:text-gray-300">
-                Nous collectons les informations que vous nous fournissez directement, notamment :
+                En utilisant notre plateforme, vous reconnaissez avoir lu, compris et accepté les présentes conditions. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre site ou nos services.
+              </p>
+            </div>
+          </section>
+
+          {/* Inscription et compte */}
+          <section>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              Inscription et Compte
+            </h2>
+            <div className="space-y-4">
+              <p className="text-gray-600 dark:text-gray-300">
+                Pour accéder à certaines fonctionnalités de notre plateforme, vous devrez créer un compte. Vous êtes responsable de :
               </p>
               <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-2">
-                <li>Nom et prénom</li>
-                <li>Adresse email</li>
-                <li>Numéro de téléphone</li>
-                <li>Adresse postale</li>
-                <li>Informations de paiement</li>
-                <li>Historique des commandes</li>
+                <li>Maintenir la confidentialité de vos identifiants</li>
+                <li>Toutes les activités effectuées sous votre compte</li>
+                <li>Fournir des informations exactes et à jour</li>
+                <li>Nous informer immédiatement de toute utilisation non autorisée</li>
               </ul>
             </div>
           </section>
 
-          {/* Utilisation des données */}
+          {/* Utilisation du service */}
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Utilisation des Données
+              Utilisation du Service
             </h2>
             <div className="space-y-4">
               <p className="text-gray-600 dark:text-gray-300">
-                Nous utilisons vos données personnelles pour :
+                Vous vous engagez à utiliser nos services conformément aux lois applicables et à ne pas :
               </p>
               <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-2">
-                <li>Traiter vos commandes et assurer le service client</li>
-                <li>Vous informer sur l'état de vos commandes</li>
-                <li>Personnaliser votre expérience sur notre site</li>
-                <li>Vous envoyer des communications marketing (avec votre consentement)</li>
-                <li>Améliorer nos services et prévenir la fraude</li>
+                <li>Violer les droits de propriété intellectuelle</li>
+                <li>Diffuser du contenu illégal, offensant ou préjudiciable</li>
+                <li>Tenter de compromettre la sécurité de notre plateforme</li>
+                <li>Utiliser nos services à des fins frauduleuses</li>
+                <li>Perturber le fonctionnement normal de notre plateforme</li>
               </ul>
             </div>
           </section>
 
-          {/* Protection des données */}
+          {/* Propriété intellectuelle */}
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Protection des Données
+              Propriété Intellectuelle
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
-              Nous mettons en œuvre des mesures de sécurité appropriées pour protéger vos données personnelles contre tout accès, modification, divulgation ou destruction non autorisée.
+              Tous les contenus présents sur notre plateforme, incluant textes, graphiques, logos, images, et logiciels, sont notre propriété ou celle de nos partenaires et sont protégés par les lois sur la propriété intellectuelle. Toute reproduction non autorisée est strictement interdite.
             </p>
           </section>
 
-          {/* Cookies */}
+          {/* Limitation de responsabilité */}
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Cookies
+              Limitation de Responsabilité
             </h2>
             <div className="space-y-4">
               <p className="text-gray-600 dark:text-gray-300">
-                Notre site utilise des cookies pour améliorer votre expérience de navigation. Les cookies sont de petits fichiers texte stockés sur votre appareil qui nous aident à :
+                Notre plateforme est fournie "telle quelle" et "selon disponibilité". Nous ne garantissons pas que :
               </p>
               <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-2">
-                <li>Mémoriser vos préférences</li>
-                <li>Comprendre comment vous utilisez notre site</li>
-                <li>Améliorer nos services</li>
-                <li>Vous proposer des contenus personnalisés</li>
+                <li>Le service sera ininterrompu ou sans erreur</li>
+                <li>Les défauts seront corrigés</li>
+                <li>Le site est exempt de virus ou d'autres éléments nuisibles</li>
+                <li>Les résultats obtenus seront exacts ou fiables</li>
               </ul>
             </div>
           </section>
 
-          {/* Vos droits */}
+          {/* Modifications des conditions */}
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Vos Droits
+              Modifications des Conditions
             </h2>
             <div className="space-y-4">
               <p className="text-gray-600 dark:text-gray-300">
-                Conformément au RGPD, vous disposez des droits suivants concernant vos données personnelles :
+                Nous nous réservons le droit de modifier ces conditions à tout moment. Les modifications prennent effet dès leur publication. Votre utilisation continue de notre plateforme après toute modification constitue votre acceptation des nouvelles conditions.
               </p>
-              <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-2">
-                <li>Droit d'accès à vos données</li>
-                <li>Droit de rectification de vos données</li>
-                <li>Droit à l'effacement de vos données</li>
-                <li>Droit à la limitation du traitement</li>
-                <li>Droit à la portabilité de vos données</li>
-                <li>Droit d'opposition au traitement</li>
-              </ul>
             </div>
           </section>
 
@@ -119,7 +121,7 @@ const PrivacyPage: React.FC = () => {
               Nous Contacter
             </h2>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Pour toute question concernant notre politique de confidentialité ou pour exercer vos droits, vous pouvez nous contacter :
+              Pour toute question concernant nos conditions générales d'utilisation, vous pouvez nous contacter :
             </p>
             <a
               href="/contact"
@@ -134,4 +136,4 @@ const PrivacyPage: React.FC = () => {
   );
 };
 
-export default PrivacyPage;
+export default CguPage;

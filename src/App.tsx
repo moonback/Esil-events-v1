@@ -23,6 +23,7 @@ import RegisterForm from './components/RegisterForm';
 import ArtistPage from './pages/ArtistPage';
 import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
 import ArtistDetailPage from './pages/ArtistDetailPage';
+import CguPage from './pages/CguPage';
 import { HelmetProvider } from 'react-helmet-async';
 
 const App: React.FC = () => {
@@ -46,11 +47,13 @@ const App: React.FC = () => {
             <Route path="/login" element={<LoginForm />} />
             <Route path="/register" element={<RegisterForm />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/legal" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/artists" element={<ArtistPage />} />
             <Route path="/artist/:id" element={<ArtistDetailPage />} />
             <Route path="/agence-evenementielle" element={<EventsPage />} />
+            <Route path="/cgu" element={<CguPage />} />
+
           </Route>
 
           {/* Routes utilisateur avec Layout principal */}
@@ -58,7 +61,7 @@ const App: React.FC = () => {
             <Route path="/profile" element={<AdminRoute><ProfilePage /></AdminRoute>} />
             <Route path="/orders" element={<AdminRoute><OrdersPage /></AdminRoute>} />
           </Route>
-
+    
           {/* Routes admin avec AdminLayout */}
           {/* Route admin avec le composant AdminRoutes */}
           <Route path="/admin/*" element={<AdminRoutes />} />
