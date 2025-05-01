@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { getAllProducts } from './productService';
 
 export interface SitemapEntry {
   id: string;
@@ -7,6 +8,35 @@ export interface SitemapEntry {
   changefreq: string;
   priority: string;
 }
+
+/**
+ * Génère des entrées de sitemap pour tous les produits
+ */
+export const generateProductSitemapEntries = async (): Promise<SitemapEntry[]> => {
+  try {
+    // Récupérer tous les produits
+    const products = await getAllProducts();
+    
+    // Générer une entrée de sitemap pour chaque produit
+    const entries: SitemapEntry[] = products.map((product, index) => {
+      // Formater la date de mise à jour au format YYYY-MM-DD
+      const lastmod = product.updatedAt.toISOString().split('T')[0];
+      
+      return {
+        id: `product-${product.id}`,
+        loc: `https://esil-events.com/product/${product.id}`,
+        lastmod,
+        changefreq: 'weekly',  // Les produits sont mis à jour régulièrement
+        priority: '0.7'        // Priorité moyenne-haute pour les pages produits
+      };
+    });
+    
+    return entries;
+  } catch (error) {
+    console.error('Erreur dans generateProductSitemapEntries:', error);
+    throw error;
+  }
+};
 
 /**
  * Récupère le contenu du fichier sitemap.xml

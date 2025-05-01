@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Plus, Trash2, AlertCircle, FileText } from 'lucide-react';
+import { Save, Plus, Trash2, AlertCircle, FileText, Tag } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
-import { saveSitemap, parseSitemapXml } from '../../services/sitemapService';
+import { saveSitemap, parseSitemapXml, generateProductSitemapEntries } from '../../services/sitemapService';
 
 interface SitemapEntry {
   id: string;
@@ -17,6 +17,7 @@ const AdminSitemap: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [loadingProducts, setLoadingProducts] = useState<boolean>(false);
 
   // Fréquences possibles pour le sitemap
   const changefreqOptions = ['always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never'];
@@ -61,6 +62,39 @@ const AdminSitemap: React.FC = () => {
     };
     
     setEntries([...entries, newEntry]);
+  };
+
+  // Ajouter tous les produits au sitemap
+  const handleAddProducts = async () => {
+    try {
+      setLoadingProducts(true);
+      setError(null);
+      
+      // Récupérer les entrées de sitemap pour les produits
+      const productEntries = await generateProductSitemapEntries();
+      
+      // Filtrer les entrées existantes pour éviter les doublons
+      const existingUrls = entries.map(entry => entry.loc);
+      const newProductEntries = productEntries.filter(entry => !existingUrls.includes(entry.loc));
+      
+      if (newProductEntries.length === 0) {
+        setSuccess('Tous les produits sont déjà présents dans le sitemap');
+        setTimeout(() => setSuccess(null), 3000);
+        return;
+      }
+      
+      // Ajouter les nouvelles entrées à la liste existante
+      setEntries([...entries, ...newProductEntries]);
+      
+      setSuccess(`${newProductEntries.length} produits ajoutés au sitemap`);
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      console.error('Erreur lors de l\'ajout des produits au sitemap:', err);
+      setError(`Impossible d'ajouter les produits au sitemap: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
+      setTimeout(() => setError(null), 3000);
+    } finally {
+      setLoadingProducts(false);
+    }
   };
 
   const handleRemoveEntry = (id: string) => {
@@ -145,6 +179,23 @@ const AdminSitemap: React.FC = () => {
             >
               <Plus className="w-4 h-4 mr-2" />
               Ajouter une URL
+            </button>
+            <button
+              onClick={handleAddProducts}
+              disabled={loadingProducts}
+              className="flex items-center px-4 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loadingProducts ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-gray-800 dark:border-white mr-2"></div>
+                  Chargement...
+                </>
+              ) : (
+                <>
+                  <Tag className="w-4 h-4 mr-2" />
+                  Ajouter les produits
+                </>
+              )}
             </button>
             <button
               onClick={handleSaveSitemap}
