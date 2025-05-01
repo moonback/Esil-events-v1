@@ -326,6 +326,42 @@ return (
                   ))}
                 </dl>
               </div>
+
+              {/* Documentation and Video Links */}
+              {(product.technicalDocUrl || product.videoUrl) && (
+                <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 hover:shadow-md transition-shadow">
+                  <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 flex items-center">
+                    <FileText className="w-5 h-5 mr-2 text-violet-600" />
+                    <span>Documentation & Présentation</span>
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {product.technicalDocUrl && (
+                      <a 
+                        href={product.technicalDocUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center p-3 md:p-4 bg-violet-50 text-violet-700 rounded-lg hover:bg-violet-100 transition-colors shadow-sm hover:shadow-md"
+                      >
+                        <FileText className="w-5 h-5 md:w-6 md:h-6 mr-2" />
+                        <span className="font-medium">Documentation Technique</span>
+                      </a>
+                    )}
+                    {product.videoUrl && (
+                      <a 
+                        href={product.videoUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center p-3 md:p-4 bg-violet-50 text-violet-700 rounded-lg hover:bg-violet-100 transition-colors shadow-sm hover:shadow-md"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 md:w-6 md:h-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <span className="font-medium">Vidéo de Présentation</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
