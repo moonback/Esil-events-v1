@@ -233,30 +233,36 @@ return (
               <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                   {/* Quantity Selector */}
-                  <div>
+                  <div className="relative">
                     <label className="block text-sm font-medium text-gray-700 mb-2 md:mb-3 flex items-center">
-                      <Clock className="w-4 h-4 mr-1" />
+                      <Clock className="w-4 h-4 mr-1 text-violet-600" />
                       <span>Quantité</span>
                     </label>
                     <div className="flex items-center space-x-2 md:space-x-4">
                       <button 
                         onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                        className="p-2 md:p-3 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100 transition-colors shadow-sm hover:shadow"
+                        className="p-2 md:p-3 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
                         aria-label="Diminuer la quantité"
                       >
                         <Minus className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
                       <input 
                         type="number" 
-                        min="1" 
+                        min="1"
+                        max="999" 
                         value={quantity} 
-                        onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                        className="w-16 md:w-24 text-center border-gray-300 rounded-lg focus:ring-violet-500 focus:border-violet-500 shadow-sm"
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (!isNaN(val) && val >= 1 && val <= 999) {
+                            setQuantity(val);
+                          }
+                        }}
+                        className="w-20 md:w-28 text-center border-2 border-violet-100 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 shadow-sm text-lg font-medium"
                         aria-label="Quantité"
                       />
                       <button 
-                        onClick={() => setQuantity(prev => prev + 1)}
-                        className="p-2 md:p-3 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100 transition-colors shadow-sm hover:shadow"
+                        onClick={() => setQuantity(prev => Math.min(999, prev + 1))}
+                        className="p-2 md:p-3 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
                         aria-label="Augmenter la quantité"
                       >
                         <Plus className="w-4 h-4 md:w-5 md:h-5" />
@@ -295,10 +301,14 @@ return (
               {/* Add to Cart Button */}
               <button 
                 onClick={handleAddToCart}
-                className="w-full bg-violet-600 text-white py-3 md:py-4 px-6 rounded-xl hover:bg-violet-700 transition-all duration-300 flex items-center justify-center space-x-3 text-base md:text-lg font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="w-full bg-gradient-to-r from-violet-600 to-violet-700 text-white py-3 md:py-4 px-6 rounded-xl 
+                hover:from-violet-700 hover:to-violet-800 transition-all duration-300 
+                flex items-center justify-center space-x-3 text-base md:text-lg font-semibold
+                shadow-lg hover:shadow-xl transform hover:-translate-y-1 
+                active:transform active:translate-y-0 active:shadow-md"
                 aria-label="Ajouter au devis"
               >
-                <ShoppingCart className="w-5 h-5 md:w-6 md:h-6" />
+                <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 animate-bounce" />
                 <span>Ajouter au devis</span>
               </button>
 
