@@ -181,7 +181,7 @@ const AdminProducts: React.FC = () => {
         )}
 
         {showForm ? (
-          <div className="bg-white p-8 rounded-xl shadow-md transform transition-all duration-300 ease-in-out max-w-5xl mx-auto">
+          <div className="bg-white p-8 rounded-xl shadow-md transform transition-all duration-300 ease-in-out max-w-8xl mx-auto">
             <div className="flex justify-between items-center mb-8 border-b pb-4">
               <h2 className="text-2xl font-bold text-gray-800">
                 {editingProduct ? 'Modifier le produit' : 'Nouveau produit'}

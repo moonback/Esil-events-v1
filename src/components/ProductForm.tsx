@@ -360,7 +360,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
       return;
     }
 
-    // ... (autres validations existantes) ...
     if (formData.description.length > MAX_DESCRIPTION_LENGTH) {
       setError(`La description ne doit pas dépasser ${MAX_DESCRIPTION_LENGTH} caractères`);
       return;
@@ -405,7 +404,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-7xl mx-auto">
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-md">
           {error}
