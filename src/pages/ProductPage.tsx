@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, ShoppingCart, Star, Clock, Tag, Truck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, ShoppingCart, Star, Clock, Tag, Truck, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { getProductById, getSimilarProducts } from '../services/productService';
 import { Product } from '../types/Product';
@@ -15,6 +15,7 @@ const ProductPage: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -84,8 +85,13 @@ const ProductPage: React.FC = () => {
       priceTTC: product.priceTTC // Add the price
     });
   
-    // Show confirmation message
-    alert('Produit ajouté au devis !');
+    // Show toast notification
+    setShowToast(true);
+    
+    // Hide toast after 3 seconds
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
   };
 
   if (loading) {
@@ -380,7 +386,13 @@ return (
               )}
             </div>
           </div>
-
+          {/* Toast Notification */}
+          {showToast && (
+              <div className="fixed bottom-6 right-6 bg-violet-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up z-50">
+                <Check className="w-5 h-5" />
+                <span className="font-medium">Produit ajouté au devis avec succès !</span>
+              </div>
+            )}
           {/* Similar Products */}
           {similarProducts.length > 0 && (
             <div className="pt-8">
@@ -414,6 +426,8 @@ return (
       </div>
     </div>
   );
+
+  
 };
 
 export default ProductPage;
