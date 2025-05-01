@@ -131,7 +131,7 @@ const Header: React.FC = () => {
                     className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
                   >
                     <Phone className="w-4 h-4 animate-pulse" />
-                    <span className="text-sm font-medium tracking-wide">06 20 46 13 85</span>
+                    <span className="text-sm font-medium tracking-wide">06.20.46.13.85</span>
                   </a>
                   <a 
                     href="tel:07.85.95.97.23" 

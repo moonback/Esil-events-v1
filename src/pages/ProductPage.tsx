@@ -318,7 +318,13 @@ return (
                   <FileText className="w-5 h-5 mr-2 text-violet-600" />
                   <span>Description</span>
                 </h2>
-                <p className="text-gray-600 leading-relaxed text-sm md:text-base">{product.description}</p>
+                <div className="text-gray-600 leading-relaxed text-sm md:text-base">
+                  {product.description.split('\n').map((paragraph, index) => (
+                    paragraph.trim() ? (
+                      <p key={index} className="mb-3 last:mb-0">{paragraph}</p>
+                    ) : null
+                  ))}
+                </div>
               </div>
 
               {/* Technical Specifications */}
