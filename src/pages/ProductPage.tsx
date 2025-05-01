@@ -211,9 +211,9 @@ return (
             {/* Product Info */}
             <div className="space-y-4 md:space-y-6 ">
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">{product.name}</h1>
-                <p className="mt-2 text-gray-500 flex items-center">
-                  <Tag className="w-4 h-4 mr-1" />
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">{product.name}</h1>
+                <p className="mt-1 text-gray-500 flex items-center text-sm">
+                  <Tag className="w-3 h-3 mr-1" />
                   <span>Réf: {product.reference}</span>
                 </p>
               </div>
