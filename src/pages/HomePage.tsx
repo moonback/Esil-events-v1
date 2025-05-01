@@ -95,7 +95,7 @@ const HomePage: React.FC = () => {
             },
             "sameAs": [
               "https://www.facebook.com/profile.php?id=61574583021091",
-              "https://www.instagram.com/esilevents"
+              "https://www.instagram.com/esil-events"
             ]
           })}
         </script>
