@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Plus, Trash2, AlertCircle, FileText, Tag } from 'lucide-react';
+import { Save, Plus, Trash2, AlertCircle, FileText, Tag, Info } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { saveSitemap, parseSitemapXml, generateProductSitemapEntries } from '../../services/sitemapService';
@@ -290,7 +290,31 @@ const AdminSitemap: React.FC = () => {
             </table>
           </div>
         </div>
-
+{/* Bottom help section */}
+<div className="mt-8 bg-gray-50 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 flex items-center">
+            <Info className="w-5 h-5 mr-2 text-blue-500" />
+            Conseils pour optimiser votre sitemap
+          </h3>
+          <ul className="space-y-2 text-gray-600 dark:text-gray-300">
+            <li className="flex items-start">
+              <div className="mr-2 mt-1 text-blue-500">•</div>
+              <span>Attribuez une <strong>priorité plus élevée</strong> aux pages importantes de votre site.</span>
+            </li>
+            <li className="flex items-start">
+              <div className="mr-2 mt-1 text-blue-500">•</div>
+              <span>La fréquence de changement indique aux moteurs de recherche à quelle fréquence une page est susceptible d'être modifiée.</span>
+            </li>
+            <li className="flex items-start">
+              <div className="mr-2 mt-1 text-blue-500">•</div>
+              <span>Assurez-vous que les URL sont complètes et incluent le protocole (https://).</span>
+            </li>
+            <li className="flex items-start">
+              <div className="mr-2 mt-1 text-blue-500">•</div>
+              <span>Mettez à jour régulièrement la date de dernière modification pour les pages qui évoluent.</span>
+            </li>
+          </ul>
+        </div>
         {/* Aperçu du XML généré */}
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Aperçu du XML</h2>
