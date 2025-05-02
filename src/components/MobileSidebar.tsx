@@ -380,7 +380,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
                 </motion.div>
               )}
 
-              {!user && (
+              {/* {!user && (
                 <motion.div 
                   className="mt-6 px-3 flex flex-col space-y-3"
                   variants={itemVariant}
@@ -410,7 +410,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
                     </Link>
                   </motion.div>
                 </motion.div>
-              )}
+              )} */}
             </motion.div>
           </motion.div>
         </>
