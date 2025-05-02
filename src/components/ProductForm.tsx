@@ -236,7 +236,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
   };
 
   const [descriptionLength, setDescriptionLength] = useState(formData.description.length);
-  const MAX_DESCRIPTION_LENGTH = 1500;
+  const MAX_DESCRIPTION_LENGTH = 2000;
   const [newSpecKey, setNewSpecKey] = useState('');
   const [newSpecValue, setNewSpecValue] = useState('');
   const [uploading, setUploading] = useState(false);

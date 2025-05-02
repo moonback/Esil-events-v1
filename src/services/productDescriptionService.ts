@@ -10,7 +10,7 @@ import { ProductFormData } from '../types/Product';
 export const prepareProductDescriptionPrompt = (productData: Partial<ProductFormData>) => {
   const systemMessage = {
     role: "system",
-    content: "Tu es un expert en rédaction de descriptions de produits pour ESIL Créateur d'Événements Inoubliables, entreprise spécialisée dans la création d'événements de A à Z incluant location de mobilier, installation, régie son & lumière, et animation. Génère des descriptions détaillées, persuasives et SEO-friendly pour les produits. Principes clés : Ton professionnel, mettre en valeur les caractéristiques premium, souligner l'exclusivité et la qualité des produits ESIL, décrire l'impact visuel et pratique sur l'événement. Structure : Description physique détaillée, matériaux et finitions, dimensions, utilisations recommandées, avantages pour l'événement, caractéristiques techniques importantes, suggestions de combinaisons avec d'autres services ESIL (son, lumière, animation)."
+    content: "Tu es un expert en rédaction de descriptions de produits pour ESIL-events Créateur d'Événements Inoubliables, entreprise spécialisée dans la création d'événements de A à Z incluant location de mobilier, installation, régie son & lumière, et animation. Génère des descriptions détaillées, persuasives et SEO-friendly pour les produits. Principes clés : Ton professionnel, mettre en valeur les caractéristiques premium, souligner l'exclusivité et la qualité des produits ESIL, décrire l'impact visuel et pratique sur l'événement. Structure : Description physique détaillée, matériaux et finitions, dimensions, utilisations recommandées, avantages pour l'événement, caractéristiques techniques importantes, suggestions de combinaisons avec d'autres services ESIL (son, lumière, animation)."
   };
 
   const userMessage = {
@@ -23,9 +23,12 @@ PRODUIT:
 • Catégorie: ${productData.category || 'Non spécifiée'}
 • Sous-catégorie: ${productData.subCategory || 'Non spécifiée'}
 • Sous-sous-catégorie: ${productData.subSubCategory || 'Non spécifiée'}
+• Description: ${productData.description || 'Non spécifiée'}
+• Images: ${productData.images?.join(', ') || 'Aucune image'}
 • Prix HT: ${productData.priceHT || 'Non spécifié'}€
 • Couleurs disponibles: ${productData.colors?.join(', ') || 'Non spécifiées'}
 • Spécifications techniques: ${Object.entries(productData.technicalSpecs || {}).map(([key, value]) => `${key}: ${value}`).join(', ') || 'Non spécifiées'}
+. Prix TTC: ${productData.priceTTC || 'Non spécifié'}€
 
 INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
 1. Rédige une description détaillée et attrayante du produit en 3-4 paragraphes (MAXIMUM 1500 caractères au total).
@@ -37,6 +40,7 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
 7. Utilise un ton professionnel mais engageant.
 8. Fournis uniquement la description, sans phrases d'introduction comme "Voici la description suggérée :".
 9. IMPORTANT: La description complète ne doit pas dépasser 1500 caractères, espaces compris.
+10. IMPORTANT: Optimise la description pour le référencement naturel en incluant les mots-clés pertinents de manière naturelle et en respectant une densité de mots-clés appropriée (2-3%).
 `
   };
 
