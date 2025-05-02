@@ -16,7 +16,23 @@ const STORAGE_KEY = 'announcements';
 const getStoredAnnouncements = (): Announcement[] => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return [];
+    if (!data) {
+      // Initialiser avec une annonce par défaut
+      const defaultAnnouncements = [
+        {
+          id: uuidv4(),
+          message: "🎉 Découvrez notre nouveau site web !",
+          link: "/",
+          background_color: "#8854d0",
+          text_color: "#ffffff",
+          active: true,
+          start_date: new Date().toISOString().split('T')[0],
+          end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        }
+      ];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultAnnouncements));
+      return defaultAnnouncements;
+    }
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
