@@ -11,7 +11,7 @@ import {
 } from '../services/categoryService';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 import ProductDescriptionGenerator from './ProductDescriptionGenerator';
-import { generateSeoContent, SeoGenerationOptions } from '../services/seoContentService';
+import { generateProductSeo, ProductSeoGenerationOptions } from '../services/productSeoService';
 import { Sparkles } from 'lucide-react';
 
 interface ProductFormProps {
@@ -677,20 +677,45 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
                 setSeoError(null);
                 
                 try {
-                  // Créer un objet avec les données du produit pour la génération SEO
-                  const productForSeo = {
-                    name: formData.name,
-                    slug: formData.reference,
-                    description: formData.description
-                  };
+                  // Récupérer les objets de catégorie pour enrichir le contexte
+                  const categoryObj = selectedDbCategory;
+                  const subCategoryObj = selectedDbSubCategory;
                   
-                  // Options de génération
-                  const options: SeoGenerationOptions = {
+                  // Options de génération avancées
+                  const options: ProductSeoGenerationOptions = {
                     language: 'fr',
-                    targetLength: 'medium'
+                    targetLength: 'medium',
+                    includeCompetitors: false,
+                    // Ajouter des mots-clés de focus basés sur le nom et la catégorie
+                    focusKeywords: [
+                      formData.name,
+                      categoryObj?.name || '',
+                      subCategoryObj?.name || '',
+                      'location',
+                      'événementiel'
+                    ].filter(k => k.trim() !== '')
                   };
                   
-                  const result = await generateSeoContent(productForSeo, 'category', options);
+                  // Si le produit a des couleurs, les ajouter comme public cible
+                  if (formData.colors && formData.colors.length > 0) {
+                    options.targetAudience = `Organisateurs d'événements recherchant des produits en ${formData.colors.join(', ')}`;
+                  } else {
+                    options.targetAudience = "Organisateurs d'événements professionnels et particuliers";
+                  }
+                  
+                  // Déterminer le type d'événement basé sur la catégorie
+                  if (categoryObj) {
+                    options.eventType = `${categoryObj.name}${subCategoryObj ? ` - ${subCategoryObj.name}` : ''}`;
+                  }
+                  
+                  const result = await generateProductSeo(
+                    formData, 
+                    { 
+                      category: categoryObj || undefined,
+                      subCategory: subCategoryObj || undefined 
+                    },
+                    options
+                  );
                   
                   if (result.error) {
                     setSeoError(result.error);
