@@ -373,14 +373,16 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
       }
     }
     
-    // If no explicit related products or they couldn't be fetched, use similarity algorithm
+    // If no explicit related products or they couldn't be fetched, use enhanced similarity algorithm
     
+    // Fetch a larger pool of potential similar products for better recommendations
     // First try to get products from the same subcategory and subSubCategory if available
     let query = supabase
       .from('products')
       .select('*')
       .eq('category', product.category)
-      .neq('id', product.id); // Exclude the current product
+      .neq('id', product.id) // Exclude the current product
+      .eq('is_available', true); // Only include available products
     
     // Add subcategory filter if available
     if (product.subCategory) {
@@ -392,7 +394,7 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
       query = query.eq('sub_sub_category', product.subSubCategory);
     }
     
-    let { data, error } = await query.limit(limit * 2); // Get more than needed for better sorting
+    let { data, error } = await query.limit(limit * 3); // Get more than needed for better sorting
 
     // If not enough products found in the same exact categories, broaden the search
     if (!error && (!data || data.length < limit)) {
@@ -405,7 +407,8 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
           .eq('sub_category', product.subCategory)
           .neq('sub_sub_category', product.subSubCategory) // Different sub-subcategory
           .neq('id', product.id)
-          .limit(limit);
+          .eq('is_available', true)
+          .limit(limit * 2);
 
         if (!moreError && moreData) {
           data = [...(data || []), ...moreData];
@@ -414,17 +417,38 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
       
       // If still not enough, try with just the same category
       if (!error && (!data || data.length < limit) && product.subCategory) {
-        const neededMore = limit - (data?.length || 0);
+        const neededMore = Math.max(limit * 2 - (data?.length || 0), 0);
         const { data: evenMoreData, error: evenMoreError } = await supabase
           .from('products')
           .select('*')
           .eq('category', product.category)
           .neq('sub_category', product.subCategory) // Different subcategory
           .neq('id', product.id)
+          .eq('is_available', true)
           .limit(neededMore);
 
         if (!evenMoreError && evenMoreData) {
           data = [...(data || []), ...evenMoreData];
+        }
+      }
+      
+      // If we still need more products, try with different categories but similar price range
+      if (!error && (!data || data.length < limit)) {
+        const priceMin = product.priceTTC * 0.7; // 70% of product price
+        const priceMax = product.priceTTC * 1.3; // 130% of product price
+        
+        const { data: priceSimilarData, error: priceSimilarError } = await supabase
+          .from('products')
+          .select('*')
+          .neq('category', product.category) // Different category
+          .neq('id', product.id)
+          .eq('is_available', true)
+          .gte('price_ttc', priceMin)
+          .lte('price_ttc', priceMax)
+          .limit(limit);
+
+        if (!priceSimilarError && priceSimilarData) {
+          data = [...(data || []), ...priceSimilarData];
         }
       }
     }
@@ -442,7 +466,7 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
     // Convert snake_case to camelCase
     const formattedData = formatProductData(data);
     
-    // Score and sort products by relevance
+    // Enhanced scoring algorithm for better recommendations
     const scoredProducts = formattedData.map(similarProduct => {
       let score = 0;
       
@@ -451,18 +475,20 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
       
       // Additional score for same subcategory
       if (similarProduct.subCategory === product.subCategory) {
-        score += 20;
+        score += 25; // Increased from 20
       }
       
       // Additional score for same sub-subcategory
       if (similarProduct.subSubCategory && similarProduct.subSubCategory === product.subSubCategory) {
-        score += 30;
+        score += 35; // Increased from 30
       }
       
-      // Price similarity (closer prices get higher scores)
+      // Price similarity (closer prices get higher scores) - Enhanced algorithm
       const priceDifference = Math.abs(similarProduct.priceTTC - product.priceTTC);
       const priceRatio = priceDifference / product.priceTTC;
-      if (priceRatio < 0.1) { // Within 10% price range
+      if (priceRatio < 0.05) { // Within 5% price range
+        score += 20; // New tier for very close prices
+      } else if (priceRatio < 0.1) { // Within 10% price range
         score += 15;
       } else if (priceRatio < 0.3) { // Within 30% price range
         score += 10;
@@ -470,7 +496,7 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
         score += 5;
       }
       
-      // Similar technical specs (if available)
+      // Similar technical specs (if available) - Enhanced algorithm
       if (product.technicalSpecs && similarProduct.technicalSpecs) {
         const productSpecsKeys = Object.keys(product.technicalSpecs);
         const similarSpecsKeys = Object.keys(similarProduct.technicalSpecs);
@@ -478,18 +504,46 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
         // Count matching spec keys
         const matchingKeys = productSpecsKeys.filter(key => similarSpecsKeys.includes(key));
         if (matchingKeys.length > 0) {
-          score += 5 + (matchingKeys.length * 2); // Base + 2 points per matching spec key
+          // Calculate percentage of matching specs for more accurate scoring
+          const matchPercentage = matchingKeys.length / productSpecsKeys.length;
+          score += 5 + Math.round(matchPercentage * 20); // Base + up to 20 points based on match percentage
+          
+          // Bonus for matching values, not just keys
+          let valueMatchCount = 0;
+          matchingKeys.forEach(key => {
+            if (product.technicalSpecs[key] === similarProduct.technicalSpecs[key]) {
+              valueMatchCount++;
+            }
+          });
+          
+          if (valueMatchCount > 0) {
+            score += valueMatchCount * 3; // 3 points per exact value match
+          }
         }
       }
       
-      // Similar colors (if available)
+      // Similar colors (if available) - Enhanced algorithm
       if (product.colors && product.colors.length > 0 && 
           similarProduct.colors && similarProduct.colors.length > 0) {
         const matchingColors = product.colors.filter(color => 
           similarProduct.colors?.includes(color));
         if (matchingColors.length > 0) {
-          score += 5 + (matchingColors.length * 3); // Base + 3 points per matching color
+          // Calculate percentage of matching colors
+          const colorMatchPercentage = matchingColors.length / product.colors.length;
+          score += 5 + Math.round(colorMatchPercentage * 15); // Base + up to 15 points based on match percentage
         }
+      }
+      
+      // Stock availability bonus
+      if (similarProduct.stock > 5) {
+        score += 5; // Bonus for well-stocked items
+      }
+      
+      // Recency bonus - newer products get a slight boost
+      const productAge = new Date().getTime() - new Date(similarProduct.createdAt).getTime();
+      const isRecentProduct = productAge < (90 * 24 * 60 * 60 * 1000); // Less than 90 days old
+      if (isRecentProduct) {
+        score += 5; // Bonus for newer products
       }
       
       return { ...similarProduct, relevanceScore: score };

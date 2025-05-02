@@ -408,13 +408,16 @@ return (
             <div className="pt-12 pb-8">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Produits similaires</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                    <Star className="w-6 h-6 mr-2 text-violet-600" />
+                    Produits similaires
+                  </h2>
                   <p className="text-gray-600 mt-1">D'autres produits qui pourraient vous intéresser</p>
                 </div>
                 {similarProducts.length > 4 && (
                   <Link 
-                    to={`/products/${product.category}`}
-                    className="text-violet-600 hover:text-violet-800 font-medium flex items-center transition-colors"
+                    to={`/product/${product.category}`}
+                    className="text-violet-600 hover:text-violet-800 font-medium flex items-center transition-colors hover:scale-105 transform duration-200 bg-violet-50 hover:bg-violet-100 px-4 py-2 rounded-lg"
                   >
                     Voir plus <ChevronRight className="w-4 h-4 ml-1" />
                   </Link>
@@ -426,7 +429,7 @@ return (
                   <Link 
                     to={`/product/${similarProduct.id}`} 
                     key={similarProduct.id}
-                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group"
+                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full group"
                   >
                     <div className="aspect-[4/3] relative overflow-hidden">
                       <img 
@@ -437,30 +440,53 @@ return (
                           e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
                         }}
                       />
-                      {similarProduct.category && (
-                        <div className="absolute top-3 left-3 bg-violet-600 text-white text-xs px-2 py-1 rounded-md font-medium">
-                          {similarProduct.category.charAt(0).toUpperCase() + similarProduct.category.slice(1)}
-                        </div>
-                      )}
+                      <div className="absolute top-0 left-0 w-full p-3 flex justify-between items-start">
+                        {similarProduct.category && (
+                          <span className="bg-violet-600 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md feedback-message-enter">
+                            {similarProduct.category.charAt(0).toUpperCase() + similarProduct.category.slice(1)}
+                          </span>
+                        )}
+                        {!similarProduct.isAvailable && (
+                          <span className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
+                            Indisponible
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="p-5">
+                    <div className="p-5 flex flex-col flex-grow">
                       <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-violet-600 transition-colors">
                         {similarProduct.name}
                       </h3>
-                      <div className="flex justify-between items-center mt-3">
-                        <p className="text-violet-600 font-bold">
-                          {similarProduct.priceTTC.toFixed(2)} € TTC/jour
-                        </p>
-                        <div className="bg-violet-50 text-violet-700 p-1.5 rounded-full group-hover:bg-violet-100 transition-colors">
-                          <ShoppingCart className="w-4 h-4" />
-                        </div>
-                      </div>
+                      
                       {similarProduct.subCategory && (
-                        <div className="mt-3 text-xs text-gray-500">
+                        <div className="mt-1 mb-2 text-xs text-gray-500 flex items-center">
+                          <Tag className="w-3 h-3 mr-1 text-violet-400" />
                           {similarProduct.subCategory.charAt(0).toUpperCase() + similarProduct.subCategory.slice(1)}
                           {similarProduct.subSubCategory && ` › ${similarProduct.subSubCategory}`}
                         </div>
                       )}
+                      
+                      <div className="mt-auto pt-3 border-t border-gray-100">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="text-xs text-gray-500">Prix TTC / jour</p>
+                            <p className="text-violet-600 font-bold text-lg">
+                              {similarProduct.priceTTC.toFixed(2)} €
+                            </p>
+                          </div>
+                          <div className="flex flex-col items-end">
+                            {similarProduct.stock > 0 && (
+                              <span className="text-xs text-green-600 mb-1 flex items-center">
+                                <Check className="w-3 h-3 mr-1" />
+                                Stock: {similarProduct.stock}
+                              </span>
+                            )}
+                            <div className="bg-violet-50 text-violet-700 p-2 rounded-full group-hover:bg-violet-100 transition-colors transform group-hover:scale-110 duration-200 shadow-sm group-hover:shadow-md">
+                              <ShoppingCart className="w-4 h-4" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </Link>
                 ))}
