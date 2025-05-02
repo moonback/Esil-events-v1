@@ -713,7 +713,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
               className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Sparkles className="h-4 w-4 mr-2" />
-              {isGeneratingSeo ? 'Génération en cours...' : 'Générer le contenu SEO avec DeepSeek'}
+              {isGeneratingSeo ? 'Génération en cours...' : 'Générer le contenu SEO'}
             </button>
             {seoError && (
               <div className="text-sm text-red-600">

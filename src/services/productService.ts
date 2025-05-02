@@ -112,7 +112,10 @@ export const duplicateProduct = async (productId: string): Promise<string> => {
       technical_specs: productData.technical_specs,
       technical_doc_url: productData.technical_doc_url,
       video_url: productData.video_url,
-      // Ajouter l'ID de l'utilisateur authentifié pour respecter les politiques RLS
+      // SEO fields
+      seo_title: productData.seo_title || null,
+      seo_description: productData.seo_description || null,
+      seo_keywords: productData.seo_keywords || null,
       created_by: userId,
       updated_by: userId
     };
@@ -190,6 +193,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
       technicalSpecs: product.technical_specs || {},
       technicalDocUrl: product.technical_doc_url || null,
       videoUrl: product.video_url || null
+      
     }));
 
     console.log('Products fetched successfully:', formattedData.length, 'products');
@@ -409,7 +413,11 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       technicalSpecs: data.technical_specs,
       technicalDocUrl: data.technical_doc_url,
       videoUrl: data.video_url,
-      relatedProducts: data.related_products || []
+      relatedProducts: data.related_products || [],
+      // Ajout des champs SEO
+      seo_title: data.seo_title || '',
+      seo_description: data.seo_description || '',
+      seo_keywords: data.seo_keywords || ''
     };
 
     console.log('Product fetched successfully:', formattedData.id);
@@ -655,7 +663,11 @@ const formatProductData = (data: any[]): Product[] => {
     relatedProducts: product.related_products || [],
     technicalSpecs: product.technical_specs || {},
     technicalDocUrl: product.technical_doc_url || null,
-    videoUrl: product.video_url || null
+    videoUrl: product.video_url || null,
+    // Ajout des champs SEO
+    seo_title: product.seo_title || '',
+    seo_description: product.seo_description || '',
+    seo_keywords: product.seo_keywords || ''
   }));
 };
 
@@ -689,6 +701,10 @@ export const createProduct = async (product: ProductFormData): Promise<Product> 
       technical_specs: product.technicalSpecs || {},
       technical_doc_url: product.technicalDocUrl || null,
       video_url: product.videoUrl || null,
+      // Ajout des champs SEO
+      seo_title: product.seo_title || null,
+      seo_description: product.seo_description || null,
+      seo_keywords: product.seo_keywords || null,
       created_by: session.user.id,
       updated_by: session.user.id
     };
@@ -805,6 +821,10 @@ export const updateProduct = async (id: string, product: Partial<Product>): Prom
       technical_specs: product.technicalSpecs,
       technical_doc_url: product.technicalDocUrl,
       video_url: product.videoUrl,
+      // Ajout des champs SEO
+      seo_title: product.seo_title,
+      seo_description: product.seo_description,
+      seo_keywords: product.seo_keywords,
       updated_at: new Date().toISOString(),
       updated_by: session.user.id
     };
