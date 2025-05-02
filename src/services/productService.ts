@@ -414,11 +414,18 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       technicalDocUrl: data.technical_doc_url,
       videoUrl: data.video_url,
       relatedProducts: data.related_products || [],
-      // Ajout des champs SEO
+      // Ajout des champs SEO - Assurez-vous qu'ils sont correctement transmis
       seo_title: data.seo_title || '',
       seo_description: data.seo_description || '',
       seo_keywords: data.seo_keywords || ''
     };
+    
+    // Log pour vérifier que les données SEO sont bien présentes
+    console.log('SEO data in product:', {
+      seo_title: data.seo_title,
+      seo_description: data.seo_description,
+      seo_keywords: data.seo_keywords
+    });
 
     console.log('Product fetched successfully:', formattedData.id);
     return formattedData;
@@ -828,6 +835,13 @@ export const updateProduct = async (id: string, product: Partial<Product>): Prom
       updated_at: new Date().toISOString(),
       updated_by: session.user.id
     };
+    
+    // Log pour vérifier que les données SEO sont bien envoyées à la base de données
+    console.log('SEO data being saved:', {
+      seo_title: product.seo_title,
+      seo_description: product.seo_description,
+      seo_keywords: product.seo_keywords
+    });
 
     // Remove undefined values
     Object.keys(dbProduct).forEach(key => 

@@ -67,7 +67,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
         technicalDocUrl: initialData.technicalDocUrl || null,
         videoUrl: initialData.videoUrl || null,
         isAvailable: initialData.isAvailable ?? true,
-        // Champs SEO
+        // Champs SEO - Assurez-vous d'utiliser les bonnes propriétés
         seo_title: initialData.seo_title || '',
         seo_description: initialData.seo_description || '',
         seo_keywords: initialData.seo_keywords || '',
@@ -630,7 +630,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
               <input
                 type="text"
                 name="seo_title"
-                value={formData.seo_title}
+                value={formData.seo_title || ''}
                 onChange={handleChange}
                 placeholder="Titre optimisé pour les moteurs de recherche"
                 className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200"
@@ -644,7 +644,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
               <input
                 type="text"
                 name="seo_keywords"
-                value={formData.seo_keywords}
+                value={formData.seo_keywords || ''}
                 onChange={handleChange}
                 placeholder="mot-clé1, mot-clé2, mot-clé3"
                 className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200"
@@ -658,7 +658,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
             <label className="block text-sm font-medium text-gray-700 mb-1">Description SEO</label>
             <textarea
               name="seo_description"
-              value={formData.seo_description}
+              value={formData.seo_description || ''}
               onChange={handleChange}
               placeholder="Description courte et optimisée pour les moteurs de recherche"
               className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200 min-h-[80px] resize-y"
