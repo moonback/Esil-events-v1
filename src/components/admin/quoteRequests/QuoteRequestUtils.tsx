@@ -1,5 +1,6 @@
 import { QuoteRequest } from '../../../services/quoteRequestService';
-import { jsPDF } from 'jspdf';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 /**
  * Fonctions utilitaires pour les demandes de devis
@@ -110,311 +111,408 @@ export const formatItemsDetails = (request: QuoteRequest): string => {
 };
 
 /**
- * Exporte une demande de devis en PDF
+ * Exporte une demande de devis au format PDF
  */
-export const exportToPDF = async (request: QuoteRequest, setFeedbackMessage: (message: { type: 'success' | 'error', text: string } | null) => void) => {
+export const exportToPDF = async (
+  request: QuoteRequest,
+  setFeedbackMessage: (message: { type: 'success' | 'error', text: string } | null) => void
+): Promise<void> => {
+  if (!request) {
+    setFeedbackMessage({ type: 'error', text: 'Aucune demande sélectionnée pour l\'export.' });
+    return;
+  }
+
   try {
-    const doc = new jsPDF();
-    let yPos = 20;
-    const leftMargin = 20;
-    const rightCol = 105;
+    setFeedbackMessage({ type: 'success', text: 'Préparation du PDF en cours...' });
+    
+    // Créer un élément temporaire pour le rendu du contenu
+    const printElement = document.createElement('div');
+    printElement.className = 'pdf-export-container';
+    printElement.style.width = '210mm'; // Format A4
+    printElement.style.padding = '15mm';
+    printElement.style.position = 'absolute';
+    printElement.style.left = '-9999px';
+    printElement.style.top = '-9999px';
+    document.body.appendChild(printElement);
 
-    // Header
-    doc.setFontSize(20);
-    doc.setTextColor(79, 70, 229); // Indigo color
-    doc.text('ESIL Events - Demande de Devis', 105, yPos, { align: 'center' });
-    yPos += 10;
-    doc.setFontSize(12);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Référence: ${request.id?.substring(0, 8).toUpperCase() || 'N/A'}`, 105, yPos, { align: 'center' });
-    yPos += 10;
-    doc.text(`Date de création: ${formatDate(request.created_at)}`, 105, yPos, { align: 'center' });
-    yPos += 10;
-    doc.text(`Statut: ${getStatusLabel(request.status)}`, 105, yPos, { align: 'center' });
-    yPos += 20;
-
-    // Client Info
-    doc.setFontSize(16);
-    doc.setTextColor(79, 70, 229);
-    doc.text('Informations Client', leftMargin, yPos);
-    yPos += 8;
+    // Formater le contenu pour le PDF
+    const totalAmount = (request.items?.reduce((total, item) => total + ((item.quantity || 0) * (item.price || 0)), 0) || 0).toFixed(2);
     
-    // Horizontal line
-    doc.setDrawColor(200, 200, 200);
-    doc.line(leftMargin, yPos, 190, yPos);
-    yPos += 10;
-    
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Nom: ${request.first_name} ${request.last_name}`, leftMargin, yPos);
-    doc.text(`Type: ${request.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}`, rightCol, yPos);
-    yPos += 8;
-    doc.text(`Email: ${request.email || '-'}`, leftMargin, yPos);
-    doc.text(`Téléphone: ${request.phone || '-'}`, rightCol, yPos);
-    yPos += 8;
-    doc.text(`Société: ${request.company || '-'}`, leftMargin, yPos);
-    yPos += 8;
-    doc.text(`Adresse: ${[request.billing_address, request.postal_code, request.city].filter(Boolean).join(', ') || '-'}`, leftMargin, yPos);
-    yPos += 15;
-
-    // Event Info
-    doc.setFontSize(16);
-    doc.setTextColor(79, 70, 229);
-    doc.text('Détails de l\'Événement', leftMargin, yPos);
-    yPos += 8;
-    
-    // Horizontal line
-    doc.setDrawColor(200, 200, 200);
-    doc.line(leftMargin, yPos, 190, yPos);
-    yPos += 10;
-    
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Date: ${request.event_date ? formatDate(request.event_date).split(' ')[0] : '-'}`, leftMargin, yPos);
-    doc.text(`Durée: ${request.event_duration || '-'}`, rightCol, yPos);
-    yPos += 8;
-    doc.text(`Horaires: ${request.event_start_time || '-'} - ${request.event_end_time || '-'}`, leftMargin, yPos);
-    doc.text(`Invités: ${request.guest_count || '-'}`, rightCol, yPos);
-    yPos += 8;
-    doc.text(`Lieu: ${request.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}`, leftMargin, yPos);
-    yPos += 12;
-    
-    if (request.description) {
-      doc.text('Description:', leftMargin, yPos);
-      yPos += 6;
-      
-      // Add description with word wrap
-      const splitDescription = doc.splitTextToSize(request.description, 170);
-      doc.text(splitDescription, leftMargin, yPos);
-      yPos += splitDescription.length * 6 + 8;
-    }
-
-    // Items
-    doc.setFontSize(16);
-    doc.setTextColor(79, 70, 229);
-    doc.text('Articles Demandés', leftMargin, yPos);
-    yPos += 8;
-    
-    // Horizontal line
-    doc.setDrawColor(200, 200, 200);
-    doc.line(leftMargin, yPos, 190, yPos);
-    yPos += 10;
-    
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 0);
-    
-    if (request.items && request.items.length > 0) {
-      // Table header
-      doc.setFillColor(245, 245, 245);
-      doc.rect(leftMargin, yPos - 5, 170, 10, 'F');
-      doc.text('Article', leftMargin + 2, yPos);
-      doc.text('Qté', leftMargin + 90, yPos);
-      doc.text('Prix U.', leftMargin + 110, yPos);
-      doc.text('Total', leftMargin + 150, yPos);
-      yPos += 8;
-      
-      // Table rows
-      let totalAmount = 0;
-      request.items.forEach(item => {
-        const itemTotal = (item.quantity || 0) * (item.price || 0);
-        totalAmount += itemTotal;
+    printElement.innerHTML = `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h1 style="color: #4f46e5; font-size: 24px; margin-bottom: 5px;">ESIL Events</h1>
+          <p style="font-size: 14px; margin: 0;">Location de mobilier événementiel premium</p>
+        </div>
         
-        doc.text(item.name || 'N/A', leftMargin + 2, yPos);
-        doc.text(`${item.quantity || 0}`, leftMargin + 90, yPos);
-        doc.text(`${(item.price || 0).toFixed(2)}€`, leftMargin + 110, yPos);
-        doc.text(`${itemTotal.toFixed(2)}€`, leftMargin + 150, yPos);
-        yPos += 8;
-      });
-      
-      // Total
-      yPos += 2;
-      doc.setDrawColor(200, 200, 200);
-      doc.line(leftMargin, yPos, 190, yPos);
-      yPos += 8;
-      // doc.setFontStyle('bold');
-      doc.text('Total TTC Indicatif:', leftMargin + 100, yPos);
-      doc.setTextColor(79, 70, 229);
-      doc.text(`${totalAmount.toFixed(2)}€`, leftMargin + 150, yPos);
-      // doc.setFontStyle('normal');
-      doc.setTextColor(0, 0, 0);
-    } else {
-      doc.text('Aucun article spécifique listé dans cette demande.', leftMargin, yPos);
-    }
-    yPos += 15;
+        <div style="margin-bottom: 30px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">
+          <h2 style="font-size: 18px; margin-bottom: 10px;">Demande de Devis #${request.id?.substring(0, 8).toUpperCase() || 'N/A'}</h2>
+          <p style="font-size: 12px; margin: 0;">Date de la demande: ${formatDate(request.created_at)}</p>
+          <p style="font-size: 12px; margin: 0;">Statut: ${getStatusLabel(request.status)}</p>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Informations Client</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <tr>
+              <td style="padding: 5px; width: 30%;"><strong>Nom:</strong></td>
+              <td style="padding: 5px;">${request.first_name} ${request.last_name}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Type:</strong></td>
+              <td style="padding: 5px;">${request.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Société:</strong></td>
+              <td style="padding: 5px;">${request.company || '-'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Email:</strong></td>
+              <td style="padding: 5px;">${request.email || '-'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Téléphone:</strong></td>
+              <td style="padding: 5px;">${request.phone || '-'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Adresse:</strong></td>
+              <td style="padding: 5px;">${[request.billing_address, request.postal_code, request.city].filter(Boolean).join(', ') || '-'}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Détails de l'Événement</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <tr>
+              <td style="padding: 5px; width: 30%;"><strong>Date:</strong></td>
+              <td style="padding: 5px;">${request.event_date ? formatDate(request.event_date.toString()).split(' ')[0] : '-'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Durée:</strong></td>
+              <td style="padding: 5px;">${request.event_duration || '-'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Horaires:</strong></td>
+              <td style="padding: 5px;">${request.event_start_time || '-'} - ${request.event_end_time || '-'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Invités:</strong></td>
+              <td style="padding: 5px;">${request.guest_count || '-'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Lieu:</strong></td>
+              <td style="padding: 5px;">${request.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</td>
+            </tr>
+          </table>
+          ${request.description ? `
+            <div style="margin-top: 10px;">
+              <p style="font-size: 12px; margin-bottom: 5px;"><strong>Description:</strong></p>
+              <p style="font-size: 12px; padding: 5px; background-color: #f9fafb; border: 1px solid #e5e7eb;">${request.description}</p>
+            </div>
+          ` : ''}
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Articles Demandés</h3>
+          ${request.items && request.items.length > 0 ? `
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px; border: 1px solid #e5e7eb;">
+              <thead>
+                <tr style="background-color: #f3f4f6;">
+                  <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Article</th>
+                  <th style="padding: 8px; text-align: center; border-bottom: 1px solid #e5e7eb;">Qté</th>
+                  <th style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb;">Prix U.</th>
+                  <th style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${request.items.map(item => `
+                  <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${item.name || 'N/A'}</td>
+                    <td style="padding: 8px; text-align: center; border-bottom: 1px solid #e5e7eb;">${item.quantity || 0}</td>
+                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb;">${(item.price || 0).toFixed(2)}€</td>
+                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb;">${((item.quantity || 0) * (item.price || 0)).toFixed(2)}€</td>
+                  </tr>
+                `).join('')}
+                <tr style="background-color: #f3f4f6; font-weight: bold;">
+                  <td colspan="3" style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb;">Total TTC Indicatif</td>
+                  <td style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb; color: #4f46e5;">${totalAmount}€</td>
+                </tr>
+              </tbody>
+            </table>
+          ` : `
+            <p style="font-size: 12px; font-style: italic;">Aucun article spécifique listé dans cette demande.</p>
+          `}
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Livraison / Retrait</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <tr>
+              <td style="padding: 5px; width: 30%;"><strong>Type:</strong></td>
+              <td style="padding: 5px;">${getDeliveryTypeLabel(request.delivery_type || undefined)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Date:</strong></td>
+              <td style="padding: 5px;">${request.delivery_date ? formatDate(request.delivery_date).split(' ')[0] : '-'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Créneau:</strong></td>
+              <td style="padding: 5px;">${getTimeSlotLabel(request.delivery_time_slot || undefined)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Adresse:</strong></td>
+              <td style="padding: 5px;">${[request.delivery_address, request.delivery_postal_code, request.delivery_city].filter(Boolean).join(', ') || '-'}</td>
+            </tr>
+          </table>
+        </div>
+        
+        ${request.comments ? `
+          <div style="margin-bottom: 20px;">
+            <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Commentaires Client</h3>
+            <p style="font-size: 12px; padding: 8px; background-color: #f9fafb; border: 1px solid #e5e7eb;">${request.comments}</p>
+          </div>
+        ` : ''}
+        
+        <div style="margin-top: 30px; font-size: 10px; text-align: center; color: #6b7280;">
+          <p>Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+          <p>ESIL Events - L'élégance pour chaque événement</p>
+        </div>
+      </div>
+    `;
 
-    // Check if we need a new page for delivery info
-    if (yPos > 250) {
-      doc.addPage();
-      yPos = 20;
-    }
+    // Générer le PDF à partir du contenu HTML
+    const canvas = await html2canvas(printElement, {
+      scale: 1,
+      useCORS: true,
+      logging: false
+    });
 
-    // Delivery Info
-    doc.setFontSize(16);
-    doc.setTextColor(79, 70, 229);
-    doc.text('Livraison / Retrait', leftMargin, yPos);
-    yPos += 8;
+    // Créer le PDF au format A4
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL('image/png');
+    const imgWidth = 210; // A4 width in mm
+    const imgHeight = canvas.height * imgWidth / canvas.width;
     
-    // Horizontal line
-    doc.setDrawColor(200, 200, 200);
-    doc.line(leftMargin, yPos, 190, yPos);
-    yPos += 10;
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
     
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Type: ${getDeliveryTypeLabel(request.delivery_type)}`, leftMargin, yPos);
-    doc.text(`Date: ${request.delivery_date ? formatDate(request.delivery_date).split(' ')[0] : '-'}`, rightCol, yPos);
-    yPos += 8;
-    doc.text(`Créneau: ${getTimeSlotLabel(request.delivery_time_slot)}`, leftMargin, yPos);
-    yPos += 8;
-    doc.text(`Adresse: ${[request.delivery_address, request.delivery_postal_code, request.delivery_city].filter(Boolean).join(', ') || '-'}`, leftMargin, yPos);
-    yPos += 15;
-
-    // Access Info
-    if (request.exterior_access || request.interior_access) {
-      doc.setFontSize(16);
-      doc.setTextColor(79, 70, 229);
-      doc.text('Accès', leftMargin, yPos);
-      yPos += 8;
-      
-      // Horizontal line
-      doc.setDrawColor(200, 200, 200);
-      doc.line(leftMargin, yPos, 190, yPos);
-      yPos += 10;
-      
-      doc.setFontSize(11);
-      doc.setTextColor(0, 0, 0);
-      doc.text(`Extérieur: ${getAccessLabel(request.exterior_access)}`, leftMargin, yPos);
-      doc.text(`Intérieur: ${getAccessLabel(request.interior_access)}`, rightCol, yPos);
-      yPos += 8;
-      
-      if (request.interior_access === 'elevator') {
-        doc.text(`Dimensions ascenseur: ${request.elevator_width || '-'} × ${request.elevator_depth || '-'} × ${request.elevator_height || '-'} cm`, leftMargin, yPos);
-        yPos += 8;
-      }
-      yPos += 7;
-    }
-
-    // Pickup Return Info
-    if (request.pickup_return_date || request.pickup_return_start_time) {
-      doc.setFontSize(16);
-      doc.setTextColor(79, 70, 229);
-      doc.text('Détails reprise', leftMargin, yPos);
-      yPos += 8;
-      
-      // Horizontal line
-      doc.setDrawColor(200, 200, 200);
-      doc.line(leftMargin, yPos, 190, yPos);
-      yPos += 10;
-      
-      doc.setFontSize(11);
-      doc.setTextColor(0, 0, 0);
-      doc.text(`Date: ${request.pickup_return_date ? formatDate(request.pickup_return_date).split(' ')[0] : '-'}`, leftMargin, yPos);
-      yPos += 8;
-      doc.text(`Horaires: ${request.pickup_return_start_time || '-'} - ${request.pickup_return_end_time || '-'}`, leftMargin, yPos);
-      yPos += 15;
-    }
-
-    // Comments
-    if (request.comments) {
-      doc.setFontSize(16);
-      doc.setTextColor(79, 70, 229);
-      doc.text('Commentaires Client', leftMargin, yPos);
-      yPos += 8;
-      
-      // Horizontal line
-      doc.setDrawColor(200, 200, 200);
-      doc.line(leftMargin, yPos, 190, yPos);
-      yPos += 10;
-      
-      doc.setFontSize(11);
-      doc.setTextColor(0, 0, 0);
-      
-      // Add comments with word wrap
-      const splitComments = doc.splitTextToSize(request.comments, 170);
-      doc.text(splitComments, leftMargin, yPos);
-    }
-
-    // Footer
-    doc.setFontSize(9);
-    doc.setTextColor(150, 150, 150);
-    doc.text(`Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, 105, 285, { align: 'center' });
-    doc.text('ESIL Events - L\'élégance pour chaque événement', 105, 290, { align: 'center' });
-
-    // Save the PDF
+    // Générer un nom de fichier basé sur les informations de la demande
     const fileName = `ESIL_Devis_${request.id?.substring(0, 8).toUpperCase() || 'N/A'}_${request.last_name || 'Client'}.pdf`;
-    doc.save(fileName);
+    
+    // Télécharger le PDF
+    pdf.save(fileName);
+    
+    // Nettoyer l'élément temporaire
+    document.body.removeChild(printElement);
     
     setFeedbackMessage({ type: 'success', text: 'PDF exporté avec succès.' });
     setTimeout(() => setFeedbackMessage(null), 3000);
-  } catch (error) {
-    console.error('Erreur lors de l\'export PDF:', error);
-    setFeedbackMessage({ type: 'error', text: 'Erreur lors de l\'export PDF.' });
+  } catch (err: any) {
+    console.error('Erreur lors de l\'export PDF:', err);
+    setFeedbackMessage({ type: 'error', text: `Erreur lors de l'export PDF: ${err.message}` });
   }
 };
 
 /**
  * Imprime une demande de devis
  */
-export const printQuoteRequest = (request: QuoteRequest) => {
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) return;
+export const printQuoteRequest = (
+  request: QuoteRequest,
+  setFeedbackMessage?: (message: { type: 'success' | 'error', text: string } | null) => void
+): void => {
+  if (!request) {
+    setFeedbackMessage?.({ type: 'error', text: 'Aucune demande sélectionnée pour l\'impression.' });
+    return;
+  }
 
-  const html = `
-    <!DOCTYPE html>
-    <html>
+  try {
+    // Créer une fenêtre d'impression
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    if (!printWindow) {
+      throw new Error('Impossible d\'ouvrir la fenêtre d\'impression. Vérifiez les paramètres de votre navigateur.');
+    }
+
+    // Formater le contenu pour l'impression (réutiliser le même format que pour le PDF)
+    const totalAmount = (request.items?.reduce((total, item) => total + ((item.quantity || 0) * (item.price || 0)), 0) || 0).toFixed(2);
+    
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="fr">
       <head>
-        <title>Demande de Devis - ${request.id}</title>
+        <meta charset="UTF-8">
+        <title>Demande de Devis #${request.id?.substring(0, 8).toUpperCase() || 'N/A'}</title>
         <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
-          .header { text-align: center; margin-bottom: 30px; }
+          body { font-family: Arial, sans-serif; color: #333; margin: 0; padding: 20px; }
+          h1, h2, h3 { color: #4f46e5; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+          th, td { padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+          th { background-color: #f3f4f6; }
+          .header { text-align: center; margin-bottom: 20px; }
           .section { margin-bottom: 20px; }
-          .section-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
-          .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-          .info-item { padding: 8px; background: #f5f5f5; border-radius: 4px; }
-          @media print { body { padding: 0; } }
+          .footer { margin-top: 30px; font-size: 10px; text-align: center; color: #6b7280; }
+          @media print {
+            body { padding: 0; }
+            button { display: none; }
+          }
         </style>
       </head>
       <body>
         <div class="header">
-          <h1>Demande de Devis</h1>
-          <p>ID: ${request.id} - Date: ${formatDate(request.created_at)}</p>
+          <h1>ESIL Events</h1>
+          <p>Location de mobilier événementiel premium</p>
         </div>
         
         <div class="section">
-          <div class="section-title">Informations Client</div>
-          <div class="info-grid">
-            <div class="info-item">Nom: ${request.first_name} ${request.last_name}</div>
-            <div class="info-item">Email: ${request.email || '-'}</div>
-            <div class="info-item">Téléphone: ${request.phone || '-'}</div>
-            <div class="info-item">Société: ${request.company || '-'}</div>
-          </div>
+          <h2>Demande de Devis #${request.id?.substring(0, 8).toUpperCase() || 'N/A'}</h2>
+          <p>Date de la demande: ${formatDate(request.created_at)}</p>
+          <p>Statut: ${getStatusLabel(request.status)}</p>
         </div>
-
+        
         <div class="section">
-          <div class="section-title">Détails Événement</div>
-          <div class="info-grid">
-            <div class="info-item">Date: ${request.event_date ? formatDate(request.event_date) : '-'}</div>
-            <div class="info-item">Lieu: ${request.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</div>
-            <div class="info-item">Invités: ${request.guest_count || '-'}</div>
-            <div class="info-item">Statut: ${getStatusLabel(request.status)}</div>
-          </div>
+          <h3>Informations Client</h3>
+          <table>
+            <tr>
+              <td><strong>Nom:</strong></td>
+              <td>${request.first_name} ${request.last_name}</td>
+            </tr>
+            <tr>
+              <td><strong>Type:</strong></td>
+              <td>${request.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</td>
+            </tr>
+            <tr>
+              <td><strong>Société:</strong></td>
+              <td>${request.company || '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>Email:</strong></td>
+              <td>${request.email || '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>Téléphone:</strong></td>
+              <td>${request.phone || '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>Adresse:</strong></td>
+              <td>${[request.billing_address, request.postal_code, request.city].filter(Boolean).join(', ') || '-'}</td>
+            </tr>
+          </table>
         </div>
-
-        ${request.items && request.items.length > 0 ? `
+        
         <div class="section">
-          <div class="section-title">Articles</div>
-          <div class="info-grid">
-            ${formatItemsDetails(request).split('\n').map(item => 
-              `<div class="info-item">${item}</div>`
-            ).join('')}
-          </div>
+          <h3>Détails de l'Événement</h3>
+          <table>
+            <tr>
+              <td><strong>Date:</strong></td>
+              <td>${request.event_date ? formatDate(request.event_date.toString()).split(' ')[0] : '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>Durée:</strong></td>
+              <td>${request.event_duration || '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>Horaires:</strong></td>
+              <td>${request.event_start_time || '-'} - ${request.event_end_time || '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>Invités:</strong></td>
+              <td>${request.guest_count || '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>Lieu:</strong></td>
+              <td>${request.event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</td>
+            </tr>
+          </table>
+          ${request.description ? `
+            <div>
+              <p><strong>Description:</strong></p>
+              <p style="padding: 10px; background-color: #f9fafb; border: 1px solid #e5e7eb;">${request.description}</p>
+            </div>
+          ` : ''}
         </div>
+        
+        <div class="section">
+          <h3>Articles Demandés</h3>
+          ${request.items && request.items.length > 0 ? `
+            <table>
+              <thead>
+                <tr>
+                  <th>Article</th>
+                  <th style="text-align: center;">Qté</th>
+                  <th style="text-align: right;">Prix U.</th>
+                  <th style="text-align: right;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${request.items.map(item => `
+                  <tr>
+                    <td>${item.name || 'N/A'}</td>
+                    <td style="text-align: center;">${item.quantity || 0}</td>
+                    <td style="text-align: right;">${(item.price || 0).toFixed(2)}€</td>
+                    <td style="text-align: right;">${((item.quantity || 0) * (item.price || 0)).toFixed(2)}€</td>
+                  </tr>
+                `).join('')}
+                <tr style="font-weight: bold; background-color: #f3f4f6;">
+                  <td colspan="3" style="text-align: right;">Total TTC Indicatif</td>
+                  <td style="text-align: right; color: #4f46e5;">${totalAmount}€</td>
+                </tr>
+              </tbody>
+            </table>
+          ` : `
+            <p style="font-style: italic;">Aucun article spécifique listé dans cette demande.</p>
+          `}
+        </div>
+        
+        <div class="section">
+          <h3>Livraison / Retrait</h3>
+          <table>
+            <tr>
+              <td><strong>Type:</strong></td>
+              <td>${getDeliveryTypeLabel(request.delivery_type || undefined)}</td>
+            </tr>
+            <tr>
+              <td><strong>Date:</strong></td>
+              <td>${request.delivery_date ? formatDate(request.delivery_date).split(' ')[0] : '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>Créneau:</strong></td>
+              <td>${getTimeSlotLabel(request.delivery_time_slot || undefined)}</td>
+            </tr>
+            <tr>
+              <td><strong>Adresse:</strong></td>
+              <td>${[request.delivery_address, request.delivery_postal_code, request.delivery_city].filter(Boolean).join(', ') || '-'}</td>
+            </tr>
+          </table>
+        </div>
+        
+        ${request.comments ? `
+          <div class="section">
+            <h3>Commentaires Client</h3>
+            <p style="padding: 10px; background-color: #f9fafb; border: 1px solid #e5e7eb;">${request.comments}</p>
+          </div>
         ` : ''}
+        
+        <div class="footer">
+          <p>Document imprimé le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+          <p>ESIL Events - L'élégance pour chaque événement</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+          <button onclick="window.print(); setTimeout(() => window.close(), 500);" style="padding: 10px 20px; background-color: #4f46e5; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Imprimer
+          </button>
+        </div>
       </body>
-    </html>
-  `;
-
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.print();
+      </html>
+    `);
+    
+    printWindow.document.close();
+    
+    setFeedbackMessage?.({ type: 'success', text: 'Document prêt pour impression.' });
+    if (setFeedbackMessage) {
+      setTimeout(() => setFeedbackMessage(null), 3000);
+    }
+  } catch (err: any) {
+    console.error('Erreur lors de la préparation de l\'impression:', err);
+    setFeedbackMessage?.({ type: 'error', text: `Erreur lors de l'impression: ${err.message}` });
+  }
 };
