@@ -112,7 +112,10 @@ export const duplicateProduct = async (productId: string): Promise<string> => {
       technical_specs: productData.technical_specs,
       technical_doc_url: productData.technical_doc_url,
       video_url: productData.video_url,
-      // Ajouter l'ID de l'utilisateur authentifié pour respecter les politiques RLS
+      // SEO fields
+      seo_title: productData.seo_title || null,
+      seo_description: productData.seo_description || null,
+      seo_keywords: productData.seo_keywords || null,
       created_by: userId,
       updated_by: userId
     };
@@ -190,6 +193,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
       technicalSpecs: product.technical_specs || {},
       technicalDocUrl: product.technical_doc_url || null,
       videoUrl: product.video_url || null
+      
     }));
 
     console.log('Products fetched successfully:', formattedData.length, 'products');
@@ -409,8 +413,19 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       technicalSpecs: data.technical_specs,
       technicalDocUrl: data.technical_doc_url,
       videoUrl: data.video_url,
-      relatedProducts: data.related_products || []
+      relatedProducts: data.related_products || [],
+      // Ajout des champs SEO - Assurez-vous qu'ils sont correctement transmis
+      seo_title: data.seo_title || '',
+      seo_description: data.seo_description || '',
+      seo_keywords: data.seo_keywords || ''
     };
+    
+    // Log pour vérifier que les données SEO sont bien présentes
+    console.log('SEO data in product:', {
+      seo_title: data.seo_title,
+      seo_description: data.seo_description,
+      seo_keywords: data.seo_keywords
+    });
 
     console.log('Product fetched successfully:', formattedData.id);
     return formattedData;
@@ -655,7 +670,11 @@ const formatProductData = (data: any[]): Product[] => {
     relatedProducts: product.related_products || [],
     technicalSpecs: product.technical_specs || {},
     technicalDocUrl: product.technical_doc_url || null,
-    videoUrl: product.video_url || null
+    videoUrl: product.video_url || null,
+    // Ajout des champs SEO
+    seo_title: product.seo_title || '',
+    seo_description: product.seo_description || '',
+    seo_keywords: product.seo_keywords || ''
   }));
 };
 
@@ -689,6 +708,10 @@ export const createProduct = async (product: ProductFormData): Promise<Product> 
       technical_specs: product.technicalSpecs || {},
       technical_doc_url: product.technicalDocUrl || null,
       video_url: product.videoUrl || null,
+      // Ajout des champs SEO
+      seo_title: product.seo_title || null,
+      seo_description: product.seo_description || null,
+      seo_keywords: product.seo_keywords || null,
       created_by: session.user.id,
       updated_by: session.user.id
     };
@@ -805,9 +828,20 @@ export const updateProduct = async (id: string, product: Partial<Product>): Prom
       technical_specs: product.technicalSpecs,
       technical_doc_url: product.technicalDocUrl,
       video_url: product.videoUrl,
+      // Ajout des champs SEO
+      seo_title: product.seo_title,
+      seo_description: product.seo_description,
+      seo_keywords: product.seo_keywords,
       updated_at: new Date().toISOString(),
       updated_by: session.user.id
     };
+    
+    // Log pour vérifier que les données SEO sont bien envoyées à la base de données
+    console.log('SEO data being saved:', {
+      seo_title: product.seo_title,
+      seo_description: product.seo_description,
+      seo_keywords: product.seo_keywords
+    });
 
     // Remove undefined values
     Object.keys(dbProduct).forEach(key => 
@@ -862,7 +896,26 @@ export const updateProduct = async (id: string, product: Partial<Product>): Prom
 // Delete a product
 export const deleteProduct = async (id: string): Promise<void> => {
   try {
-    console.log('Deleting product from Supabase...');
+    console.log('Deleting product from Supabase...', id);
+    
+    // Vérifier que le produit existe avant de le supprimer
+    const { data: productExists, error: checkError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', id)
+      .maybeSingle();
+      
+    if (checkError) {
+      console.error('Error checking product existence:', checkError);
+      throw new Error(`Failed to check product existence: ${checkError.message}`);
+    }
+    
+    if (!productExists) {
+      console.warn(`Product with ID ${id} does not exist, nothing to delete`);
+      return;
+    }
+    
+    // Supprimer le produit
     const { error } = await supabase
       .from('products')
       .delete()
@@ -872,8 +925,25 @@ export const deleteProduct = async (id: string): Promise<void> => {
       console.error('Error deleting product:', error);
       throw new Error(`Failed to delete product: ${error.message}`);
     }
+    
+    // Vérifier que le produit a bien été supprimé
+    const { data: verifyProduct, error: verifyError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', id)
+      .maybeSingle();
+      
+    if (verifyError) {
+      console.error('Error verifying product deletion:', verifyError);
+      throw new Error(`Failed to verify product deletion: ${verifyError.message}`);
+    }
+    
+    if (verifyProduct) {
+      console.error(`Product with ID ${id} still exists after deletion attempt`);
+      throw new Error('Failed to delete product: Product still exists in database');
+    }
 
-    console.log('Product deleted successfully');
+    console.log('Product deleted successfully and verified from database');
   } catch (error) {
     console.error('Error in deleteProduct:', error);
     throw error;

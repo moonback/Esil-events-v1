@@ -11,7 +11,7 @@ import {
 } from '../services/categoryService';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 import ProductDescriptionGenerator from './ProductDescriptionGenerator';
-import { generateSeoContent, SeoGenerationOptions } from '../services/seoContentService';
+import { generateProductSeo, ProductSeoGenerationOptions } from '../services/productSeoService';
 import { Sparkles } from 'lucide-react';
 
 interface ProductFormProps {
@@ -67,7 +67,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
         technicalDocUrl: initialData.technicalDocUrl || null,
         videoUrl: initialData.videoUrl || null,
         isAvailable: initialData.isAvailable ?? true,
-        // Champs SEO
+        // Champs SEO - Assurez-vous d'utiliser les bonnes propriétés
         seo_title: initialData.seo_title || '',
         seo_description: initialData.seo_description || '',
         seo_keywords: initialData.seo_keywords || '',
@@ -630,7 +630,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
               <input
                 type="text"
                 name="seo_title"
-                value={formData.seo_title}
+                value={formData.seo_title || ''}
                 onChange={handleChange}
                 placeholder="Titre optimisé pour les moteurs de recherche"
                 className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200"
@@ -644,7 +644,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
               <input
                 type="text"
                 name="seo_keywords"
-                value={formData.seo_keywords}
+                value={formData.seo_keywords || ''}
                 onChange={handleChange}
                 placeholder="mot-clé1, mot-clé2, mot-clé3"
                 className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200"
@@ -658,7 +658,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
             <label className="block text-sm font-medium text-gray-700 mb-1">Description SEO</label>
             <textarea
               name="seo_description"
-              value={formData.seo_description}
+              value={formData.seo_description || ''}
               onChange={handleChange}
               placeholder="Description courte et optimisée pour les moteurs de recherche"
               className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200 min-h-[80px] resize-y"
@@ -677,20 +677,45 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
                 setSeoError(null);
                 
                 try {
-                  // Créer un objet avec les données du produit pour la génération SEO
-                  const productForSeo = {
-                    name: formData.name,
-                    slug: formData.reference,
-                    description: formData.description
-                  };
+                  // Récupérer les objets de catégorie pour enrichir le contexte
+                  const categoryObj = selectedDbCategory;
+                  const subCategoryObj = selectedDbSubCategory;
                   
-                  // Options de génération
-                  const options: SeoGenerationOptions = {
+                  // Options de génération avancées
+                  const options: ProductSeoGenerationOptions = {
                     language: 'fr',
-                    targetLength: 'medium'
+                    targetLength: 'medium',
+                    includeCompetitors: false,
+                    // Ajouter des mots-clés de focus basés sur le nom et la catégorie
+                    focusKeywords: [
+                      formData.name,
+                      categoryObj?.name || '',
+                      subCategoryObj?.name || '',
+                      'location',
+                      'événementiel'
+                    ].filter(k => k.trim() !== '')
                   };
                   
-                  const result = await generateSeoContent(productForSeo, 'category', options);
+                  // Si le produit a des couleurs, les ajouter comme public cible
+                  if (formData.colors && formData.colors.length > 0) {
+                    options.targetAudience = `Organisateurs d'événements recherchant des produits en ${formData.colors.join(', ')}`;
+                  } else {
+                    options.targetAudience = "Organisateurs d'événements professionnels et particuliers";
+                  }
+                  
+                  // Déterminer le type d'événement basé sur la catégorie
+                  if (categoryObj) {
+                    options.eventType = `${categoryObj.name}${subCategoryObj ? ` - ${subCategoryObj.name}` : ''}`;
+                  }
+                  
+                  const result = await generateProductSeo(
+                    formData, 
+                    { 
+                      category: categoryObj || undefined,
+                      subCategory: subCategoryObj || undefined 
+                    },
+                    options
+                  );
                   
                   if (result.error) {
                     setSeoError(result.error);
@@ -713,7 +738,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
               className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Sparkles className="h-4 w-4 mr-2" />
-              {isGeneratingSeo ? 'Génération en cours...' : 'Générer le contenu SEO avec DeepSeek'}
+              {isGeneratingSeo ? 'Génération en cours...' : 'Générer le contenu SEO'}
             </button>
             {seoError && (
               <div className="text-sm text-red-600">
