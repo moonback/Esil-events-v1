@@ -24,6 +24,10 @@ export interface Product {
   videoUrl: string | null;
   stock: number;
   isAvailable: boolean;
+  // Champs SEO
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
   createdAt: Date;
   updatedAt: Date;
 }

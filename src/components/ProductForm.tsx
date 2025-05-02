@@ -11,6 +11,8 @@ import {
 } from '../services/categoryService';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 import ProductDescriptionGenerator from './ProductDescriptionGenerator';
+import { generateSeoContent, SeoGenerationOptions } from '../services/seoContentService';
+import { Sparkles } from 'lucide-react';
 
 interface ProductFormProps {
   initialData?: Product;
@@ -40,7 +42,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
       technicalSpecs: {},
       technicalDocUrl: null,
       videoUrl: null,
-      isAvailable: true
+      isAvailable: true,
+      // Champs SEO
+      seo_title: '',
+      seo_description: '',
+      seo_keywords: ''
     };
     if (initialData) {
       return {
@@ -61,6 +67,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
         technicalDocUrl: initialData.technicalDocUrl || null,
         videoUrl: initialData.videoUrl || null,
         isAvailable: initialData.isAvailable ?? true,
+        // Champs SEO
+        seo_title: initialData.seo_title || '',
+        seo_description: initialData.seo_description || '',
+        seo_keywords: initialData.seo_keywords || '',
       };
     }
     return defaults;
@@ -243,6 +253,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
   const [error, setError] = useState<string>(''); // Main form error
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const [newColor, setNewColor] = useState('');
+  
+  // États pour la génération SEO
+  const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
+  const [seoError, setSeoError] = useState<string | null>(null);
+  
+
 
   useEffect(() => {
     const priceTTC = formData.priceHT * 1.2;
@@ -594,6 +610,116 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
                 setDescriptionLength(description.length);
               }}
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Section SEO */}
+      <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-100">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-violet-600" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
+          </svg>
+          Optimisation SEO
+        </h2>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Titre SEO */}
+            <div className="transition-all duration-200 hover:shadow-md rounded-lg p-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Titre SEO</label>
+              <input
+                type="text"
+                name="seo_title"
+                value={formData.seo_title}
+                onChange={handleChange}
+                placeholder="Titre optimisé pour les moteurs de recherche"
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200"
+              />
+              <p className="mt-1 text-xs text-gray-500">Recommandé: 50-60 caractères</p>
+            </div>
+
+            {/* Mots-clés SEO */}
+            <div className="transition-all duration-200 hover:shadow-md rounded-lg p-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mots-clés SEO</label>
+              <input
+                type="text"
+                name="seo_keywords"
+                value={formData.seo_keywords}
+                onChange={handleChange}
+                placeholder="mot-clé1, mot-clé2, mot-clé3"
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200"
+              />
+              <p className="mt-1 text-xs text-gray-500">Séparez les mots-clés par des virgules</p>
+            </div>
+          </div>
+
+          {/* Description SEO */}
+          <div className="transition-all duration-200 hover:shadow-md rounded-lg p-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description SEO</label>
+            <textarea
+              name="seo_description"
+              value={formData.seo_description}
+              onChange={handleChange}
+              placeholder="Description courte et optimisée pour les moteurs de recherche"
+              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200 min-h-[80px] resize-y"
+            />
+            <p className="mt-1 text-xs text-gray-500">Recommandé: 150-160 caractères</p>
+          </div>
+
+          {/* Bouton de génération SEO */}
+          <div className="flex items-center space-x-2 mt-3">
+            <button
+              type="button"
+              onClick={async () => {
+                if (isGeneratingSeo) return;
+                
+                setIsGeneratingSeo(true);
+                setSeoError(null);
+                
+                try {
+                  // Créer un objet avec les données du produit pour la génération SEO
+                  const productForSeo = {
+                    name: formData.name,
+                    slug: formData.reference,
+                    description: formData.description
+                  };
+                  
+                  // Options de génération
+                  const options: SeoGenerationOptions = {
+                    language: 'fr',
+                    targetLength: 'medium'
+                  };
+                  
+                  const result = await generateSeoContent(productForSeo, 'category', options);
+                  
+                  if (result.error) {
+                    setSeoError(result.error);
+                  } else if (result.seoContent) {
+                    setFormData(prev => ({
+                      ...prev,
+                      seo_title: result.seoContent?.seo_title || '',
+                      seo_description: result.seoContent?.seo_description || '',
+                      seo_keywords: result.seoContent?.seo_keywords || ''
+                    }));
+                  }
+                } catch (err: any) {
+                  setSeoError(err.message || 'Une erreur est survenue lors de la génération du contenu SEO');
+                  console.error('Erreur lors de la génération du contenu SEO:', err);
+                } finally {
+                  setIsGeneratingSeo(false);
+                }
+              }}
+              disabled={isGeneratingSeo}
+              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              {isGeneratingSeo ? 'Génération en cours...' : 'Générer le contenu SEO avec DeepSeek'}
+            </button>
+            {seoError && (
+              <div className="text-sm text-red-600">
+                {seoError}
+              </div>
+            )}
           </div>
         </div>
       </div>
