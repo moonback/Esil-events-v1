@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown } from 'lucide-react';
+import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown, Copy } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import { Product } from '../../types/Product';
-import { getAllProducts, deleteProduct, createProduct, updateProduct } from '../../services/productService';
+import { getAllProducts, deleteProduct, createProduct, updateProduct, duplicateProduct } from '../../services/productService';
 import ProductForm from '../../components/ProductForm';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { DEFAULT_PRODUCT_IMAGE } from '../../constants/images';
@@ -402,6 +402,22 @@ const AdminProducts: React.FC = () => {
                               title="Modifier"
                             >
                               <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={async () => {
+                                try {
+                                  setError('');
+                                  const newProductId = await duplicateProduct(product.id);
+                                  await loadProducts();
+                                } catch (err: any) {
+                                  setError(err.message || 'Erreur lors de la duplication du produit');
+                                  console.error(err);
+                                }
+                              }}
+                              className="text-blue-600 hover:text-blue-800 mr-3"
+                              title="Dupliquer"
+                            >
+                              <Copy className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(product.id)}

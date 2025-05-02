@@ -65,6 +65,77 @@ const mockProducts: Product[] = [
   // }
 ]
 
+// Duplicate a product
+export const duplicateProduct = async (productId: string): Promise<string> => {
+  try {
+    // Récupérer la session utilisateur actuelle
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error('Vous devez être connecté pour dupliquer un produit');
+    }
+    
+    const userId = session.user.id;
+    
+    // Fetch the product to duplicate
+    const { data: productData, error: fetchError } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', productId)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching product to duplicate:', fetchError);
+      throw new Error(`Failed to fetch product: ${fetchError.message}`);
+    }
+
+    if (!productData) {
+      throw new Error('Product not found');
+    }
+
+    // Create a new product based on the existing one
+    // Modify the name to indicate it's a copy
+    const newProductData = {
+      name: `${productData.name} (copie)`,
+      reference: `${productData.reference}-copie`,
+      category: productData.category,
+      sub_category: productData.sub_category,
+      sub_sub_category: productData.sub_sub_category,
+      description: productData.description,
+      price_ht: productData.price_ht,
+      price_ttc: productData.price_ttc,
+      stock: productData.stock,
+      is_available: productData.is_available,
+      images: productData.images,
+      main_image_index: productData.main_image_index,
+      colors: productData.colors,
+      technical_specs: productData.technical_specs,
+      technical_doc_url: productData.technical_doc_url,
+      video_url: productData.video_url,
+      // Ajouter l'ID de l'utilisateur authentifié pour respecter les politiques RLS
+      created_by: userId,
+      updated_by: userId
+    };
+
+    // Insert the new product
+    const { data: newProduct, error: insertError } = await supabase
+      .from('products')
+      .insert([newProductData])
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('Error duplicating product:', insertError);
+      throw new Error(`Failed to duplicate product: ${insertError.message}`);
+    }
+
+    return newProduct.id;
+  } catch (error: any) {
+    console.error('Error in duplicateProduct:', error);
+    throw error;
+  }
+};
+
 // Fetch all products
 export const getAllProducts = async (): Promise<Product[]> => {
   try {
