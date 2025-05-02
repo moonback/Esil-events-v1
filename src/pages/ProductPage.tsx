@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, ShoppingCart, Star, Clock, Tag, Truck, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, ShoppingCart, Star, Clock, Tag, Truck, Check, ZoomIn, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { getProductById, getSimilarProducts } from '../services/productService';
 import { Product } from '../types/Product';
@@ -16,6 +16,7 @@ const ProductPage: React.FC = () => {
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [zoomOpen, setZoomOpen] = useState(false);
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -41,27 +42,36 @@ const ProductPage: React.FC = () => {
           setSelectedColor(productData.colors[0]);
         }
         
-        // Récupérer les produits similaires
-        if (productData) {
-          setLoadingSimilar(true);
-          try {
-            const similar = await getSimilarProducts(productData);
-            setSimilarProducts(similar);
-          } catch (error) {
-            console.error('Error fetching similar products:', error);
-          } finally {
-            setLoadingSimilar(false);
-          }
-        }
+        // Récupérer les produits similaires séparément pour ne pas bloquer l'affichage du produit principal
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching product:', error);
-      } finally {
         setLoading(false);
       }
     };
 
     fetchProduct();
   }, [id]);
+  
+  // Effet séparé pour charger les produits similaires
+  useEffect(() => {
+    const fetchSimilarProducts = async () => {
+      if (!product) return;
+      
+      setLoadingSimilar(true);
+      try {
+        const similar = await getSimilarProducts(product, 8);
+        setSimilarProducts(similar);
+        console.log('Similar products loaded:', similar.length);
+      } catch (error) {
+        console.error('Error fetching similar products:', error);
+      } finally {
+        setLoadingSimilar(false);
+      }
+    };
+
+    fetchSimilarProducts();
+  }, [product]);
 
   const handlePrevImage = () => {
     if (!product) return;
@@ -153,14 +163,26 @@ return (
             <div className="bg-white rounded-2xl shadow-xl p-4 md:p-8">
               <div className="relative aspect-square md:aspect-[4/3] overflow-hidden rounded-xl">
                 {product.images && product.images.length > 0 ? (
-                  <img 
-                    src={product.images[currentImageIndex]} 
-                    alt={product.name} 
-                    className="w-full h-full object-contain transition-opacity duration-300"
-                    onError={(e) => {
-                      e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
-                    }}
-                  />
+                  <div className="relative w-full h-full group">
+                    <img 
+                      src={product.images[currentImageIndex]} 
+                      alt={product.name} 
+                      className="w-full h-full object-contain transition-opacity duration-300 cursor-zoom-in"
+                      onClick={() => setZoomOpen(true)}
+                      onError={(e) => {
+                        e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
+                      }}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <button 
+                        onClick={() => setZoomOpen(true)}
+                        className="bg-violet-600/80 text-white p-3 rounded-full hover:bg-violet-700 transition-all duration-300 transform hover:scale-110"
+                        aria-label="Zoomer l'image"
+                      >
+                        <ZoomIn className="w-6 h-6" />
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   <img 
                     src={DEFAULT_PRODUCT_IMAGE} 
@@ -392,34 +414,152 @@ return (
                 <Check className="w-5 h-5" />
                 <span className="font-medium">Produit ajouté au devis avec succès !</span>
               </div>
-            )}
+          )}
+          
+          {/* Image Zoom Modal */}
+          {zoomOpen && product.images && product.images.length > 0 && (
+            <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 md:p-8">
+              <div className="relative w-full h-full flex flex-col">
+                <div className="absolute top-4 left-4 bg-white/10 text-white/80 px-3 py-1 rounded-lg text-sm">
+                  <span>Mode zoom interactif</span>
+                </div>
+                <button 
+                  onClick={() => setZoomOpen(false)}
+                  className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300 z-10"
+                  aria-label="Fermer le zoom"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+                
+                {/* Utilisation du composant ZoomableImage pour le zoom interactif */}
+                <ZoomableImage 
+                  src={product.images[currentImageIndex]} 
+                  alt={product.name}
+                  fallbackSrc={DEFAULT_PRODUCT_IMAGE}
+                />
+                
+                {product.images.length > 1 && (
+                  <div className="flex justify-center mt-4 space-x-2">
+                    <button 
+                      onClick={() => setCurrentImageIndex(prev => (prev === 0 ? product.images.length - 1 : prev - 1))}
+                      className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300"
+                      aria-label="Image précédente"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <span className="text-white/70 flex items-center px-3">
+                      {currentImageIndex + 1} / {product.images.length}
+                    </span>
+                    <button 
+                      onClick={() => setCurrentImageIndex(prev => (prev === product.images.length - 1 ? 0 : prev + 1))}
+                      className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300"
+                      aria-label="Image suivante"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                  </div>
+                )}
+                
+                <div className="absolute bottom-4 left-4 right-4 text-center text-white/60 text-xs md:text-sm bg-black/30 p-2 rounded-lg">
+                  <p>Utilisez la molette de la souris ou les boutons pour zoomer • Cliquez et déplacez pour naviguer dans l'image zoomée</p>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Similar Products */}
           {similarProducts.length > 0 && (
-            <div className="pt-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-8">Produits similaires</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="pt-12 pb-8">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                    <Star className="w-6 h-6 mr-2 text-violet-600" />
+                    Produits similaires
+                  </h2>
+                  <p className="text-gray-600 mt-1">D'autres produits qui pourraient vous intéresser</p>
+                </div>
+                {similarProducts.length > 4 && (
+                  <Link 
+                    to={`/product/${product.category}`}
+                    className="text-violet-600 hover:text-violet-800 font-medium flex items-center transition-colors hover:scale-105 transform duration-200 bg-violet-50 hover:bg-violet-100 px-4 py-2 rounded-lg"
+                  >
+                    Voir plus <ChevronRight className="w-4 h-4 ml-1" />
+                  </Link>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                 {similarProducts.map((similarProduct) => (
                   <Link 
                     to={`/product/${similarProduct.id}`} 
                     key={similarProduct.id}
-                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1"
+                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full group"
                   >
-                    <div className="aspect-[4/3]">
+                    <div className="aspect-[4/3] relative overflow-hidden">
                       <img 
                         src={similarProduct.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
                         alt={similarProduct.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        onError={(e) => {
+                          e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
+                        }}
                       />
+                      <div className="absolute top-0 left-0 w-full p-3 flex justify-between items-start">
+                        {similarProduct.category && (
+                          <span className="bg-violet-600 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md feedback-message-enter">
+                            {similarProduct.category.charAt(0).toUpperCase() + similarProduct.category.slice(1)}
+                          </span>
+                        )}
+                        {!similarProduct.isAvailable && (
+                          <span className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
+                            Indisponible
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="p-6">
-                      <h3 className="font-semibold text-gray-900 text-lg mb-2">{similarProduct.name}</h3>
-                      <p className="text-violet-600 font-bold">
-                        {similarProduct.priceTTC.toFixed(2)} € TTC/jour
-                      </p>
+                    <div className="p-5 flex flex-col flex-grow">
+                      <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-violet-600 transition-colors">
+                        {similarProduct.name}
+                      </h3>
+                      
+                      {similarProduct.subCategory && (
+                        <div className="mt-1 mb-2 text-xs text-gray-500 flex items-center">
+                          <Tag className="w-3 h-3 mr-1 text-violet-400" />
+                          {similarProduct.subCategory.charAt(0).toUpperCase() + similarProduct.subCategory.slice(1)}
+                          {similarProduct.subSubCategory && ` › ${similarProduct.subSubCategory}`}
+                        </div>
+                      )}
+                      
+                      <div className="mt-auto pt-3 border-t border-gray-100">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="text-xs text-gray-500">Prix TTC / jour</p>
+                            <p className="text-violet-600 font-bold text-lg">
+                              {similarProduct.priceTTC.toFixed(2)} €
+                            </p>
+                          </div>
+                          <div className="flex flex-col items-end">
+                            {similarProduct.stock > 0 && (
+                              <span className="text-xs text-green-600 mb-1 flex items-center">
+                                <Check className="w-3 h-3 mr-1" />
+                                Stock: {similarProduct.stock}
+                              </span>
+                            )}
+                            <div className="bg-violet-50 text-violet-700 p-2 rounded-full group-hover:bg-violet-100 transition-colors transform group-hover:scale-110 duration-200 shadow-sm group-hover:shadow-md">
+                              <ShoppingCart className="w-4 h-4" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </Link>
                 ))}
               </div>
+              
+              {loadingSimilar && (
+                <div className="flex justify-center mt-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-violet-600"></div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -428,6 +568,204 @@ return (
   );
 
   
+};
+
+// Composant ZoomableImage pour le zoom interactif
+const ZoomableImage: React.FC<{
+  src: string;
+  alt: string;
+  fallbackSrc: string;
+}> = ({ src, alt, fallbackSrc }) => {
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [error, setError] = useState(false);
+  
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  
+  // Réinitialiser le zoom et la position
+  const resetZoom = () => {
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+  };
+  
+  // Gérer le zoom avant
+  const zoomIn = () => {
+    setScale(prev => Math.min(prev + 0.5, 5)); // Limite max de zoom: 5x
+  };
+  
+  // Gérer le zoom arrière
+  const zoomOut = () => {
+    setScale(prev => {
+      const newScale = Math.max(prev - 0.5, 1); // Limite min de zoom: 1x
+      if (newScale === 1) {
+        setPosition({ x: 0, y: 0 }); // Réinitialiser la position si on revient au zoom initial
+      }
+      return newScale;
+    });
+  };
+  
+  // Gérer le début du déplacement
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (scale > 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+    }
+  };
+  
+  // Gérer le déplacement
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && scale > 1) {
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      setPosition({ x: newX, y: newY });
+    }
+  };
+  
+  // Gérer la fin du déplacement
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+  
+  // Gérer le déplacement par toucher (mobile)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (scale > 1 && e.touches.length === 1) {
+      setIsDragging(true);
+      setDragStart({ 
+        x: e.touches[0].clientX - position.x, 
+        y: e.touches[0].clientY - position.y 
+      });
+    }
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isDragging && scale > 1 && e.touches.length === 1) {
+      const newX = e.touches[0].clientX - dragStart.x;
+      const newY = e.touches[0].clientY - dragStart.y;
+      setPosition({ x: newX, y: newY });
+      e.preventDefault(); // Empêcher le défilement de la page
+    }
+  };
+  
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+  
+  // Gérer le zoom avec la molette de la souris
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      zoomIn();
+    } else {
+      zoomOut();
+    }
+  };
+  
+  // Gérer les erreurs de chargement d'image
+  const handleImageError = () => {
+    setError(true);
+  };
+  
+  // Ajouter/supprimer les écouteurs d'événements globaux
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      setIsDragging(false);
+    };
+    
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    window.addEventListener('touchend', handleGlobalMouseUp);
+    
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, []);
+  
+  // Empêcher le défilement de la page lorsque le conteneur est survolé
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const preventScroll = (e: WheelEvent) => {
+      e.preventDefault();
+    };
+    
+    container.addEventListener('wheel', preventScroll, { passive: false });
+    
+    return () => {
+      container.removeEventListener('wheel', preventScroll);
+    };
+  }, []);
+  
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center overflow-hidden">
+      <div className="flex justify-center mb-4 space-x-3">
+        <button 
+          onClick={zoomOut}
+          disabled={scale === 1}
+          className={`bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300 ${scale === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          aria-label="Zoom arrière"
+        >
+          <Minus className="w-5 h-5" />
+        </button>
+        <button 
+          onClick={resetZoom}
+          disabled={scale === 1 && position.x === 0 && position.y === 0}
+          className={`bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300 ${scale === 1 && position.x === 0 && position.y === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          aria-label="Réinitialiser le zoom"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0z"></path>
+            <path d="M9 12h6"></path>
+          </svg>
+        </button>
+        <button 
+          onClick={zoomIn}
+          disabled={scale >= 5}
+          className={`bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300 ${scale >= 5 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          aria-label="Zoom avant"
+        >
+          <Plus className="w-5 h-5" />
+        </button>
+      </div>
+      
+      <div 
+        ref={containerRef}
+        className={`relative flex items-center justify-center overflow-hidden max-w-full max-h-[70vh] ${scale > 1 ? 'cursor-move' : 'cursor-zoom-in'}`}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onWheel={handleWheel}
+        onClick={() => scale === 1 && zoomIn()}
+      >
+        <div 
+          className="transition-transform duration-100"
+          style={{
+            transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+          }}
+        >
+          <img 
+            src={error ? fallbackSrc : src} 
+            alt={alt} 
+            className="max-h-[70vh] max-w-full object-contain select-none"
+            onError={handleImageError}
+            draggable="false"
+          />
+        </div>
+      </div>
+      
+      <div className="text-white/60 text-sm mt-4 text-center">
+        <p className="mb-1">Zoom: {Math.round(scale * 100)}%</p>
+        <p className="text-xs">
+          {scale > 1 ? "Cliquez et déplacez pour naviguer dans l'image" : "Cliquez sur l'image ou utilisez les boutons pour zoomer"}
+        </p>
+      </div>
+    </div>
+  );
 };
 
 export default ProductPage;
