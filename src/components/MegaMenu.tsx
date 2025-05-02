@@ -4,23 +4,19 @@ import { getAllCategories, type Category } from '../services/categoryService';
 
 interface MegaMenuProps {
   onLinkClick?: () => void;
+  activeCategory?: string | null;
 }
 
-const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
+const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick, activeCategory }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const data = await getAllCategories();
         setCategories(data);
-        // Définir la première catégorie comme active par défaut
-        if (data.length > 0) {
-          setActiveCategory(data[0].id);
-        }
       } catch (err) {
         setError('Erreur lors du chargement des catégories');
         console.error('Error fetching categories:', err);
@@ -45,8 +41,8 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
   };
 
   // Trouver la catégorie active
-  const getActiveCategory = () => {
-    return categories.find(cat => cat.id === activeCategory) || null;
+  const getActiveCategory = (id: string) => {
+    return categories.find(cat => cat.id === activeCategory) || (categories.length > 0 ? categories[0] : null);
   };
 
   if (isLoading) {
@@ -92,7 +88,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
     );
   }
 
-  const activeCat = getActiveCategory();
+  const activeCat = getActiveCategory(activeCategory || '');
   const activeSubcategories = activeCat?.subcategories || [];
 
   return (
@@ -110,7 +106,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
                     ? 'bg-violet-100 text-violet-800 font-medium shadow-sm' 
                     : 'hover:bg-gray-50'}
                 `}
-                onClick={() => setActiveCategory(category.id)}
+                onClick={() => getActiveCategory(category.id)}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-lg">{category.name}</span>

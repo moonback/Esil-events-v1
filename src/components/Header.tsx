@@ -10,6 +10,7 @@ import SearchResults from './SearchResults';
 import TopBar from './TopBar';
 import MobileSidebar from './MobileSidebar';
 import '../styles/header-animations.css';
+import { getAllCategories, type Category } from '../services/categoryService';
 // import UserMenu from './UserMenu';
 
 const Header: React.FC = () => {
@@ -20,6 +21,9 @@ const Header: React.FC = () => {
   // const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { items } = useCart();
   const { user, isAdminUser } = useAuth();
   const navigate = useNavigate();
@@ -33,6 +37,26 @@ const Header: React.FC = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  // Charger les catégories au montage du composant
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getAllCategories();
+        setCategories(data);
+        if (data.length > 0) {
+          setActiveCategory(data[0].id);
+        }
+      } catch (err) {
+        console.error('Erreur lors du chargement des catégories:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCategories();
   }, []);
   
 
@@ -183,30 +207,43 @@ const Header: React.FC = () => {
                   <Link to="/" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 border-b-2 border-transparent hover:border-primary-500 dark:hover:border-primary-400">
                     Accueil
                   </Link>
-                  <div className="relative group mega-menu-container">
-                    <button
-                      ref={megaMenuButtonRef}
-                      onClick={() => setShowMegaMenu(!showMegaMenu)}
-                      onMouseEnter={() => setShowMegaMenu(true)}
-                      onMouseLeave={() => setShowMegaMenu(false)}
-                      className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 flex items-center space-x-1 py-1 nav-link-border"
-                    >
-                      <span>Location matériel</span>
-                      <ChevronDown className={`w-4 h-4 ml-1 transition-transform duration-300 ${showMegaMenu ? 'rotate-180' : 'rotate-0'}`} />
-                    </button>
-                    {showMegaMenu && (
-                      <div
-                        className="fixed left-0 right-0 w-full bg-white/0 dark:bg-gray-900/95 backdrop-blur-md shadow-lg z-50 border-t border-gray-200/60 dark:border-gray-700/60 transition-all duration-300 animate-fadeIn"
-                        style={{ top: 'calc(var(--header-height) - 1px + 20px)' }}
-                        onMouseEnter={() => setShowMegaMenu(true)}
+                  
+                  {/* Affichage dynamique des catégories principales */}
+                  {categories.map((category) => (
+                    <div key={category.id} className="relative group mega-menu-container">
+                      <button
+                        onClick={() => {
+                          setActiveCategory(category.id);
+                          setShowMegaMenu(!showMegaMenu);
+                        }}
+                        onMouseEnter={() => {
+                          setActiveCategory(category.id);
+                          setShowMegaMenu(true);
+                        }}
                         onMouseLeave={() => setShowMegaMenu(false)}
+                        className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 flex items-center space-x-1 py-1 nav-link-border"
                       >
-                        <div className="max-w-7xl mx-auto px-4 py-6">
-                          <MegaMenu onLinkClick={() => setShowMegaMenu(false)} />
+                        <span>{category.name}</span>
+                        <ChevronDown className={`w-4 h-4 ml-1 transition-transform duration-300 ${showMegaMenu && activeCategory === category.id ? 'rotate-180' : 'rotate-0'}`} />
+                      </button>
+                      {showMegaMenu && activeCategory === category.id && (
+                        <div
+                          className="fixed left-0 right-0 w-full bg-white/0 dark:bg-gray-900/95 backdrop-blur-md shadow-lg z-50 border-t border-gray-200/60 dark:border-gray-700/60 transition-all duration-300 animate-fadeIn"
+                          style={{ top: 'calc(var(--header-height) - 1px + 20px)' }}
+                          onMouseEnter={() => setShowMegaMenu(true)}
+                          onMouseLeave={() => setShowMegaMenu(false)}
+                        >
+                          <div className="max-w-7xl mx-auto px-4 py-6">
+                            <MegaMenu 
+                              onLinkClick={() => setShowMegaMenu(false)} 
+                              activeCategory={activeCategory}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  ))}
+                  
                   <Link to="/artists" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     Artistes
                   </Link>
