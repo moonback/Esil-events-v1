@@ -27,10 +27,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
     const defaults: ProductFormData = {
       name: '',
       reference: '',
-      category: [], // Initialisé comme tableau vide pour plusieurs catégories
-      subCategory: [], // Initialisé comme tableau vide
-      subSubCategory: [], // Initialisé comme tableau vide
-      categoryRelations: [], // Nouvelle structure pour stocker les relations
+      category: '', // Initialisé vide, sera défini après chargement
+      subCategory: '', // Initialisé vide
+      subSubCategory: '', // Initialisé vide
       description: '',
       priceHT: 0,
       priceTTC: 0,
@@ -44,29 +43,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
       isAvailable: true
     };
     if (initialData) {
-      // Convertir les anciennes données au nouveau format si nécessaire
-      const categoryArray = Array.isArray(initialData.category) ? initialData.category : [initialData.category];
-      const subCategoryArray = Array.isArray(initialData.subCategory) ? initialData.subCategory : [initialData.subCategory];
-      const subSubCategoryArray = Array.isArray(initialData.subSubCategory) ? initialData.subSubCategory : [initialData.subSubCategory];
-      
-      // Créer les relations si elles n'existent pas déjà
-      const relations = initialData.categoryRelations || [];
-      if (relations.length === 0 && initialData.category && typeof initialData.category === 'string') {
-        relations.push({
-          category: initialData.category,
-          subCategory: typeof initialData.subCategory === 'string' ? initialData.subCategory : undefined,
-          subSubCategory: typeof initialData.subSubCategory === 'string' ? initialData.subSubCategory : undefined
-        });
-      }
-      
       return {
         ...defaults,
         name: initialData.name,
         reference: initialData.reference,
-        category: categoryArray,
-        subCategory: subCategoryArray,
-        subSubCategory: subSubCategoryArray,
-        categoryRelations: relations,
+        category: initialData.category, // Garder les slugs initiaux
+        subCategory: initialData.subCategory,
+        subSubCategory: initialData.subSubCategory,
         description: initialData.description,
         priceHT: initialData.priceHT,
         priceTTC: initialData.priceTTC,
@@ -82,13 +65,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
     }
     return defaults;
   });
-  
-  // État pour la catégorie actuellement en cours d'édition
-  const [currentCategoryRelation, setCurrentCategoryRelation] = useState<{
-    category: string;
-    subCategory?: string;
-    subSubCategory?: string;
-  }>({ category: '' });
 
   // --- Nouveaux états pour les catégories dynamiques ---
   const [dbCategories, setDbCategories] = useState<Category[]>([]);
@@ -187,12 +163,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
     setSelectedDbSubCategory(firstSubCategory); // Réinitialiser la sous-catégorie sélectionnée
     const firstSubSubCategorySlug = firstSubCategory?.subsubcategories?.[0]?.slug || '';
 
-    // Mettre à jour la catégorie en cours d'édition
-    setCurrentCategoryRelation({
+
+    setFormData(prev => ({
+      ...prev,
       category: newCategorySlug,
-      subCategory: firstSubCategory?.slug || '',
-      subSubCategory: firstSubSubCategorySlug
-    });
+      subCategory: firstSubCategory?.slug || '', // Prend le slug de la première sous-catégorie
+      subSubCategory: firstSubSubCategorySlug, // Prend le slug de la première sous-sous-catégorie
+    }));
   };
 
   const handleSubCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -202,82 +179,18 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
     setSelectedDbSubCategory(newSubCategory);
     const firstSubSubCategorySlug = newSubCategory?.subsubcategories?.[0]?.slug || '';
 
-    // Mettre à jour la sous-catégorie en cours d'édition
-    setCurrentCategoryRelation(prev => ({
+    setFormData(prev => ({
       ...prev,
       subCategory: newSubCategorySlug,
-      subSubCategory: firstSubSubCategorySlug
+      subSubCategory: firstSubSubCategorySlug, // Prend le slug de la première sous-sous-catégorie
     }));
   };
 
   const handleSubSubCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    // Mettre à jour la sous-sous-catégorie en cours d'édition
-    setCurrentCategoryRelation(prev => ({
+    setFormData(prev => ({
       ...prev,
-      subSubCategory: e.target.value
+      subSubCategory: e.target.value,
     }));
-  };
-  
-  // Nouvelle fonction pour ajouter une catégorie à la liste
-  const handleAddCategoryRelation = () => {
-    // Vérifier que la catégorie est sélectionnée
-    if (!currentCategoryRelation.category) return;
-    
-    // Vérifier si cette relation existe déjà
-    const relationExists = formData.categoryRelations?.some(
-      rel => rel.category === currentCategoryRelation.category && 
-             rel.subCategory === currentCategoryRelation.subCategory && 
-             rel.subSubCategory === currentCategoryRelation.subSubCategory
-    );
-    
-    if (relationExists) return; // Ne pas ajouter de doublons
-    
-    // Ajouter la nouvelle relation
-    setFormData(prev => {
-      // Extraire les slugs uniques pour les tableaux simples
-      const newCategory = [...new Set([...prev.category as string[], currentCategoryRelation.category])];
-      const newSubCategory = currentCategoryRelation.subCategory 
-        ? [...new Set([...prev.subCategory as string[], currentCategoryRelation.subCategory])]
-        : prev.subCategory;
-      const newSubSubCategory = currentCategoryRelation.subSubCategory 
-        ? [...new Set([...prev.subSubCategory as string[], currentCategoryRelation.subSubCategory])]
-        : prev.subSubCategory;
-      
-      return {
-        ...prev,
-        category: newCategory,
-        subCategory: newSubCategory,
-        subSubCategory: newSubSubCategory,
-        categoryRelations: [...(prev.categoryRelations || []), { ...currentCategoryRelation }]
-      };
-    });
-    
-    // Réinitialiser le formulaire de sélection pour la prochaine catégorie
-    setCurrentCategoryRelation({ category: '' });
-    setSelectedDbCategory(null);
-    setSelectedDbSubCategory(null);
-  };
-  
-  // Fonction pour supprimer une relation de catégorie
-  const handleRemoveCategoryRelation = (index: number) => {
-    setFormData(prev => {
-      const newRelations = [...(prev.categoryRelations || [])];
-      const removedRelation = newRelations[index];
-      newRelations.splice(index, 1);
-      
-      // Recalculer les tableaux de slugs uniques
-      const categorySet = new Set(newRelations.map(rel => rel.category));
-      const subCategorySet = new Set(newRelations.map(rel => rel.subCategory).filter(Boolean) as string[]);
-      const subSubCategorySet = new Set(newRelations.map(rel => rel.subSubCategory).filter(Boolean) as string[]);
-      
-      return {
-        ...prev,
-        category: Array.from(categorySet),
-        subCategory: Array.from(subCategorySet),
-        subSubCategory: Array.from(subSubCategorySet),
-        categoryRelations: newRelations
-      };
-    });
   };
 
   // (Les fonctions validateFile, handleImageUpload, handleRemoveImage, etc., restent inchangées)
@@ -442,7 +355,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
     setError(''); // Clear previous main errors
 
     // Basic validation
-    if (!formData.name || !formData.reference || !formData.categoryRelations || formData.categoryRelations.length === 0) {
+    if (!formData.name || !formData.reference || !formData.category || !formData.subCategory || !formData.subSubCategory) {
       setError('Veuillez remplir tous les champs obligatoires (Nom, Référence, Catégories)');
       return;
     }
@@ -546,173 +459,83 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
           </svg>
           Catégorisation du produit
         </h2>
-        
-        {/* Liste des catégories déjà sélectionnées */}
-        {formData.categoryRelations && formData.categoryRelations.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Catégories sélectionnées:</h3>
-            <div className="space-y-2">
-              {formData.categoryRelations.map((relation, index) => {
-                // Trouver les noms correspondants aux slugs
-                const category = dbCategories.find(cat => cat.slug === relation.category);
-                const subCategory = category?.subcategories?.find(sub => sub.slug === relation.subCategory);
-                const subSubCategory = subCategory?.subsubcategories?.find(ssub => ssub.slug === relation.subSubCategory);
-                
-                return (
-                  <div key={index} className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                    <div className="flex-1">
-                      <span className="font-medium text-violet-600">{category?.name || relation.category}</span>
-                      {relation.subCategory && (
-                        <>
-                          <span className="mx-2 text-gray-400">›</span>
-                          <span className="text-gray-700">{subCategory?.name || relation.subCategory}</span>
-                        </>
-                      )}
-                      {relation.subSubCategory && (
-                        <>
-                          <span className="mx-2 text-gray-400">›</span>
-                          <span className="text-gray-700">{subSubCategory?.name || relation.subSubCategory}</span>
-                        </>
-                      )}
-                    </div>
-                    <button 
-                      type="button" 
-                      onClick={() => handleRemoveCategoryRelation(index)}
-                      className="text-red-500 hover:text-red-700 transition-colors duration-200"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-        
-        {/* Formulaire d'ajout de catégorie */}
-        <div className="border-t border-gray-200 pt-4 mt-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Ajouter une nouvelle catégorie:</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-4">
-            <div className="transition-all duration-200 hover:shadow-md rounded-lg p-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-              <div className="relative">
-                <select
-                  value={currentCategoryRelation.category}
-                  onChange={(e) => {
-                    const newCategorySlug = e.target.value;
-                    const newCategory = dbCategories.find(cat => cat.slug === newCategorySlug) || null;
-                    setSelectedDbCategory(newCategory);
-                    
-                    const firstSubCategory = newCategory?.subcategories?.[0] || null;
-                    setSelectedDbSubCategory(firstSubCategory);
-                    
-                    const firstSubSubCategorySlug = firstSubCategory?.subsubcategories?.[0]?.slug || '';
-                    
-                    setCurrentCategoryRelation({
-                      category: newCategorySlug,
-                      subCategory: firstSubCategory?.slug || '',
-                      subSubCategory: firstSubSubCategorySlug
-                    });
-                  }}
-                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200 appearance-none pr-10"
-                  disabled={dbCategories.length === 0}
-                >
-                  <option value="" disabled>Sélectionnez...</option>
-                  {dbCategories.map(category => (
-                    <option key={category.id} value={category.slug}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div className="transition-all duration-200 hover:shadow-md rounded-lg p-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sous-catégorie</label>
-              <div className="relative">
-                <select
-                  value={currentCategoryRelation.subCategory}
-                  onChange={(e) => {
-                    const newSubCategorySlug = e.target.value;
-                    const newSubCategory = selectedDbCategory?.subcategories?.find(sub => sub.slug === newSubCategorySlug) || null;
-                    setSelectedDbSubCategory(newSubCategory);
-                    
-                    const firstSubSubCategorySlug = newSubCategory?.subsubcategories?.[0]?.slug || '';
-                    
-                    setCurrentCategoryRelation(prev => ({
-                      ...prev,
-                      subCategory: newSubCategorySlug,
-                      subSubCategory: firstSubSubCategorySlug
-                    }));
-                  }}
-                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200 appearance-none pr-10"
-                  disabled={!selectedDbCategory || !selectedDbCategory.subcategories || selectedDbCategory.subcategories.length === 0}
-                >
-                  <option value="" disabled>Sélectionnez...</option>
-                  {selectedDbCategory?.subcategories?.map(subCat => (
-                    <option key={subCat.id} value={subCat.slug}>
-                      {subCat.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div className="transition-all duration-200 hover:shadow-md rounded-lg p-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sous-sous-catégorie</label>
-              <div className="relative">
-                <select
-                  value={currentCategoryRelation.subSubCategory}
-                  onChange={(e) => {
-                    setCurrentCategoryRelation(prev => ({
-                      ...prev,
-                      subSubCategory: e.target.value
-                    }));
-                  }}
-                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200 appearance-none pr-10"
-                  disabled={!selectedDbSubCategory || !selectedDbSubCategory.subsubcategories || selectedDbSubCategory.subsubcategories.length === 0}
-                >
-                  <option value="" disabled>Sélectionnez...</option>
-                  {selectedDbSubCategory?.subsubcategories?.map(subSubCat => (
-                    <option key={subSubCat.id} value={subSubCat.slug}>
-                      {subSubCat.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                  </svg>
-                </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="transition-all duration-200 hover:shadow-md rounded-lg p-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+            <div className="relative">
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleCategoryChange}
+                required
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200 appearance-none pr-10"
+                disabled={dbCategories.length === 0}
+              >
+                <option value="" disabled>Sélectionnez...</option>
+                {dbCategories.map(category => (
+                  <option key={category.id} value={category.slug}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
               </div>
             </div>
           </div>
-          
-          {/* Bouton d'ajout */}
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={handleAddCategoryRelation}
-              disabled={!currentCategoryRelation.category}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-              </svg>
-              Ajouter cette catégorie
-            </button>
+
+          <div className="transition-all duration-200 hover:shadow-md rounded-lg p-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sous-catégorie</label>
+            <div className="relative">
+              <select
+                name="subCategory"
+                value={formData.subCategory}
+                onChange={handleSubCategoryChange}
+                required
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200 appearance-none pr-10"
+                disabled={!selectedDbCategory || !selectedDbCategory.subcategories || selectedDbCategory.subcategories.length === 0}
+              >
+                <option value="" disabled>Sélectionnez...</option>
+                {selectedDbCategory?.subcategories?.map(subCat => (
+                  <option key={subCat.id} value={subCat.slug}>
+                    {subCat.name}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="transition-all duration-200 hover:shadow-md rounded-lg p-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sous-sous-catégorie</label>
+            <div className="relative">
+              <select
+                name="subSubCategory"
+                value={formData.subSubCategory}
+                onChange={handleSubSubCategoryChange}
+                required
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200 appearance-none pr-10"
+                disabled={!selectedDbSubCategory || !selectedDbSubCategory.subsubcategories || selectedDbSubCategory.subsubcategories.length === 0}
+              >
+                <option value="" disabled>Sélectionnez...</option>
+                {selectedDbSubCategory?.subsubcategories?.map(subSubCat => (
+                  <option key={subSubCat.id} value={subSubCat.slug}>
+                    {subSubCat.name}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
       </div>
