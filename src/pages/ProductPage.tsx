@@ -420,6 +420,9 @@ return (
           {zoomOpen && product.images && product.images.length > 0 && (
             <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 md:p-8">
               <div className="relative w-full h-full flex flex-col">
+                <div className="absolute top-4 left-4 bg-white/10 text-white/80 px-3 py-1 rounded-lg text-sm">
+                  <span>Mode zoom interactif</span>
+                </div>
                 <button 
                   onClick={() => setZoomOpen(false)}
                   className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300 z-10"
@@ -428,18 +431,12 @@ return (
                   <X className="w-6 h-6" />
                 </button>
                 
-                <div className="flex-1 flex items-center justify-center overflow-hidden">
-                  <div className="relative w-full h-full flex items-center justify-center">
-                    <img 
-                      src={product.images[currentImageIndex]} 
-                      alt={product.name} 
-                      className="max-w-full max-h-full object-contain"
-                      onError={(e) => {
-                        e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
-                      }}
-                    />
-                  </div>
-                </div>
+                {/* Utilisation du composant ZoomableImage pour le zoom interactif */}
+                <ZoomableImage 
+                  src={product.images[currentImageIndex]} 
+                  alt={product.name}
+                  fallbackSrc={DEFAULT_PRODUCT_IMAGE}
+                />
                 
                 {product.images.length > 1 && (
                   <div className="flex justify-center mt-4 space-x-2">
@@ -450,6 +447,9 @@ return (
                     >
                       <ChevronLeft className="w-6 h-6" />
                     </button>
+                    <span className="text-white/70 flex items-center px-3">
+                      {currentImageIndex + 1} / {product.images.length}
+                    </span>
                     <button 
                       onClick={() => setCurrentImageIndex(prev => (prev === product.images.length - 1 ? 0 : prev + 1))}
                       className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300"
@@ -459,6 +459,10 @@ return (
                     </button>
                   </div>
                 )}
+                
+                <div className="absolute bottom-4 left-4 right-4 text-center text-white/60 text-xs md:text-sm bg-black/30 p-2 rounded-lg">
+                  <p>Utilisez la molette de la souris ou les boutons pour zoomer • Cliquez et déplacez pour naviguer dans l'image zoomée</p>
+                </div>
               </div>
             </div>
           )}
@@ -564,6 +568,204 @@ return (
   );
 
   
+};
+
+// Composant ZoomableImage pour le zoom interactif
+const ZoomableImage: React.FC<{
+  src: string;
+  alt: string;
+  fallbackSrc: string;
+}> = ({ src, alt, fallbackSrc }) => {
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [error, setError] = useState(false);
+  
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  
+  // Réinitialiser le zoom et la position
+  const resetZoom = () => {
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+  };
+  
+  // Gérer le zoom avant
+  const zoomIn = () => {
+    setScale(prev => Math.min(prev + 0.5, 5)); // Limite max de zoom: 5x
+  };
+  
+  // Gérer le zoom arrière
+  const zoomOut = () => {
+    setScale(prev => {
+      const newScale = Math.max(prev - 0.5, 1); // Limite min de zoom: 1x
+      if (newScale === 1) {
+        setPosition({ x: 0, y: 0 }); // Réinitialiser la position si on revient au zoom initial
+      }
+      return newScale;
+    });
+  };
+  
+  // Gérer le début du déplacement
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (scale > 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+    }
+  };
+  
+  // Gérer le déplacement
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && scale > 1) {
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      setPosition({ x: newX, y: newY });
+    }
+  };
+  
+  // Gérer la fin du déplacement
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+  
+  // Gérer le déplacement par toucher (mobile)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (scale > 1 && e.touches.length === 1) {
+      setIsDragging(true);
+      setDragStart({ 
+        x: e.touches[0].clientX - position.x, 
+        y: e.touches[0].clientY - position.y 
+      });
+    }
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isDragging && scale > 1 && e.touches.length === 1) {
+      const newX = e.touches[0].clientX - dragStart.x;
+      const newY = e.touches[0].clientY - dragStart.y;
+      setPosition({ x: newX, y: newY });
+      e.preventDefault(); // Empêcher le défilement de la page
+    }
+  };
+  
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+  
+  // Gérer le zoom avec la molette de la souris
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      zoomIn();
+    } else {
+      zoomOut();
+    }
+  };
+  
+  // Gérer les erreurs de chargement d'image
+  const handleImageError = () => {
+    setError(true);
+  };
+  
+  // Ajouter/supprimer les écouteurs d'événements globaux
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      setIsDragging(false);
+    };
+    
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    window.addEventListener('touchend', handleGlobalMouseUp);
+    
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, []);
+  
+  // Empêcher le défilement de la page lorsque le conteneur est survolé
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const preventScroll = (e: WheelEvent) => {
+      e.preventDefault();
+    };
+    
+    container.addEventListener('wheel', preventScroll, { passive: false });
+    
+    return () => {
+      container.removeEventListener('wheel', preventScroll);
+    };
+  }, []);
+  
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center overflow-hidden">
+      <div className="flex justify-center mb-4 space-x-3">
+        <button 
+          onClick={zoomOut}
+          disabled={scale === 1}
+          className={`bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300 ${scale === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          aria-label="Zoom arrière"
+        >
+          <Minus className="w-5 h-5" />
+        </button>
+        <button 
+          onClick={resetZoom}
+          disabled={scale === 1 && position.x === 0 && position.y === 0}
+          className={`bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300 ${scale === 1 && position.x === 0 && position.y === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          aria-label="Réinitialiser le zoom"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0z"></path>
+            <path d="M9 12h6"></path>
+          </svg>
+        </button>
+        <button 
+          onClick={zoomIn}
+          disabled={scale >= 5}
+          className={`bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300 ${scale >= 5 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          aria-label="Zoom avant"
+        >
+          <Plus className="w-5 h-5" />
+        </button>
+      </div>
+      
+      <div 
+        ref={containerRef}
+        className={`relative flex items-center justify-center overflow-hidden max-w-full max-h-[70vh] ${scale > 1 ? 'cursor-move' : 'cursor-zoom-in'}`}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onWheel={handleWheel}
+        onClick={() => scale === 1 && zoomIn()}
+      >
+        <div 
+          className="transition-transform duration-100"
+          style={{
+            transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+          }}
+        >
+          <img 
+            src={error ? fallbackSrc : src} 
+            alt={alt} 
+            className="max-h-[70vh] max-w-full object-contain select-none"
+            onError={handleImageError}
+            draggable="false"
+          />
+        </div>
+      </div>
+      
+      <div className="text-white/60 text-sm mt-4 text-center">
+        <p className="mb-1">Zoom: {Math.round(scale * 100)}%</p>
+        <p className="text-xs">
+          {scale > 1 ? "Cliquez et déplacez pour naviguer dans l'image" : "Cliquez sur l'image ou utilisez les boutons pour zoomer"}
+        </p>
+      </div>
+    </div>
+  );
 };
 
 export default ProductPage;
