@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, ShoppingCart, Star, Clock, Tag, Truck, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, ShoppingCart, Star, Clock, Tag, Truck, Check, ZoomIn, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { getProductById, getSimilarProducts } from '../services/productService';
 import { Product } from '../types/Product';
@@ -16,6 +16,7 @@ const ProductPage: React.FC = () => {
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [zoomOpen, setZoomOpen] = useState(false);
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -162,14 +163,26 @@ return (
             <div className="bg-white rounded-2xl shadow-xl p-4 md:p-8">
               <div className="relative aspect-square md:aspect-[4/3] overflow-hidden rounded-xl">
                 {product.images && product.images.length > 0 ? (
-                  <img 
-                    src={product.images[currentImageIndex]} 
-                    alt={product.name} 
-                    className="w-full h-full object-contain transition-opacity duration-300"
-                    onError={(e) => {
-                      e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
-                    }}
-                  />
+                  <div className="relative w-full h-full group">
+                    <img 
+                      src={product.images[currentImageIndex]} 
+                      alt={product.name} 
+                      className="w-full h-full object-contain transition-opacity duration-300 cursor-zoom-in"
+                      onClick={() => setZoomOpen(true)}
+                      onError={(e) => {
+                        e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
+                      }}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <button 
+                        onClick={() => setZoomOpen(true)}
+                        className="bg-violet-600/80 text-white p-3 rounded-full hover:bg-violet-700 transition-all duration-300 transform hover:scale-110"
+                        aria-label="Zoomer l'image"
+                      >
+                        <ZoomIn className="w-6 h-6" />
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   <img 
                     src={DEFAULT_PRODUCT_IMAGE} 
@@ -401,7 +414,54 @@ return (
                 <Check className="w-5 h-5" />
                 <span className="font-medium">Produit ajouté au devis avec succès !</span>
               </div>
-            )}
+          )}
+          
+          {/* Image Zoom Modal */}
+          {zoomOpen && product.images && product.images.length > 0 && (
+            <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 md:p-8">
+              <div className="relative w-full h-full flex flex-col">
+                <button 
+                  onClick={() => setZoomOpen(false)}
+                  className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300 z-10"
+                  aria-label="Fermer le zoom"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+                
+                <div className="flex-1 flex items-center justify-center overflow-hidden">
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <img 
+                      src={product.images[currentImageIndex]} 
+                      alt={product.name} 
+                      className="max-w-full max-h-full object-contain"
+                      onError={(e) => {
+                        e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
+                      }}
+                    />
+                  </div>
+                </div>
+                
+                {product.images.length > 1 && (
+                  <div className="flex justify-center mt-4 space-x-2">
+                    <button 
+                      onClick={() => setCurrentImageIndex(prev => (prev === 0 ? product.images.length - 1 : prev - 1))}
+                      className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300"
+                      aria-label="Image précédente"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button 
+                      onClick={() => setCurrentImageIndex(prev => (prev === product.images.length - 1 ? 0 : prev + 1))}
+                      className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300"
+                      aria-label="Image suivante"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           {/* Similar Products */}
           {similarProducts.length > 0 && (
             <div className="pt-12 pb-8">
