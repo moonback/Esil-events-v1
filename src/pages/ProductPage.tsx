@@ -59,7 +59,6 @@ const ProductPage: React.FC = () => {
       
       setLoadingSimilar(true);
       try {
-        // Récupérer 6 produits similaires au lieu de 4 pour avoir plus de choix
         const similar = await getSimilarProducts(product, 8);
         setSimilarProducts(similar);
         console.log('Similar products loaded:', similar.length);
