@@ -41,27 +41,37 @@ const ProductPage: React.FC = () => {
           setSelectedColor(productData.colors[0]);
         }
         
-        // Récupérer les produits similaires
-        if (productData) {
-          setLoadingSimilar(true);
-          try {
-            const similar = await getSimilarProducts(productData);
-            setSimilarProducts(similar);
-          } catch (error) {
-            console.error('Error fetching similar products:', error);
-          } finally {
-            setLoadingSimilar(false);
-          }
-        }
+        // Récupérer les produits similaires séparément pour ne pas bloquer l'affichage du produit principal
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching product:', error);
-      } finally {
         setLoading(false);
       }
     };
 
     fetchProduct();
   }, [id]);
+  
+  // Effet séparé pour charger les produits similaires
+  useEffect(() => {
+    const fetchSimilarProducts = async () => {
+      if (!product) return;
+      
+      setLoadingSimilar(true);
+      try {
+        // Récupérer 6 produits similaires au lieu de 4 pour avoir plus de choix
+        const similar = await getSimilarProducts(product, 8);
+        setSimilarProducts(similar);
+        console.log('Similar products loaded:', similar.length);
+      } catch (error) {
+        console.error('Error fetching similar products:', error);
+      } finally {
+        setLoadingSimilar(false);
+      }
+    };
+
+    fetchSimilarProducts();
+  }, [product]);
 
   const handlePrevImage = () => {
     if (!product) return;
@@ -395,31 +405,72 @@ return (
             )}
           {/* Similar Products */}
           {similarProducts.length > 0 && (
-            <div className="pt-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-8">Produits similaires</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="pt-12 pb-8">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Produits similaires</h2>
+                  <p className="text-gray-600 mt-1">D'autres produits qui pourraient vous intéresser</p>
+                </div>
+                {similarProducts.length > 4 && (
+                  <Link 
+                    to={`/products/${product.category}`}
+                    className="text-violet-600 hover:text-violet-800 font-medium flex items-center transition-colors"
+                  >
+                    Voir plus <ChevronRight className="w-4 h-4 ml-1" />
+                  </Link>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                 {similarProducts.map((similarProduct) => (
                   <Link 
                     to={`/product/${similarProduct.id}`} 
                     key={similarProduct.id}
-                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1"
+                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group"
                   >
-                    <div className="aspect-[4/3]">
+                    <div className="aspect-[4/3] relative overflow-hidden">
                       <img 
                         src={similarProduct.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
                         alt={similarProduct.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        onError={(e) => {
+                          e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
+                        }}
                       />
+                      {similarProduct.category && (
+                        <div className="absolute top-3 left-3 bg-violet-600 text-white text-xs px-2 py-1 rounded-md font-medium">
+                          {similarProduct.category.charAt(0).toUpperCase() + similarProduct.category.slice(1)}
+                        </div>
+                      )}
                     </div>
-                    <div className="p-6">
-                      <h3 className="font-semibold text-gray-900 text-lg mb-2">{similarProduct.name}</h3>
-                      <p className="text-violet-600 font-bold">
-                        {similarProduct.priceTTC.toFixed(2)} € TTC/jour
-                      </p>
+                    <div className="p-5">
+                      <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-violet-600 transition-colors">
+                        {similarProduct.name}
+                      </h3>
+                      <div className="flex justify-between items-center mt-3">
+                        <p className="text-violet-600 font-bold">
+                          {similarProduct.priceTTC.toFixed(2)} € TTC/jour
+                        </p>
+                        <div className="bg-violet-50 text-violet-700 p-1.5 rounded-full group-hover:bg-violet-100 transition-colors">
+                          <ShoppingCart className="w-4 h-4" />
+                        </div>
+                      </div>
+                      {similarProduct.subCategory && (
+                        <div className="mt-3 text-xs text-gray-500">
+                          {similarProduct.subCategory.charAt(0).toUpperCase() + similarProduct.subCategory.slice(1)}
+                          {similarProduct.subSubCategory && ` › ${similarProduct.subSubCategory}`}
+                        </div>
+                      )}
                     </div>
                   </Link>
                 ))}
               </div>
+              
+              {loadingSimilar && (
+                <div className="flex justify-center mt-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-violet-600"></div>
+                </div>
+              )}
             </div>
           )}
         </div>

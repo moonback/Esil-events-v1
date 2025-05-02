@@ -349,33 +349,83 @@ export const getProductById = async (id: string): Promise<Product | null> => {
   }
 };
 
-// Fetch similar products based on category and subcategory
+// Fetch similar products based on multiple criteria with relevance scoring
 export const getSimilarProducts = async (product: Product, limit: number = 4): Promise<Product[]> => {
   try {
     console.log('Fetching similar products for:', product.id);
     
-    // First try to get products from the same subcategory
-    let { data, error } = await supabase
+    // First check if the product has explicitly defined related products
+    if (product.relatedProducts && product.relatedProducts.length > 0) {
+      console.log('Using explicitly defined related products');
+      
+      // Fetch the related products by their IDs
+      const { data: relatedData, error: relatedError } = await supabase
+        .from('products')
+        .select('*')
+        .in('id', product.relatedProducts)
+        .limit(limit);
+      
+      if (!relatedError && relatedData && relatedData.length > 0) {
+        // Format and return the explicitly related products
+        const formattedRelatedData = formatProductData(relatedData);
+        console.log('Explicitly related products fetched successfully:', formattedRelatedData.length);
+        return formattedRelatedData;
+      }
+    }
+    
+    // If no explicit related products or they couldn't be fetched, use similarity algorithm
+    
+    // First try to get products from the same subcategory and subSubCategory if available
+    let query = supabase
       .from('products')
       .select('*')
       .eq('category', product.category)
-      .eq('sub_category', product.subCategory)
-      .neq('id', product.id) // Exclude the current product
-      .limit(limit);
+      .neq('id', product.id); // Exclude the current product
+    
+    // Add subcategory filter if available
+    if (product.subCategory) {
+      query = query.eq('sub_category', product.subCategory);
+    }
+    
+    // Add sub-subcategory filter if available
+    if (product.subSubCategory) {
+      query = query.eq('sub_sub_category', product.subSubCategory);
+    }
+    
+    let { data, error } = await query.limit(limit * 2); // Get more than needed for better sorting
 
-    // If not enough products found in the same subcategory, get more from the same category
+    // If not enough products found in the same exact categories, broaden the search
     if (!error && (!data || data.length < limit)) {
-      const neededMore = limit - (data?.length || 0);
-      const { data: moreData, error: moreError } = await supabase
-        .from('products')
-        .select('*')
-        .eq('category', product.category)
-        .neq('sub_category', product.subCategory) // Different subcategory
-        .neq('id', product.id) // Exclude the current product
-        .limit(neededMore);
+      // Try with just the same category and subcategory
+      if (product.subSubCategory) {
+        const { data: moreData, error: moreError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('category', product.category)
+          .eq('sub_category', product.subCategory)
+          .neq('sub_sub_category', product.subSubCategory) // Different sub-subcategory
+          .neq('id', product.id)
+          .limit(limit);
 
-      if (!moreError && moreData) {
-        data = [...(data || []), ...moreData];
+        if (!moreError && moreData) {
+          data = [...(data || []), ...moreData];
+        }
+      }
+      
+      // If still not enough, try with just the same category
+      if (!error && (!data || data.length < limit) && product.subCategory) {
+        const neededMore = limit - (data?.length || 0);
+        const { data: evenMoreData, error: evenMoreError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('category', product.category)
+          .neq('sub_category', product.subCategory) // Different subcategory
+          .neq('id', product.id)
+          .limit(neededMore);
+
+        if (!evenMoreError && evenMoreData) {
+          data = [...(data || []), ...evenMoreData];
+        }
       }
     }
 
@@ -390,35 +440,98 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
     }
 
     // Convert snake_case to camelCase
-    const formattedData = data.map((product) => ({
-      id: product.id,
-      name: product.name,
-      reference: product.reference,
-      category: product.category,
-      subCategory: product.sub_category,
-      subSubCategory: product.sub_sub_category || '',
-      description: product.description,
-      priceHT: parseFloat(product.price_ht),
-      priceTTC: parseFloat(product.price_ttc),
-      stock: product.stock,
-      isAvailable: product.is_available,
-      createdAt: new Date(product.created_at),
-      updatedAt: new Date(product.updated_at),
-      images: product.images || [],
-      mainImageIndex: product.main_image_index,
-      colors: product.colors || [],
-      relatedProducts: product.related_products || [],
-      technicalSpecs: product.technical_specs || {},
-      technicalDocUrl: product.technical_doc_url || null,
-      videoUrl: product.video_url || null
-    }));
-
-    console.log('Similar products fetched successfully:', formattedData.length);
-    return formattedData;
+    const formattedData = formatProductData(data);
+    
+    // Score and sort products by relevance
+    const scoredProducts = formattedData.map(similarProduct => {
+      let score = 0;
+      
+      // Base score for being in the same category
+      score += 10;
+      
+      // Additional score for same subcategory
+      if (similarProduct.subCategory === product.subCategory) {
+        score += 20;
+      }
+      
+      // Additional score for same sub-subcategory
+      if (similarProduct.subSubCategory && similarProduct.subSubCategory === product.subSubCategory) {
+        score += 30;
+      }
+      
+      // Price similarity (closer prices get higher scores)
+      const priceDifference = Math.abs(similarProduct.priceTTC - product.priceTTC);
+      const priceRatio = priceDifference / product.priceTTC;
+      if (priceRatio < 0.1) { // Within 10% price range
+        score += 15;
+      } else if (priceRatio < 0.3) { // Within 30% price range
+        score += 10;
+      } else if (priceRatio < 0.5) { // Within 50% price range
+        score += 5;
+      }
+      
+      // Similar technical specs (if available)
+      if (product.technicalSpecs && similarProduct.technicalSpecs) {
+        const productSpecsKeys = Object.keys(product.technicalSpecs);
+        const similarSpecsKeys = Object.keys(similarProduct.technicalSpecs);
+        
+        // Count matching spec keys
+        const matchingKeys = productSpecsKeys.filter(key => similarSpecsKeys.includes(key));
+        if (matchingKeys.length > 0) {
+          score += 5 + (matchingKeys.length * 2); // Base + 2 points per matching spec key
+        }
+      }
+      
+      // Similar colors (if available)
+      if (product.colors && product.colors.length > 0 && 
+          similarProduct.colors && similarProduct.colors.length > 0) {
+        const matchingColors = product.colors.filter(color => 
+          similarProduct.colors?.includes(color));
+        if (matchingColors.length > 0) {
+          score += 5 + (matchingColors.length * 3); // Base + 3 points per matching color
+        }
+      }
+      
+      return { ...similarProduct, relevanceScore: score };
+    });
+    
+    // Sort by relevance score (highest first) and limit to requested number
+    const sortedProducts = scoredProducts
+      .sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
+      .slice(0, limit);
+    
+    console.log('Similar products fetched and sorted by relevance:', sortedProducts.length);
+    return sortedProducts;
   } catch (error) {
     console.error('Error fetching similar products:', error);
     return [];
   }
+};
+
+// Helper function to format product data from database format to application format
+const formatProductData = (data: any[]): Product[] => {
+  return data.map((product) => ({
+    id: product.id,
+    name: product.name,
+    reference: product.reference,
+    category: product.category,
+    subCategory: product.sub_category,
+    subSubCategory: product.sub_sub_category || '',
+    description: product.description,
+    priceHT: parseFloat(product.price_ht),
+    priceTTC: parseFloat(product.price_ttc),
+    stock: product.stock,
+    isAvailable: product.is_available,
+    createdAt: new Date(product.created_at),
+    updatedAt: new Date(product.updated_at),
+    images: product.images || [],
+    mainImageIndex: product.main_image_index,
+    colors: product.colors || [],
+    relatedProducts: product.related_products || [],
+    technicalSpecs: product.technical_specs || {},
+    technicalDocUrl: product.technical_doc_url || null,
+    videoUrl: product.video_url || null
+  }));
 };
 
 // Create a new product
