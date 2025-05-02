@@ -882,7 +882,26 @@ export const updateProduct = async (id: string, product: Partial<Product>): Prom
 // Delete a product
 export const deleteProduct = async (id: string): Promise<void> => {
   try {
-    console.log('Deleting product from Supabase...');
+    console.log('Deleting product from Supabase...', id);
+    
+    // Vérifier que le produit existe avant de le supprimer
+    const { data: productExists, error: checkError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', id)
+      .maybeSingle();
+      
+    if (checkError) {
+      console.error('Error checking product existence:', checkError);
+      throw new Error(`Failed to check product existence: ${checkError.message}`);
+    }
+    
+    if (!productExists) {
+      console.warn(`Product with ID ${id} does not exist, nothing to delete`);
+      return;
+    }
+    
+    // Supprimer le produit
     const { error } = await supabase
       .from('products')
       .delete()
@@ -892,8 +911,25 @@ export const deleteProduct = async (id: string): Promise<void> => {
       console.error('Error deleting product:', error);
       throw new Error(`Failed to delete product: ${error.message}`);
     }
+    
+    // Vérifier que le produit a bien été supprimé
+    const { data: verifyProduct, error: verifyError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', id)
+      .maybeSingle();
+      
+    if (verifyError) {
+      console.error('Error verifying product deletion:', verifyError);
+      throw new Error(`Failed to verify product deletion: ${verifyError.message}`);
+    }
+    
+    if (verifyProduct) {
+      console.error(`Product with ID ${id} still exists after deletion attempt`);
+      throw new Error('Failed to delete product: Product still exists in database');
+    }
 
-    console.log('Product deleted successfully');
+    console.log('Product deleted successfully and verified from database');
   } catch (error) {
     console.error('Error in deleteProduct:', error);
     throw error;

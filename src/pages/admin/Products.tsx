@@ -71,10 +71,27 @@ const AdminProducts: React.FC = () => {
 
     try {
       await deleteProduct(id);
+      // Mettre à jour la liste des produits en retirant le produit supprimé
       setProducts(products.filter(p => p.id !== id));
-    } catch (err) {
-      setError('Erreur lors de la suppression du produit');
-      console.error(err);
+      // Afficher un message de succès temporaire
+      setError(''); // Effacer les erreurs précédentes
+      const successMessage = document.createElement('div');
+      successMessage.className = 'fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50 animate-fade-in';
+      successMessage.innerHTML = 'Produit supprimé avec succès de la base de données';
+      document.body.appendChild(successMessage);
+      
+      // Supprimer le message après 3 secondes
+      setTimeout(() => {
+        if (document.body.contains(successMessage)) {
+          document.body.removeChild(successMessage);
+        }
+      }, 3000);
+      
+      // Recharger la liste des produits pour s'assurer que tout est à jour
+      await loadProducts();
+    } catch (err: any) {
+      setError(`Erreur lors de la suppression du produit: ${err.message || 'Erreur inconnue'}`);
+      console.error('Erreur de suppression:', err);
     }
   };
 
