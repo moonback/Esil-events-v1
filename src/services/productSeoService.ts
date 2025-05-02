@@ -25,7 +25,7 @@ export const prepareProductSeoPrompt = (
 ) => {
   const systemMessage = {
     role: "system",
-    content: "Tu es un expert en SEO spécialisé dans l'optimisation de contenu pour les sites e-commerce d'événementiel. Tu excelles dans la création de métadonnées SEO pour des produits de location destinés aux événements professionnels et particuliers. Tu comprends parfaitement les intentions de recherche des organisateurs d'événements et sais comment optimiser le contenu pour maximiser la visibilité dans les moteurs de recherche tout en maintenant un taux de conversion élevé."
+    content: "Tu es un expert en SEO spécialisé dans l'optimisation de contenu pour les sites de location journalier d'événementiel. Tu excelles dans la création de métadonnées SEO pour des produits de location destinés aux événements professionnels et particuliers.Votre événement de A à Z : Location, Installation, Régie Son & Lumière, Animation. Tu comprends parfaitement les intentions de recherche des organisateurs d'événements et sais comment optimiser le contenu pour maximiser la visibilité dans les moteurs de recherche tout en maintenant un taux de conversion élevé."
   };
 
   // Déterminer le contexte de catégorie pour enrichir le prompt
