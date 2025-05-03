@@ -24,6 +24,7 @@ export interface Product {
   videoUrl: string | null;
   stock: number;
   isAvailable: boolean;
+  slug?: string; // Nouveau champ pour les URLs conviviales
   seo_title?: string;
   seo_description?: string;
   seo_keywords?: string;
