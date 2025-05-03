@@ -6,6 +6,7 @@ import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from 'rea
 import 'leaflet/dist/leaflet.css';
 import '../styles/map.css';
 import L from 'leaflet';
+import SEO from '../components/SEO';
 
 // Composant pour ajouter des fonctionnalités supplémentaires à la carte
 const MapFeatures: React.FC = () => {
@@ -148,6 +149,12 @@ const ContactPage: React.FC = () => {
 
   return (
     <div className="pt-28 pb-20 bg-white dark:bg-gray-900 overflow-hidden">
+      
+<SEO 
+  title="Contactez ESIL Events - Demande de devis et informations"
+  description="Contactez ESIL Events pour organiser votre événement ou louer du matériel événementiel. Notre équipe est à votre écoute pour répondre à toutes vos questions."
+  keywords="contact ESIL Events, devis événement, location matériel événementiel, organisation événement, agence événementielle contact"
+/>
       {/* Hero Section avec background animé */}
       <motion.div 
         className="bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-20 mb-16 relative overflow-hidden"
@@ -696,3 +703,4 @@ const ContactPage: React.FC = () => {
 };
 
 export default ContactPage;
+

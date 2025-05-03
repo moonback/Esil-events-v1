@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Truck, Package, Clock, Settings, CheckCircle, Phone, MapPin, Calendar, HardHat } from 'lucide-react';
 import { motion } from 'framer-motion';
+import SEO from '../components/SEO';
 
 const DeliveryPage: React.FC = () => {
   // Animation variants
@@ -51,6 +52,11 @@ const DeliveryPage: React.FC = () => {
   };
   return (
     <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen overflow-hidden">
+      <SEO 
+        title="Livraison & Installation Événementielle Professionnelle | ESIL Events"
+        description="Service complet de livraison et installation de matériel événementiel en Île-de-France et partout en France. 3 formules adaptées : Retrait sur place, Livraison Économique et Solution Premium clé en main."
+        keywords="livraison événementielle, installation matériel événementiel, logistique événementielle, retrait sur place Mantes-la-Ville, formule premium événement, livraison économique, transport équipements événements, France entière"
+      />
       {/* Hero Section avec background animé */}
       <motion.div 
         className="bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-20 mb-16 relative overflow-hidden"

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import SEO from '../components/SEO';
 
 const teamMembers = [
   {
@@ -116,6 +117,12 @@ const AboutPage = () => {
 
   return (
     <div className="pt-28 pb-20 bg-white dark:bg-gray-900 overflow-hidden">
+      {/* SEO Component */}
+      <SEO 
+        title="À propos d'ESIL Events - Notre histoire et notre équipe"
+        description="Découvrez l'histoire d'ESIL Events, notre équipe d'experts et nos services d'organisation d'événements professionnels et de location de matériel événementiel."
+        keywords="ESIL Events, agence événementielle, équipe événementielle, organisation événements, location matériel, histoire entreprise"
+      />
       {/* Hero Section avec background animé */}
       <motion.div 
         className="bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-20 mb-16 relative overflow-hidden"
