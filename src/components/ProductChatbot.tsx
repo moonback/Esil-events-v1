@@ -271,19 +271,19 @@ const ProductChatbot: React.FC = () => {
   return (
     <div className="w-full h-full bg-gradient-to-br from-white via-violet-50 to-violet-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
       {/* Enhanced Header */}
-      <div className="bg-gradient-to-r from-indigo-900 via-violet-900 to-indigo-900 text-white p-4 flex justify-between items-center border-b border-violet-300/50 shadow-sm">
-        <span className="tracking-wide text-lg font-bold flex items-center gap-3">
+      <div className="bg-white text-black p-4 flex justify-between items-center border-b border-violet-300/50 shadow-sm">
+        {/* <span className="tracking-wide text-lg font-bold flex items-center gap-3">
           <svg className="w-7 h-7 text-violet-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span className="bg-gradient-to-r from-violet-400 to-green-400 bg-clip-text text-transparent">
-            Assistant ESIL
+            Assistant ESIL (Béta)
           </span>
-        </span>
-        <div className="flex items-center gap-2">
+        </span> */}
+        <div className="flex items-center gap-3">
           <motion.button 
             onClick={() => setShowSettings(!showSettings)}
-            className="flex items-center justify-center text-sm bg-white/10 hover:bg-white/20 text-violet-100 p-2 rounded-lg transition-all duration-300"
+            className="flex items-center justify-center text-sm bg-gradient-to-r from-violet-50 to-violet-100 hover:from-violet-100 hover:to-violet-200 text-violet-700 p-2.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md border border-violet-200"
             title="Paramètres"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -295,7 +295,7 @@ const ProductChatbot: React.FC = () => {
           </motion.button>
           <motion.button 
             onClick={clearConversation}
-            className="flex items-center text-sm bg-white/10 hover:bg-white/20 text-violet-100 px-4 py-2 rounded-lg transition-all duration-300 group"
+            className="flex items-center text-sm bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white px-5 py-2.5 rounded-xl transition-all duration-300 group shadow-sm hover:shadow-md"
             title="Effacer la conversation"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
