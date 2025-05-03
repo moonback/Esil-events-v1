@@ -311,6 +311,17 @@ const AdminProducts: React.FC = () => {
                           </div>
                         </th>
                         <th 
+                          className="hidden xl:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                          onClick={() => handleSort('slug')}
+                        >
+                          <div className="flex items-center">
+                            Slug URL
+                            {sortField === 'slug' && (
+                              <ArrowUpDown className="ml-1 h-3 w-3" />
+                            )}
+                          </div>
+                        </th>
+                        <th 
                           className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                           onClick={() => handleSort('price')}
                         >
@@ -362,6 +373,11 @@ const AdminProducts: React.FC = () => {
                               <div className="ml-0 lg:ml-3">
                                 <div className="font-medium text-gray-900">{product.name}</div>
                                 <div className="text-sm text-gray-500">{product.reference}</div>
+                                {product.slug && (
+                                  <div className="text-xs text-blue-500 mt-0.5">
+                                    <span className="font-medium">URL:</span> /p/{product.slug}
+                                  </div>
+                                )}
                                 <div className="lg:hidden text-xs text-gray-400 mt-1">
                                   {product.category} • {product.stock} en stock
                                 </div>
@@ -373,6 +389,39 @@ const AdminProducts: React.FC = () => {
                             <div className="text-sm text-gray-500">{product.subCategory}</div>
                             {product.subSubCategory && (
                               <div className="text-sm text-gray-400">{product.subSubCategory}</div>
+                            )}
+                          </td>
+                          <td className="hidden xl:table-cell px-6 py-4 whitespace-nowrap">
+                            {product.slug ? (
+                              <div className="flex items-center">
+                                <span className="text-sm text-blue-600 font-medium">{product.slug}</span>
+                                <button 
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(`${window.location.origin}/p/${product.slug}`);
+                                    // Afficher un message de succès temporaire
+                                    const successMessage = document.createElement('div');
+                                    successMessage.className = 'fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50 animate-fade-in';
+                                    successMessage.innerHTML = 'URL copiée dans le presse-papier';
+                                    document.body.appendChild(successMessage);
+                                    
+                                    // Supprimer le message après 2 secondes
+                                    setTimeout(() => {
+                                      if (document.body.contains(successMessage)) {
+                                        document.body.removeChild(successMessage);
+                                      }
+                                    }, 2000);
+                                  }}
+                                  className="ml-2 text-gray-400 hover:text-gray-600 transition-colors"
+                                  title="Copier l'URL complète"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                  </svg>
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-gray-400 italic">Non défini</span>
                             )}
                           </td>
                           <td className="px-3 lg:px-6 py-4 whitespace-nowrap">

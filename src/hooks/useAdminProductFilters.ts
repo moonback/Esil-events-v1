@@ -121,7 +121,15 @@ export const useAdminProductFilters = (products: Product[]): UseAdminProductFilt
         } else if (sortField === 'stock') {
           comparison = a.stock - b.stock;
         } else if (sortField === 'category') {
-          comparison = a.category.localeCompare(b.category);
+          comparison = Array.isArray(a.category) 
+            ? (a.category[0] || '').localeCompare(Array.isArray(b.category) ? b.category[0] || '' : b.category)
+            : a.category.localeCompare(Array.isArray(b.category) ? b.category[0] || '' : b.category);
+        } else if (sortField === 'slug') {
+          // Gérer le cas où le slug peut être undefined
+          if (!a.slug && !b.slug) comparison = 0;
+          else if (!a.slug) comparison = 1; // Les produits sans slug apparaissent en dernier
+          else if (!b.slug) comparison = -1; // Les produits avec slug apparaissent en premier
+          else comparison = a.slug.localeCompare(b.slug);
         }
         
         return sortDirection === 'asc' ? comparison : -comparison;
