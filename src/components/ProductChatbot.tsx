@@ -507,7 +507,7 @@ const ProductChatbot: React.FC = () => {
           {showSuggestionsButton && !showSuggestions && (
             <motion.button
               onClick={() => setShowSuggestions(true)}
-              className="fixed bottom-24 right-6 p-3 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10 flex items-center justify-center"
+              className="fixed bottom-[150px] right-6 p-3 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10 flex items-center justify-center"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               initial={{ opacity: 0, y: 20 }}
