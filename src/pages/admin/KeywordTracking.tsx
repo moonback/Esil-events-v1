@@ -70,7 +70,7 @@ const AdminKeywordTracking: React.FC = () => {
       if (data) {
         setKeywords([data, ...keywords]);
         setNewKeyword('');
-        setNewUrl('https://esil-events.com');
+        setNewUrl('https://esil-events.fr');
         setNewNotes('');
         setShowAddModal(false);
         setNotification({ type: 'success', message: 'Mot-clé ajouté avec succès' });

@@ -99,25 +99,37 @@ export const updateKeywordPosition = async (id: string): Promise<{ data: Keyword
     const { getKeywordPosition, isGoogleAuthenticated } = await import('./googleSearchConsoleService');
     
     let newPosition = currentKeyword.position;
+    let positionSource = 'simulation';
     
     // Vérifier si l'utilisateur est authentifié à Google
     if (isGoogleAuthenticated()) {
-      // Extraire le domaine de l'URL pour la recherche
-      const urlObj = new URL(currentKeyword.url);
-      const siteUrl = `${urlObj.protocol}//${urlObj.hostname}/`;
-      
-      // Récupérer la position depuis Google Search Console
-      const position = await getKeywordPosition(currentKeyword.keyword, siteUrl);
-      
-      // Si une position est trouvée, l'utiliser
-      if (position !== null) {
-        newPosition = position;
-      } else {
-        // Si aucune position n'est trouvée, utiliser la simulation comme fallback
+      try {
+        // Extraire le domaine de l'URL pour la recherche
+        const urlObj = new URL(currentKeyword.url);
+        const siteUrl = `${urlObj.protocol}//${urlObj.hostname}/`;
+        
+        console.log(`Récupération de la position réelle pour "${currentKeyword.keyword}" sur ${siteUrl}`);
+        // Récupérer la position depuis Google Search Console
+        const position = await getKeywordPosition(currentKeyword.keyword, siteUrl);
+        
+        // Si une position est trouvée, l'utiliser
+        if (position !== null) {
+          newPosition = position;
+          positionSource = 'google';
+          console.log(`Position réelle trouvée: ${position} pour "${currentKeyword.keyword}"`);
+        } else {
+          // Si aucune position n'est trouvée, utiliser la simulation comme fallback
+          console.log(`Aucune position trouvée dans Google pour "${currentKeyword.keyword}", utilisation de la simulation`);
+          newPosition = await simulatePositionCheck(currentKeyword.keyword);
+        }
+      } catch (error) {
+        console.error(`Erreur lors de la récupération de la position Google pour "${currentKeyword.keyword}":`, error);
+        // En cas d'erreur avec l'API Google, utiliser la simulation
         newPosition = await simulatePositionCheck(currentKeyword.keyword);
       }
     } else {
       // Si non authentifié, utiliser la simulation
+      console.log(`Utilisation de la simulation pour "${currentKeyword.keyword}" (non authentifié à Google)`);
       newPosition = await simulatePositionCheck(currentKeyword.keyword);
     }
     
@@ -158,57 +170,61 @@ export const updateAllKeywordPositions = async (): Promise<{ data: KeywordRankin
     // Importer dynamiquement le service Google Search Console
     const { getMultipleKeywordPositions, isGoogleAuthenticated } = await import('./googleSearchConsoleService');
     
-    let updatedKeywordsData = [...keywords];
+    let updatedKeywordsData: KeywordRanking[] = [];
     
     // Vérifier si l'utilisateur est authentifié à Google
     if (isGoogleAuthenticated() && keywords.length > 0) {
+      console.log('Utilisation des données réelles de Google Search Console');
       // Regrouper les mots-clés par domaine
-      const keywordsByDomain = keywords.reduce((acc, keyword) => {
+      const keywordsByDomain: Record<string, KeywordRanking[]> = {};
+      
+      for (const keyword of keywords) {
         try {
           const urlObj = new URL(keyword.url);
           const siteUrl = `${urlObj.protocol}//${urlObj.hostname}/`;
           
-          if (!acc[siteUrl]) {
-            acc[siteUrl] = [];
+          if (!keywordsByDomain[siteUrl]) {
+            keywordsByDomain[siteUrl] = [];
           }
           
-          acc[siteUrl].push(keyword);
+          keywordsByDomain[siteUrl].push(keyword);
         } catch (e) {
           console.error(`URL invalide pour le mot-clé ${keyword.keyword}:`, e);
         }
-        
-        return acc;
-      }, {} as Record<string, KeywordRanking[]>);
+      }
       
       // Pour chaque domaine, récupérer les positions en masse
-      const domainUpdates = await Promise.all(
-        Object.entries(keywordsByDomain).map(async ([siteUrl, domainKeywords]) => {
-          try {
-            // Récupérer les positions depuis Google Search Console
-            // Ajouter une assertion de type pour indiquer que domainKeywords est bien un tableau de KeywordRanking
-            const updatedKeywords = await getMultipleKeywordPositions(domainKeywords as KeywordRanking[], siteUrl);
-            return updatedKeywords;
-          } catch (error) {
-            console.error(`Erreur lors de la récupération des positions pour ${siteUrl}:`, error);
-            // En cas d'erreur, simuler les positions
-            // Ajouter une assertion de type pour indiquer que domainKeywords est bien un tableau de KeywordRanking
-            return Promise.all((domainKeywords as KeywordRanking[]).map(async (keyword) => {
-              const newPosition = await simulatePositionCheck(keyword.keyword);
-              return {
-                ...keyword,
-                previousPosition: keyword.position,
-                position: newPosition,
-                lastChecked: new Date().toISOString().split('T')[0]
-              };
-            }));
-          }
-        })
-      );
+      const domainUpdatesPromises = Object.entries(keywordsByDomain).map(async ([siteUrl, domainKeywords]) => {
+        try {
+          // Récupérer les positions depuis Google Search Console
+          console.log(`Récupération des positions pour ${domainKeywords.length} mots-clés sur ${siteUrl}`);
+          const updatedKeywords = await getMultipleKeywordPositions(domainKeywords, siteUrl);
+          return updatedKeywords;
+        } catch (error) {
+          console.error(`Erreur lors de la récupération des positions pour ${siteUrl}:`, error);
+          // En cas d'erreur, simuler les positions
+          const fallbackUpdates = await Promise.all(domainKeywords.map(async (keyword) => {
+            console.log(`Simulation de position pour ${keyword.keyword} suite à une erreur`);
+            const newPosition = await simulatePositionCheck(keyword.keyword);
+            return {
+              ...keyword,
+              previousPosition: keyword.position,
+              position: newPosition,
+              lastChecked: new Date().toISOString().split('T')[0]
+            };
+          }));
+          return fallbackUpdates;
+        }
+      });
+      
+      // Attendre que toutes les mises à jour soient terminées
+      const domainUpdates = await Promise.all(domainUpdatesPromises);
       
       // Fusionner tous les résultats
       updatedKeywordsData = domainUpdates.flat();
     } else {
       // Si non authentifié, utiliser la simulation pour tous les mots-clés
+      console.log('Utilisation de positions simulées (non authentifié à Google)');
       updatedKeywordsData = await Promise.all(
         keywords.map(async (keyword) => {
           const newPosition = await simulatePositionCheck(keyword.keyword);
