@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { Product, ProductFormData } from '../types/Product';
+import { generateSlug, generateUniqueSlug } from '../utils/slugUtils';
 
 // Mock data for products
 const mockProducts: Product[] = [
@@ -129,6 +130,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
       updatedAt: new Date(product.updated_at),
       images: product.images || [],
       mainImageIndex: product.main_image_index,
+      slug: product.slug || null,
       colors: product.colors || [],
       relatedProducts: product.related_products || [],
       technicalSpecs: product.technical_specs || {},
@@ -185,6 +187,7 @@ export const getProductsByCategory = async (category: string): Promise<Product[]
       updatedAt: new Date(product.updated_at),
       images: product.images || [],
       mainImageIndex: product.main_image_index,
+      slug: product.slug || null,
       colors: product.colors || [],
       relatedProducts: product.related_products || [],
       technicalSpecs: product.technical_specs || {},
@@ -245,6 +248,7 @@ export const searchProducts = async (query: string): Promise<Product[]> => {
       updatedAt: new Date(product.updated_at),
       images: product.images || [],
       mainImageIndex: product.main_image_index,
+      slug: product.slug || null,
       colors: product.colors || [],
       relatedProducts: product.related_products || [],
       technicalSpecs: product.technical_specs || {},
@@ -303,6 +307,7 @@ export const getProductsBySubCategory = async (category: string, subCategory: st
       updatedAt: new Date(product.updated_at),
       images: product.images || [],
       mainImageIndex: product.main_image_index,
+      slug: product.slug || null,
       colors: product.colors || [],
       relatedProducts: product.related_products || [],
       technicalSpecs: product.technical_specs || {},
@@ -320,20 +325,27 @@ export const getProductsBySubCategory = async (category: string, subCategory: st
   }
 };
 
-// Fetch a single product by ID
-export const getProductById = async (id: string): Promise<Product | null> => {
+// Fetch a single product by ID or slug
+export const getProductById = async (idOrSlug: string): Promise<Product | null> => {
   try {
-    console.log('Fetching product by ID:', id);
+    console.log('Fetching product by ID or slug:', idOrSlug);
     
     // Check authentication status
     const { data: { session } } = await supabase.auth.getSession();
     console.log('Authentication status:', session ? 'Authenticated' : 'Not authenticated');
 
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle(); // Use maybeSingle() instead of single() to handle not found case without error
+    // Determine if the parameter is a UUID or a slug
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
+    
+    let query = supabase.from('products').select('*');
+    
+    if (isUuid) {
+      query = query.eq('id', idOrSlug);
+    } else {
+      query = query.eq('slug', idOrSlug);
+    }
+    
+    const { data, error } = await query.maybeSingle(); // Use maybeSingle() instead of single() to handle not found case without error
 
     if (error) {
       console.error('Supabase error:', error);
@@ -341,7 +353,7 @@ export const getProductById = async (id: string): Promise<Product | null> => {
     }
 
     if (!data) {
-      console.log('No product found with ID:', id);
+      console.log('No product found with identifier:', idOrSlug);
       return null;
     }
 
@@ -367,6 +379,7 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       technicalDocUrl: data.technical_doc_url,
       videoUrl: data.video_url,
       relatedProducts: data.related_products || [],
+      slug: data.slug || null,
       // Ajout des champs SEO - Assurez-vous qu'ils sont correctement transmis
       seo_title: data.seo_title || null,
       seo_description: data.seo_description || null,
@@ -386,6 +399,11 @@ export const getProductById = async (id: string): Promise<Product | null> => {
     console.error('Error in getProductById:', error);
     throw error;
   }
+};
+
+// Fetch a single product by slug
+export const getProductBySlug = async (slug: string): Promise<Product | null> => {
+  return getProductById(slug);
 };
 
 // Fetch similar products based on multiple criteria with relevance scoring
@@ -643,6 +661,24 @@ export const createProduct = async (product: ProductFormData): Promise<Product> 
     }
     console.log('User is authenticated:', session.user.id);
 
+    // Generate a slug from the product name
+    const baseSlug = generateSlug(product.name);
+    
+    // Check if the slug already exists
+    const { data: existingProducts, error: slugCheckError } = await supabase
+      .from('products')
+      .select('slug')
+      .not('slug', 'is', null);
+      
+    if (slugCheckError) {
+      console.error('Error checking existing slugs:', slugCheckError);
+      throw new Error(`Failed to check existing slugs: ${slugCheckError.message}`);
+    }
+    
+    // Generate a unique slug
+    const existingSlugs = existingProducts ? existingProducts.map(p => p.slug) : [];
+    const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs);
+
     // Prepare the product data for database insertion
     const dbProduct = {
       name: product.name,
@@ -661,6 +697,8 @@ export const createProduct = async (product: ProductFormData): Promise<Product> 
       technical_specs: product.technicalSpecs || {},
       technical_doc_url: product.technicalDocUrl || null,
       video_url: product.videoUrl || null,
+      // Add the slug
+      slug: uniqueSlug,
       // Ajout des champs SEO
       seo_title: product.seo_title || null,
       seo_description: product.seo_description || null,
@@ -725,6 +763,7 @@ export const createProduct = async (product: ProductFormData): Promise<Product> 
       technicalDocUrl: data.technical_doc_url,
       videoUrl: data.video_url,
       relatedProducts: data.related_products || [],
+      slug: data.slug || null,
       seo_title: data.seo_title,
       seo_description: data.seo_description,
       seo_keywords: data.seo_keywords
@@ -790,6 +829,29 @@ export const updateProduct = async (id: string, product: Partial<Product>): Prom
       updated_at: new Date().toISOString(),
       updated_by: session.user.id
     };
+    
+    // If name is changed, update the slug
+    if (product.name && product.name !== existingProduct.name) {
+      const baseSlug = generateSlug(product.name);
+      
+      // Check if the slug already exists for other products
+      const { data: existingProducts, error: slugCheckError } = await supabase
+        .from('products')
+        .select('slug')
+        .not('id', 'eq', id)
+        .not('slug', 'is', null);
+        
+      if (slugCheckError) {
+        console.error('Error checking existing slugs:', slugCheckError);
+        throw new Error(`Failed to check existing slugs: ${slugCheckError.message}`);
+      }
+      
+      // Generate a unique slug
+      const existingSlugs = existingProducts ? existingProducts.map(p => p.slug) : [];
+      const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs);
+      
+      dbProduct.slug = uniqueSlug;
+    }
     
     // Log pour vérifier que les données SEO sont bien envoyées à la base de données
     console.log('SEO data being saved:', {
@@ -1112,6 +1174,7 @@ export const getProductsBySubSubCategory = async (category: string, subCategory:
       updatedAt: new Date(product.updated_at),
       images: product.images || [],
       mainImageIndex: product.main_image_index,
+      slug: product.slug || null,
       colors: product.colors || [],
       relatedProducts: product.related_products || [],
       technicalSpecs: product.technical_specs || {},

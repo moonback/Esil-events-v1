@@ -284,7 +284,7 @@ const ProductListPage: React.FC = () => {
                 {filteredProducts.map((product) => (
                   <Link
                     key={product.id}
-                    to={`/product/${product.id}`}
+                    to={`/product/${product.slug}`}
                     className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full transform hover:-translate-y-1"
                   >
                     <div className="relative">
