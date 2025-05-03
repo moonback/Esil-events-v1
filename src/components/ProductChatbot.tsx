@@ -365,12 +365,12 @@ const ProductChatbot: React.FC = () => {
               )}
               
               <motion.div 
-                className={`relative max-w-[85%] transition-all shadow-sm ${
+                className={`relative max-w-[85%] transition-all ${
                   message.sender === 'user'
-                    ? 'bg-gradient-to-br from-violet-600 to-violet-500 text-white rounded-2xl rounded-br-none shadow-violet-200 dark:shadow-none'
+                    ? 'bg-gradient-to-br from-violet-600 to-violet-500 text-white rounded-2xl rounded-br-none shadow-md shadow-violet-200/50 dark:shadow-violet-900/30'
                     : message.isReasoned 
-                      ? 'bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 text-gray-800 dark:text-gray-100 border border-indigo-200 dark:border-indigo-800/50 rounded-2xl rounded-tl-none'
-                      : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-600 rounded-2xl rounded-tl-none'
+                      ? 'bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 text-gray-800 dark:text-gray-100 border border-indigo-200 dark:border-indigo-800/50 rounded-2xl rounded-tl-none shadow-md'
+                      : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-600 rounded-2xl rounded-tl-none shadow-md'
                 } ${message.isNew ? 'message-new' : ''}`}
                 whileHover={{ scale: 1.02 }}
                 layout
@@ -383,34 +383,49 @@ const ProductChatbot: React.FC = () => {
                     </div>
                   )}
                   <div className="relative">
-                    <p className="text-sm/[1.6] font-medium whitespace-pre-line">
+                    <div className="text-sm/[1.6] font-medium prose prose-sm max-w-none dark:prose-invert">
                       {message.text.split('\n').map((line, i) => (
                         <React.Fragment key={i}>
-                          {line.includes('http') ? (
-                            line.split(/\b(https?:\/\/[^\s]+)\b/).map((part, j) => (
-                              <React.Fragment key={j}>
-                                {part.match(/^https?:\/\//) ? (
-                                  <a 
-                                    href={part} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className={`underline ${message.sender === 'user' ? 'text-indigo-100' : 'text-indigo-500 dark:text-indigo-400'}`}
-                                  >
-                                    {part}
-                                  </a>
-                                ) : (
-                                  part
-                                )}
-                              </React.Fragment>
-                            ))
+                          {line.trim() === '' ? (
+                            <div className="h-2"></div> // Empty line spacing
+                          ) : line.startsWith('• ') || line.startsWith('- ') ? (
+                            <div className="flex items-start gap-2 my-1">
+                              <div className="w-1.5 h-1.5 rounded-full bg-violet-300 dark:bg-violet-500 mt-1.5 flex-shrink-0"></div>
+                              <div>{line.substring(2)}</div>
+                            </div>
+                          ) : line.match(/^\d+\.\s/) ? (
+                            <div className="flex items-start gap-2 my-1">
+                              <div className="text-xs font-bold text-violet-400 dark:text-violet-300 mt-0.5 flex-shrink-0 w-4 text-right">
+                                {line.match(/^\d+/)?.[0]}.
+                              </div>
+                              <div>{line.replace(/^\d+\.\s/, '')}</div>
+                            </div>
+                          ) : line.includes('http') ? (
+                            <div>
+                              {line.split(/\b(https?:\/\/[^\s]+)\b/).map((part, j) => (
+                                <React.Fragment key={j}>
+                                  {part.match(/^https?:\/\//) ? (
+                                    <a 
+                                      href={part} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className={`underline ${message.sender === 'user' ? 'text-indigo-100' : 'text-indigo-500 dark:text-indigo-400'}`}
+                                    >
+                                      {part}
+                                    </a>
+                                  ) : (
+                                    part
+                                  )}
+                                </React.Fragment>
+                              ))}
+                            </div>
                           ) : (
-                            line
+                            <div>{line}</div>
                           )}
-                          {i < message.text.split('\n').length - 1 && <br />}
                         </React.Fragment>
                       ))}
-                    </p>
-                    <div className="text-xs text-gray-400 dark:text-gray-400 mt-2 text-right opacity-70 flex justify-end items-center gap-1">
+                    </div>
+                    <div className="text-xs text-gray-400 dark:text-gray-400 mt-3 text-right opacity-70 flex justify-end items-center gap-1">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-500"></span>
                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
@@ -507,14 +522,15 @@ const ProductChatbot: React.FC = () => {
           {showSuggestionsButton && !showSuggestions && (
             <motion.button
               onClick={() => setShowSuggestions(true)}
-              className="fixed bottom-[150px] right-6 p-3 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10 flex items-center justify-center"
-              whileHover={{ scale: 1.1 }}
+              className="fixed bottom-[150px] right-6 p-3.5 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10 flex items-center justify-center group"
+              whileHover={{ scale: 1.1, rotate: 5 }}
               whileTap={{ scale: 0.9 }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
             >
-              <Lightbulb className="w-5 h-5" />
+              <Lightbulb className="w-5 h-5 group-hover:text-yellow-200 transition-colors" />
+              <span className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-[10px] font-bold animate-pulse">{dynamicSuggestions.length}</span>
             </motion.button>
           )}
         </AnimatePresence>

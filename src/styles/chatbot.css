@@ -60,3 +60,113 @@
   white-space: nowrap;
   animation: typingEffect 1.5s steps(40, end);
 }
+
+
+/* Clip corners for chat bubbles */
+.clip-corner {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0);
+}
+
+.clip-corner-left {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0);
+}
+
+/* Animation for new messages */
+.message-new {
+  animation: message-pop 0.3s ease-out;
+}
+
+@keyframes message-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Custom scrollbar styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb-violet-200 {
+  scrollbar-color: #ddd6fe transparent;
+}
+
+.dark .scrollbar-thumb-violet-800 {
+  scrollbar-color: #5b21b6 transparent;
+}
+
+.scrollbar-track-transparent {
+  scrollbar-track-color: transparent;
+}
+
+/* For Webkit browsers */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thumb-violet-200::-webkit-scrollbar-thumb {
+  background-color: #ddd6fe;
+  border-radius: 3px;
+}
+
+.dark .scrollbar-thumb-violet-800::-webkit-scrollbar-thumb {
+  background-color: #5b21b6;
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* Styling for lists in chat messages */
+.prose ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.prose ul li {
+  position: relative;
+  padding-left: 1.5em;
+}
+
+.prose ul li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #8b5cf6;
+}
+
+.dark .prose ul li::before {
+  color: #a78bfa;
+}
+
+.prose ol {
+  list-style-type: none;
+  padding-left: 0;
+  counter-reset: item;
+}
+
+.prose ol li {
+  position: relative;
+  padding-left: 1.5em;
+  counter-increment: item;
+}
+
+.prose ol li::before {
+  content: counter(item) ".";
+  position: absolute;
+  left: 0;
+  color: #8b5cf6;
+  font-weight: bold;
+}
+
+.dark .prose ol li::before {
+  color: #a78bfa;
+}
