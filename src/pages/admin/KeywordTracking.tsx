@@ -18,7 +18,7 @@ const AdminKeywordTracking: React.FC = () => {
   const [refreshingKeyword, setRefreshingKeyword] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newKeyword, setNewKeyword] = useState('');
-  const [newUrl, setNewUrl] = useState('https://esil-events.com');
+  const [newUrl, setNewUrl] = useState('https://esil-events.fr');
   const [newNotes, setNewNotes] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
