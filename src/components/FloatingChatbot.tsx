@@ -18,7 +18,7 @@ const FloatingChatbot: React.FC = () => {
 
       {/* Chatbot Modal/Panel */}
       {open && (
-        <div className="fixed bottom-20 right-6 z-50 w-[600px] h-[600px] bg-white dark:bg-gray-900 border border-gray-300 rounded-xl shadow-2xl flex flex-col">
+        <div className="fixed bottom-20 right-0 z-50 w-full md:w-[600px] lg:w-[800px] h-[80vh] md:h-[600px] mx-1 md:mx-0 bg-white dark:bg-gray-900 border border-gray-300 rounded-xl shadow-2xl flex flex-col">
           <div className="flex justify-between items-center p-2 border-b border-gray-200">
             <span className="font-semibold text-blue-700">Assistant Virtuel</span>
             <button
