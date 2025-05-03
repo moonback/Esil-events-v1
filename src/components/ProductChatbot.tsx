@@ -3,6 +3,7 @@ import { getAllProducts } from '../services/productService';
 import { generateChatbotResponse } from '../services/chatbotService';
 import { Product } from '../types/Product';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BrainCircuit, Send, Sparkles, RotateCcw } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -10,6 +11,7 @@ interface Message {
   sender: 'user' | 'bot';
   timestamp: Date;
   isNew?: boolean;
+  isReasoned?: boolean;
 }
 
 const ProductChatbot: React.FC = () => {
@@ -18,6 +20,8 @@ const ProductChatbot: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [useReasoningMode, setUseReasoningMode] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -88,19 +92,28 @@ const ProductChatbot: React.FC = () => {
   }, [messages]);
 
   // Fonction pour générer une réponse basée sur la question et les produits disponibles
-  const generateResponse = async (question: string): Promise<string> => {
+  const generateResponse = async (question: string): Promise<{text: string, isReasoned: boolean}> => {
     try {
       // Utiliser le service chatbot pour générer une réponse
-      const result = await generateChatbotResponse(question, products);
+      const result = await generateChatbotResponse(question, products, useReasoningMode);
       
       if (result.error) {
-        return `Désolé, je ne peux pas répondre pour le moment: ${result.error}`;
+        return {
+          text: `Désolé, je ne peux pas répondre pour le moment: ${result.error}`,
+          isReasoned: false
+        };
       }
       
-      return result.response || "Désolé, je n'ai pas pu générer une réponse.";
+      return {
+        text: result.response || "Désolé, je n'ai pas pu générer une réponse.",
+        isReasoned: useReasoningMode
+      };
     } catch (error) {
       console.error('Erreur lors de la génération de la réponse:', error);
-      return "Désolé, une erreur s'est produite lors de la génération de la réponse. Veuillez réessayer plus tard.";
+      return {
+        text: "Désolé, une erreur s'est produite lors de la génération de la réponse. Veuillez réessayer plus tard.",
+        isReasoned: false
+      };
     }
   };
 
@@ -126,15 +139,16 @@ const ProductChatbot: React.FC = () => {
 
     try {
       // Générer une réponse
-      const botResponse = await generateResponse(text);
+      const { text: botResponseText, isReasoned } = await generateResponse(text);
       
       // Ajouter la réponse du bot
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: botResponse,
+        text: botResponseText,
         sender: 'bot',
         timestamp: new Date(),
-        isNew: true
+        isNew: true,
+        isReasoned
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -181,7 +195,7 @@ const ProductChatbot: React.FC = () => {
   return (
     <div className="w-full h-full bg-gradient-to-br from-white via-blue-50 to-blue-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
       {/* Enhanced Header */}
-      <div className="bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 text-white p-5 flex justify-between items-center border-b border-blue-300/50 shadow-sm">
+      <div className="bg-gradient-to-r from-indigo-900 via-blue-900 to-indigo-900 text-white p-4 flex justify-between items-center border-b border-blue-300/50 shadow-sm">
         <span className="tracking-wide text-lg font-bold flex items-center gap-3">
           <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -190,17 +204,66 @@ const ProductChatbot: React.FC = () => {
             Assistant ESIL
           </span>
         </span>
-        <button 
-          onClick={clearConversation}
-          className="flex items-center text-sm bg-white/20 hover:bg-white/30 text-blue-100 px-4 py-2 rounded-lg transition-all duration-300 group"
-          title="Effacer la conversation"
-        >
-          <svg className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          Nouvelle discussion
-        </button>
+        <div className="flex items-center gap-2">
+          <motion.button 
+            onClick={() => setShowSettings(!showSettings)}
+            className="flex items-center justify-center text-sm bg-white/10 hover:bg-white/20 text-blue-100 p-2 rounded-lg transition-all duration-300"
+            title="Paramètres"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </motion.button>
+          <motion.button 
+            onClick={clearConversation}
+            className="flex items-center text-sm bg-white/10 hover:bg-white/20 text-blue-100 px-4 py-2 rounded-lg transition-all duration-300 group"
+            title="Effacer la conversation"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <RotateCcw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform" />
+            Nouvelle discussion
+          </motion.button>
+        </div>
       </div>
+      
+      {/* Settings Panel */}
+      <AnimatePresence>
+        {showSettings && (
+          <motion.div 
+            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-4 border-b border-gray-200 dark:border-gray-700"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex flex-col gap-3">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Paramètres du chatbot</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BrainCircuit className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Mode raisonnement avancé</span>
+                </div>
+                <button 
+                  onClick={() => setUseReasoningMode(!useReasoningMode)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${useReasoningMode ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600'}`}
+                >
+                  <span className="sr-only">Activer le mode raisonnement</span>
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${useReasoningMode ? 'translate-x-6' : 'translate-x-1'}`}
+                  />
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Le mode raisonnement utilise DeepSeek Reasoner pour des réponses plus détaillées et analytiques.
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Enhanced Messages Container */}
       <div className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-white/50 to-blue-50/30 dark:from-gray-800/80 dark:to-gray-900">
@@ -218,11 +281,19 @@ const ProductChatbot: React.FC = () => {
                 className={`relative max-w-[85%] transition-all ${
                   message.sender === 'user'
                     ? 'bg-gradient-to-br from-blue-600 to-blue-500 text-white rounded-2xl rounded-br-none'
-                    : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-600 rounded-2xl rounded-tl-none'
+                    : message.isReasoned 
+                      ? 'bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 text-gray-800 dark:text-gray-100 border border-indigo-200 dark:border-indigo-800/50 rounded-2xl rounded-tl-none'
+                      : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-600 rounded-2xl rounded-tl-none'
                 }`}
                 whileHover={{ scale: 1.02 }}
               >
                 <div className="p-4">
+                  {message.isReasoned && message.sender === 'bot' && (
+                    <div className="flex items-center gap-1 mb-2">
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+                      <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">Réponse raisonnée</span>
+                    </div>
+                  )}
                   <p className="text-sm/[1.4] font-medium">{message.text}</p>
                   <div className="text-xs text-gray-300 dark:text-gray-400 mt-2 text-right">
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -283,26 +354,31 @@ const ProductChatbot: React.FC = () => {
       {/* Enhanced Input Area */}
       <div className="p-4 bg-gradient-to-t from-white via-white to-blue-50/30 dark:from-gray-800 dark:via-gray-800 border-t border-gray-100 dark:border-gray-700">
         <div className="flex gap-2">
-          <input
-            ref={inputRef}
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Écrivez votre message..."
-            className="flex-1 p-3 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all placeholder-gray-400 dark:placeholder-gray-500 shadow-sm"
-            disabled={isLoading}
-          />
+          <div className="relative flex-1">
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder={useReasoningMode ? "Posez une question (mode raisonnement activé)..." : "Écrivez votre message..."}
+              className={`w-full p-3 pl-4 pr-10 text-sm bg-white dark:bg-gray-700 border ${useReasoningMode ? 'border-indigo-300 dark:border-indigo-700' : 'border-gray-200 dark:border-gray-600'} rounded-xl focus:outline-none focus:ring-2 ${useReasoningMode ? 'focus:ring-indigo-400 focus:border-indigo-400' : 'focus:ring-blue-400 focus:border-blue-400'} transition-all placeholder-gray-400 dark:placeholder-gray-500 shadow-sm`}
+              disabled={isLoading}
+            />
+            {useReasoningMode && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <Sparkles className="w-4 h-4 text-indigo-500" />
+              </div>
+            )}
+          </div>
           <motion.button
             onClick={() => handleSendMessage()}
             disabled={isLoading || !input.trim()}
-            className="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+            className={`p-3 ${useReasoningMode ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-blue-600 hover:bg-blue-700'} text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-            </svg>
+            <Send className="w-5 h-5" />
           </motion.button>
         </div>
       </div>

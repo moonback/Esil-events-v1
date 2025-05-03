@@ -31,7 +31,7 @@ export const prepareProductContext = (products: Product[]) => {
 /**
  * Génère une réponse du chatbot basée sur la question de l'utilisateur et les produits disponibles
  */
-export const generateChatbotResponse = async (question: string, products: Product[]): Promise<ChatbotResponse> => {
+export const generateChatbotResponse = async (question: string, products: Product[], useReasoningMode: boolean): Promise<ChatbotResponse> => {
   try {
     const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
     
@@ -65,13 +65,23 @@ export const generateChatbotResponse = async (question: string, products: Produc
       content: question
     };
 
-    const requestBody = {
-      model: "deepseek-chat",
-      messages: [systemMessage, userMessage],
-      temperature: 0.7,
-      max_tokens: 500,
-      top_p: 0.95
-    };
+    // Configuration de la requête en fonction du mode de raisonnement
+    const requestBody = useReasoningMode
+      ? {
+          model: "deepseek-reasoner",
+          messages: [systemMessage, userMessage],
+          temperature: 0.5, // Température plus basse pour des réponses plus précises
+          max_tokens: 800, // Plus de tokens pour permettre un raisonnement détaillé
+          top_p: 0.9,
+          plugins: [{ type: "reasoner" }] // Activation du plugin de raisonnement
+        }
+      : {
+          model: "deepseek-chat",
+          messages: [systemMessage, userMessage],
+          temperature: 0.7,
+          max_tokens: 500,
+          top_p: 0.95
+        };
 
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
