@@ -26,12 +26,13 @@ import ArtistDetailPage from './pages/ArtistDetailPage';
 import CguPage from './pages/CguPage';
 import ChatbotPage from './pages/ChatbotPage';
 import { HelmetProvider } from 'react-helmet-async';
+import FloatingChatbot from './components/FloatingChatbot';
 
 // Admin pages
 import AdminKeywordTracking from './pages/admin/KeywordTracking';
 const GoogleAuthCallback = lazy(() => import('./pages/admin/GoogleAuthCallback'));
 
-const App: React.FC = () => {
+function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
@@ -85,6 +86,7 @@ const App: React.FC = () => {
           <Route path="/admin/keyword-tracking" element={<AdminKeywordTracking />} />
         </Routes>
       </CartProvider>
+      <FloatingChatbot />
     </BrowserRouter>
   );
 };

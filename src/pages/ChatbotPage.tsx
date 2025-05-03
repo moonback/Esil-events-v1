@@ -35,9 +35,11 @@ const ChatbotPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Intégration du chatbot */}
-        <div className="relative h-[600px] border border-gray-200 rounded-lg shadow-lg">
-          <ProductChatbot />
+        {/* Intégration du chatbot centré et fixé */}
+        <div className="flex justify-center items-center">
+          <div className="relative w-[400px] h-[600px] border border-gray-200 rounded-lg shadow-lg bg-white dark:bg-gray-900">
+            <ProductChatbot />
+          </div>
         </div>
       </div>
     </div>
