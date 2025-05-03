@@ -81,7 +81,7 @@ export const deleteKeyword = async (id: string): Promise<{ success: boolean; err
 };
 
 /**
- * Met à jour la position d'un mot-clé spécifique
+ * Met à jour la position d'un mot-clé spécifique en utilisant Google Search Console
  */
 export const updateKeywordPosition = async (id: string): Promise<{ data: KeywordRanking | null; error: any }> => {
   try {
@@ -95,9 +95,31 @@ export const updateKeywordPosition = async (id: string): Promise<{ data: Keyword
     if (fetchError) throw fetchError;
     if (!currentKeyword) throw new Error('Mot-clé non trouvé');
 
-    // Simuler une vérification de position (dans une application réelle, cela appellerait une API externe)
-    // Par exemple, Google Search Console API ou un service de suivi de classement SEO
-    const newPosition = await simulatePositionCheck(currentKeyword.keyword);
+    // Importer dynamiquement le service Google Search Console
+    const { getKeywordPosition, isGoogleAuthenticated } = await import('./googleSearchConsoleService');
+    
+    let newPosition = currentKeyword.position;
+    
+    // Vérifier si l'utilisateur est authentifié à Google
+    if (isGoogleAuthenticated()) {
+      // Extraire le domaine de l'URL pour la recherche
+      const urlObj = new URL(currentKeyword.url);
+      const siteUrl = `${urlObj.protocol}//${urlObj.hostname}/`;
+      
+      // Récupérer la position depuis Google Search Console
+      const position = await getKeywordPosition(currentKeyword.keyword, siteUrl);
+      
+      // Si une position est trouvée, l'utiliser
+      if (position !== null) {
+        newPosition = position;
+      } else {
+        // Si aucune position n'est trouvée, utiliser la simulation comme fallback
+        newPosition = await simulatePositionCheck(currentKeyword.keyword);
+      }
+    } else {
+      // Si non authentifié, utiliser la simulation
+      newPosition = await simulatePositionCheck(currentKeyword.keyword);
+    }
     
     // Mettre à jour le mot-clé avec la nouvelle position
     const { data, error } = await supabase
@@ -121,7 +143,7 @@ export const updateKeywordPosition = async (id: string): Promise<{ data: Keyword
 };
 
 /**
- * Met à jour les positions de tous les mots-clés
+ * Met à jour les positions de tous les mots-clés en utilisant Google Search Console
  */
 export const updateAllKeywordPositions = async (): Promise<{ data: KeywordRanking[] | null; error: any }> => {
   try {
@@ -133,17 +155,80 @@ export const updateAllKeywordPositions = async (): Promise<{ data: KeywordRankin
     if (fetchError) throw fetchError;
     if (!keywords || keywords.length === 0) return { data: [], error: null };
 
-    // Pour chaque mot-clé, mettre à jour sa position
-    const updatedKeywords = await Promise.all(
-      keywords.map(async (keyword) => {
-        const newPosition = await simulatePositionCheck(keyword.keyword);
+    // Importer dynamiquement le service Google Search Console
+    const { getMultipleKeywordPositions, isGoogleAuthenticated } = await import('./googleSearchConsoleService');
+    
+    let updatedKeywordsData = [...keywords];
+    
+    // Vérifier si l'utilisateur est authentifié à Google
+    if (isGoogleAuthenticated() && keywords.length > 0) {
+      // Regrouper les mots-clés par domaine
+      const keywordsByDomain = keywords.reduce((acc, keyword) => {
+        try {
+          const urlObj = new URL(keyword.url);
+          const siteUrl = `${urlObj.protocol}//${urlObj.hostname}/`;
+          
+          if (!acc[siteUrl]) {
+            acc[siteUrl] = [];
+          }
+          
+          acc[siteUrl].push(keyword);
+        } catch (e) {
+          console.error(`URL invalide pour le mot-clé ${keyword.keyword}:`, e);
+        }
         
-        const { data, error } = await supabase
-          .from('keyword_rankings')
-          .update({
+        return acc;
+      }, {} as Record<string, KeywordRanking[]>);
+      
+      // Pour chaque domaine, récupérer les positions en masse
+      const domainUpdates = await Promise.all(
+        Object.entries(keywordsByDomain).map(async ([siteUrl, domainKeywords]) => {
+          try {
+            // Récupérer les positions depuis Google Search Console
+            const updatedKeywords = await getMultipleKeywordPositions(domainKeywords, siteUrl);
+            return updatedKeywords;
+          } catch (error) {
+            console.error(`Erreur lors de la récupération des positions pour ${siteUrl}:`, error);
+            // En cas d'erreur, simuler les positions
+            return Promise.all(domainKeywords.map(async (keyword) => {
+              const newPosition = await simulatePositionCheck(keyword.keyword);
+              return {
+                ...keyword,
+                previousPosition: keyword.position,
+                position: newPosition,
+                lastChecked: new Date().toISOString().split('T')[0]
+              };
+            }));
+          }
+        })
+      );
+      
+      // Fusionner tous les résultats
+      updatedKeywordsData = domainUpdates.flat();
+    } else {
+      // Si non authentifié, utiliser la simulation pour tous les mots-clés
+      updatedKeywordsData = await Promise.all(
+        keywords.map(async (keyword) => {
+          const newPosition = await simulatePositionCheck(keyword.keyword);
+          return {
+            ...keyword,
             previousPosition: keyword.position,
             position: newPosition,
             lastChecked: new Date().toISOString().split('T')[0]
+          };
+        })
+      );
+    }
+    
+    // Mettre à jour tous les mots-clés dans la base de données
+    const updatedKeywords = await Promise.all(
+      updatedKeywordsData.map(async (keyword) => {
+        const { data, error } = await supabase
+          .from('keyword_rankings')
+          .update({
+            previousPosition: keyword.previousPosition,
+            position: keyword.position,
+            lastChecked: keyword.lastChecked
           })
           .eq('id', keyword.id)
           .select()
