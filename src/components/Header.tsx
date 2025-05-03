@@ -222,6 +222,10 @@ const Header: React.FC = () => {
                   <Link to="/agence-evenementielle" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     <i>Agence événementielle</i>
                   </Link>
+                  <Link to="/chatbot" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border flex items-center">
+                    <span>Assistant</span>
+                    <span className="ml-1 px-2 py-0.5 text-xs bg-blue-500 text-white rounded-full">Nouveau</span>
+                  </Link>
                 </nav>
               </div>
 

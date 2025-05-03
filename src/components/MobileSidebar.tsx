@@ -282,6 +282,16 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
                   </motion.div>
                   <motion.div variants={itemVariant}>
                     <Link 
+                      to="/chatbot" 
+                      className="flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gradient-to-r hover:from-violet-50 hover:to-indigo-50 dark:hover:from-violet-900/20 dark:hover:to-indigo-900/20 rounded-lg transition-all duration-300 hover:shadow-sm group"
+                      onClick={onClose}
+                    >
+                      <span className="group-hover:translate-x-1 transition-transform duration-300">Assistant</span>
+                      <span className="ml-2 px-2 py-0.5 text-xs bg-blue-500 text-white rounded-full">Nouveau</span>
+                    </Link>
+                  </motion.div>
+                  <motion.div variants={itemVariant}>
+                    <Link 
                       to="/delivery" 
                       className="flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gradient-to-r hover:from-violet-50 hover:to-indigo-50 dark:hover:from-violet-900/20 dark:hover:to-indigo-900/20 rounded-lg transition-all duration-300 hover:shadow-sm group"
                       onClick={onClose}

@@ -24,6 +24,7 @@ import ArtistPage from './pages/ArtistPage';
 import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import CguPage from './pages/CguPage';
+import ChatbotPage from './pages/ChatbotPage';
 import { HelmetProvider } from 'react-helmet-async';
 
 // Admin pages
@@ -58,6 +59,7 @@ const App: React.FC = () => {
             <Route path="/artist/:id" element={<ArtistDetailPage />} />
             <Route path="/agence-evenementielle" element={<EventsPage />} />
             <Route path="/cgu" element={<CguPage />} />
+            <Route path="/chatbot" element={<ChatbotPage />} />
 
           </Route>
 
