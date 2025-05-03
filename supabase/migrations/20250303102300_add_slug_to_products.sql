@@ -20,14 +20,13 @@ BEGIN
     CREATE UNIQUE INDEX IF NOT EXISTS products_slug_idx ON products (slug);
     
     -- Ajouter une contrainte pour s'assurer que le slug est unique lorsqu'il n'est pas null
-    DO $$
+    DO $inner$ 
     BEGIN
       IF NOT EXISTS (
         SELECT 1 FROM pg_constraint WHERE conname = 'products_slug_unique'
       ) THEN
         ALTER TABLE products ADD CONSTRAINT products_slug_unique UNIQUE (slug);
       END IF;
-    END
-    $$;
+    END $inner$;
   END IF;
 END $$;

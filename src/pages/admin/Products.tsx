@@ -311,7 +311,7 @@ const AdminProducts: React.FC = () => {
                           </div>
                         </th>
                         <th 
-                          className="hidden xl:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                          className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                           onClick={() => handleSort('slug')}
                         >
                           <div className="flex items-center">
@@ -391,10 +391,10 @@ const AdminProducts: React.FC = () => {
                               <div className="text-sm text-gray-400">{product.subSubCategory}</div>
                             )}
                           </td>
-                          <td className="hidden xl:table-cell px-6 py-4 whitespace-nowrap">
+                          <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap">
                             {product.slug ? (
                               <div className="flex items-center">
-                                <span className="text-sm text-blue-600 font-medium">{product.slug}</span>
+                                <span className="text-sm text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded-md">{product.slug}</span>
                                 <button 
                                   onClick={() => {
                                     navigator.clipboard.writeText(`${window.location.origin}/p/${product.slug}`);
@@ -421,7 +421,7 @@ const AdminProducts: React.FC = () => {
                                 </button>
                               </div>
                             ) : (
-                              <span className="text-xs text-gray-400 italic">Non défini</span>
+                              <span className="text-xs bg-red-50 text-red-500 px-2 py-1 rounded-md font-medium">Non défini</span>
                             )}
                           </td>
                           <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
