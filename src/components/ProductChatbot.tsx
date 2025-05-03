@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getAllProducts, searchProducts } from '../services/productService';
-import { generateChatbotResponse } from '../services/chatbotService';
+import { generateChatbotResponse, generateDynamicSuggestions } from '../services/chatbotService';
 import { Product } from '../types/Product';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BrainCircuit, Send, Sparkles, RotateCcw, Search, Tag, X, Package, User, Bot } from 'lucide-react';
+import { BrainCircuit, Send, Sparkles, RotateCcw, Search, Tag, X, Package, User, Bot, MessageSquare, Lightbulb } from 'lucide-react';
 import '../styles/chatbot.css';
 
 interface Message {
@@ -21,6 +21,8 @@ const ProductChatbot: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
+  const [showSuggestionsButton, setShowSuggestionsButton] = useState(true);
   const [useReasoningMode, setUseReasoningMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [isSearchingProducts, setIsSearchingProducts] = useState(false);
@@ -85,6 +87,11 @@ const ProductChatbot: React.FC = () => {
     // Sauvegarder l'historique des messages dans localStorage
     if (messages.length > 0) {
       localStorage.setItem('chatHistory', JSON.stringify(messages));
+      
+      // Générer des suggestions dynamiques basées sur les messages et les produits
+      const messageHistory = messages.map(msg => ({ text: msg.text, sender: msg.sender }));
+      const newSuggestions = generateDynamicSuggestions(products, messageHistory);
+      setDynamicSuggestions(newSuggestions);
     }
     
     // Marquer les nouveaux messages comme vus après animation
@@ -94,7 +101,7 @@ const ProductChatbot: React.FC = () => {
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [messages]);
+  }, [messages, products]);
 
   // Fonction pour générer une réponse basée sur la question et les produits disponibles
   const generateResponse = async (question: string): Promise<{text: string, isReasoned: boolean}> => {
@@ -195,8 +202,9 @@ const ProductChatbot: React.FC = () => {
   const handleSendMessage = async (text = input) => {
     if (!text.trim()) return;
 
-    // Masquer les suggestions après envoi d'un message
+    // Masquer les suggestions et le bouton après envoi d'un message
     setShowSuggestions(false);
+    setShowSuggestionsButton(false);
     setIsSearchingProducts(false);
     setProductSearchResults([]);
     
@@ -243,8 +251,8 @@ const ProductChatbot: React.FC = () => {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
-      // Réafficher les suggestions après un délai
-      setTimeout(() => setShowSuggestions(true), 2000);
+      // Réafficher le bouton de suggestions après un délai
+      setTimeout(() => setShowSuggestionsButton(true), 1000);
     }
   };
   
@@ -468,16 +476,31 @@ const ProductChatbot: React.FC = () => {
             className="mt-6 mb-4 px-2"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
           >
-            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide">Suggestions :</p>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1">
+                <Lightbulb className="w-3 h-3" />
+                <span>Suggestions :</span>
+              </p>
+              <motion.button 
+                onClick={() => setShowSuggestions(false)}
+                className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <X className="w-3 h-3" />
+              </motion.button>
+            </div>
             <div className="grid grid-cols-1 gap-2">
-              {suggestedQuestions.map((question, index) => (
+              {dynamicSuggestions.map((question, index) => (
                 <motion.button
                   key={index}
                   onClick={() => handleSuggestedQuestion(question)}
-                  className="text-left p-3 bg-white dark:bg-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-600 hover:border-violet-200 dark:hover:border-violet-400"
+                  className="text-left p-3 bg-white dark:bg-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-600 hover:border-violet-200 dark:hover:border-violet-400 flex items-start gap-2"
                   whileHover={{ translateX: 5 }}
                 >
+                  <MessageSquare className="w-4 h-4 text-violet-500 dark:text-violet-400 mt-0.5 flex-shrink-0" />
                   <span className="text-sm text-gray-700 dark:text-gray-200">{question}</span>
                 </motion.button>
               ))}
@@ -485,6 +508,23 @@ const ProductChatbot: React.FC = () => {
           </motion.div>
         )}
 
+        {/* Bouton flottant pour afficher les suggestions */}
+        <AnimatePresence>
+          {showSuggestionsButton && !showSuggestions && (
+            <motion.button
+              onClick={() => setShowSuggestions(true)}
+              className="fixed bottom-24 right-6 p-3 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10 flex items-center justify-center"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+            >
+              <Lightbulb className="w-5 h-5" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+        
         <div ref={messagesEndRef} />
       </div>
 

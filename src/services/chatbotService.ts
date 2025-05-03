@@ -9,6 +9,11 @@ interface ChatbotResponse {
   error?: string;
 }
 
+interface SuggestionResponse {
+  suggestions: string[];
+  error?: string;
+}
+
 /**
  * Prépare les données des produits pour le contexte du chatbot
  */
@@ -31,6 +36,84 @@ export const prepareProductContext = (products: Product[]) => {
 /**
  * Génère une réponse du chatbot basée sur la question de l'utilisateur et les produits disponibles
  */
+/**
+ * Génère des suggestions de questions basées sur les produits disponibles et l'historique des conversations
+ */
+export const generateDynamicSuggestions = (products: Product[], messageHistory: {text: string, sender: 'user' | 'bot'}[] = []): string[] => {
+  // Suggestions par défaut si aucun produit n'est disponible
+  const defaultSuggestions = [
+    "Quels sont vos produits les plus populaires pour un mariage ?",
+    "Avez-vous des systèmes de sonorisation disponibles ?",
+    "Comment fonctionne la livraison du matériel ?",
+    "Quels sont vos tarifs pour la location d'éclairage ?"
+  ];
+
+  // Si pas de produits, retourner les suggestions par défaut
+  if (!products || products.length === 0) {
+    return defaultSuggestions;
+  }
+
+  // Extraire les catégories uniques des produits
+  const categories = new Set<string>();
+  products.forEach(product => {
+    if (typeof product.category === 'string') {
+      categories.add(product.category);
+    } else if (Array.isArray(product.category)) {
+      product.category.forEach(cat => categories.add(cat));
+    }
+  });
+
+  // Générer des suggestions basées sur les catégories disponibles
+  const categorySuggestions = Array.from(categories).slice(0, 3).map(category => 
+    `Quels produits proposez-vous dans la catégorie ${category} ?`
+  );
+
+  // Générer des suggestions basées sur les produits populaires ou récents
+  const productSuggestions = products
+    .slice(0, 5)
+    .map(product => `Pouvez-vous me donner plus d'informations sur ${product.name} ?`);
+
+  // Analyser l'historique des messages pour des suggestions contextuelles
+  let contextualSuggestions: string[] = [];
+  
+  if (messageHistory.length > 0) {
+    // Extraire le dernier message du bot
+    const lastBotMessage = messageHistory.filter(msg => msg.sender === 'bot').pop();
+    
+    if (lastBotMessage) {
+      // Si le dernier message du bot mentionne un produit, suggérer des questions de suivi
+      const mentionedProducts = products.filter(product => 
+        lastBotMessage.text.toLowerCase().includes(product.name.toLowerCase())
+      );
+      
+      if (mentionedProducts.length > 0) {
+        contextualSuggestions = [
+          `Quel est le prix de location de ${mentionedProducts[0].name} ?`,
+          `Est-ce que ${mentionedProducts[0].name} est disponible pour ce week-end ?`,
+          `Avez-vous des produits similaires à ${mentionedProducts[0].name} ?`
+        ];
+      }
+      
+      // Si le message mentionne des prix, suggérer des questions sur le budget
+      if (lastBotMessage.text.includes('€') || lastBotMessage.text.toLowerCase().includes('prix') || lastBotMessage.text.toLowerCase().includes('tarif')) {
+        contextualSuggestions.push("Proposez-vous des réductions pour les locations de longue durée ?");
+      }
+      
+      // Si le message mentionne la livraison
+      if (lastBotMessage.text.toLowerCase().includes('livraison') || lastBotMessage.text.toLowerCase().includes('transport')) {
+        contextualSuggestions.push("Quels sont vos délais de livraison habituels ?");
+      }
+    }
+  }
+
+  // Combiner et filtrer les suggestions pour éviter les doublons
+  const allSuggestions = [...contextualSuggestions, ...categorySuggestions, ...productSuggestions, ...defaultSuggestions];
+  const uniqueSuggestions = Array.from(new Set(allSuggestions));
+  
+  // Retourner un maximum de 4 suggestions
+  return uniqueSuggestions.slice(0, 4);
+};
+
 export const generateChatbotResponse = async (question: string, products: Product[], useReasoningMode: boolean): Promise<ChatbotResponse> => {
   try {
     const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
