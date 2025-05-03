@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { getProductById, getSimilarProducts } from '../services/productService';
 import { Product } from '../types/Product';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
+import SEO from '../components/SEO';
 
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -125,6 +126,16 @@ const ProductPage: React.FC = () => {
 
 return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white">
+      {/* SEO Component */}
+      {product && (
+        <SEO 
+          title={product.seo_title || product.name}
+          description={product.seo_description || product.description.substring(0, 160)}
+          keywords={product.seo_keywords || ''}
+          image={product.images && product.images.length > 0 ? product.images[currentImageIndex] : DEFAULT_PRODUCT_IMAGE}
+        />
+      )}
+      
       <div className="max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8 py-24">
         {/* Breadcrumb */}
         <div className="mb-8">
