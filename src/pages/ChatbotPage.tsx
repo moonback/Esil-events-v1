@@ -5,14 +5,14 @@ import SEO from '../components/SEO';
 
 const ChatbotPage: React.FC = () => {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="pt-28 pb-20 bg-white dark:bg-gray-900 overflow-hidden">
       <SEO 
         title="Assistant Virtuel ESIL Events - Votre guide interactif"
         description="Découvrez notre assistant virtuel intelligent qui répond instantanément à toutes vos questions sur nos services de location de matériel événementiel. Disponible 24/7 pour vous guider."
         keywords="assistant virtuel ESIL Events, chatbot événementiel, aide en ligne événementiel, location matériel assistance, guide interactif événement"
       />
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-8xl mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-center">Assistant Virtuel ESIL Events</h1>
         
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -26,7 +26,7 @@ const ChatbotPage: React.FC = () => {
           <ul className="list-disc pl-6 mb-6">
             <li className="mb-2">Nos produits disponibles à la location</li>
             <li className="mb-2">Les caractéristiques techniques de nos équipements</li>
-            <li className="mb-2">Les prix et disponibilités</li>
+            <li className="mb-2">Les prix et modalité de location</li>
             <li className="mb-2">Des recommandations selon vos besoins</li>
             <li className="mb-2">Nos services d'installation et de livraison</li>
           </ul>
