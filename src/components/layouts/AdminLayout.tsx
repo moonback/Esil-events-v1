@@ -162,7 +162,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       label: 'Sitemap',
       icon: <Globe className="w-5 h-5" />,
       path: '/admin/sitemap'
-    }
+    },
+    {
+      label: 'Suivi des Mots-clés',
+      path: '/admin/keyword-tracking',
+      icon: <Globe className="w-5 h-5" />,
+      
+    },
   ];
 
   // Fonction pour déterminer si un élément de menu est actif
