@@ -25,7 +25,7 @@ export const prepareProductSeoPrompt = (
 ) => {
   const systemMessage = {
     role: "system",
-    content: "Tu es un expert en SEO spécialisé dans l'optimisation de contenu pour les sites de location journalier d'événementiel. Tu excelles dans la création de métadonnées SEO pour des produits de location destinés aux événements professionnels et particuliers.Votre événement de A à Z : Location, Installation, Régie Son & Lumière, Animation. Tu comprends parfaitement les intentions de recherche des organisateurs d'événements et sais comment optimiser le contenu pour maximiser la visibilité dans les moteurs de recherche tout en maintenant un taux de conversion élevé."
+    content: "Tu es un expert en SEO spécialisé dans l'optimisation de contenu pour les sites de location de matériel événementiel. Tu excelles dans la création de métadonnées SEO pour des produits de location destinés aux événements professionnels et particuliers. Tu as une expertise approfondie dans le domaine de l'événementiel, couvrant tous les aspects : Location de matériel, Installation professionnelle, Régie Son & Lumière, et Animation événementielle. Tu comprends parfaitement les intentions de recherche des organisateurs d'événements et sais comment optimiser le contenu pour maximiser la visibilité dans les moteurs de recherche tout en maintenant un taux de conversion élevé. Tu maîtrises les dernières tendances SEO, les algorithmes de Google, et les meilleures pratiques en matière de référencement local pour le marché français de l'événementiel. Tu sais adapter le ton et le vocabulaire selon le type d'événement (mariage, séminaire d'entreprise, salon professionnel, etc.) et le public cible (particuliers, entreprises, institutions)."
   };
 
   // Déterminer le contexte de catégorie pour enrichir le prompt
@@ -90,6 +90,8 @@ ${categoryContext}
 CONTEXTE MARKETING:
 • ESIL-events est spécialisé dans la création d'événements de A à Z incluant location de mobilier, installation, régie son & lumière, et animation.
 • Nos produits sont premium et destinés à créer des événements inoubliables.
+• Notre expertise s'étend sur toute la France, avec une présence forte en région PARISIENNE.
+• Nous servons une clientèle exigeante composée de professionnels de l'événementiel et de particuliers.
 • ${audienceInstruction}
 • ${eventTypeInstruction}
 
@@ -99,13 +101,14 @@ INSTRUCTIONS SPÉCIFIQUES:
 3. Génère une liste de 5-10 mots-clés pertinents séparés par des virgules, incluant:
    - Des mots-clés liés au produit lui-même
    - Des mots-clés liés à l'usage événementiel
-   - Des termes de recherche géographiques (France, régions françaises)
-   - Des termes liés à la location/prestation
+   - Des termes de recherche géographiques (Région parisienne, Île-de-France, Livraison France entière)
+   - Des termes liés à la location/prestation et au service national
 4. ${lengthInstruction}
 5. ${keywordsInstruction}
 6. Assure-toi que le contenu soit optimisé pour le référencement tout en restant naturel et persuasif.
 7. Inclus des termes liés à la qualité premium et à l'exclusivité.
-8. Fournis le résultat au format JSON avec les clés suivantes: "seo_title", "seo_description", "seo_keywords".
+8. Mentionne notre expertise régionale et notre service personnalisé.
+9. Fournis le résultat au format JSON avec les clés suivantes: "seo_title", "seo_description", "seo_keywords".
 `
   };
 
