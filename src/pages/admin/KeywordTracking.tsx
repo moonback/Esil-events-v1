@@ -365,7 +365,7 @@ const AdminKeywordTracking: React.FC = () => {
                   id="url"
                   value={newUrl}
                   onChange={(e) => setNewUrl(e.target.value)}
-                  placeholder="https://esil-events.com"
+                  placeholder="https://esil-events.fr"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
