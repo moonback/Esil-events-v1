@@ -3,7 +3,8 @@ import { getAllProducts, searchProducts } from '../services/productService';
 import { generateChatbotResponse } from '../services/chatbotService';
 import { Product } from '../types/Product';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BrainCircuit, Send, Sparkles, RotateCcw, Search, Tag, X, Package } from 'lucide-react';
+import { BrainCircuit, Send, Sparkles, RotateCcw, Search, Tag, X, Package, User, Bot } from 'lucide-react';
+import '../styles/chatbot.css';
 
 interface Message {
   id: string;
@@ -346,39 +347,90 @@ const ProductChatbot: React.FC = () => {
           {messages.map((message) => (
             <motion.div 
               key={message.id} 
-              className={`mb-4 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`mb-5 flex items-end gap-2 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
             >
+              {/* Avatar pour le bot */}
+              {message.sender === 'bot' && (
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-gray-800">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 001.5 2.25m0 0v2.572a2.25 2.25 0 01-1.5 2.25m0 0c-1.283.918-2.617 1.843-4.5 2.25m0 0c-1.883-.407-3.217-1.332-4.5-2.25m0 0A2.25 2.25 0 013.75 19.5v-2.572a2.25 2.25 0 01.658-1.591L8.5 14.5" />
+                  </svg>
+                </div>
+              )}
+              
               <motion.div 
-                className={`relative max-w-[85%] transition-all ${
+                className={`relative max-w-[85%] transition-all shadow-sm ${
                   message.sender === 'user'
-                    ? 'bg-gradient-to-br from-violet-600 to-violet-500 text-white rounded-2xl rounded-br-none'
+                    ? 'bg-gradient-to-br from-violet-600 to-violet-500 text-white rounded-2xl rounded-br-none shadow-violet-200 dark:shadow-none'
                     : message.isReasoned 
                       ? 'bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 text-gray-800 dark:text-gray-100 border border-indigo-200 dark:border-indigo-800/50 rounded-2xl rounded-tl-none'
                       : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-600 rounded-2xl rounded-tl-none'
-                }`}
+                } ${message.isNew ? 'message-new' : ''}`}
                 whileHover={{ scale: 1.02 }}
+                layout
               >
                 <div className="p-4">
                   {message.isReasoned && message.sender === 'bot' && (
-                    <div className="flex items-center gap-1 mb-2">
+                    <div className="flex items-center gap-1 mb-2 pb-2 border-b border-indigo-100 dark:border-indigo-800/30">
                       <Sparkles className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
                       <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">Réponse raisonnée</span>
                     </div>
                   )}
-                  <p className="text-sm/[1.4] font-medium">{message.text}</p>
-                  <div className="text-xs text-gray-300 dark:text-gray-400 mt-2 text-right">
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <div className="relative">
+                    <p className="text-sm/[1.6] font-medium whitespace-pre-line">
+                      {message.text.split('\n').map((line, i) => (
+                        <React.Fragment key={i}>
+                          {line.includes('http') ? (
+                            line.split(/\b(https?:\/\/[^\s]+)\b/).map((part, j) => (
+                              <React.Fragment key={j}>
+                                {part.match(/^https?:\/\//) ? (
+                                  <a 
+                                    href={part} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className={`underline ${message.sender === 'user' ? 'text-indigo-100' : 'text-indigo-500 dark:text-indigo-400'}`}
+                                  >
+                                    {part}
+                                  </a>
+                                ) : (
+                                  part
+                                )}
+                              </React.Fragment>
+                            ))
+                          ) : (
+                            line
+                          )}
+                          {i < message.text.split('\n').length - 1 && <br />}
+                        </React.Fragment>
+                      ))}
+                    </p>
+                    <div className="text-xs text-gray-400 dark:text-gray-400 mt-2 text-right opacity-70 flex justify-end items-center gap-1">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-500"></span>
+                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
                   </div>
                 </div>
-                {/* Decorative corner */}
-                {message.sender === 'user' && (
-                  <div className="absolute -right-[2px] bottom-0 w-3 h-3 bg-violet-600 clip-corner" />
+                
+                {/* Decorative corners */}
+                {message.sender === 'user' ? (
+                  <div className="absolute -right-[2px] bottom-0 w-3 h-3 bg-violet-500 clip-corner" />
+                ) : (
+                  <div className="absolute -left-[2px] bottom-0 w-3 h-3 bg-white dark:bg-gray-700 clip-corner-left" />
                 )}
               </motion.div>
+              
+              {/* Avatar pour l'utilisateur */}
+              {message.sender === 'user' && (
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-gray-800">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                  </svg>
+                </div>
+              )}
             </motion.div>
           ))}
         </AnimatePresence>
@@ -386,16 +438,26 @@ const ProductChatbot: React.FC = () => {
         {/* Enhanced Loading Indicator */}
         {isLoading && (
           <motion.div 
-            className="flex justify-start mb-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            className="flex items-end justify-start mb-5 gap-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
           >
-            <div className="bg-white dark:bg-gray-700 p-3 rounded-2xl shadow-sm flex items-center space-x-2">
-              <svg className="h-5 w-5 animate-spin text-violet-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-gray-800">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 001.5 2.25m0 0v2.572a2.25 2.25 0 01-1.5 2.25m0 0c-1.283.918-2.617 1.843-4.5 2.25m0 0c-1.883-.407-3.217-1.332-4.5-2.25m0 0A2.25 2.25 0 013.75 19.5v-2.572a2.25 2.25 0 01.658-1.591L8.5 14.5" />
               </svg>
-              <span className="text-sm text-gray-500 dark:text-gray-400">Réflexion en cours...</span>
+            </div>
+            <div className="bg-white dark:bg-gray-700 p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-600 relative">
+              <div className="flex items-center gap-3">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 rounded-full bg-violet-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 rounded-full bg-violet-600 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
+                <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Réflexion en cours...</span>
+              </div>
+              <div className="absolute -left-[2px] bottom-0 w-3 h-3 bg-white dark:bg-gray-700 clip-corner-left" />
             </div>
           </motion.div>
         )}
