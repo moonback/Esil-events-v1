@@ -33,12 +33,6 @@ const ProductChatbot: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   
   // Questions fréquentes suggérées
-  const suggestedQuestions = [
-    "Quels sont vos produits les plus populaires pour un mariage ?",
-    "Avez-vous des systèmes de sonorisation disponibles ?",
-    "Comment fonctionne la livraison du matériel ?",
-    "Quels sont vos tarifs pour la location d'éclairage ?"
-  ];
 
   // Charger les produits et l'historique au montage du composant
   useEffect(() => {
