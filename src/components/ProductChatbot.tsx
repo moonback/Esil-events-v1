@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getAllProducts } from '../services/productService';
+import { getAllProducts, searchProducts } from '../services/productService';
 import { generateChatbotResponse } from '../services/chatbotService';
 import { Product } from '../types/Product';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BrainCircuit, Send, Sparkles, RotateCcw } from 'lucide-react';
+import { BrainCircuit, Send, Sparkles, RotateCcw, Search, Tag, X, Package } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -22,6 +22,10 @@ const ProductChatbot: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [useReasoningMode, setUseReasoningMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [isSearchingProducts, setIsSearchingProducts] = useState(false);
+  const [productSearchResults, setProductSearchResults] = useState<Product[]>([]);
+  const [productSearchQuery, setProductSearchQuery] = useState('');
+  const [cursorPosition, setCursorPosition] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -117,12 +121,83 @@ const ProductChatbot: React.FC = () => {
     }
   };
 
+  // Gérer la recherche de produits avec @
+  useEffect(() => {
+    if (productSearchQuery.trim()) {
+      const searchForProducts = async () => {
+        try {
+          const results = await searchProducts(productSearchQuery);
+          setProductSearchResults(results.slice(0, 5)); // Limiter à 5 résultats pour l'UI
+        } catch (error) {
+          console.error('Erreur lors de la recherche de produits:', error);
+          setProductSearchResults([]);
+        }
+      };
+      
+      searchForProducts();
+    } else {
+      setProductSearchResults([]);
+    }
+  }, [productSearchQuery]);
+
+  // Gérer les changements dans le champ de saisie
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInput(value);
+    
+    // Mettre à jour la position du curseur
+    setCursorPosition(e.target.selectionStart || 0);
+    
+    // Détecter si l'utilisateur tape @
+    const atSymbolIndex = value.lastIndexOf('@', cursorPosition);
+    
+    if (atSymbolIndex !== -1 && atSymbolIndex < cursorPosition) {
+      // Extraire le texte après @ jusqu'à la position du curseur
+      const searchText = value.substring(atSymbolIndex + 1, cursorPosition).trim();
+      setProductSearchQuery(searchText);
+      setIsSearchingProducts(true);
+    } else {
+      setIsSearchingProducts(false);
+      setProductSearchQuery('');
+    }
+  };
+
+  // Gérer la sélection d'un produit dans les résultats de recherche
+  const handleProductSelect = (product: Product) => {
+    // Trouver l'index du @ dans l'input
+    const atSymbolIndex = input.lastIndexOf('@', cursorPosition);
+    
+    if (atSymbolIndex !== -1) {
+      // Remplacer le texte entre @ et la position du curseur par le nom du produit
+      const beforeAt = input.substring(0, atSymbolIndex);
+      const afterCursor = input.substring(cursorPosition);
+      const newInput = `${beforeAt}@${product.name} ${afterCursor}`;
+      
+      setInput(newInput);
+      // Réinitialiser la recherche
+      setIsSearchingProducts(false);
+      setProductSearchResults([]);
+      
+      // Focus sur l'input et placer le curseur après le nom du produit
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          const newCursorPosition = beforeAt.length + product.name.length + 2; // +2 pour @ et espace
+          inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+          setCursorPosition(newCursorPosition);
+        }
+      }, 0);
+    }
+  };
+
   // Gérer l'envoi d'un message
   const handleSendMessage = async (text = input) => {
     if (!text.trim()) return;
 
     // Masquer les suggestions après envoi d'un message
     setShowSuggestions(false);
+    setIsSearchingProducts(false);
+    setProductSearchResults([]);
     
     // Ajouter le message de l'utilisateur
     const userMessage: Message = {
@@ -355,16 +430,65 @@ const ProductChatbot: React.FC = () => {
       <div className="p-4 bg-gradient-to-t from-white via-white to-violet-50/30 dark:from-gray-800 dark:via-gray-800 border-t border-gray-100 dark:border-gray-700">
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder={useReasoningMode ? "Posez une question (mode raisonnement activé)..." : "Écrivez votre message..."}
-              className={`w-full p-3 pl-4 pr-10 text-sm bg-white dark:bg-gray-700 border ${useReasoningMode ? 'border-indigo-300 dark:border-indigo-700' : 'border-gray-200 dark:border-gray-600'} rounded-xl focus:outline-none focus:ring-2 ${useReasoningMode ? 'focus:ring-indigo-400 focus:border-indigo-400' : 'focus:ring-violet-400 focus:border-violet-400'} transition-all placeholder-gray-400 dark:placeholder-gray-500 shadow-sm`}
-              disabled={isLoading}
-            />
+            <div className="relative w-full">
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={handleInputChange}
+                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                placeholder={useReasoningMode ? "Posez une question (mode raisonnement activé)..." : "Écrivez votre message... (utilisez @ pour mentionner un produit)"}
+                className={`w-full p-3 pl-4 pr-10 text-sm bg-white dark:bg-gray-700 border ${useReasoningMode ? 'border-indigo-300 dark:border-indigo-700' : 'border-gray-200 dark:border-gray-600'} rounded-xl focus:outline-none focus:ring-2 ${useReasoningMode ? 'focus:ring-indigo-400 focus:border-indigo-400' : 'focus:ring-violet-400 focus:border-violet-400'} transition-all placeholder-gray-400 dark:placeholder-gray-500 shadow-sm`}
+                disabled={isLoading}
+              />
+              
+              {/* Résultats de recherche de produits */}
+              <AnimatePresence>
+                {isSearchingProducts && productSearchResults.length > 0 && (
+                  <motion.div 
+                    className="absolute z-10 bottom-full mb-2 w-full bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg rounded-lg overflow-hidden border border-violet-200 dark:border-violet-800"
+                    initial={{ opacity: 0, y: 10, height: 0 }}
+                    animate={{ opacity: 1, y: 0, height: 'auto' }}
+                    exit={{ opacity: 0, y: 10, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="p-2">
+                      <div className="px-3 py-2 text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider flex items-center border-b border-violet-100 dark:border-violet-800 mb-1">
+                        <Package className="w-3 h-3 mr-1" />
+                        <span>Produits</span>
+                      </div>
+                      
+                      {productSearchResults.map((product) => (
+                        <motion.div 
+                          key={product.id}
+                          className="px-3 py-2 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-md cursor-pointer group transition-all duration-200"
+                          onClick={() => handleProductSelect(product)}
+                          whileHover={{ x: 3 }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                                {product.name}
+                              </p>
+                              {product.category && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {typeof product.category === 'string' 
+                                    ? product.category.charAt(0).toUpperCase() + product.category.slice(1)
+                                    : product.category[0].charAt(0).toUpperCase() + product.category[0].slice(1)}
+                                </p>
+                              )}
+                            </div>
+                            <div className="text-xs font-medium text-violet-600 dark:text-violet-400">
+                              {product.priceTTC}€
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
             {useReasoningMode && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <Sparkles className="w-4 h-4 text-indigo-500" />
