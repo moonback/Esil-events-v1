@@ -365,7 +365,7 @@ const AdminProducts: React.FC = () => {
                                 <div className="text-sm text-gray-500">{product.reference}</div>
                                 {product.slug && (
                                   <div className="text-xs text-blue-500 mt-0.5">
-                                    <span className="font-medium">URL:</span> /p/{product.slug}
+                                    <span className="font-medium">URL:</span> /product/{product.slug}
                                   </div>
                                 )}
                                 <div className="lg:hidden text-xs text-gray-400 mt-1">
