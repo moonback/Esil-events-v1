@@ -193,21 +193,21 @@ const ProductChatbot: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-white via-blue-50 to-blue-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+    <div className="w-full h-full bg-gradient-to-br from-white via-violet-50 to-violet-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
       {/* Enhanced Header */}
-      <div className="bg-gradient-to-r from-indigo-900 via-blue-900 to-indigo-900 text-white p-4 flex justify-between items-center border-b border-blue-300/50 shadow-sm">
+      <div className="bg-gradient-to-r from-indigo-900 via-violet-900 to-indigo-900 text-white p-4 flex justify-between items-center border-b border-violet-300/50 shadow-sm">
         <span className="tracking-wide text-lg font-bold flex items-center gap-3">
-          <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg className="w-7 h-7 text-violet-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span className="bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-violet-400 to-green-400 bg-clip-text text-transparent">
             Assistant ESIL
           </span>
         </span>
         <div className="flex items-center gap-2">
           <motion.button 
             onClick={() => setShowSettings(!showSettings)}
-            className="flex items-center justify-center text-sm bg-white/10 hover:bg-white/20 text-blue-100 p-2 rounded-lg transition-all duration-300"
+            className="flex items-center justify-center text-sm bg-white/10 hover:bg-white/20 text-violet-100 p-2 rounded-lg transition-all duration-300"
             title="Paramètres"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -219,7 +219,7 @@ const ProductChatbot: React.FC = () => {
           </motion.button>
           <motion.button 
             onClick={clearConversation}
-            className="flex items-center text-sm bg-white/10 hover:bg-white/20 text-blue-100 px-4 py-2 rounded-lg transition-all duration-300 group"
+            className="flex items-center text-sm bg-white/10 hover:bg-white/20 text-violet-100 px-4 py-2 rounded-lg transition-all duration-300 group"
             title="Effacer la conversation"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -266,7 +266,7 @@ const ProductChatbot: React.FC = () => {
       </AnimatePresence>
 
       {/* Enhanced Messages Container */}
-      <div className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-white/50 to-blue-50/30 dark:from-gray-800/80 dark:to-gray-900">
+      <div className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-white/50 to-violet-50/30 dark:from-gray-800/80 dark:to-gray-900">
         <AnimatePresence>
           {messages.map((message) => (
             <motion.div 
@@ -280,7 +280,7 @@ const ProductChatbot: React.FC = () => {
               <motion.div 
                 className={`relative max-w-[85%] transition-all ${
                   message.sender === 'user'
-                    ? 'bg-gradient-to-br from-blue-600 to-blue-500 text-white rounded-2xl rounded-br-none'
+                    ? 'bg-gradient-to-br from-violet-600 to-violet-500 text-white rounded-2xl rounded-br-none'
                     : message.isReasoned 
                       ? 'bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 text-gray-800 dark:text-gray-100 border border-indigo-200 dark:border-indigo-800/50 rounded-2xl rounded-tl-none'
                       : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-600 rounded-2xl rounded-tl-none'
@@ -301,7 +301,7 @@ const ProductChatbot: React.FC = () => {
                 </div>
                 {/* Decorative corner */}
                 {message.sender === 'user' && (
-                  <div className="absolute -right-[2px] bottom-0 w-3 h-3 bg-blue-600 clip-corner" />
+                  <div className="absolute -right-[2px] bottom-0 w-3 h-3 bg-violet-600 clip-corner" />
                 )}
               </motion.div>
             </motion.div>
@@ -316,7 +316,7 @@ const ProductChatbot: React.FC = () => {
             animate={{ opacity: 1 }}
           >
             <div className="bg-white dark:bg-gray-700 p-3 rounded-2xl shadow-sm flex items-center space-x-2">
-              <svg className="h-5 w-5 animate-spin text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="h-5 w-5 animate-spin text-violet-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -338,7 +338,7 @@ const ProductChatbot: React.FC = () => {
                 <motion.button
                   key={index}
                   onClick={() => handleSuggestedQuestion(question)}
-                  className="text-left p-3 bg-white dark:bg-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-600 hover:border-blue-200 dark:hover:border-blue-400"
+                  className="text-left p-3 bg-white dark:bg-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-600 hover:border-violet-200 dark:hover:border-violet-400"
                   whileHover={{ translateX: 5 }}
                 >
                   <span className="text-sm text-gray-700 dark:text-gray-200">{question}</span>
@@ -352,7 +352,7 @@ const ProductChatbot: React.FC = () => {
       </div>
 
       {/* Enhanced Input Area */}
-      <div className="p-4 bg-gradient-to-t from-white via-white to-blue-50/30 dark:from-gray-800 dark:via-gray-800 border-t border-gray-100 dark:border-gray-700">
+      <div className="p-4 bg-gradient-to-t from-white via-white to-violet-50/30 dark:from-gray-800 dark:via-gray-800 border-t border-gray-100 dark:border-gray-700">
         <div className="flex gap-2">
           <div className="relative flex-1">
             <input
@@ -362,7 +362,7 @@ const ProductChatbot: React.FC = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               placeholder={useReasoningMode ? "Posez une question (mode raisonnement activé)..." : "Écrivez votre message..."}
-              className={`w-full p-3 pl-4 pr-10 text-sm bg-white dark:bg-gray-700 border ${useReasoningMode ? 'border-indigo-300 dark:border-indigo-700' : 'border-gray-200 dark:border-gray-600'} rounded-xl focus:outline-none focus:ring-2 ${useReasoningMode ? 'focus:ring-indigo-400 focus:border-indigo-400' : 'focus:ring-blue-400 focus:border-blue-400'} transition-all placeholder-gray-400 dark:placeholder-gray-500 shadow-sm`}
+              className={`w-full p-3 pl-4 pr-10 text-sm bg-white dark:bg-gray-700 border ${useReasoningMode ? 'border-indigo-300 dark:border-indigo-700' : 'border-gray-200 dark:border-gray-600'} rounded-xl focus:outline-none focus:ring-2 ${useReasoningMode ? 'focus:ring-indigo-400 focus:border-indigo-400' : 'focus:ring-violet-400 focus:border-violet-400'} transition-all placeholder-gray-400 dark:placeholder-gray-500 shadow-sm`}
               disabled={isLoading}
             />
             {useReasoningMode && (
@@ -374,7 +374,7 @@ const ProductChatbot: React.FC = () => {
           <motion.button
             onClick={() => handleSendMessage()}
             disabled={isLoading || !input.trim()}
-            className={`p-3 ${useReasoningMode ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-blue-600 hover:bg-blue-700'} text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md`}
+            className={`p-3 ${useReasoningMode ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-violet-600 hover:bg-violet-700'} text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
