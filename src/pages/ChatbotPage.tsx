@@ -1,14 +1,16 @@
 import React from 'react';
 import ProductChatbot from '../components/ProductChatbot';
-// import { Helmet } from 'react-helmet';
+import SEO from '../components/SEO';
+
 
 const ChatbotPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* <Helmet>
-        <title>Assistant Virtuel - ESIL Events</title>
-        <meta name="description" content="Posez vos questions à notre assistant virtuel pour obtenir des informations sur nos produits de location pour vos événements." />
-      </Helmet> */}
+      <SEO 
+        title="Assistant Virtuel ESIL Events - Votre guide interactif"
+        description="Découvrez notre assistant virtuel intelligent qui répond instantanément à toutes vos questions sur nos services de location de matériel événementiel. Disponible 24/7 pour vous guider."
+        keywords="assistant virtuel ESIL Events, chatbot événementiel, aide en ligne événementiel, location matériel assistance, guide interactif événement"
+      />
 
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-center">Assistant Virtuel ESIL Events</h1>
