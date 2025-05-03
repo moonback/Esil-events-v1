@@ -209,13 +209,35 @@ export const getVerifiedSites = async (): Promise<string[]> => {
 };
 
 /**
+ * Vérifie si l'utilisateur a accès à un site spécifique dans Search Console
+ */
+export const hasSitePermission = async (siteUrl: string): Promise<boolean> => {
+  try {
+    const verifiedSites = await getVerifiedSites();
+    return verifiedSites.includes(siteUrl);
+  } catch (error) {
+    console.error(`Erreur lors de la vérification des permissions pour ${siteUrl}:`, error);
+    return false;
+  }
+};
+
+/**
  * Récupère la position d'un mot-clé spécifique pour un site donné
  */
 export const getKeywordPosition = async (keyword: string, siteUrl: string): Promise<number | null> => {
   try {
+    // Vérifier l'authentification
     const tokenValid = await refreshAccessTokenIfNeeded();
     if (!tokenValid) {
-      throw new Error('Non authentifié à Google Search Console');
+      console.log(`Non authentifié à Google Search Console pour le mot-clé "${keyword}"`);
+      return null;
+    }
+    
+    // Vérifier les permissions pour ce site
+    const hasPermission = await hasSitePermission(siteUrl);
+    if (!hasPermission) {
+      console.log(`Pas de permission pour le site ${siteUrl}, utilisation d'une position simulée pour "${keyword}"`);
+      return null;
     }
     
     // Préparer la requête pour l'API Search Analytics
@@ -236,35 +258,42 @@ export const getKeywordPosition = async (keyword: string, siteUrl: string): Prom
       rowLimit: 10
     };
     
-    const response = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${googleCredentials.accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(queryData)
-    });
+    try {
+      const response = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${googleCredentials.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(queryData)
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Erreur lors de la récupération des données: ${errorData.error?.message || response.statusText}`);
-    }
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log(`Erreur API pour "${keyword}": ${errorData.error?.message || response.statusText}`);
+        return null;
+      }
 
-    const data: SearchAnalyticsResponse = await response.json();
-    
-    // Si aucune donnée n'est retournée, le mot-clé n'est pas classé
-    if (!data.rows || data.rows.length === 0) {
+      const data: SearchAnalyticsResponse = await response.json();
+      
+      // Si aucune donnée n'est retournée, le mot-clé n'est pas classé
+      if (!data.rows || data.rows.length === 0) {
+        console.log(`Aucune donnée trouvée pour "${keyword}" sur ${siteUrl}`);
+        return null;
+      }
+      
+      // Trouver la ligne qui correspond exactement au mot-clé recherché
+      const exactMatch = data.rows.find(row => row.keys[0].toLowerCase() === keyword.toLowerCase());
+      if (exactMatch) {
+        return Math.round(exactMatch.position);
+      }
+      
+      // Si pas de correspondance exacte, prendre la première ligne (meilleure approximation)
+      return Math.round(data.rows[0].position);
+    } catch (apiError) {
+      console.error(`Erreur API lors de la récupération des données pour "${keyword}":`, apiError);
       return null;
     }
-    
-    // Trouver la ligne qui correspond exactement au mot-clé recherché
-    const exactMatch = data.rows.find(row => row.keys[0].toLowerCase() === keyword.toLowerCase());
-    if (exactMatch) {
-      return Math.round(exactMatch.position);
-    }
-    
-    // Si pas de correspondance exacte, prendre la première ligne (meilleure approximation)
-    return Math.round(data.rows[0].position);
   } catch (error) {
     console.error(`Erreur lors de la récupération de la position pour le mot-clé "${keyword}":`, error);
     return null;
@@ -276,9 +305,18 @@ export const getKeywordPosition = async (keyword: string, siteUrl: string): Prom
  */
 export const getMultipleKeywordPositions = async (keywords: KeywordRanking[], siteUrl: string): Promise<KeywordRanking[]> => {
   try {
+    // Vérifier l'authentification
     const tokenValid = await refreshAccessTokenIfNeeded();
     if (!tokenValid) {
-      throw new Error('Non authentifié à Google Search Console');
+      console.log(`Non authentifié à Google Search Console pour les mots-clés sur ${siteUrl}`);
+      return keywords; // Retourner les mots-clés inchangés
+    }
+    
+    // Vérifier les permissions pour ce site
+    const hasPermission = await hasSitePermission(siteUrl);
+    if (!hasPermission) {
+      console.log(`Pas de permission pour le site ${siteUrl}, utilisation de positions simulées`);
+      return keywords; // Retourner les mots-clés inchangés
     }
     
     // Préparer la requête pour l'API Search Analytics
@@ -293,44 +331,51 @@ export const getMultipleKeywordPositions = async (keywords: KeywordRanking[], si
       rowLimit: 1000 // Limite maximale pour obtenir le plus de mots-clés possible
     };
     
-    const response = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${googleCredentials.accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(queryData)
-    });
+    try {
+      const response = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${googleCredentials.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(queryData)
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Erreur lors de la récupération des données: ${errorData.error?.message || response.statusText}`);
-    }
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log(`Erreur API pour ${siteUrl}: ${errorData.error?.message || response.statusText}`);
+        return keywords; // Retourner les mots-clés inchangés
+      }
 
-    const data: SearchAnalyticsResponse = await response.json();
-    
-    // Si aucune donnée n'est retournée
-    if (!data.rows || data.rows.length === 0) {
-      return keywords; // Retourner les mots-clés inchangés
-    }
-    
-    // Mettre à jour les positions des mots-clés
-    return keywords.map(keyword => {
-      // Chercher une correspondance exacte dans les résultats
-      const match = data.rows?.find(row => row.keys[0].toLowerCase() === keyword.keyword.toLowerCase());
+      const data: SearchAnalyticsResponse = await response.json();
       
-      if (match) {
-        return {
-          ...keyword,
-          previousPosition: keyword.position,
-          position: Math.round(match.position),
-          lastChecked: new Date().toISOString().split('T')[0]
-        };
+      // Si aucune donnée n'est retournée
+      if (!data.rows || data.rows.length === 0) {
+        console.log(`Aucune donnée trouvée pour les mots-clés sur ${siteUrl}`);
+        return keywords; // Retourner les mots-clés inchangés
       }
       
-      // Si aucune correspondance n'est trouvée, conserver la position actuelle
-      return keyword;
-    });
+      // Mettre à jour les positions des mots-clés
+      return keywords.map(keyword => {
+        // Chercher une correspondance exacte dans les résultats
+        const match = data.rows?.find(row => row.keys[0].toLowerCase() === keyword.keyword.toLowerCase());
+        
+        if (match) {
+          return {
+            ...keyword,
+            previousPosition: keyword.position,
+            position: Math.round(match.position),
+            lastChecked: new Date().toISOString().split('T')[0]
+          };
+        }
+        
+        // Si aucune correspondance n'est trouvée, conserver la position actuelle
+        return keyword;
+      });
+    } catch (apiError) {
+      console.error(`Erreur API lors de la récupération des données pour ${siteUrl}:`, apiError);
+      return keywords; // Retourner les mots-clés inchangés
+    }
   } catch (error) {
     console.error('Erreur lors de la récupération des positions des mots-clés:', error);
     return keywords; // Retourner les mots-clés inchangés en cas d'erreur
@@ -348,4 +393,18 @@ export const disconnectFromGoogle = (): void => {
   googleCredentials.accessToken = undefined;
   googleCredentials.refreshToken = undefined;
   googleCredentials.expiryDate = undefined;
+};
+
+/**
+ * Génère un message d'erreur explicatif pour les problèmes d'autorisation
+ */
+export const getAuthorizationErrorMessage = (siteUrl: string): string => {
+  return `Vous n'avez pas les permissions nécessaires pour accéder aux données du site '${siteUrl}'.
+
+Pour résoudre ce problème :
+1. Assurez-vous d'être connecté avec un compte Google qui a accès à ce site dans Google Search Console.
+2. Vérifiez que le site est bien ajouté et vérifié dans votre compte Search Console.
+3. Si vous n'êtes pas propriétaire du site, demandez au propriétaire de vous accorder les droits d'accès.
+
+Pour plus d'informations, consultez : https://support.google.com/webmasters/answer/2451999`;
 };
