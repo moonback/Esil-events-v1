@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, Search, Filter, Download } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
+import GoogleAuthButton from '../../components/admin/GoogleAuthButton';
 import { 
   KeywordRanking, 
   getKeywords, 
@@ -21,6 +22,7 @@ const AdminKeywordTracking: React.FC = () => {
   const [newNotes, setNewNotes] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
+  const [isGoogleAuth, setIsGoogleAuth] = useState(false);
 
   // Charger les mots-clés depuis l'API
   useEffect(() => {
@@ -240,6 +242,16 @@ const AdminKeywordTracking: React.FC = () => {
             {notification.message}
           </div>
         )}
+        
+        {/* Google Auth Button */}
+        <div className="mb-6">
+          <GoogleAuthButton onAuthStatusChange={setIsGoogleAuth} />
+          {isGoogleAuth && (
+            <div className="mt-2 p-2 bg-green-50 text-green-800 border border-green-200 rounded-md">
+              <p className="text-sm">✓ Connecté à Google Search Console - Les données de positionnement seront réelles</p>
+            </div>
+          )}
+        </div>
 
         {/* Search bar */}
         <div className="flex flex-col sm:flex-row gap-4">

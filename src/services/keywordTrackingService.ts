@@ -185,12 +185,14 @@ export const updateAllKeywordPositions = async (): Promise<{ data: KeywordRankin
         Object.entries(keywordsByDomain).map(async ([siteUrl, domainKeywords]) => {
           try {
             // Récupérer les positions depuis Google Search Console
-            const updatedKeywords = await getMultipleKeywordPositions(domainKeywords, siteUrl);
+            // Ajouter une assertion de type pour indiquer que domainKeywords est bien un tableau de KeywordRanking
+            const updatedKeywords = await getMultipleKeywordPositions(domainKeywords as KeywordRanking[], siteUrl);
             return updatedKeywords;
           } catch (error) {
             console.error(`Erreur lors de la récupération des positions pour ${siteUrl}:`, error);
             // En cas d'erreur, simuler les positions
-            return Promise.all(domainKeywords.map(async (keyword) => {
+            // Ajouter une assertion de type pour indiquer que domainKeywords est bien un tableau de KeywordRanking
+            return Promise.all((domainKeywords as KeywordRanking[]).map(async (keyword) => {
               const newPosition = await simulatePositionCheck(keyword.keyword);
               return {
                 ...keyword,
