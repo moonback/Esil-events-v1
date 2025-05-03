@@ -214,6 +214,13 @@ export const getVerifiedSites = async (): Promise<string[]> => {
  */
 export const hasSitePermission = async (siteUrl: string): Promise<{hasPermission: boolean; errorMessage?: string}> => {
   try {
+    // Vérifier si l'utilisateur a forcé l'accès total (pour les utilisateurs qui ont réellement les accès)
+    const forceAccess = localStorage.getItem('google_force_access') === 'true';
+    if (forceAccess) {
+      console.log(`Accès forcé activé pour ${siteUrl} - l'utilisateur a indiqué avoir les accès totaux`);
+      return { hasPermission: true };
+    }
+    
     // Vérifier d'abord si l'utilisateur est authentifié
     if (!isGoogleAuthenticated()) {
       return {
@@ -232,9 +239,27 @@ export const hasSitePermission = async (siteUrl: string): Promise<{hasPermission
     }
     
     const verifiedSites = await getVerifiedSites();
-    const hasAccess = verifiedSites.includes(siteUrl);
+    
+    // Normaliser les URLs pour la comparaison
+    const normalizedSiteUrl = normalizeUrl(siteUrl);
+    const normalizedVerifiedSites = verifiedSites.map(site => normalizeUrl(site));
+    
+    // Vérifier si l'URL normalisée est dans la liste des sites vérifiés
+    const hasAccess = normalizedVerifiedSites.includes(normalizedSiteUrl);
     
     if (!hasAccess) {
+      // Vérifier si l'URL avec ou sans www est dans la liste
+      const alternativeUrl = normalizedSiteUrl.includes('www.') 
+        ? normalizedSiteUrl.replace('www.', '') 
+        : normalizedSiteUrl.replace('://', '://www.');
+      
+      const hasAlternativeAccess = normalizedVerifiedSites.includes(alternativeUrl);
+      
+      if (hasAlternativeAccess) {
+        console.log(`Accès trouvé avec URL alternative: ${alternativeUrl}`);
+        return { hasPermission: true };
+      }
+      
       return {
         hasPermission: false,
         errorMessage: getAuthorizationErrorMessage(siteUrl)
@@ -454,6 +479,59 @@ Pour résoudre ce problème :
 1. Assurez-vous d'être connecté avec un compte Google qui a accès à ce site dans Google Search Console.
 2. Vérifiez que le site est bien ajouté et vérifié dans votre compte Search Console.
 3. Si vous n'êtes pas propriétaire du site, demandez au propriétaire de vous accorder les droits d'accès.
+4. Si vous avez déjà les accès totaux, activez l'option "Forcer l'accès" dans les paramètres.
 
 Pour plus d'informations, consultez : https://support.google.com/webmasters/answer/2451999`;
+};
+
+/**
+ * Active ou désactive l'option de forcer l'accès aux sites
+ * Utile pour les utilisateurs qui ont réellement les accès mais pour lesquels la vérification échoue
+ */
+export const toggleForceAccess = (enable: boolean): void => {
+  if (enable) {
+    localStorage.setItem('google_force_access', 'true');
+    console.log('Option "Forcer l\'accès" activée - les vérifications de permission seront contournées');
+  } else {
+    localStorage.removeItem('google_force_access');
+    console.log('Option "Forcer l\'accès" désactivée - les vérifications de permission seront appliquées');
+  }
+};
+
+/**
+ * Vérifie si l'option de forcer l'accès est activée
+ */
+export const isForceAccessEnabled = (): boolean => {
+  return localStorage.getItem('google_force_access') === 'true';
+}
+;
+
+/**
+ * Normalise une URL pour la comparaison
+ * Supprime les barres obliques finales et normalise le protocole
+ */
+export const normalizeUrl = (url: string): string => {
+  try {
+    // S'assurer que l'URL a un protocole
+    let normalizedUrl = url;
+    if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+      normalizedUrl = 'https://' + normalizedUrl;
+    }
+    
+    // Créer un objet URL pour normaliser
+    const urlObj = new URL(normalizedUrl);
+    
+    // Construire l'URL normalisée (protocole + hostname)
+    let result = `${urlObj.protocol}//${urlObj.hostname}`;
+    
+    // Ajouter un slash final si nécessaire pour correspondre au format de Google Search Console
+    if (!result.endsWith('/')) {
+      result += '/';
+    }
+    
+    return result;
+  } catch (e) {
+    console.error(`Erreur lors de la normalisation de l'URL ${url}:`, e);
+    return url; // Retourner l'URL originale en cas d'erreur
+  }
 };
