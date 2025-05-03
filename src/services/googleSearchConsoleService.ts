@@ -210,34 +210,69 @@ export const getVerifiedSites = async (): Promise<string[]> => {
 
 /**
  * Vérifie si l'utilisateur a accès à un site spécifique dans Search Console
+ * @returns Un objet contenant le statut de la permission et un message d'erreur si applicable
  */
-export const hasSitePermission = async (siteUrl: string): Promise<boolean> => {
+export const hasSitePermission = async (siteUrl: string): Promise<{hasPermission: boolean; errorMessage?: string}> => {
   try {
+    // Vérifier d'abord si l'utilisateur est authentifié
+    if (!isGoogleAuthenticated()) {
+      return {
+        hasPermission: false,
+        errorMessage: 'Vous n\'êtes pas connecté à Google Search Console. Veuillez vous connecter pour accéder aux données réelles.'
+      };
+    }
+    
+    // Rafraîchir le token si nécessaire
+    const tokenValid = await refreshAccessTokenIfNeeded();
+    if (!tokenValid) {
+      return {
+        hasPermission: false,
+        errorMessage: 'Votre session Google a expiré. Veuillez vous reconnecter pour accéder aux données réelles.'
+      };
+    }
+    
     const verifiedSites = await getVerifiedSites();
-    return verifiedSites.includes(siteUrl);
+    const hasAccess = verifiedSites.includes(siteUrl);
+    
+    if (!hasAccess) {
+      return {
+        hasPermission: false,
+        errorMessage: getAuthorizationErrorMessage(siteUrl)
+      };
+    }
+    
+    return { hasPermission: true };
   } catch (error) {
     console.error(`Erreur lors de la vérification des permissions pour ${siteUrl}:`, error);
-    return false;
+    return {
+      hasPermission: false,
+      errorMessage: `Une erreur est survenue lors de la vérification des permissions: ${error instanceof Error ? error.message : 'Erreur inconnue'}`
+    };
   }
 };
 
 /**
  * Récupère la position d'un mot-clé spécifique pour un site donné
+ * @returns La position du mot-clé ou null en cas d'erreur, avec des informations sur l'erreur
  */
-export const getKeywordPosition = async (keyword: string, siteUrl: string): Promise<number | null> => {
+export const getKeywordPosition = async (keyword: string, siteUrl: string): Promise<{position: number | null; error?: string}> => {
   try {
     // Vérifier l'authentification
     const tokenValid = await refreshAccessTokenIfNeeded();
     if (!tokenValid) {
-      console.log(`Non authentifié à Google Search Console pour le mot-clé "${keyword}"`);
-      return null;
+      const errorMsg = `Non authentifié à Google Search Console pour le mot-clé "${keyword}"`;
+      console.log(errorMsg);
+      return { position: null, error: errorMsg };
     }
     
     // Vérifier les permissions pour ce site
-    const hasPermission = await hasSitePermission(siteUrl);
+    const { hasPermission, errorMessage } = await hasSitePermission(siteUrl);
     if (!hasPermission) {
-      console.log(`Pas de permission pour le site ${siteUrl}, utilisation d'une position simulée pour "${keyword}"`);
-      return null;
+      console.log(`Pas de permission pour le site ${siteUrl}, impossible d'obtenir la position réelle pour "${keyword}"`);
+      if (errorMessage) {
+        console.log(errorMessage);
+      }
+      return { position: null, error: errorMessage || `Pas d'accès au site ${siteUrl}` };
     }
     
     // Préparer la requête pour l'API Search Analytics
@@ -271,52 +306,60 @@ export const getKeywordPosition = async (keyword: string, siteUrl: string): Prom
       if (!response.ok) {
         const errorData = await response.json();
         console.log(`Erreur API pour "${keyword}": ${errorData.error?.message || response.statusText}`);
-        return null;
+return { position: null, error: `API Error: ${errorData.error?.message || response.statusText}` };
       }
 
       const data: SearchAnalyticsResponse = await response.json();
       
       // Si aucune donnée n'est retournée, le mot-clé n'est pas classé
       if (!data.rows || data.rows.length === 0) {
-        console.log(`Aucune donnée trouvée pour "${keyword}" sur ${siteUrl}`);
-        return null;
+        const msg = `Aucune donnée trouvée pour "${keyword}" sur ${siteUrl}`;
+        console.log(msg);
+        return { position: null, error: msg };
       }
       
       // Trouver la ligne qui correspond exactement au mot-clé recherché
       const exactMatch = data.rows.find(row => row.keys[0].toLowerCase() === keyword.toLowerCase());
       if (exactMatch) {
-        return Math.round(exactMatch.position);
+        return { position: Math.round(exactMatch.position) };
       }
       
       // Si pas de correspondance exacte, prendre la première ligne (meilleure approximation)
-      return Math.round(data.rows[0].position);
+      return { position: Math.round(data.rows[0].position) };
     } catch (apiError) {
+      const errorMsg = `Erreur lors de la récupération des données: ${apiError instanceof Error ? apiError.message : 'Erreur inconnue'}`;
       console.error(`Erreur API lors de la récupération des données pour "${keyword}":`, apiError);
-      return null;
+      return { position: null, error: errorMsg };
     }
   } catch (error) {
-    console.error(`Erreur lors de la récupération de la position pour le mot-clé "${keyword}":`, error);
-    return null;
+    const errorMsg = `Erreur lors de la récupération de la position pour le mot-clé "${keyword}": ${error instanceof Error ? error.message : 'Erreur inconnue'}`;
+    console.error(errorMsg, error);
+    return { position: null, error: errorMsg };
   }
 };
 
 /**
  * Récupère les positions de plusieurs mots-clés pour un site donné
+ * @returns Les mots-clés mis à jour avec leurs positions ou un objet d'erreur
  */
-export const getMultipleKeywordPositions = async (keywords: KeywordRanking[], siteUrl: string): Promise<KeywordRanking[]> => {
+export const getMultipleKeywordPositions = async (keywords: KeywordRanking[], siteUrl: string): Promise<{updatedKeywords: KeywordRanking[]; error?: string}> => {
   try {
     // Vérifier l'authentification
     const tokenValid = await refreshAccessTokenIfNeeded();
     if (!tokenValid) {
-      console.log(`Non authentifié à Google Search Console pour les mots-clés sur ${siteUrl}`);
-      return keywords; // Retourner les mots-clés inchangés
+      const errorMsg = `Non authentifié à Google Search Console pour les mots-clés sur ${siteUrl}`;
+      console.log(errorMsg);
+      return { updatedKeywords: keywords, error: errorMsg }; // Retourner les mots-clés inchangés avec l'erreur
     }
     
     // Vérifier les permissions pour ce site
-    const hasPermission = await hasSitePermission(siteUrl);
+    const { hasPermission, errorMessage } = await hasSitePermission(siteUrl);
     if (!hasPermission) {
-      console.log(`Pas de permission pour le site ${siteUrl}, utilisation de positions simulées`);
-      return keywords; // Retourner les mots-clés inchangés
+      console.log(`Pas de permission pour le site ${siteUrl}, impossible d'obtenir les positions réelles`);
+      if (errorMessage) {
+        console.log(errorMessage);
+      }
+      return { updatedKeywords: keywords, error: errorMessage || `Pas d'accès au site ${siteUrl}` }; // Retourner les mots-clés inchangés avec l'erreur
     }
     
     // Préparer la requête pour l'API Search Analytics
@@ -343,20 +386,22 @@ export const getMultipleKeywordPositions = async (keywords: KeywordRanking[], si
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.log(`Erreur API pour ${siteUrl}: ${errorData.error?.message || response.statusText}`);
-        return keywords; // Retourner les mots-clés inchangés
+        const errorMsg = `Erreur API pour ${siteUrl}: ${errorData.error?.message || response.statusText}`;
+        console.log(errorMsg);
+        return { updatedKeywords: keywords, error: errorMsg }; // Retourner les mots-clés inchangés avec l'erreur
       }
 
       const data: SearchAnalyticsResponse = await response.json();
       
       // Si aucune donnée n'est retournée
       if (!data.rows || data.rows.length === 0) {
-        console.log(`Aucune donnée trouvée pour les mots-clés sur ${siteUrl}`);
-        return keywords; // Retourner les mots-clés inchangés
+        const msg = `Aucune donnée trouvée pour les mots-clés sur ${siteUrl}`;
+        console.log(msg);
+        return { updatedKeywords: keywords, error: msg }; // Retourner les mots-clés inchangés avec l'erreur
       }
       
       // Mettre à jour les positions des mots-clés
-      return keywords.map(keyword => {
+      const updatedKeywords = keywords.map(keyword => {
         // Chercher une correspondance exacte dans les résultats
         const match = data.rows?.find(row => row.keys[0].toLowerCase() === keyword.keyword.toLowerCase());
         
@@ -372,13 +417,17 @@ export const getMultipleKeywordPositions = async (keywords: KeywordRanking[], si
         // Si aucune correspondance n'est trouvée, conserver la position actuelle
         return keyword;
       });
+      
+      return { updatedKeywords };
     } catch (apiError) {
-      console.error(`Erreur API lors de la récupération des données pour ${siteUrl}:`, apiError);
-      return keywords; // Retourner les mots-clés inchangés
+      const errorMsg = `Erreur API lors de la récupération des données pour ${siteUrl}: ${apiError instanceof Error ? apiError.message : 'Erreur inconnue'}`;
+      console.error(errorMsg, apiError);
+      return { updatedKeywords: keywords, error: errorMsg }; // Retourner les mots-clés inchangés avec l'erreur
     }
   } catch (error) {
-    console.error('Erreur lors de la récupération des positions des mots-clés:', error);
-    return keywords; // Retourner les mots-clés inchangés en cas d'erreur
+    const errorMsg = `Erreur lors de la récupération des positions des mots-clés: ${error instanceof Error ? error.message : 'Erreur inconnue'}`;
+    console.error(errorMsg, error);
+    return { updatedKeywords: keywords, error: errorMsg }; // Retourner les mots-clés inchangés avec l'erreur
   }
 };
 

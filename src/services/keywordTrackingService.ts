@@ -111,25 +111,30 @@ export const updateKeywordPosition = async (id: string): Promise<{ data: Keyword
         console.log(`Récupération de la position réelle pour "${currentKeyword.keyword}" sur ${siteUrl}`);
         
         // Vérifier les permissions pour ce site
-        const { hasSitePermission, getAuthorizationErrorMessage } = await import('./googleSearchConsoleService');
-        const hasPermission = await hasSitePermission(siteUrl);
+        const { hasSitePermission } = await import('./googleSearchConsoleService');
+        const permissionResult = await hasSitePermission(siteUrl);
         
-        if (!hasPermission) {
+        if (!permissionResult.hasPermission) {
           console.log(`Pas de permission pour le site ${siteUrl}, utilisation d'une position simulée pour "${currentKeyword.keyword}"`);
-          console.log(getAuthorizationErrorMessage(siteUrl));
+          if (permissionResult.errorMessage) {
+            console.log(permissionResult.errorMessage);
+          }
           newPosition = await simulatePositionCheck(currentKeyword.keyword, currentKeyword.url);
         } else {
           // Récupérer la position depuis Google Search Console
-          const position = await getKeywordPosition(currentKeyword.keyword, siteUrl);
+          const result = await getKeywordPosition(currentKeyword.keyword, siteUrl);
           
           // Si une position est trouvée, l'utiliser
-          if (position !== null) {
-            newPosition = position;
+          if (result.position !== null) {
+            newPosition = result.position;
             positionSource = 'google';
-            console.log(`Position réelle trouvée: ${position} pour "${currentKeyword.keyword}"`);
+            console.log(`Position réelle trouvée: ${result.position} pour "${currentKeyword.keyword}"`);
           } else {
             // Si aucune position n'est trouvée, utiliser la simulation comme fallback
             console.log(`Aucune position trouvée dans Google pour "${currentKeyword.keyword}", utilisation de la simulation`);
+            if (result.error) {
+              console.log(`Raison: ${result.error}`);
+            }
             newPosition = await simulatePositionCheck(currentKeyword.keyword, currentKeyword.url);
           }
         }
@@ -208,12 +213,14 @@ export const updateAllKeywordPositions = async (): Promise<{ data: KeywordRankin
       const domainUpdatesPromises = Object.entries(keywordsByDomain).map(async ([siteUrl, domainKeywords]) => {
         try {
           // Vérifier les permissions pour ce site
-          const { hasSitePermission, getAuthorizationErrorMessage } = await import('./googleSearchConsoleService');
-          const hasPermission = await hasSitePermission(siteUrl);
+          const { hasSitePermission } = await import('./googleSearchConsoleService');
+          const permissionResult = await hasSitePermission(siteUrl);
           
-          if (!hasPermission) {
+          if (!permissionResult.hasPermission) {
             console.log(`Pas de permission pour le site ${siteUrl}, utilisation de positions simulées pour ${domainKeywords.length} mots-clés`);
-            console.log(getAuthorizationErrorMessage(siteUrl));
+            if (permissionResult.errorMessage) {
+              console.log(permissionResult.errorMessage);
+            }
             // Simuler les positions pour tous les mots-clés de ce domaine
             const fallbackUpdates = await Promise.all(domainKeywords.map(async (keyword) => {
               console.log(`Simulation de position pour ${keyword.keyword} (pas de permission)`);
@@ -230,8 +237,25 @@ export const updateAllKeywordPositions = async (): Promise<{ data: KeywordRankin
           
           // Récupérer les positions depuis Google Search Console
           console.log(`Récupération des positions pour ${domainKeywords.length} mots-clés sur ${siteUrl}`);
-          const updatedKeywords = await getMultipleKeywordPositions(domainKeywords, siteUrl);
-          return updatedKeywords;
+          const result = await getMultipleKeywordPositions(domainKeywords, siteUrl);
+          
+          if (result.error) {
+            console.log(`Erreur lors de la récupération des positions: ${result.error}`);
+            // Simuler les positions en cas d'erreur
+            const fallbackUpdates = await Promise.all(domainKeywords.map(async (keyword) => {
+              console.log(`Simulation de position pour ${keyword.keyword} suite à une erreur`);
+              const newPosition = await generateSimulatedPosition(keyword.keyword);
+              return {
+                ...keyword,
+                previousPosition: keyword.position,
+                position: newPosition,
+                lastChecked: new Date().toISOString().split('T')[0]
+              };
+            }));
+            return fallbackUpdates;
+          }
+          
+          return result.updatedKeywords;
         } catch (error) {
           console.error(`Erreur lors de la récupération des positions pour ${siteUrl}:`, error);
           // En cas d'erreur, simuler les positions
@@ -315,22 +339,26 @@ const simulatePositionCheck = async (keyword: string, url?: string): Promise<num
           console.log(`Tentative de récupération de données réelles pour "${keyword}" sur ${siteUrl}`);
           
           // Vérifier les permissions pour ce site
-          const { hasSitePermission, getAuthorizationErrorMessage } = await import('./googleSearchConsoleService');
-          const hasPermission = await hasSitePermission(siteUrl);
+          const { hasSitePermission } = await import('./googleSearchConsoleService');
+          const permissionResult = await hasSitePermission(siteUrl);
           
-          if (!hasPermission) {
+          if (!permissionResult.hasPermission) {
             console.log(`Pas de permission pour le site ${siteUrl}, utilisation d'une position simulée pour "${keyword}"`);
-            console.log(getAuthorizationErrorMessage(siteUrl));
+            if (permissionResult.errorMessage) {
+              console.log(permissionResult.errorMessage);
+            }
             return await generateSimulatedPosition(keyword);
           }
           
           // Récupérer la position depuis Google Search Console
-          const position = await getKeywordPosition(keyword, siteUrl);
+          const result = await getKeywordPosition(keyword, siteUrl);
           
           // Si une position est trouvée, l'utiliser
-          if (position !== null) {
-            console.log(`Position réelle trouvée: ${position} pour "${keyword}"`);
-            return position;
+          if (result.position !== null) {
+            console.log(`Position réelle trouvée: ${result.position} pour "${keyword}"`);
+            return result.position;
+          } else if (result.error) {
+            console.log(`Erreur lors de la récupération de la position: ${result.error}`);
           }
         } catch (error) {
           console.error(`Erreur lors de la récupération des données réelles pour "${keyword}":`, error);
