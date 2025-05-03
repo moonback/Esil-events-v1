@@ -142,7 +142,9 @@ return (
                     to={`/products/${product.category}`} 
                     className="ml-3 text-gray-600 hover:text-violet-600 transition-colors duration-200 font-medium"
                   >
-                    {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+                    {typeof product.category === 'string' 
+                      ? product.category.charAt(0).toUpperCase() + product.category.slice(1)
+                      : product.category[0]}
                   </Link>
                 </div>
               </li>
@@ -506,7 +508,9 @@ return (
                       <div className="absolute top-0 left-0 w-full p-3 flex justify-between items-start">
                         {similarProduct.category && (
                           <span className="bg-violet-600 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md feedback-message-enter">
-                            {similarProduct.category.charAt(0).toUpperCase() + similarProduct.category.slice(1)}
+                            {typeof similarProduct.category === 'string' 
+                              ? similarProduct.category.charAt(0).toUpperCase() + similarProduct.category.slice(1)
+                              : similarProduct.category[0]}
                           </span>
                         )}
                         {!similarProduct.isAvailable && (
@@ -524,7 +528,9 @@ return (
                       {similarProduct.subCategory && (
                         <div className="mt-1 mb-2 text-xs text-gray-500 flex items-center">
                           <Tag className="w-3 h-3 mr-1 text-violet-400" />
-                          {similarProduct.subCategory.charAt(0).toUpperCase() + similarProduct.subCategory.slice(1)}
+                          {typeof similarProduct.subCategory === 'string' 
+                            ? similarProduct.subCategory.charAt(0).toUpperCase() + similarProduct.subCategory.slice(1)
+                            : similarProduct.subCategory[0]}
                           {similarProduct.subSubCategory && ` › ${similarProduct.subSubCategory}`}
                         </div>
                       )}
