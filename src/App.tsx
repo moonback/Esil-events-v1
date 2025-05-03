@@ -26,6 +26,9 @@ import ArtistDetailPage from './pages/ArtistDetailPage';
 import CguPage from './pages/CguPage';
 import { HelmetProvider } from 'react-helmet-async';
 
+// Add this import at the top of the file
+import AdminKeywordTracking from './pages/admin/KeywordTracking';
+
 const App: React.FC = () => {
   return (
     <BrowserRouter>
@@ -69,6 +72,8 @@ const App: React.FC = () => {
 
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />
+          // Find the Routes component and add this new route:
+          <Route path="/admin/keyword-tracking" element={<AdminKeywordTracking />} />
         </Routes>
       </CartProvider>
     </BrowserRouter>
