@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -26,8 +26,9 @@ import ArtistDetailPage from './pages/ArtistDetailPage';
 import CguPage from './pages/CguPage';
 import { HelmetProvider } from 'react-helmet-async';
 
-// Add this import at the top of the file
+// Admin pages
 import AdminKeywordTracking from './pages/admin/KeywordTracking';
+const GoogleAuthCallback = lazy(() => import('./pages/admin/GoogleAuthCallback'));
 
 const App: React.FC = () => {
   return (
@@ -69,10 +70,16 @@ const App: React.FC = () => {
           {/* Routes admin avec AdminLayout */}
           {/* Route admin avec le composant AdminRoutes */}
           <Route path="/admin/*" element={<AdminRoutes />} />
+          
+          {/* Route spécifique pour le callback d'authentification Google */}
+          <Route path="/admin/google-auth-callback" element={
+            <Suspense fallback={<div>Chargement...</div>}>
+              <GoogleAuthCallback />
+            </Suspense>
+          } />
 
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />
-          // Find the Routes component and add this new route:
           <Route path="/admin/keyword-tracking" element={<AdminKeywordTracking />} />
         </Routes>
       </CartProvider>
