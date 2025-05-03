@@ -179,119 +179,129 @@ const ProductChatbot: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-blue-50 via-white to-blue-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
-      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 text-white p-5 font-extrabold flex justify-between items-center shadow-md">
-        <span className="tracking-wide text-lg flex items-center gap-2">
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2h2"></path>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 3h-6a2 2 0 00-2 2v3h10V5a2 2 0 00-2-2z"></path>
+    <div className="w-full h-full bg-gradient-to-br from-white via-blue-50 to-blue-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      {/* Enhanced Header */}
+      <div className="bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 text-white p-5 flex justify-between items-center border-b border-blue-300/50 shadow-sm">
+        <span className="tracking-wide text-lg font-bold flex items-center gap-3">
+          <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          ESIL Events Assistant
+          <span className="bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent">
+            Assistant ESIL
+          </span>
         </span>
         <button 
           onClick={clearConversation}
-          className="text-xs bg-white text-blue-700 hover:bg-blue-100 px-3 py-1 rounded-lg shadow transition-all border border-blue-200"
+          className="flex items-center text-sm bg-white/20 hover:bg-white/30 text-blue-100 px-4 py-2 rounded-lg transition-all duration-300 group"
           title="Effacer la conversation"
         >
-          Nouvelle conversation
+          <svg className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Nouvelle discussion
         </button>
       </div>
-      
-      <div className="flex-1 p-6 overflow-y-auto bg-transparent">
+
+      {/* Enhanced Messages Container */}
+      <div className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-white/50 to-blue-50/30 dark:from-gray-800/80 dark:to-gray-900">
         <AnimatePresence>
           {messages.map((message) => (
             <motion.div 
               key={message.id} 
-              className={`mb-6 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              initial={message.isNew ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
+              className={`mb-4 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
             >
               <motion.div 
-                className={`p-4 rounded-2xl shadow-lg max-w-[75%] transition-all ${
+                className={`relative max-w-[85%] transition-all ${
                   message.sender === 'user'
-                    ? 'bg-gradient-to-br from-blue-500 to-blue-400 text-white rounded-tr-none'
-                    : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'
+                    ? 'bg-gradient-to-br from-blue-600 to-blue-500 text-white rounded-2xl rounded-br-none'
+                    : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-600 rounded-2xl rounded-tl-none'
                 }`}
-                initial={message.isNew ? { scale: 0.8 } : { scale: 1 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.2 }}
+                whileHover={{ scale: 1.02 }}
               >
-                {message.text}
-                <div className="text-xs text-gray-400 mt-2 text-right">
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <div className="p-4">
+                  <p className="text-sm/[1.4] font-medium">{message.text}</p>
+                  <div className="text-xs text-gray-300 dark:text-gray-400 mt-2 text-right">
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
                 </div>
+                {/* Decorative corner */}
+                {message.sender === 'user' && (
+                  <div className="absolute -right-[2px] bottom-0 w-3 h-3 bg-blue-600 clip-corner" />
+                )}
               </motion.div>
             </motion.div>
           ))}
         </AnimatePresence>
-        
+
+        {/* Enhanced Loading Indicator */}
         {isLoading && (
           <motion.div 
-            className="text-left mb-4"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
+            className="flex justify-start mb-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
           >
-            <div className="inline-block p-3 rounded-lg bg-gray-200 text-gray-800 max-w-[80%] shadow-sm">
-              <div className="flex space-x-2">
-                <div className="w-2 h-2 rounded-full bg-gray-600 animate-bounce"></div>
-                <div className="w-2 h-2 rounded-full bg-gray-600 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 rounded-full bg-gray-600 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-              </div>
+            <div className="bg-white dark:bg-gray-700 p-3 rounded-2xl shadow-sm flex items-center space-x-2">
+              <svg className="h-5 w-5 animate-spin text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Réflexion en cours...</span>
             </div>
           </motion.div>
         )}
-        
-        {/* Questions suggérées */}
+
+        {/* Enhanced Suggested Questions */}
         {showSuggestions && messages.length > 0 && !isLoading && (
           <motion.div 
-            className="mt-6 mb-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.3 }}
+            className="mt-6 mb-4 px-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
           >
-            <p className="text-sm text-gray-500 mb-2">Questions fréquentes :</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide">Suggestions :</p>
+            <div className="grid grid-cols-1 gap-2">
               {suggestedQuestions.map((question, index) => (
                 <motion.button
                   key={index}
                   onClick={() => handleSuggestedQuestion(question)}
-                  className="text-sm bg-white border border-gray-300 text-gray-700 px-3 py-1 rounded-full hover:bg-gray-100 transition-colors"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+                  className="text-left p-3 bg-white dark:bg-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-600 hover:border-blue-200 dark:hover:border-blue-400"
+                  whileHover={{ translateX: 5 }}
                 >
-                  {question}
+                  <span className="text-sm text-gray-700 dark:text-gray-200">{question}</span>
                 </motion.button>
               ))}
             </div>
           </motion.div>
         )}
-        
+
         <div ref={messagesEndRef} />
       </div>
-      
-      <div className="p-5 border-t border-gray-100 bg-white">
-        <div className="flex space-x-3">
+
+      {/* Enhanced Input Area */}
+      <div className="p-4 bg-gradient-to-t from-white via-white to-blue-50/30 dark:from-gray-800 dark:via-gray-800 border-t border-gray-100 dark:border-gray-700">
+        <div className="flex gap-2">
           <input
             ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Posez votre question..."
-            className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all bg-blue-50 placeholder-gray-400"
+            placeholder="Écrivez votre message..."
+            className="flex-1 p-3 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all placeholder-gray-400 dark:placeholder-gray-500 shadow-sm"
             disabled={isLoading}
           />
           <motion.button
             onClick={() => handleSendMessage()}
             disabled={isLoading || !input.trim()}
-            className="bg-gradient-to-br from-blue-600 to-blue-500 text-white p-3 rounded-xl hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 shadow transition-all"
-            whileHover={{ scale: 1.07 }}
+            className="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
             </svg>
           </motion.button>
         </div>
