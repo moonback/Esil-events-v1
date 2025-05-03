@@ -509,9 +509,17 @@ export const isForceAccessEnabled = (): boolean => {
 /**
  * Normalise une URL pour la comparaison
  * Supprime les barres obliques finales et normalise le protocole
+ * Gère également les formats spéciaux de Google Search Console comme 'sc-domain:'
  */
 export const normalizeUrl = (url: string): string => {
   try {
+    // Gérer les formats spéciaux de Google Search Console
+    if (url.startsWith('sc-domain:')) {
+      // Pour les domaines sc-domain, on retourne simplement l'URL telle quelle
+      // car c'est un format spécial de Google Search Console
+      return url;
+    }
+    
     // S'assurer que l'URL a un protocole
     let normalizedUrl = url;
     if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
