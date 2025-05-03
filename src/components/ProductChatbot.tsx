@@ -15,7 +15,11 @@ interface Message {
   isReasoned?: boolean;
 }
 
-const ProductChatbot: React.FC = () => {
+interface ProductChatbotProps {
+  initialQuestion?: string | null;
+}
+
+const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -73,6 +77,16 @@ const ProductChatbot: React.FC = () => {
       inputRef.current?.focus();
     }, 500);
   }, []);
+  
+  // Envoyer la question initiale si elle est fournie
+  useEffect(() => {
+    if (initialQuestion && !isLoading) {
+      // Attendre que les produits soient chargés
+      if (products.length > 0) {
+        handleSendMessage(initialQuestion);
+      }
+    }
+  }, [initialQuestion, products.length]);
 
   // Faire défiler vers le bas lorsque de nouveaux messages sont ajoutés
   useEffect(() => {

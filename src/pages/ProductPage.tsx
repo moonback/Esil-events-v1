@@ -104,6 +104,20 @@ const ProductPage: React.FC = () => {
       setShowToast(false);
     }, 3000);
   };
+  
+  // Fonction pour ouvrir le chatbot avec une question sur le produit actuel
+  const handleOpenChatbot = () => {
+    if (!product) return;
+    
+    // Sauvegarder le produit dans localStorage pour que le chatbot puisse y accéder
+    localStorage.setItem('selectedProductForChatbot', JSON.stringify(product));
+    
+    // Déclencher un événement personnalisé pour ouvrir le chatbot
+    const chatbotEvent = new CustomEvent('openProductChatbot');
+    window.dispatchEvent(chatbotEvent);
+    
+    // Le composant FloatingChatbot détectera ce produit et ouvrira automatiquement le chatbot
+  };
 
   if (loading) {
     return (
@@ -352,6 +366,30 @@ return (
                 <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 animate-bounce" />
                 <span>Ajouter au devis</span>
               </button>
+{/* Chatbot Button */}
+<button
+  onClick={handleOpenChatbot}
+  className="w-full bg-gradient-to-r from-violet-500 to-violet-600 text-white py-3 md:py-4 px-6 rounded-xl 
+  hover:from-violet-600 hover:to-violet-700 transition-all duration-300 
+  flex items-center justify-center space-x-3 text-base md:text-lg font-semibold
+  shadow-lg hover:shadow-xl transform hover:-translate-y-1 mt-4
+  active:transform active:translate-y-0 active:shadow-md"
+  aria-label="Poser une question sur ce produit"
+>
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    className="w-5 h-5 md:w-6 md:h-6" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+  >
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+  <span>Poser une question sur ce produit</span>
+</button>
 
               {/* Description */}
               <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 hover:shadow-md transition-shadow">
