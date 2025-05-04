@@ -645,9 +645,18 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="flex items-center gap-1.5 mb-2">
-              <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-              <span className="text-xs font-medium text-gray-600 dark:text-gray-300">Questions suggérées</span>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5">
+                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-300">Questions suggérées</span>
+              </div>
+              <button 
+                onClick={() => setShowSuggestions(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                aria-label="Fermer les suggestions"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
             <div className="flex flex-wrap gap-2">
               {dynamicSuggestions.map((question, index) => (
