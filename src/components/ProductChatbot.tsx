@@ -970,27 +970,147 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
                   )}
                   <div className="relative">
                     <div className="text-xs/[1.5] sm:text-sm/[1.6] font-medium prose prose-sm max-w-none dark:prose-invert space-y-1.5 sm:space-y-2.5">
-                      {message.text.split('\n').map((line, i) => (
-                        <React.Fragment key={i}>
-                          {line.trim() === '' ? (
-                            <div className="h-2 sm:h-4"></div>
-                          ) : line.startsWith('• ') || line.startsWith('- ') ? (
-                            <div className="flex items-start gap-2 sm:gap-3.5 my-1 sm:my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 sm:p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
-                              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 mt-1 sm:mt-1.5 flex-shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-200"></div>
-                              <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.substring(2)}</div>
-                            </div>
-                          ) : line.match(/^\d+\.\s/) ? (
-                            <div className="flex items-start gap-2 sm:gap-3.5 my-1 sm:my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 sm:p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
-                              <div className="text-xs sm:text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent mt-0.5 flex-shrink-0 w-4 sm:w-6 text-right group-hover:scale-110 transition-all duration-200">
-                                {line.match(/^\d+/)?.[0]}.
+                      {(() => {
+                        // Détecter si le message contient un tableau Markdown
+                        const lines = message.text.split('\n');
+                        const hasTable = lines.some(line => line.trim().startsWith('|') && line.trim().endsWith('|'));
+                        
+                        // Si le message contient un tableau, traiter le tableau spécialement
+                        if (hasTable) {
+                          let inTable = false;
+                          let tableRows: string[] = [];
+                          let otherContent: JSX.Element[] = [];
+                          
+                          lines.forEach((line, i) => {
+                            // Détecter les lignes de tableau
+                            if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+                              if (!inTable) {
+                                inTable = true;
+                                tableRows = [];
+                              }
+                              tableRows.push(line);
+                            } else {
+                              // Si on était dans un tableau et qu'on en sort
+                              if (inTable) {
+                                // Rendre le tableau accumulé
+                                otherContent.push(
+                                  <div key={`table-${i}`} className="overflow-x-auto my-4">
+                                    <table className="w-full">
+                                      <tbody>
+                                        {tableRows.map((row, rowIndex) => {
+                                          const cells = row.split('|').filter(cell => cell.trim() !== '');
+                                          const isHeader = rowIndex === 0 || (rowIndex === 1 && row.includes('---'));
+                                          
+                                          // Ignorer les lignes de séparation (---)
+                                          if (row.includes('---') && rowIndex === 1) {
+                                            return null;
+                                          }
+                                          
+                                          return (
+                                            <tr key={rowIndex}>
+                                              {cells.map((cell, cellIndex) => {
+                                                if (isHeader && rowIndex === 0) {
+                                                  return <th key={cellIndex} className="text-left">{cell.trim()}</th>;
+                                                } else {
+                                                  return <td key={cellIndex}>{cell.trim()}</td>;
+                                                }
+                                              })}
+                                            </tr>
+                                          );
+                                        })}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                );
+                                inTable = false;
+                              }
+                              
+                              // Traiter le contenu non-tableau normalement
+                              if (line.trim() === '') {
+                                otherContent.push(<div key={i} className="h-2 sm:h-4"></div>);
+                              } else if (line.startsWith('• ') || line.startsWith('- ')) {
+                                otherContent.push(
+                                  <div key={i} className="flex items-start gap-2 sm:gap-3.5 my-1 sm:my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 sm:p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
+                                    <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 mt-1 sm:mt-1.5 flex-shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-200"></div>
+                                    <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.substring(2)}</div>
+                                  </div>
+                                );
+                              } else if (line.match(/^\d+\.\s/)) {
+                                otherContent.push(
+                                  <div key={i} className="flex items-start gap-2 sm:gap-3.5 my-1 sm:my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 sm:p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
+                                    <div className="text-xs sm:text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent mt-0.5 flex-shrink-0 w-4 sm:w-6 text-right group-hover:scale-110 transition-all duration-200">
+                                      {line.match(/^\d+/)?.[0]}.
+                                    </div>
+                                    <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.replace(/^\d+\.\s/, '')}</div>
+                                  </div>
+                                );
+                              } else {
+                                otherContent.push(
+                                  <p key={i} className="text-gray-700 dark:text-gray-200 leading-relaxed">{line}</p>
+                                );
+                              }
+                            }
+                          });
+                          
+                          // Si on était encore dans un tableau à la fin, le rendre
+                          if (inTable) {
+                            otherContent.push(
+                              <div key="final-table" className="overflow-x-auto my-4">
+                                <table className="w-full">
+                                  <tbody>
+                                    {tableRows.map((row, rowIndex) => {
+                                      const cells = row.split('|').filter(cell => cell.trim() !== '');
+                                      const isHeader = rowIndex === 0 || (rowIndex === 1 && row.includes('---'));
+                                      
+                                      // Ignorer les lignes de séparation (---)
+                                      if (row.includes('---') && rowIndex === 1) {
+                                        return null;
+                                      }
+                                      
+                                      return (
+                                        <tr key={rowIndex}>
+                                          {cells.map((cell, cellIndex) => {
+                                            if (isHeader && rowIndex === 0) {
+                                              return <th key={cellIndex} className="text-left">{cell.trim()}</th>;
+                                            } else {
+                                              return <td key={cellIndex}>{cell.trim()}</td>;
+                                            }
+                                          })}
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
                               </div>
-                              <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.replace(/^\d+\.\s/, '')}</div>
-                            </div>
-                          ) : (
-                            <p className="text-gray-700 dark:text-gray-200 leading-relaxed">{line}</p>
-                          )}
-                        </React.Fragment>
-                      ))}
+                            );
+                          }
+                          
+                          return otherContent;
+                        } else {
+                          // Si pas de tableau, traiter normalement
+                          return lines.map((line, i) => (
+                            <React.Fragment key={i}>
+                              {line.trim() === '' ? (
+                                <div className="h-2 sm:h-4"></div>
+                              ) : line.startsWith('• ') || line.startsWith('- ') ? (
+                                <div className="flex items-start gap-2 sm:gap-3.5 my-1 sm:my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 sm:p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
+                                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 mt-1 sm:mt-1.5 flex-shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-200"></div>
+                                  <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.substring(2)}</div>
+                                </div>
+                              ) : line.match(/^\d+\.\s/) ? (
+                                <div className="flex items-start gap-2 sm:gap-3.5 my-1 sm:my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 sm:p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
+                                  <div className="text-xs sm:text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent mt-0.5 flex-shrink-0 w-4 sm:w-6 text-right group-hover:scale-110 transition-all duration-200">
+                                    {line.match(/^\d+/)?.[0]}.
+                                  </div>
+                                  <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.replace(/^\d+\.\s/, '')}</div>
+                                </div>
+                              ) : (
+                                <p className="text-gray-700 dark:text-gray-200 leading-relaxed">{line}</p>
+                              )}
+                            </React.Fragment>
+                          ));
+                        }
+                      })()}
                     </div>
                   </div>
                   

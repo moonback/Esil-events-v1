@@ -240,6 +240,58 @@
   background-color: rgba(167, 139, 250, 0.3);
 }
 
+/* Styles pour les tableaux dans le chatbot */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: left;
+  overflow-x: auto;
+  display: block;
+}
+
+.prose table th {
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #4b5563;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .prose table th {
+  background-color: rgba(139, 92, 246, 0.2);
+  color: #e5e7eb;
+  border-color: #4b5563;
+}
+
+.prose table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+
+.dark .prose table td {
+  border-color: #4b5563;
+}
+
+.prose table tr:nth-child(even) {
+  background-color: rgba(243, 244, 246, 0.5);
+}
+
+.dark .prose table tr:nth-child(even) {
+  background-color: rgba(55, 65, 81, 0.3);
+}
+
+.prose table tr:hover {
+  background-color: rgba(139, 92, 246, 0.05);
+}
+
+.dark .prose table tr:hover {
+  background-color: rgba(139, 92, 246, 0.1);
+}
+
 /* Conteneur pour les mini-fiches produit */
 .mentioned-products-container {
   margin-top: 1rem;
