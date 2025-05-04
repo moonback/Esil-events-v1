@@ -382,7 +382,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
         <div className="flex items-center gap-3">
           <motion.button 
             onClick={() => setShowSettings(!showSettings)}
-            className="flex items-center justify-center text-sm bg-gradient-to-r from-violet-50 to-violet-100 dark:from-violet-800 dark:to-violet-900 hover:from-violet-100 hover:to-violet-200 dark:hover:from-violet-700 dark:hover:to-violet-800 text-violet-700 dark:text-violet-200 p-2.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md border border-violet-200 dark:border-violet-700"
+            className="flex items-center justify-center text-sm bg-gradient-to-r from-violet-500 to-violet-100 dark:from-violet-800 dark:to-violet-900 hover:from-violet-100 hover:to-violet-200 dark:hover:from-violet-700 dark:hover:to-violet-800 text-violet-700 dark:text-violet-200 p-2.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md border border-violet-200 dark:border-violet-700"
             title="Settings"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -436,7 +436,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
               </p>
               
               {/* Budget de réflexion */}
-              {useReasoningMode && (
+              {/* {useReasoningMode && (
                 <div className="flex flex-col gap-2 mb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -458,7 +458,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                     Plus le budget est élevé, plus les réponses seront détaillées, mais le temps de génération sera plus long.
                   </p>
                 </div>
-              )}
+              )} */}
               
               {/* Ancrage de recherche */}
               <div className="flex flex-col gap-2 mb-3">
@@ -561,326 +561,191 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                     </div>
                   )}
                   <div className="relative">
-<div className="text-sm/[1.6] font-medium prose prose-sm max-w-none dark:prose-invert space-y-2.5">
-  {message.text.split('\n').map((line, i) => (
-    <React.Fragment key={i}>
-      {line.trim() === '' ? (
-        <div className="h-4"></div> // Increased empty line spacing for better readability
-      ) : line.startsWith('• ') || line.startsWith('- ') ? (
-        <div className="flex items-start gap-3.5 my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
-          <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 mt-1.5 flex-shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-200"></div>
-          <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.substring(2)}</div>
-        </div>
-      ) : line.match(/^\d+\.\s/) ? (
-        <div className="flex items-start gap-3.5 my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
-          <div className="text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent mt-0.5 flex-shrink-0 w-6 text-right group-hover:scale-110 transition-all duration-200">
-            {line.match(/^\d+/)?.[0]}.
-          </div>
-          <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.replace(/^\d+\.\s/, '')}</div>
-        </div>
-      ) : line.includes('http') ? (
-        <div className="p-2.5 hover:bg-violet-50/40 dark:hover:bg-violet-900/30 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
-          {line.split(/\b(https?:\/\/[^\s]+)\b/).map((part, j) => (
-            <React.Fragment key={j}>
-              {part.match(/^https?:\/\//) ? (
-                <a 
-                  href={part} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className={`underline decoration-2 decoration-violet-400/40 hover:decoration-violet-500 transition-all duration-200 ${
-                    message.sender === 'user' 
-                      ? 'text-indigo-100 hover:text-white' 
-                      : 'text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300'
-                  } hover:shadow-sm`}
-                >
-                  {part}
-                </a>
-              ) : (
-                <span className="text-gray-700 dark:text-gray-200 leading-relaxed">{part}</span>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      ) : line.includes('@') ? (
-        <div className="p-2.5 hover:bg-violet-50/40 dark:hover:bg-violet-900/30 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
-          {highlightProductMentions(line)}
-        </div>
-      ) : (
-        <div className="p-2.5 text-gray-700 dark:text-gray-200 hover:bg-violet-50/40 dark:hover:bg-violet-900/30 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800 leading-relaxed">
-          {line}
-        </div>
-      )}
-    </React.Fragment>
-  ))}
-</div>
-                    
-                    {/* Afficher les mini-fiches produit si des produits sont mentionnés */}
-                    {message.mentionedProducts && message.mentionedProducts.length > 0 && (
-                      <motion.div 
-                        className="mt-6 pt-4 border-t border-gray-200/50 dark:border-gray-700/50"
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, ease: "easeOut" }}
-                      >
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-100 to-violet-200 dark:from-violet-900/40 dark:to-violet-800/40 flex items-center justify-center shadow-inner">
-                              <Package className="w-4 h-4 text-violet-600 dark:text-violet-300" />
+                    <div className="text-xs/[1.5] sm:text-sm/[1.6] font-medium prose prose-sm max-w-none dark:prose-invert space-y-1.5 sm:space-y-2.5">
+                      {message.text.split('\n').map((line, i) => (
+                        <React.Fragment key={i}>
+                          {line.trim() === '' ? (
+                            <div className="h-2 sm:h-4"></div>
+                          ) : line.startsWith('• ') || line.startsWith('- ') ? (
+                            <div className="flex items-start gap-2 sm:gap-3.5 my-1 sm:my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 sm:p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
+                              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 mt-1 sm:mt-1.5 flex-shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-200"></div>
+                              <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.substring(2)}</div>
                             </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-semibold bg-gradient-to-r from-white to-white dark:from-violet-400 dark:to-violet-300 bg-clip-text text-transparent">
-                                Produits mentionnés
-                              </span>
-                              <span className="text-xs text-white dark:text-gray-400">
-                                Sélection recommandée
-                              </span>
+                          ) : line.match(/^\d+\.\s/) ? (
+                            <div className="flex items-start gap-2 sm:gap-3.5 my-1 sm:my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 sm:p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
+                              <div className="text-xs sm:text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent mt-0.5 flex-shrink-0 w-4 sm:w-6 text-right group-hover:scale-110 transition-all duration-200">
+                                {line.match(/^\d+/)?.[0]}.
+                              </div>
+                              <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.replace(/^\d+\.\s/, '')}</div>
                             </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-violet-700 dark:text-violet-300 px-3 py-1.5 bg-violet-50 dark:bg-violet-900/30 rounded-lg border border-violet-100 dark:border-violet-700/50 shadow-sm">
-                              {message.mentionedProducts.length} {message.mentionedProducts.length > 1 ? 'produits' : 'produit'}
-                            </span>
-                          </div>
-                        </div>
-                        <motion.div 
-                          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                          initial="hidden"
-                          animate="visible"
-                          variants={{
-                            visible: {
-                              transition: {
-                                staggerChildren: 0.15
-                              }
-                            }
-                          }}
-                        >
-                          {message.mentionedProducts.map(product => (
-                            <motion.div
-                              key={product.id}
-                              className="group"
-                              variants={{
-                                hidden: { opacity: 0, x: -20, scale: 0.95 },
-                                visible: { opacity: 1, x: 0, scale: 1 }
-                              }}
-                              whileHover={{ scale: 1.02 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <ProductMiniCard product={product} />
-                            </motion.div>
-                          ))}
-                        </motion.div>
-                      </motion.div>
-                    )}
-                    <div className="text-xs text-gray-400 dark:text-gray-400 mt-3 text-right opacity-70 flex justify-end items-center gap-1">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-500"></span>
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          ) : (
+                            <p className="text-gray-700 dark:text-gray-200 leading-relaxed">{line}</p>
+                          )}
+                        </React.Fragment>
+                      ))}
                     </div>
                   </div>
+                  
+                  {/* Afficher les produits mentionnés */}
+                  {message.mentionedProducts && message.mentionedProducts.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <Tag className="w-3.5 h-3.5 text-violet-500" />
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">Produits mentionnés</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {message.mentionedProducts.map(product => (
+                          <ProductMiniCard key={product.id} product={product} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                
-                {/* Decorative corners */}
-                {message.sender === 'user' ? (
-                  <div className="absolute -right-[2px] bottom-0 w-3 h-3 bg-violet-500 clip-corner" />
-                ) : (
-                  <div className="absolute -left-[2px] bottom-0 w-3 h-3 bg-white dark:bg-gray-700 clip-corner-left" />
-                )}
               </motion.div>
               
               {/* Avatar pour l'utilisateur */}
               {message.sender === 'user' && (
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-gray-800">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                  </svg>
+                <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-gray-800">
+                  <User className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
               )}
             </motion.div>
           ))}
         </AnimatePresence>
-
-        {/* Enhanced Loading Indicator */}
+        
+        {/* Indicateur de chargement */}
         {isLoading && (
-          <motion.div 
-            className="flex items-end justify-start mb-5 gap-2"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-          >
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-gray-800">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-end gap-2 mt-4">
+            <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 001.5 2.25m0 0v2.572a2.25 2.25 0 01-1.5 2.25m0 0c-1.283.918-2.617 1.843-4.5 2.25m0 0c-1.883-.407-3.217-1.332-4.5-2.25m0 0A2.25 2.25 0 013.75 19.5v-2.572a2.25 2.25 0 01.658-1.591L8.5 14.5" />
               </svg>
             </div>
-            <div className="bg-white dark:bg-gray-700 p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-600 relative">
-              <div className="flex items-center gap-3">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 rounded-full bg-violet-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 rounded-full bg-violet-600 animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Réflexion en cours...</span>
+            <div className="bg-gray-100 dark:bg-gray-800 p-3 sm:p-4 rounded-2xl rounded-tl-none shadow-md">
+              <div className="flex space-x-1.5">
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-violet-400 dark:bg-violet-600 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-violet-400 dark:bg-violet-600 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-violet-400 dark:bg-violet-600 animate-bounce" style={{ animationDelay: '300ms' }}></div>
               </div>
-              <div className="absolute -left-[2px] bottom-0 w-3 h-3 bg-white dark:bg-gray-700 clip-corner-left" />
             </div>
-          </motion.div>
+          </div>
         )}
-
-        {/* Enhanced Suggested Questions */}
-        {showSuggestions && messages.length > 0 && !isLoading && (
+        
+        {/* Élément invisible pour faire défiler vers le bas */}
+        <div ref={messagesEndRef} />
+      </div>
+      
+      {/* Suggestions de questions */}
+      <AnimatePresence>
+        {showSuggestions && showSuggestionsButton && dynamicSuggestions.length > 0 && (
           <motion.div 
-            className="mt-6 mb-4 px-4"
-            initial={{ opacity: 0, y: 10 }}
+            className="p-2 sm:p-3 border-t border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
           >
-            <div className="flex items-center justify-between mb-4 bg-gradient-to-r from-violet-50 to-transparent dark:from-violet-900/20 dark:to-transparent p-3 rounded-xl border border-violet-100 dark:border-violet-800/30">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-md">
-                  <Lightbulb className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
-                    Suggestions
-                  </p>
-                  <p className="text-xs text-violet-500 dark:text-violet-400">
-                    Questions fréquentes
-                  </p>
-                </div>
-              </div>
-              <motion.button 
-                onClick={() => setShowSuggestions(false)}
-                className="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-800/50 hover:bg-violet-200 dark:hover:bg-violet-700 flex items-center justify-center transition-all duration-200"
-                whileHover={{ scale: 1.05, rotate: 90 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <X className="w-4 h-4 text-violet-600 dark:text-violet-300" />
-              </motion.button>
+            <div className="flex items-center gap-1.5 mb-2">
+              <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-300">Questions suggérées</span>
             </div>
-            <div className="grid grid-cols-1 gap-3">
+            <div className="flex flex-wrap gap-2">
               {dynamicSuggestions.map((question, index) => (
                 <motion.button
                   key={index}
                   onClick={() => handleSuggestedQuestion(question)}
-                  className="group text-left p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-violet-100 dark:border-violet-800/50 hover:border-violet-300 dark:hover:border-violet-600 flex items-start gap-3 hover:bg-gradient-to-r hover:from-violet-50 hover:to-white dark:hover:from-violet-900/30 dark:hover:to-gray-800"
-                  whileHover={{ scale: 1.02, x: 8 }}
-                  whileTap={{ scale: 0.98 }}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  className="text-xs sm:text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-2.5 sm:px-3 py-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 hover:bg-violet-50 dark:hover:bg-violet-900/30 hover:border-violet-200 dark:hover:border-violet-700 transition-all duration-200"
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
                 >
-                  <div className="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/50 flex items-center justify-center group-hover:bg-violet-500 transition-colors duration-300">
-                    <MessageSquare className="w-4 h-4 text-violet-500 dark:text-violet-400 group-hover:text-white transition-colors duration-300" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200 group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors duration-300">
-                    {question}
-                  </span>
+                  {question.length > 40 ? question.substring(0, 40) + '...' : question}
                 </motion.button>
               ))}
             </div>
           </motion.div>
         )}
-
-        {/* Bouton flottant pour afficher les suggestions */}
+      </AnimatePresence>
+      
+      {/* Input Container */}
+      <div className="p-2 sm:p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 relative">
+        {/* Résultats de recherche de produits */}
         <AnimatePresence>
-          {showSuggestionsButton && !showSuggestions && (
-            <motion.button
-              onClick={() => setShowSuggestions(true)}
-              className="fixed bottom-[160px] right-[30px] transform -translate-x-1/2 p-4 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 z-10 flex items-center gap-2 group"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
+          {isSearchingProducts && productSearchResults.length > 0 && (
+            <motion.div 
+              className="absolute bottom-full left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-t-xl shadow-lg max-h-60 overflow-y-auto z-10"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
             >
-              <Lightbulb className="w-5 h-5 group-hover:text-yellow-200 transition-colors" />
-              <span className="text-sm font-medium">Suggestions</span>
-              <span className="absolute -top-2 -right-2 px-2 py-1 bg-violet-700 text-white rounded-full text-xs font-bold min-w-[20px] text-center">
-                {dynamicSuggestions.length}
-              </span>
-            </motion.button>
+              <div className="p-2 sm:p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Package className="w-3.5 h-3.5 text-violet-500" />
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-300">Produits trouvés</span>
+                  </div>
+                  <button 
+                    onClick={() => setIsSearchingProducts(false)}
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  {productSearchResults.map(product => (
+                    <motion.button
+                      key={product.id}
+                      onClick={() => handleProductSelect(product)}
+                      className="w-full text-left p-2 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-lg transition-colors flex items-center gap-2"
+                      whileHover={{ x: 3 }}
+                    >
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center flex-shrink-0">
+                        <Package className="w-4 h-4 sm:w-5 sm:h-5 text-violet-500" />
+                      </div>
+                      <div>
+                        <div className="text-xs sm:text-sm font-medium text-gray-800 dark:text-gray-200">{product.name}</div>
+                        {product.category && (
+                          <div className="text-xs text-gray-500">{product.category}</div>
+                        )}
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
           )}
         </AnimatePresence>
         
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Enhanced Input Area */}
-      <div className="p-4 bg-gradient-to-t from-white via-white to-violet-50/30 dark:from-gray-800 dark:via-gray-800 border-t border-gray-100 dark:border-gray-700">
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div className="relative flex-1">
-            <div className="relative w-full">
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={handleInputChange}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder={useReasoningMode ? "Posez une question (mode raisonnement activé)..." : "Écrivez votre message... (utilisez @ pour mentionner un produit)"}
-                className={`w-full p-3 pl-4 pr-10 text-sm bg-white dark:bg-gray-700 border ${useReasoningMode ? 'border-indigo-300 dark:border-indigo-700' : 'border-gray-200 dark:border-gray-600'} rounded-xl focus:outline-none focus:ring-2 ${useReasoningMode ? 'focus:ring-indigo-400 focus:border-indigo-400' : 'focus:ring-violet-400 focus:border-violet-400'} transition-all placeholder-gray-400 dark:placeholder-gray-500 shadow-sm`}
-                disabled={isLoading}
-              />
-              
-              {/* Résultats de recherche de produits */}
-              <AnimatePresence>
-                {isSearchingProducts && productSearchResults.length > 0 && (
-                  <motion.div 
-                    className="absolute z-10 bottom-full mb-2 w-full bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg rounded-lg overflow-hidden border border-violet-200 dark:border-violet-800"
-                    initial={{ opacity: 0, y: 10, height: 0 }}
-                    animate={{ opacity: 1, y: 0, height: 'auto' }}
-                    exit={{ opacity: 0, y: 10, height: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div className="p-2">
-                      <div className="px-3 py-2 text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider flex items-center border-b border-violet-100 dark:border-violet-800 mb-1">
-                        <Package className="w-3 h-3 mr-1" />
-                        <span>Produits</span>
-                      </div>
-                      
-                      {productSearchResults.map((product) => (
-                        <motion.div 
-                          key={product.id}
-                          className="px-3 py-2 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-md cursor-pointer group transition-all duration-200"
-                          onClick={() => handleProductSelect(product)}
-                          whileHover={{ x: 3 }}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                                {product.name}
-                              </p>
-                              {product.category && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  {typeof product.category === 'string' 
-                                    ? product.category.charAt(0).toUpperCase() + product.category.slice(1)
-                                    : product.category[0].charAt(0).toUpperCase() + product.category[0].slice(1)}
-                                </p>
-                              )}
-                            </div>
-                            <div className="text-xs font-medium text-violet-600 dark:text-violet-400">
-                              {product.priceTTC}€
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            {useReasoningMode && (
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <Sparkles className="w-4 h-4 text-indigo-500" />
-              </div>
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder="Posez votre question ici..."
+              className="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl px-3 sm:px-4 py-2 sm:py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 text-xs sm:text-sm"
+              disabled={isLoading}
+            />
+            {showSuggestionsButton && !showSuggestions && (
+              <button 
+                onClick={() => setShowSuggestions(true)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-violet-500 dark:hover:text-violet-400 transition-colors"
+                title="Afficher les suggestions"
+              >
+                <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
             )}
           </div>
           <motion.button
             onClick={() => handleSendMessage()}
-            disabled={isLoading || !input.trim()}
-            className={`p-3 ${useReasoningMode ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-violet-600 hover:bg-violet-700'} text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md`}
+            disabled={!input.trim() || isLoading}
+            className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white p-2 sm:p-3 rounded-xl shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Send className="w-5 h-5" />
+            <Send className="w-4 h-4 sm:w-5 sm:h-5" />
           </motion.button>
         </div>
       </div>

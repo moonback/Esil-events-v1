@@ -1,3 +1,39 @@
+/* Ajout de styles responsifs pour le chatbot */
+@media (max-width: 640px) {
+  .message-container {
+    max-width: 95% !important;
+  }
+  
+  .message-text {
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+  
+  .message-avatar {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  
+  .message-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  
+  .suggestion-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .input-container {
+    padding: 0.5rem;
+  }
+  
+  .settings-panel {
+    padding: 0.75rem;
+  }
+}
+
+/* Styles existants */
 /* chatbot.css - Styles spécifiques pour le composant ProductChatbot */
 
 /* Coin décoratif pour les messages de l'utilisateur (droite) */
