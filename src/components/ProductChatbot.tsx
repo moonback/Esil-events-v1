@@ -338,52 +338,52 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
   return (
     <div className="w-full h-full bg-gradient-to-br from-white via-violet-50 to-violet-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
       {/* Combined Header */}
-      <div className="bg-gradient-to-r from-white to-violet-50 dark:from-gray-800 dark:to-gray-900 text-black dark:text-white p-6 flex justify-between items-center border-b border-violet-200 dark:border-violet-800 shadow-lg backdrop-blur-sm">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-400 to-violet-700 flex items-center justify-center shadow-xl transform hover:rotate-3 transition-all duration-300 ring-4 ring-violet-200 dark:ring-violet-900">
-            <span className="text-white text-base font-bold tracking-wider">ESIL</span>
+      <div className="bg-gradient-to-r from-white to-violet-50 dark:from-gray-800 dark:to-gray-900 text-black dark:text-white p-3 flex justify-between items-center border-b border-violet-200 dark:border-violet-800 shadow-md backdrop-blur-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-violet-700 flex items-center justify-center shadow-md transform hover:rotate-3 transition-all duration-300 ring-2 ring-violet-200 dark:ring-violet-900">
+            <span className="text-white text-sm font-bold">ESIL</span>
           </div>
           <div className="flex flex-col">
-            <span className="bg-gradient-to-r from-violet-500 via-purple-500 to-violet-700 bg-clip-text text-transparent font-extrabold text-xl">
-              ESIL Assistant Pro
+            <span className="bg-gradient-to-r from-violet-500 via-purple-500 to-violet-700 bg-clip-text text-transparent font-bold text-base">
+              ESIL Assistant
             </span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">Votre assistant intelligent</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">AI Assistant</span>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <motion.button 
             onClick={() => setShowSettings(!showSettings)}
-            className="flex items-center justify-center text-sm bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-900 dark:to-violet-800 hover:from-violet-100 hover:to-violet-200 dark:hover:from-violet-800 dark:hover:to-violet-700 text-violet-700 dark:text-violet-200 p-3 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl border border-violet-200/50 dark:border-violet-700/50 backdrop-blur-sm"
-            title="Paramètres"
-            whileHover={{ scale: 1.05, rotate: 90 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Settings className="w-5 h-5" />
-          </motion.button>
-          <motion.button 
-            onClick={clearConversation}
-            className="flex items-center text-sm bg-gradient-to-br from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800 text-white px-5 py-3 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-xl ring-2 ring-violet-200 dark:ring-violet-900"
-            title="Nouvelle discussion"
+            className="p-2 text-violet-700 dark:text-violet-200 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-900/50 transition-all duration-200"
+            title="Settings"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <RotateCcw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
-            Nouvelle discussion
+            <Settings className="w-4 h-4" />
+          </motion.button>
+          <motion.button 
+            onClick={clearConversation}
+            className="flex items-center gap-1 text-sm bg-violet-500 hover:bg-violet-600 text-white px-3 py-2 rounded-lg transition-all duration-200"
+            title="New conversation"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <RotateCcw className="w-3 h-3" />
+            <span className="hidden sm:inline">Nouveau</span>
           </motion.button>
           {onToggleFullScreen && (
             <motion.button
-              className="text-violet-500 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 p-3 rounded-2xl transition-all duration-300 bg-violet-50 dark:bg-violet-900/50 hover:bg-violet-100 dark:hover:bg-violet-800/50 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-violet-500 backdrop-blur-sm"
+              className="p-2 text-violet-500 hover:text-violet-700 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/50 rounded-lg transition-all duration-200"
               onClick={onToggleFullScreen}
-              aria-label={isFullScreen ? "Quitter le mode plein écran" : "Passer en mode plein écran"}
-              whileHover={{ scale: 1.05, rotate: 180 }}
+              aria-label={isFullScreen ? "Exit fullscreen" : "Enter fullscreen"}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               {isFullScreen ? (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="15 3 21 3 21 9" />
                   <polyline points="9 21 3 21 3 15" />
                   <line x1="21" y1="3" x2="14" y2="10" />
@@ -394,13 +394,13 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
           )}
           {onClose && (
             <motion.button
-              className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-3 rounded-2xl transition-all duration-300 bg-red-50 dark:bg-red-900/50 hover:bg-red-100 dark:hover:bg-red-800/50 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 backdrop-blur-sm"
+              className="p-2 text-red-500 hover:text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-lg transition-all duration-200"
               onClick={onClose}
-              aria-label="Fermer le chatbot"
-              whileHover={{ scale: 1.05, rotate: 90 }}
+              aria-label="Close chatbot"
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <X size={20} />
+              <X size={16} />
             </motion.button>
           )}
         </div>
@@ -694,45 +694,52 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
       </AnimatePresence>
       
       {/* Input Container */}
-      <div className="p-2 sm:p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 relative">
+      <div className="p-4 sm:p-6 border-t border-gray-200/50 dark:border-gray-700/50 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm relative">
         {/* Résultats de recherche de produits */}
         <AnimatePresence>
           {isSearchingProducts && productSearchResults.length > 0 && (
             <motion.div 
-              className="absolute bottom-full left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-t-xl shadow-lg max-h-60 overflow-y-auto z-10"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
+              className="absolute bottom-full left-0 w-full bg-white/95 dark:bg-gray-800/95 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-10 backdrop-blur-lg"
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
             >
-              <div className="p-2 sm:p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <Package className="w-3.5 h-3.5 text-violet-500" />
-                    <span className="text-xs font-medium text-gray-600 dark:text-gray-300">Produits trouvés</span>
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-violet-50 dark:bg-violet-900/30 rounded-lg">
+                      <Package className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+                    </div>
+                    <span className="text-sm font-semibold bg-gradient-to-r from-violet-600 to-violet-400 bg-clip-text text-transparent">
+                      Produits suggérés
+                    </span>
                   </div>
-                  <button 
+                  <motion.button 
                     onClick={() => setIsSearchingProducts(false)}
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     <X className="w-4 h-4" />
-                  </button>
+                  </motion.button>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   {productSearchResults.map(product => (
                     <motion.button
                       key={product.id}
                       onClick={() => handleProductSelect(product)}
-                      className="w-full text-left p-2 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-lg transition-colors flex items-center gap-2"
-                      whileHover={{ x: 3 }}
+                      className="w-full text-left p-3 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl transition-all duration-200 flex items-center gap-3 group border border-transparent hover:border-violet-200 dark:hover:border-violet-800"
+                      whileHover={{ x: 4, scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
                     >
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center flex-shrink-0">
-                        <Package className="w-4 h-4 sm:w-5 sm:h-5 text-violet-500" />
+                      <div className="w-12 h-12 bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-900/30 dark:to-violet-800/30 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:shadow-lg transition-all duration-200">
+                        <Package className="w-6 h-6 text-violet-600 dark:text-violet-400" />
                       </div>
                       <div>
-                        <div className="text-xs sm:text-sm font-medium text-gray-800 dark:text-gray-200">{product.name}</div>
+                        <div className="text-sm font-medium text-gray-800 dark:text-gray-200">{product.name}</div>
                         {product.category && (
-                          <div className="text-xs text-gray-500">{product.category}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{product.category}</div>
                         )}
                       </div>
                     </motion.button>
@@ -743,7 +750,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
           )}
         </AnimatePresence>
         
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-3 sm:gap-4">
           <div className="relative flex-1">
             <input
               ref={inputRef}
@@ -752,27 +759,29 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
               onChange={handleInputChange}
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
               placeholder="Posez votre question ici..."
-              className="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl px-3 sm:px-4 py-2 sm:py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 text-xs sm:text-sm"
+              className="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 rounded-2xl px-4 sm:px-5 py-3 sm:py-4 pr-12 focus:outline-none focus:ring-2 focus:ring-violet-500/50 dark:focus:ring-violet-400/50 text-sm placeholder-gray-400 dark:placeholder-gray-500 border border-gray-200/50 dark:border-gray-700/50 hover:border-violet-200 dark:hover:border-violet-700 transition-all duration-200"
               disabled={isLoading}
             />
             {showSuggestionsButton && !showSuggestions && (
-              <button 
+              <motion.button 
                 onClick={() => setShowSuggestions(true)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-violet-500 dark:hover:text-violet-400 transition-colors"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1.5 rounded-lg text-gray-400 hover:text-violet-500 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-all duration-200"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 title="Afficher les suggestions"
               >
-                <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
+                <Lightbulb className="w-5 h-5" />
+              </motion.button>
             )}
           </div>
           <motion.button
             onClick={() => handleSendMessage()}
             disabled={!input.trim() || isLoading}
-            className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white p-2 sm:p-3 rounded-xl shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+            className="bg-gradient-to-br from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800 text-white p-3 sm:p-4 rounded-2xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-violet-500/25 flex items-center justify-center"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Send className="w-5 h-5 sm:w-6 sm:h-6" />
           </motion.button>
         </div>
       </div>
