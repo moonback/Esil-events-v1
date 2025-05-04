@@ -1,19 +1,19 @@
 import { Product } from '../types/Product';
 
 /**
- * Service pour gérer les interactions du chatbot avec les APIs DeepSeek et Google Gemini
+ * Service pour gérer les interactions du chatbot avec l'API Google Gemini
  */
 
 interface ChatbotResponse {
   response?: string;
   error?: string;
-  source?: 'deepseek' | 'google' | 'fallback';
+  source?: 'google' | 'fallback';
 }
 
 /**
  * Type d'API à utiliser pour le chatbot
  */
-export type ChatbotApiType = 'deepseek' | 'google' | 'auto';
+export type ChatbotApiType = 'google';
 
 
 /**
@@ -169,58 +169,7 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
   return uniqueSuggestions.slice(0, 4);
 };
 
-/**
- * Fonction pour effectuer une requête API DeepSeek avec retry
- */
-async function makeDeepSeekApiRequest(requestBody: any, apiKey: string, retryCount = 0, maxRetries = 3): Promise<any> {
-  try {
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(requestBody),
-    });
 
-    if (!response.ok) {
-      let errorData;
-      try {
-        const errorText = await response.text();
-        errorData = JSON.parse(errorText);
-      } catch (parseError) {
-        errorData = { error: { message: `Erreur ${response.status}: ${response.statusText}. Réponse non JSON.` } };
-      }
-      
-      // Si on a atteint le nombre maximum de tentatives, lancer une erreur
-      if (retryCount >= maxRetries) {
-        throw new Error(`Erreur API (${response.status}): ${errorData?.error?.message || response.statusText || 'Erreur inconnue'}`);
-      }
-      
-      // Attendre avant de réessayer (backoff exponentiel)
-      const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
-      console.log(`Tentative ${retryCount + 1}/${maxRetries} échouée. Nouvelle tentative dans ${waitTime}ms...`);
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-      
-      // Réessayer
-      return makeApiRequest(requestBody, apiKey, retryCount + 1, maxRetries);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    if (retryCount < maxRetries) {
-      // Attendre avant de réessayer
-      const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
-      console.log(`Erreur lors de la tentative ${retryCount + 1}/${maxRetries}. Nouvelle tentative dans ${waitTime}ms...`);
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-      
-      // Réessayer
-      return makeApiRequest(requestBody, apiKey, retryCount + 1, maxRetries);
-    }
-    throw error;
-  }
-}
 
 /**
  * Génère une réponse du chatbot en utilisant l'API Google Gemini
@@ -290,187 +239,38 @@ async function generateGoogleResponse(question: string, products: Product[]): Pr
   }
 }
 
-/**
- * Génère une réponse du chatbot en utilisant l'API DeepSeek
- */
-async function generateDeepSeekResponse(question: string, products: Product[], useReasoningMode: boolean): Promise<ChatbotResponse> {
-  try {
-    const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
-    
-    if (!apiKey) {
-      return { error: "Erreur de configuration: Clé API DeepSeek manquante (VITE_DEEPSEEK_API_KEY).", source: 'deepseek' };
-    }
 
-    // Limiter le nombre de produits pour éviter de dépasser la limite de tokens
-    const limitedProducts = products.slice(0, 50);
-    const productContext = prepareProductContext(limitedProducts);
-
-    const systemMessage = {
-      role: "system",
-      content: `Tu es un assistant virtuel pour ESIL Events, spécialiste de la location de matériel événementiel. 
-      Tu as accès à la base de données des produits et tu dois aider les clients à trouver les produits qui correspondent à leurs besoins.
-      
-      Voici les règles à suivre:
-      1. Réponds aux questions des clients de manière précise, professionnelle et conviviale.
-      2. Si on te demande des informations sur un produit spécifique, cherche-le dans la base de données et fournis les détails pertinents.
-      3. Si on te demande des recommandations, suggère des produits adaptés en fonction des critères mentionnés.
-      4. Si tu ne connais pas la réponse ou si le produit demandé n'est pas dans la base de données, propose de contacter l'équipe commerciale.
-      5. Mentionne toujours les prix TTC des produits quand tu les recommandes.
-      6. N'invente jamais de produits ou de caractéristiques qui ne sont pas dans la base de données.
-      7. Si on te demande des informations sur la disponibilité ou la livraison, indique que ces informations sont à confirmer avec l'équipe commerciale.
-      
-      Voici les informations sur nos produits (limité aux 50 premiers): ${JSON.stringify(productContext)}`
-    };
-
-    const userMessage = {
-      role: "user",
-      content: question
-    };
-
-    // Configuration de la requête en fonction du mode de raisonnement
-    const requestBody = {
-      model: useReasoningMode ? "deepseek-reasoner" : "deepseek-chat",
-      messages: [systemMessage, userMessage],
-      temperature: useReasoningMode ? 0.3 : 0.7,  // Plus précis en mode raisonnement
-      max_tokens: useReasoningMode ? 1000 : 600,  // Plus de tokens pour les analyses complexes
-      top_p: 0.9,  // Équilibre entre diversité et pertinence
-      ...(useReasoningMode && { plugins: [{ type: "reasoner" }] })
-    };
-
-    try {
-      // Tenter d'utiliser le modèle demandé avec retry
-      const data = await makeDeepSeekApiRequest(requestBody, apiKey);
-      const generatedContent = data.choices?.[0]?.message?.content?.trim();
-
-      if (!generatedContent) {
-        throw new Error("La réponse de l'API est vide ou mal structurée.");
-      }
-
-      return { response: generatedContent, source: 'deepseek' };
-    } catch (primaryError) {
-      // Si on est en mode raisonnement et qu'il y a une erreur, essayer avec le modèle par défaut
-      if (useReasoningMode) {
-        console.warn('Échec avec deepseek-reasoner, fallback vers deepseek-chat:', primaryError);
-        
-        try {
-          // Fallback vers le modèle par défaut
-          const fallbackRequestBody = {
-            model: "deepseek-chat",
-            messages: [systemMessage, userMessage],
-            temperature: 0.7,
-            max_tokens: 600,
-            top_p: 0.9
-          };
-          
-          const fallbackData = await makeDeepSeekApiRequest(fallbackRequestBody, apiKey);
-          const fallbackContent = fallbackData.choices?.[0]?.message?.content?.trim();
-          
-          if (!fallbackContent) {
-            throw new Error("La réponse de l'API de secours est vide ou mal structurée.");
-          }
-          
-          return { 
-            response: fallbackContent + "\n\n(Note: Cette réponse a été générée avec le modèle standard suite à une erreur avec le mode raisonnement avancé.)",
-            source: 'fallback'
-          };
-        } catch (fallbackError: any) {
-          console.error('Échec du fallback vers deepseek-chat:', fallbackError);
-          throw fallbackError; // Propager l'erreur pour être gérée par le bloc catch principal
-        }
-      } else {
-        // Si on n'est pas en mode raisonnement, propager l'erreur
-        throw primaryError;
-      }
-    }
-  } catch (error: any) {
-    console.error('Erreur lors de la génération de la réponse du chatbot DeepSeek:', error);
-    return { 
-      error: `Erreur avec l'API DeepSeek: ${error.message || 'Erreur inconnue'}`,
-      source: 'deepseek'
-    };
-  }
-}
 
 /**
  * Génère une réponse du chatbot basée sur la question de l'utilisateur et les produits disponibles
  * @param question La question posée par l'utilisateur
  * @param products La liste des produits disponibles
- * @param useReasoningMode Utiliser le mode raisonnement avancé (DeepSeek uniquement)
- * @param apiType Le type d'API à utiliser ('deepseek', 'google' ou 'auto')
  */
-export const generateChatbotResponse = async (question: string, products: Product[], useReasoningMode: boolean, apiType: ChatbotApiType = 'auto'): Promise<ChatbotResponse> => {
+export const generateChatbotResponse = async (question: string, products: Product[]): Promise<ChatbotResponse> => {
   try {
-    // Vérifier si les clés API sont disponibles
-    const deepseekApiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
+    // Vérifier si la clé API est disponible
     const googleApiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
     
-    // Déterminer quelle API utiliser en fonction du paramètre apiType
-    if (apiType === 'deepseek' || (apiType === 'auto' && deepseekApiKey)) {
-      try {
-        // Essayer d'abord avec DeepSeek
-        const deepseekResponse = await generateDeepSeekResponse(question, products, useReasoningMode);
-        if (!deepseekResponse.error) {
-          return deepseekResponse;
-        }
-        
-        // Si DeepSeek échoue et qu'on est en mode auto, essayer avec Google
-        if (apiType === 'auto' && googleApiKey) {
-          console.log('Échec avec DeepSeek, tentative avec Google Gemini...');
-          return await generateGoogleResponse(question, products);
-        }
-        
-        // Sinon, retourner l'erreur DeepSeek
-        return deepseekResponse;
-      } catch (error: any) {
-        // Si DeepSeek échoue complètement et qu'on est en mode auto, essayer avec Google
-        if (apiType === 'auto' && googleApiKey) {
-          console.log('Erreur critique avec DeepSeek, tentative avec Google Gemini...');
-          return await generateGoogleResponse(question, products);
-        }
-        
-        // Sinon, propager l'erreur
-        throw error;
-      }
-    } else if (apiType === 'google' || (apiType === 'auto' && googleApiKey)) {
-      try {
-        // Essayer d'abord avec Google
-        const googleResponse = await generateGoogleResponse(question, products);
-        if (!googleResponse.error) {
-          return googleResponse;
-        }
-        
-        // Si Google échoue et qu'on est en mode auto, essayer avec DeepSeek
-        if (apiType === 'auto' && deepseekApiKey) {
-          console.log('Échec avec Google Gemini, tentative avec DeepSeek...');
-          return await generateDeepSeekResponse(question, products, useReasoningMode);
-        }
-        
-        // Sinon, retourner l'erreur Google
-        return googleResponse;
-      } catch (error: any) {
-        // Si Google échoue complètement et qu'on est en mode auto, essayer avec DeepSeek
-        if (apiType === 'auto' && deepseekApiKey) {
-          console.log('Erreur critique avec Google Gemini, tentative avec DeepSeek...');
-          return await generateDeepSeekResponse(question, products, useReasoningMode);
-        }
-        
-        // Sinon, propager l'erreur
-        throw error;
-      }
-    } else {
-      // Aucune API disponible
+    if (!googleApiKey) {
       return { 
-        error: "Erreur de configuration: Aucune clé API disponible (VITE_DEEPSEEK_API_KEY ou VITE_GOOGLE_GEMINI_API_KEY).",
+        error: "Erreur de configuration: Clé API Google Gemini manquante (VITE_GOOGLE_GEMINI_API_KEY).",
         source: 'fallback'
       };
     }
+
+    try {
+      // Générer la réponse avec Google
+      const googleResponse = await generateGoogleResponse(question, products);
+      return googleResponse;
+    } catch (error: any) {
+      throw error;
+    }
+
   } catch (error: any) {
     console.error('Erreur lors de la génération de la réponse du chatbot:', error);
     
     // Enregistrer l'erreur pour débogage (à remplacer par Sentry ou autre service de logging)
     try {
-      // Ici, on pourrait intégrer Sentry ou un autre service de logging
-      // Exemple: Sentry.captureException(error);
       console.error('Détails de l\'erreur pour débogage:', {
         message: error.message,
         stack: error.stack,

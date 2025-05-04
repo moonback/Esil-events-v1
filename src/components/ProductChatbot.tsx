@@ -31,7 +31,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
   const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
   const [showSuggestionsButton, setShowSuggestionsButton] = useState(true);
   const [useReasoningMode, setUseReasoningMode] = useState(false);
-  const [apiType, setApiType] = useState<ChatbotApiType>('auto');
+const [apiType, setApiType] = useState<ChatbotApiType>('google');
   const [showSettings, setShowSettings] = useState(false);
   const [isSearchingProducts, setIsSearchingProducts] = useState(false);
   const [productSearchResults, setProductSearchResults] = useState<Product[]>([]);
@@ -119,7 +119,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
   const generateResponse = async (question: string): Promise<{text: string, isReasoned: boolean, source?: 'deepseek' | 'google' | 'fallback'}> => {
     try {
       // Utiliser le service chatbot pour générer une réponse
-      const result = await generateChatbotResponse(question, products, useReasoningMode, apiType);
+      const result = await generateChatbotResponse(question, products);
       
       if (result.error) {
         return {
@@ -437,18 +437,12 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                   <Globe className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                   <span className="text-sm text-gray-700 dark:text-gray-300">Modèle d'IA à utiliser</span>
                 </div>
-                <div className="grid grid-cols-3 gap-2 mt-1">
+                <div className="grid grid-cols-2 gap-2 mt-1">
                   <button
-                    onClick={() => setApiType('auto')}
-                    className={`px-3 py-2 text-xs font-medium rounded-lg transition-all ${apiType === 'auto' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
+                    onClick={() => setApiType('google' as ChatbotApiType)}
+                    className={`px-3 py-2 text-xs font-medium rounded-lg transition-all ${apiType === 'auto' as ChatbotApiType ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
                   >
                     Auto
-                  </button>
-                  <button
-                    onClick={() => setApiType('deepseek')}
-                    className={`px-3 py-2 text-xs font-medium rounded-lg transition-all ${apiType === 'deepseek' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
-                  >
-                    DeepSeek
                   </button>
                   <button
                     onClick={() => setApiType('google')}
@@ -458,7 +452,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Auto: utilise l'API disponible avec fallback automatique. DeepSeek: utilise uniquement l'API DeepSeek. Google: utilise uniquement l'API Google Gemini.
+                  Auto: utilise l'API disponible avec fallback automatique. Google: utilise uniquement l'API Google Gemini.
                 </p>
               </div>
             </div>
