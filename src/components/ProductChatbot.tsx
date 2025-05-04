@@ -768,7 +768,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
           {showSuggestionsButton && !showSuggestions && (
             <motion.button
               onClick={() => setShowSuggestions(true)}
-              className="fixed bottom-[80px] left-1/2 transform -translate-x-1/2 p-4 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 z-10 flex items-center gap-2 group"
+              className="fixed bottom-[160px] right-[30px] transform -translate-x-1/2 p-4 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 z-10 flex items-center gap-2 group"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               initial={{ opacity: 0, y: 20 }}
@@ -777,7 +777,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
             >
               <Lightbulb className="w-5 h-5 group-hover:text-yellow-200 transition-colors" />
               <span className="text-sm font-medium">Suggestions</span>
-              <span className="px-2 py-1 bg-white/20 rounded-lg text-xs font-bold">
+              <span className="absolute -top-2 -right-2 px-2 py-1 bg-violet-700 text-white rounded-full text-xs font-bold min-w-[20px] text-center">
                 {dynamicSuggestions.length}
               </span>
             </motion.button>
