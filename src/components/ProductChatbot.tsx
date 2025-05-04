@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { getAllProducts, searchProducts } from '../services/productService';
 import { generateChatbotResponse, generateDynamicSuggestions, ChatbotApiType } from '../services/chatbotService';
 import { Product } from '../types/Product';
@@ -220,7 +220,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
   };
 
   // Fonction pour détecter les mentions de produits dans un texte
-  const detectProductMentions = (text: string): Product[] => {
+  const detectProductMentions = useCallback((text: string): Product[] => {
     const mentionRegex = /@([\w\s-]+)/g;
     const mentions: string[] = [];
     let match;
@@ -242,7 +242,16 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
       .filter((product): product is Product => product !== undefined);
     
     return mentionedProducts;
-  };
+  }, [products]);
+  
+  // Memoize the welcome message
+  const welcomeMessage = useMemo(() => ({
+    id: Date.now().toString(),
+    text: "Bonjour ! 👋 Je suis votre assistant ESIL Events, spécialisé dans la location d'équipements événementiels. Notre catalogue comprend une large gamme de matériel professionnel pour tous types d'événements : mariages, conférences, festivals, soirées privées et bien plus. Je peux vous aider à :\n\n• Trouver les produits parfaits selon vos besoins spécifiques\n• Répondre à vos questions sur nos services et tarifs\n• Vous guider dans le processus de location et réservation\n• Fournir des conseils personnalisés pour votre événement\n\nComment puis-je vous assister aujourd'hui ?",
+    sender: 'bot' as const,
+    timestamp: new Date(),
+    isNew: true
+  }), []);
   
   // Fonction pour mettre en évidence les mentions de produits dans le texte
   const highlightProductMentions = (text: string): JSX.Element[] => {
