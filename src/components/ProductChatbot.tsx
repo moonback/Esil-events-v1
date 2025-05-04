@@ -94,7 +94,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
           // Ajouter un message de bienvenue si pas d'historique
           setMessages([{
             id: Date.now().toString(),
-            text: "Bonjour ! 👋 Je suis votre assistant virtuel ESIL Events, spécialisé dans la location d'équipements pour vos événements. Pour vous offrir des recommandations personnalisées, j'aimerais en savoir plus sur votre événement. Pouvez-vous me préciser le type d'événement, la date prévue et votre budget approximatif ?",
+            text: "Bienvenue chez ESIL Events. Je suis votre conseiller expert en solutions événementielles, spécialisé dans l'accompagnement et la location d'équipements professionnels. Pour vous proposer une sélection adaptée à vos besoins spécifiques, j'aurais besoin de quelques informations essentielles concernant votre projet de lacation ou de recherche de prestataire : la nature de votre événement, la date envisagée, ainsi que votre budget prévisionnel. Comment puis-je vous accompagner aujourd'hui ?",
             sender: 'bot',
             timestamp: new Date(),
             isNew: true
@@ -400,7 +400,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
   const clearConversation = () => {
     const welcomeMessage: Message = {
       id: Date.now().toString(),
-      text: "Bonjour ! 👋 Je suis votre assistant ESIL Events, spécialisé dans la location d'équipements événementiels. Pour vous offrir des recommandations personnalisées, j'aimerais en savoir plus sur votre événement. Pouvez-vous me préciser le type d'événement, la date prévue et votre budget approximatif ?",
+      text: "Bienvenue chez ESIL Events ! 👋 Je suis votre conseiller expert dédié à la réussite de vos événements/location. Notre expertise en location d'équipements professionnels nous permet de vous accompagner dans tous vos projets. Pour vous proposer une sélection parfaitement adaptée à vos besoins, j'aurais besoin de quelques informations essentielles : quel type d'événement organisez-vous ? À quelle date est-il prévu ? Quel budget avez-vous envisagé ? Je suis là pour vous guider vers les meilleures solutions.",
       sender: 'bot',
       timestamp: new Date(),
       isNew: true
@@ -425,8 +425,8 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
       {/* Combined Header */}
       <div className="bg-gradient-to-r from-white to-violet-50 dark:from-gray-800 dark:to-gray-900 text-black dark:text-white p-3 flex justify-between items-center border-b border-violet-200 dark:border-violet-800 shadow-md backdrop-blur-sm">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-violet-700 flex items-center justify-center shadow-md transform hover:rotate-3 transition-all duration-300 ring-2 ring-violet-200 dark:ring-violet-900">
-            <span className="text-white text-sm font-bold">ESIL</span>
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-400 to-violet-700 flex items-center justify-center shadow-md transform hover:rotate-3 transition-all duration-300 ring-2 ring-violet-200 dark:ring-violet-900">
+            <span className="text-white text-sm font-bold">CHAT</span>
           </div>
           <div className="flex flex-col">
             <span className="bg-gradient-to-r from-violet-500 via-purple-500 to-violet-700 bg-clip-text text-transparent font-bold text-base">
@@ -1024,12 +1024,12 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Posez votre question..."
+                placeholder="Posez votre question... Utilisez @ pour mentionner un produit"
                 className="w-full bg-gray-50 dark:bg-gray-700/50 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-violet-500/50 text-sm border border-gray-200/50 dark:border-gray-700/50 shadow-sm transition-all duration-200 group-hover:border-violet-200 dark:group-hover:border-violet-700/50 group-hover:shadow-md"
                 disabled={isLoading}
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 dark:text-gray-500 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <span className="hidden sm:inline">Utilisez </span>@ pour mentionner un produit
+                {/* <span className="hidden sm:inline">Utilisez </span>@ pour mentionner un produit */}
               </div>
             </div>
             {showSuggestionsButton && !showSuggestions && (
