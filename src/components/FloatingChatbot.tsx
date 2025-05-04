@@ -77,27 +77,13 @@ const FloatingChatbot: React.FC = () => {
       {/* Chatbot Modal/Panel */}
       {open && (
         <div className={`fixed ${isFullScreen ? 'inset-0' : 'bottom-20 right-0 w-full md:w-[600px] lg:w-[800px] h-[80vh] md:h-[800px] mx-1 md:mx-0'} z-50 bg-white dark:bg-gray-900 border border-gray-300 rounded-xl shadow-2xl flex flex-col transition-all duration-300 ease-in-out`}>
-          <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
-            <span className="font-semibold text-blue-700 dark:text-blue-400">Assistant IA</span>
-            <div className="flex items-center space-x-2">
-              <button
-                className="text-gray-500 hover:text-blue-500 p-2 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onClick={toggleFullScreen}
-                aria-label={isFullScreen ? "Quitter le mode plein écran" : "Passer en mode plein écran"}
-              >
-                {isFullScreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-              </button>
-              <button
-                className="text-gray-500 hover:text-red-500 p-2 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500"
-                onClick={toggleChatbot}
-                aria-label="Fermer le chatbot"
-              >
-                <span className="text-xl font-bold">×</span>
-              </button>
-            </div>
-          </div>
           <div className="flex-1 overflow-hidden bg-gray-50 dark:bg-gray-800">
-            <ProductChatbot initialQuestion={productQuestion} />
+            <ProductChatbot 
+              initialQuestion={productQuestion} 
+              onClose={toggleChatbot} 
+              onToggleFullScreen={toggleFullScreen} 
+              isFullScreen={isFullScreen} 
+            />
           </div>
         </div>
       )}

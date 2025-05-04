@@ -20,18 +20,21 @@ interface Message {
 
 interface ProductChatbotProps {
   initialQuestion?: string | null;
+  onClose?: () => void;
+  onToggleFullScreen?: () => void;
+  isFullScreen?: boolean;
 }
 
-const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null }) => {
+const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null, onClose, onToggleFullScreen, isFullScreen }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
   const [showSuggestionsButton, setShowSuggestionsButton] = useState(true);
   const [useReasoningMode, setUseReasoningMode] = useState(false);
-  const [apiType, setApiType] = useState<ChatbotApiType>('google');
+  const [apiType] = useState<ChatbotApiType>('google');
   const [showSettings, setShowSettings] = useState(false);
   const [isSearchingProducts, setIsSearchingProducts] = useState(false);
   const [productSearchResults, setProductSearchResults] = useState<Product[]>([]);
@@ -243,51 +246,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
     
     return mentionedProducts;
   }, [products]);
-  
-  // Memoize the welcome message
-  const welcomeMessage = useMemo(() => ({
-    id: Date.now().toString(),
-    text: "Bonjour ! 👋 Je suis votre assistant ESIL Events, spécialisé dans la location d'équipements événementiels. Notre catalogue comprend une large gamme de matériel professionnel pour tous types d'événements : mariages, conférences, festivals, soirées privées et bien plus. Je peux vous aider à :\n\n• Trouver les produits parfaits selon vos besoins spécifiques\n• Répondre à vos questions sur nos services et tarifs\n• Vous guider dans le processus de location et réservation\n• Fournir des conseils personnalisés pour votre événement\n\nComment puis-je vous assister aujourd'hui ?",
-    sender: 'bot' as const,
-    timestamp: new Date(),
-    isNew: true
-  }), []);
-  
-  // Fonction pour mettre en évidence les mentions de produits dans le texte
-  const highlightProductMentions = (text: string): JSX.Element[] => {
-    const mentionRegex = /@([\w\s-]+)/g;
-    const parts: JSX.Element[] = [];
-    let lastIndex = 0;
-    let match;
     
-    // Parcourir toutes les mentions et créer des éléments JSX pour chaque partie du texte
-    while ((match = mentionRegex.exec(text)) !== null) {
-      // Ajouter le texte avant la mention
-      if (match.index > lastIndex) {
-        parts.push(<span key={`text-${lastIndex}`}>{text.substring(lastIndex, match.index)}</span>);
-      }
-      
-      // Ajouter la mention mise en évidence
-      parts.push(
-        <span 
-          key={`mention-${match.index}`} 
-          className="bg-transparent text-white dark:text-violet-300 px-1 rounded font-medium"
-        >
-          {match[0]}
-        </span>
-      );
-      
-      lastIndex = match.index + match[0].length;
-    }
-    
-    // Ajouter le reste du texte après la dernière mention
-    if (lastIndex < text.length) {
-      parts.push(<span key={`text-${lastIndex}`}>{text.substring(lastIndex)}</span>);
-    }
-    
-    return parts;
-  };
-
   // Gérer l'envoi d'un message
   const handleSendMessage = async (text = input) => {
     if (!text.trim()) return;
@@ -378,21 +337,21 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
 
   return (
     <div className="w-full h-full bg-gradient-to-br from-white via-violet-50 to-violet-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-      {/* Enhanced Header */}
+      {/* Combined Header */}
       <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-4 flex justify-between items-center border-b border-violet-300/50 dark:border-violet-600/50 shadow-sm">
-        <span className="tracking-wide text-lg font-bold flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-lg">
-            <Bot className="w-5 h-5 text-white" />
+            <span className="text-white text-sm font-bold">ESIL</span>
           </div>
           <span className="bg-gradient-to-r from-violet-500 to-violet-700 bg-clip-text text-transparent font-extrabold">
             ESIL Assistant Pro
           </span>
-        </span>
-        <div className="flex items-center gap-3">
+        </div>
+        <div className="flex items-center gap-2">
           <motion.button 
             onClick={() => setShowSettings(!showSettings)}
             className="flex items-center justify-center text-sm bg-gradient-to-r from-violet-500 to-violet-100 dark:from-violet-800 dark:to-violet-900 hover:from-violet-100 hover:to-violet-200 dark:hover:from-violet-700 dark:hover:to-violet-800 text-violet-700 dark:text-violet-200 p-2.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md border border-violet-200 dark:border-violet-700"
-            title="Settings"
+            title="Paramètres"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -400,14 +359,47 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
           </motion.button>
           <motion.button 
             onClick={clearConversation}
-            className="flex items-center text-sm bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white px-5 py-2.5 rounded-xl transition-all duration-300 group shadow-sm hover:shadow-md"
-            title="Clear conversation"
+            className="flex items-center text-sm bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white px-4 py-2.5 rounded-xl transition-all duration-300 group shadow-sm hover:shadow-md"
+            title="Nouvelle discussion"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <RotateCcw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform" />
             Nouvelle discussion
           </motion.button>
+          {onToggleFullScreen && (
+            <motion.button
+              className="text-gray-500 hover:text-violet-500 p-2 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-violet-500"
+              onClick={onToggleFullScreen}
+              aria-label={isFullScreen ? "Quitter le mode plein écran" : "Passer en mode plein écran"}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {isFullScreen ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 3 21 3 21 9" />
+                  <polyline points="9 21 3 21 3 15" />
+                  <line x1="21" y1="3" x2="14" y2="10" />
+                  <line x1="3" y1="21" x2="10" y2="14" />
+                </svg>
+              )}
+            </motion.button>
+          )}
+          {onClose && (
+            <motion.button
+              className="text-gray-500 hover:text-red-500 p-2 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500"
+              onClick={onClose}
+              aria-label="Fermer le chatbot"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X size={20} />
+            </motion.button>
+          )}
         </div>
       </div>
       
@@ -441,18 +433,20 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                 </button>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 mb-3">
-                Le mode raisonnement utilise DeepSeek Reasoner pour des réponses plus détaillées et analytiques.
+                Le mode raisonnement utile pour des réponses plus détaillées et analytiques.
               </p>
               
               {/* Budget de réflexion */}
-              {/* {useReasoningMode && (
+              {useReasoningMode && (
                 <div className="flex flex-col gap-2 mb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Budget de réflexion</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Token de réflexion</span>
                     </div>
-                    <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">{thinkingBudget} tokens</span>
+<span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">
+  {thinkingBudget} tokens (~{Math.round(thinkingBudget * 0.75)} mots)
+</span>
                   </div>
                   <input
                     type="range"
@@ -464,16 +458,16 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                   />
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Plus le budget est élevé, plus les réponses seront détaillées, mais le temps de génération sera plus long.
+                    Plus le nombre de token est élevé, plus les réponses seront détaillées, mais le temps de génération sera plus long.
                   </p>
                 </div>
-              )} */}
+              )}
               
               {/* Ancrage de recherche */}
               <div className="flex flex-col gap-2 mb-3">
                 <div className="flex items-center gap-2">
                   <Search className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Ancrage de recherche</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Contexte de la conversation</span>
                 </div>
                 <input
                   type="text"
@@ -488,18 +482,13 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
               </div>
               
               {/* Choix de l'API */}
-              <div className="flex flex-col gap-2">
+              {/* <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
                   <Globe className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                   <span className="text-sm text-gray-700 dark:text-gray-300">Modèle d'IA à utiliser</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-1">
-                  {/* <button
-                    onClick={() => setApiType('google' as ChatbotApiType)}
-                    className={`px-3 py-2 text-xs font-medium rounded-lg transition-all ${apiType === 'auto' as ChatbotApiType ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
-                  >
-                    Auto
-                  </button> */}
+                  
                   <button
                     onClick={() => setApiType('google')}
                     className={`px-3 py-2 text-xs font-medium rounded-lg transition-all ${apiType === 'google' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
@@ -510,7 +499,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Auto: utilise l'API disponible avec fallback automatique. Google: utilise uniquement l'API Google Gemini.
                 </p>
-              </div>
+              </div> */}
             </div>
           </motion.div>
         )}
