@@ -3,7 +3,7 @@ import { getAllProducts, searchProducts } from '../services/productService';
 import { generateChatbotResponse, generateDynamicSuggestions, ChatbotApiType } from '../services/chatbotService';
 import { Product } from '../types/Product';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BrainCircuit, Send, Sparkles, RotateCcw, Search, Tag, X, Package, User, Bot, MessageSquare, Lightbulb, Globe } from 'lucide-react';
+import { BrainCircuit, Send, Sparkles, RotateCcw, Search, Tag, X, Package, User, Bot, MessageSquare, Lightbulb, Globe, Settings } from 'lucide-react';
 import ProductMiniCard from './ProductMiniCard';
 import '../styles/chatbot.css';
 
@@ -63,7 +63,7 @@ const [apiType, setApiType] = useState<ChatbotApiType>('google');
           // Ajouter un message de bienvenue si pas d'historique
           setMessages([{
             id: Date.now().toString(),
-            text: 'Bonjour ! Je suis votre assistant virtuel ESIL Events. Comment puis-je vous aider avec nos produits de location pour vos événements ?',
+            text: "Bonjour ! 👋 Je suis votre assistant virtuel ESIL Events, spécialisé dans la location d'équipements pour vos événements. Je peux vous aider à trouver les produits parfaits pour votre occasion, répondre à vos questions sur nos services, et vous guider dans votre processus de location. Comment puis-je vous assister aujourd'hui ?",
             sender: 'bot',
             timestamp: new Date(),
             isNew: true
@@ -350,7 +350,7 @@ const [apiType, setApiType] = useState<ChatbotApiType>('google');
   const clearConversation = () => {
     const welcomeMessage: Message = {
       id: Date.now().toString(),
-      text: 'Conversation réinitialisée. Comment puis-je vous aider aujourd\'hui ?',
+      text: "Conversation réinitialisée ! 🔄 Je suis votre assistant ESIL Events, spécialisé dans la location d'équipements événementiels. Je peux vous aider à trouver les produits parfaits, répondre à vos questions sur nos services, et vous guider dans votre processus de location. Comment puis-je vous assister aujourd'hui ?",
       sender: 'bot',
       timestamp: new Date(),
       isNew: true
@@ -363,37 +363,34 @@ const [apiType, setApiType] = useState<ChatbotApiType>('google');
   return (
     <div className="w-full h-full bg-gradient-to-br from-white via-violet-50 to-violet-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
       {/* Enhanced Header */}
-      <div className="bg-white text-black p-4 flex justify-between items-center border-b border-violet-300/50 shadow-sm">
-        {/* <span className="tracking-wide text-lg font-bold flex items-center gap-3">
-          <svg className="w-7 h-7 text-violet-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span className="bg-gradient-to-r from-violet-400 to-green-400 bg-clip-text text-transparent">
-            Assistant ESIL (Béta)
+      <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-4 flex justify-between items-center border-b border-violet-300/50 dark:border-violet-600/50 shadow-sm">
+        <span className="tracking-wide text-lg font-bold flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-lg">
+            <Bot className="w-5 h-5 text-white" />
+          </div>
+          <span className="bg-gradient-to-r from-violet-500 to-violet-700 bg-clip-text text-transparent font-extrabold">
+            ESIL Assistant Pro
           </span>
-        </span> */}
+        </span>
         <div className="flex items-center gap-3">
           <motion.button 
             onClick={() => setShowSettings(!showSettings)}
-            className="flex items-center justify-center text-sm bg-gradient-to-r from-violet-50 to-violet-100 hover:from-violet-100 hover:to-violet-200 text-violet-700 p-2.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md border border-violet-200"
-            title="Paramètres"
+            className="flex items-center justify-center text-sm bg-gradient-to-r from-violet-50 to-violet-100 dark:from-violet-800 dark:to-violet-900 hover:from-violet-100 hover:to-violet-200 dark:hover:from-violet-700 dark:hover:to-violet-800 text-violet-700 dark:text-violet-200 p-2.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md border border-violet-200 dark:border-violet-700"
+            title="Settings"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+            <Settings className="w-5 h-5" />
           </motion.button>
           <motion.button 
             onClick={clearConversation}
             className="flex items-center text-sm bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white px-5 py-2.5 rounded-xl transition-all duration-300 group shadow-sm hover:shadow-md"
-            title="Effacer la conversation"
+            title="Clear conversation"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <RotateCcw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform" />
-            Nouvelle discussion
+            New Chat
           </motion.button>
         </div>
       </div>
