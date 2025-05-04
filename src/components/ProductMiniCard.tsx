@@ -17,28 +17,29 @@ const ProductMiniCard: React.FC<ProductMiniCardProps> = ({ product }) => {
 
   return (
     <motion.div 
-      className="product-mini-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-violet-200 dark:border-violet-800 flex flex-col w-full max-w-[250px] my-2"
-      initial={{ opacity: 0, y: 10 }}
+      className="product-mini-card bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border-2 border-violet-300 dark:border-violet-700 flex flex-col w-full max-w-[280px] my-3 transform hover:scale-102 transition-all duration-300"
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      whileHover={{ y: -5 }}
     >
-      <div className="relative h-32 overflow-hidden bg-gray-100 dark:bg-gray-700">
+      <div className="relative h-40 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
         <img 
           src={imageUrl} 
           alt={product.name} 
-          className="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
+          className="w-full h-full object-cover transition-transform hover:scale-110 duration-500"
         />
-        <div className="absolute top-0 right-0 bg-violet-600 text-white text-xs font-bold px-2 py-1 rounded-bl-lg">
+        <div className="absolute top-3 right-3 bg-violet-600 text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-md">
           {product.priceTTC}€
         </div>
       </div>
       
-      <div className="p-3">
-        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 line-clamp-2">
+      <div className="p-4">
+        <h3 className="text-base font-bold text-gray-800 dark:text-gray-100 line-clamp-2 mb-2">
           {product.name}
         </h3>
-        <div className="mt-2 flex justify-between items-center">
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
             {typeof product.category === 'string' 
               ? product.category
               : Array.isArray(product.category) && product.category.length > 0 
@@ -46,10 +47,13 @@ const ProductMiniCard: React.FC<ProductMiniCardProps> = ({ product }) => {
                 : 'Catégorie'}
           </span>
           <Link 
-            to={`/produit/${product.slug || product.id}`} 
-            className="text-xs font-medium text-violet-600 hover:text-violet-800 dark:text-violet-400 dark:hover:text-violet-300"
+            to={`/product/${product.slug || product.id}`} 
+            className="text-sm font-semibold text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 flex items-center gap-1 transition-colors"
           >
-            Voir détails →
+            Voir détails
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </Link>
         </div>
       </div>
