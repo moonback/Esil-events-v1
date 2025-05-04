@@ -390,7 +390,7 @@ const [apiType, setApiType] = useState<ChatbotApiType>('google');
             whileTap={{ scale: 0.95 }}
           >
             <RotateCcw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform" />
-            New Chat
+            Nouvelle discussion
           </motion.button>
         </div>
       </div>
