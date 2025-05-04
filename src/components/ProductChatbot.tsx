@@ -350,7 +350,7 @@ const [apiType, setApiType] = useState<ChatbotApiType>('google');
   const clearConversation = () => {
     const welcomeMessage: Message = {
       id: Date.now().toString(),
-      text: "Conversation réinitialisée ! 🔄 Je suis votre assistant ESIL Events, spécialisé dans la location d'équipements événementiels. Je peux vous aider à trouver les produits parfaits, répondre à vos questions sur nos services, et vous guider dans votre processus de location. Comment puis-je vous assister aujourd'hui ?",
+      text: "Bonjour ! Je suis votre assistant ESIL Events, spécialisé dans la location d'équipements événementiels. Je peux vous aider à trouver les produits parfaits, répondre à vos questions sur nos services, et vous guider dans votre processus de location. Comment puis-je vous assister aujourd'hui ?",
       sender: 'bot',
       timestamp: new Date(),
       isNew: true
@@ -435,12 +435,12 @@ const [apiType, setApiType] = useState<ChatbotApiType>('google');
                   <span className="text-sm text-gray-700 dark:text-gray-300">Modèle d'IA à utiliser</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-1">
-                  <button
+                  {/* <button
                     onClick={() => setApiType('google' as ChatbotApiType)}
                     className={`px-3 py-2 text-xs font-medium rounded-lg transition-all ${apiType === 'auto' as ChatbotApiType ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
                   >
                     Auto
-                  </button>
+                  </button> */}
                   <button
                     onClick={() => setApiType('google')}
                     className={`px-3 py-2 text-xs font-medium rounded-lg transition-all ${apiType === 'google' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
