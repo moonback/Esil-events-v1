@@ -127,19 +127,36 @@ const getResponseFromCache = (question: string): string | null => {
     }
     
     // Chercher une correspondance approximative (la question contient des mots-clés similaires)
-    const questionWords = normalizedQuestion.split(/\s+/).filter(word => word.length > 3);
+    const questionWords = new Set(normalizedQuestion.split(/\s+/).filter(word => word.length > 3));
     
-    if (questionWords.length > 0) {
-      // Chercher des entrées qui contiennent au moins 70% des mots importants de la question
-      const similarEntries = validResponses.filter(entry => {
-        const entryWords = entry.question.split(/\s+/).filter(word => word.length > 3);
-        const commonWords = questionWords.filter(word => entryWords.includes(word));
-        return commonWords.length >= Math.ceil(questionWords.length * 0.7);
+    if (questionWords.size > 0) {
+      // Create a Map to store word frequency for faster lookup
+      const wordFrequencyMap = new Map<string, number>();
+      validResponses.forEach(entry => {
+        entry.question.split(/\s+/)
+          .filter(word => word.length > 3)
+          .forEach(word => {
+            wordFrequencyMap.set(word, (wordFrequencyMap.get(word) || 0) + 1);
+          });
       });
-      
-      if (similarEntries.length > 0) {
-        // Retourner la réponse la plus récente parmi les correspondances approximatives
-        return similarEntries.sort((a, b) => b.timestamp - a.timestamp)[0].response;
+
+      // Calculate similarity scores in one pass
+      const similarityScores = validResponses.map(entry => {
+        const entryWords = new Set(entry.question.split(/\s+/).filter(word => word.length > 3));
+        const commonWords = Array.from(questionWords).filter(word => entryWords.has(word));
+        return {
+          entry,
+          score: commonWords.length / questionWords.size
+        };
+      });
+
+      // Filter and sort in one operation
+      const bestMatch = similarityScores
+        .filter(({score}) => score >= 0.7)
+        .sort((a, b) => b.entry.timestamp - a.entry.timestamp)[0];
+
+      if (bestMatch) {
+        return bestMatch.entry.response;
       }
     }
     
