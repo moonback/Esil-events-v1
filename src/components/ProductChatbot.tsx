@@ -694,52 +694,48 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
       </AnimatePresence>
       
       {/* Input Container */}
-      <div className="p-4 sm:p-6 border-t border-gray-200/50 dark:border-gray-700/50 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm relative">
+      <div className="p-3 border-t bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm relative">
         {/* Résultats de recherche de produits */}
         <AnimatePresence>
           {isSearchingProducts && productSearchResults.length > 0 && (
             <motion.div 
-              className="absolute bottom-full left-0 w-full bg-white/95 dark:bg-gray-800/95 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-10 backdrop-blur-lg"
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="absolute bottom-full left-0 w-full bg-white/95 dark:bg-gray-800/95 border-t rounded-t-xl shadow-lg max-h-60 overflow-y-auto z-10"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
             >
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 bg-violet-50 dark:bg-violet-900/30 rounded-lg">
-                      <Package className="w-4 h-4 text-violet-600 dark:text-violet-400" />
-                    </div>
-                    <span className="text-sm font-semibold bg-gradient-to-r from-violet-600 to-violet-400 bg-clip-text text-transparent">
-                      Produits suggérés
-                    </span>
+              <div className="p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Package className="w-4 h-4 text-violet-500" />
+                    <span className="text-sm font-medium text-violet-600">Suggestions</span>
                   </div>
                   <motion.button 
                     onClick={() => setIsSearchingProducts(false)}
-                    className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                    whileHover={{ rotate: 90 }}
+                    transition={{ type: "spring", stiffness: 200 }}
                   >
                     <X className="w-4 h-4" />
                   </motion.button>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {productSearchResults.map(product => (
                     <motion.button
                       key={product.id}
                       onClick={() => handleProductSelect(product)}
-                      className="w-full text-left p-3 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl transition-all duration-200 flex items-center gap-3 group border border-transparent hover:border-violet-200 dark:hover:border-violet-800"
-                      whileHover={{ x: 4, scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
+                      className="w-full p-2 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-lg flex items-center gap-2 group"
+                      whileHover={{ x: 5 }}
+                      transition={{ type: "spring", stiffness: 400 }}
                     >
-                      <div className="w-12 h-12 bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-900/30 dark:to-violet-800/30 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:shadow-lg transition-all duration-200">
-                        <Package className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+                      <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center">
+                        <Package className="w-4 h-4 text-violet-500" />
                       </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-800 dark:text-gray-200">{product.name}</div>
+                      <div className="text-left">
+                        <div className="text-sm font-medium">{product.name}</div>
                         {product.category && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{product.category}</div>
+                          <div className="text-xs text-gray-500">{product.category}</div>
                         )}
                       </div>
                     </motion.button>
@@ -750,7 +746,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
           )}
         </AnimatePresence>
         
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <input
               ref={inputRef}
@@ -758,30 +754,29 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
               value={input}
               onChange={handleInputChange}
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Posez votre question ici..."
-              className="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 rounded-2xl px-4 sm:px-5 py-3 sm:py-4 pr-12 focus:outline-none focus:ring-2 focus:ring-violet-500/50 dark:focus:ring-violet-400/50 text-sm placeholder-gray-400 dark:placeholder-gray-500 border border-gray-200/50 dark:border-gray-700/50 hover:border-violet-200 dark:hover:border-violet-700 transition-all duration-200"
+              placeholder="Posez votre question..."
+              className="w-full bg-gray-50 dark:bg-gray-700/50 rounded-xl px-4 py-2.5 pr-10 focus:ring-2 focus:ring-violet-500/50 text-sm border border-gray-200/50"
               disabled={isLoading}
             />
             {showSuggestionsButton && !showSuggestions && (
               <motion.button 
                 onClick={() => setShowSuggestions(true)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1.5 rounded-lg text-gray-400 hover:text-violet-500 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-all duration-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-violet-500"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                title="Afficher les suggestions"
               >
-                <Lightbulb className="w-5 h-5" />
+                <Lightbulb className="w-4 h-4" />
               </motion.button>
             )}
           </div>
           <motion.button
             onClick={() => handleSendMessage()}
             disabled={!input.trim() || isLoading}
-            className="bg-gradient-to-br from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800 text-white p-3 sm:p-4 rounded-2xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-violet-500/25 flex items-center justify-center"
+            className="bg-violet-600 text-white p-2.5 rounded-xl disabled:opacity-50"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Send className="w-5 h-5 sm:w-6 sm:h-6" />
+            <Send className="w-5 h-5" />
           </motion.button>
         </div>
       </div>
