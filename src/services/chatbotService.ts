@@ -248,6 +248,12 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
       "Quels types d'éclairages proposez-vous pour une ambiance festive ?",
       "Disposez-vous de mobilier pour des événements en extérieur ?",
       "Proposez-vous des solutions vidéo pour des projections en plein air ?"
+    ],
+    comparison: [
+      "Pouvez-vous comparer les différents systèmes de sonorisation que vous proposez ?",
+      "Quelle est la différence entre vos modèles d'éclairage LED et traditionnels ?",
+      "Comparez les options de mobilier pour intérieur et extérieur",
+      "Quelles sont les différences entre vos vidéoprojecteurs standard et haut de gamme ?"
     ]
   };
 
@@ -289,7 +295,7 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
 
   // Analyser l'historique des messages pour des suggestions contextuelles
   let contextualSuggestions: string[] = [];
-  let conversationContext: 'pricing' | 'logistics' | 'specific' | 'general' = 'general';
+  let conversationContext: 'pricing' | 'logistics' | 'specific' | 'general' | 'comparison' = 'general';
   
   if (messageHistory.length > 0) {
     // Extraire les derniers messages pour analyse contextuelle
@@ -301,11 +307,14 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
     const pricingKeywords = ['prix', 'tarif', 'coût', 'budget', '€', 'euro', 'euros', 'réduction', 'promotion'];
     const logisticsKeywords = ['livraison', 'transport', 'installation', 'délai', 'disponibilité', 'réservation', 'date'];
     const specificProductKeywords = ['modèle', 'référence', 'caractéristique', 'technique', 'puissance', 'dimension'];
+    const comparisonKeywords = ['comparer', 'comparaison', 'versus', 'vs', 'différence', 'meilleur', 'comparatif', 'tableau'];
     
     // Analyser les messages récents pour déterminer le contexte
     const allText = recentMessages.map(msg => msg.text.toLowerCase()).join(' ');
     
-    if (pricingKeywords.some(keyword => allText.includes(keyword))) {
+    if (comparisonKeywords.some(keyword => allText.includes(keyword))) {
+      conversationContext = 'comparison';
+    } else if (pricingKeywords.some(keyword => allText.includes(keyword))) {
       conversationContext = 'pricing';
     } else if (logisticsKeywords.some(keyword => allText.includes(keyword))) {
       conversationContext = 'logistics';
@@ -336,6 +345,12 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
           if (category) {
             contextualSuggestions.push(`Quels autres produits de la catégorie ${category} pourriez-vous me recommander ?`);
           }
+        }
+        
+        // Si plusieurs produits sont mentionnés, suggérer une comparaison
+        if (mentionedProducts.length > 1) {
+          const product2 = mentionedProducts[1];
+          contextualSuggestions.push(`Pouvez-vous comparer ${product.name} et ${product2.name} ?`);
         }
       }
       

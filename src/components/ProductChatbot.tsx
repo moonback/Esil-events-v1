@@ -158,6 +158,63 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
     try {
       // Construire un ancrage de recherche enrichi avec le contexte de l'événement si disponible
       let enrichedAnchor = searchAnchor.trim();
+      let enhancedQuestion = question;
+      
+      // Détecter si la question est une demande de comparaison
+      const { isComparison, productNames } = detectComparisonRequest(question);
+      
+      // Si c'est une demande de comparaison avec au moins 2 produits identifiés
+      if (isComparison && productNames.length >= 2) {
+        // Trouver les produits complets à partir des noms
+        const productsToCompare = productNames
+          .map(name => products.find(p => p.name.toLowerCase() === name.toLowerCase()))
+          .filter((p): p is Product => p !== undefined);
+        
+        // Si on a trouvé au moins 2 produits à comparer
+        if (productsToCompare.length >= 2) {
+          // Ajouter une instruction spécifique pour la comparaison
+          const comparisonInstruction = `
+[INSTRUCTION SPÉCIALE: COMPARAISON DE PRODUITS]
+Veuillez présenter une comparaison détaillée sous forme de tableau entre les produits suivants: ${productsToCompare.map(p => p.name).join(', ')}.
+
+Incluez dans votre comparaison:
+1. Prix TTC
+2. Caractéristiques techniques principales
+3. Avantages et inconvénients
+4. Cas d'usage recommandés
+5. Disponibilité
+
+Présentez cette comparaison sous forme de tableau markdown pour une meilleure lisibilité.
+`;
+          
+          enhancedQuestion = `${comparisonInstruction}\n\nQuestion originale: ${question}`;
+          
+          // Forcer un budget de tokens plus élevé pour les comparaisons
+          const comparisonThinkingBudget = Math.max(thinkingBudget, 1200);
+          
+          // Utiliser le service chatbot avec les paramètres spécifiques pour la comparaison
+          const result = await generateChatbotResponse(
+            enhancedQuestion,
+            products,
+            comparisonThinkingBudget,
+            enrichedAnchor || undefined
+          );
+          
+          if (result.error) {
+            return {
+              text: `Désolé, je ne peux pas générer la comparaison pour le moment: ${result.error}`,
+              isReasoned: true,
+              source: result.source as 'google' | 'fallback' | 'cache' | undefined
+            };
+          }
+          
+          return {
+            text: result.response || "Désolé, je n'ai pas pu générer la comparaison demandée.",
+            isReasoned: true,
+            source: result.source
+          };
+        }
+      }
       
       // Si le contexte d'événement a été collecté, l'utiliser pour enrichir l'ancrage
       if (eventContextCollected) {
@@ -168,12 +225,12 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
         
         // Ajouter des informations contextuelles à la question
         const contextualInfo = `Contexte: ${eventContext.eventType}, date: ${eventContext.eventDate}, budget: ${eventContext.budget}, type de location: ${eventContext.locationType}`;
-        question = `${contextualInfo}\n\nQuestion: ${question}`;
+        enhancedQuestion = `${contextualInfo}\n\nQuestion: ${question}`;
       }
       
       // Utiliser le service chatbot pour générer une réponse avec les nouveaux paramètres
       const result = await generateChatbotResponse(
-        question, 
+        enhancedQuestion, 
         products, 
         useReasoningMode ? thinkingBudget : undefined, // Utiliser le budget de réflexion si le mode raisonnement est activé
         enrichedAnchor || undefined // Utiliser l'ancrage de recherche enrichi s'il est défini
@@ -294,6 +351,45 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
     
     return mentionedProducts;
   }, [products]);
+  
+  // Fonction pour détecter si l'utilisateur demande une comparaison de produits
+  const detectComparisonRequest = useCallback((text: string): { isComparison: boolean, productNames: string[] } => {
+    // Expressions régulières pour détecter les demandes de comparaison
+    const comparisonRegex = /compar(e[rz]?|aison|atif)|versus|vs\.?|différence entre|quel(?:le)? est (?:la|le) meilleur(?:e)?/i;
+    
+    // Vérifier si le texte contient une demande de comparaison
+    const isComparison = comparisonRegex.test(text);
+    
+    if (!isComparison) {
+      return { isComparison: false, productNames: [] };
+    }
+    
+    // Extraire les noms de produits mentionnés
+    // 1. Chercher les mentions explicites avec @
+    const mentionedProducts = detectProductMentions(text);
+    const mentionedNames = mentionedProducts.map(p => p.name);
+    
+    // 2. Si moins de 2 produits sont mentionnés avec @, chercher des noms de produits dans le texte
+    if (mentionedNames.length < 2) {
+      // Chercher tous les produits dont le nom apparaît dans le texte
+      const textLower = text.toLowerCase();
+      const potentialProducts = products.filter(product => 
+        textLower.includes(product.name.toLowerCase())
+      );
+      
+      // Ajouter les produits trouvés qui ne sont pas déjà dans la liste
+      potentialProducts.forEach(product => {
+        if (!mentionedNames.includes(product.name)) {
+          mentionedNames.push(product.name);
+        }
+      });
+    }
+    
+    return { 
+      isComparison: true, 
+      productNames: mentionedNames
+    };
+  }, [products, detectProductMentions]);
     
   // Gérer l'envoi d'un message
   const handleSendMessage = async (text = input) => {
