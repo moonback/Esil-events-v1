@@ -303,7 +303,7 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
 /**
  * Génère une réponse du chatbot en utilisant l'API Google Gemini
  */
-async function generateGoogleResponse(question: string, products: Product[]): Promise<ChatbotResponse> {
+async function generateGoogleResponse(question: string, products: Product[], thinkingBudget?: number, searchAnchor?: string): Promise<ChatbotResponse> {
   try {
     const apiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
     
@@ -318,8 +318,8 @@ async function generateGoogleResponse(question: string, products: Product[]): Pr
     // Générer le prompt système avec le contexte des produits
     const systemPrompt = generateSystemPrompt(productContext);
 
-    // Configuration de la requête pour Google Gemini
-    const requestBody = getGeminiRequestConfig(systemPrompt, question);
+    // Configuration de la requête pour Google Gemini avec les nouveaux paramètres
+    const requestBody = getGeminiRequestConfig(systemPrompt, question, thinkingBudget, searchAnchor);
 
     try {
       const data = await makeGoogleApiRequest(requestBody, apiKey);
@@ -349,8 +349,10 @@ async function generateGoogleResponse(question: string, products: Product[]): Pr
  * Génère une réponse du chatbot basée sur la question de l'utilisateur et les produits disponibles
  * @param question La question posée par l'utilisateur
  * @param products La liste des produits disponibles
+ * @param thinkingBudget Budget de tokens pour la génération de réponse (défaut: 800)
+ * @param searchAnchor Contexte d'ancrage pour orienter la recherche
  */
-export const generateChatbotResponse = async (question: string, products: Product[]): Promise<ChatbotResponse> => {
+export const generateChatbotResponse = async (question: string, products: Product[], thinkingBudget?: number, searchAnchor?: string): Promise<ChatbotResponse> => {
   try {
     // Vérifier si une réponse existe dans le cache
     const cachedResponse = getResponseFromCache(question);
@@ -373,8 +375,8 @@ export const generateChatbotResponse = async (question: string, products: Produc
     }
 
     try {
-      // Générer la réponse avec Google
-      const googleResponse = await generateGoogleResponse(question, products);
+      // Générer la réponse avec Google en transmettant les nouveaux paramètres
+      const googleResponse = await generateGoogleResponse(question, products, thinkingBudget, searchAnchor);
       
       // Si la réponse est valide, l'ajouter au cache
       if (googleResponse.response && !googleResponse.error) {

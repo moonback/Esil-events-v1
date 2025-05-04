@@ -70,19 +70,24 @@ export const generateSystemPrompt = (productContext: any): string => {
 /**
  * Configuration de la requête pour l'API Google Gemini
  */
-export const getGeminiRequestConfig = (systemPrompt: string, question: string) => {
+export const getGeminiRequestConfig = (systemPrompt: string, question: string, thinkingBudget?: number, searchAnchor?: string) => {
+  // Préparer la question avec l'ancrage de recherche si fourni
+  const enhancedQuestion = searchAnchor 
+    ? `${question} (Contexte de recherche: ${searchAnchor})` 
+    : question;
+
   return {
     contents: [
       {
         parts: [
           { text: systemPrompt },
-          { text: `Question du client: ${question}` }
+          { text: `Question du client: ${enhancedQuestion}` }
         ]
       }
     ],
     generationConfig: {
       temperature: 0.7,
-      maxOutputTokens: 800,
+      maxOutputTokens: thinkingBudget && thinkingBudget > 0 ? thinkingBudget : 800,
       topP: 0.9
     }
   };

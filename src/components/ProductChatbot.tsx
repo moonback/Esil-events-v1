@@ -31,12 +31,14 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
   const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
   const [showSuggestionsButton, setShowSuggestionsButton] = useState(true);
   const [useReasoningMode, setUseReasoningMode] = useState(false);
-const [apiType, setApiType] = useState<ChatbotApiType>('google');
+  const [apiType, setApiType] = useState<ChatbotApiType>('google');
   const [showSettings, setShowSettings] = useState(false);
   const [isSearchingProducts, setIsSearchingProducts] = useState(false);
   const [productSearchResults, setProductSearchResults] = useState<Product[]>([]);
   const [productSearchQuery, setProductSearchQuery] = useState('');
   const [cursorPosition, setCursorPosition] = useState(0);
+  const [thinkingBudget, setThinkingBudget] = useState<number>(800); // Budget de tokens par défaut
+  const [searchAnchor, setSearchAnchor] = useState<string>(''); // Ancrage de recherche
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -118,8 +120,13 @@ const [apiType, setApiType] = useState<ChatbotApiType>('google');
   // Fonction pour générer une réponse basée sur la question et les produits disponibles
   const generateResponse = async (question: string): Promise<{text: string, isReasoned: boolean, source?: 'google' | 'fallback' | 'cache'}> => {
     try {
-      // Utiliser le service chatbot pour générer une réponse
-      const result = await generateChatbotResponse(question, products);
+      // Utiliser le service chatbot pour générer une réponse avec les nouveaux paramètres
+      const result = await generateChatbotResponse(
+        question, 
+        products, 
+        useReasoningMode ? thinkingBudget : undefined, // Utiliser le budget de réflexion si le mode raisonnement est activé
+        searchAnchor.trim() || undefined // Utiliser l'ancrage de recherche s'il est défini
+      );
       
       if (result.error) {
         return {
@@ -427,6 +434,49 @@ const [apiType, setApiType] = useState<ChatbotApiType>('google');
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 mb-3">
                 Le mode raisonnement utilise DeepSeek Reasoner pour des réponses plus détaillées et analytiques.
               </p>
+              
+              {/* Budget de réflexion */}
+              {useReasoningMode && (
+                <div className="flex flex-col gap-2 mb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Budget de réflexion</span>
+                    </div>
+                    <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">{thinkingBudget} tokens</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="400"
+                    max="2000"
+                    step="100"
+                    value={thinkingBudget}
+                    onChange={(e) => setThinkingBudget(parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Plus le budget est élevé, plus les réponses seront détaillées, mais le temps de génération sera plus long.
+                  </p>
+                </div>
+              )}
+              
+              {/* Ancrage de recherche */}
+              <div className="flex flex-col gap-2 mb-3">
+                <div className="flex items-center gap-2">
+                  <Search className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Ancrage de recherche</span>
+                </div>
+                <input
+                  type="text"
+                  value={searchAnchor}
+                  onChange={(e) => setSearchAnchor(e.target.value)}
+                  placeholder="Ex: mariage, conférence, festival..."
+                  className="w-full px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Orientez les réponses vers un contexte spécifique (type d'événement, besoin particulier...).
+                </p>
+              </div>
               
               {/* Choix de l'API */}
               <div className="flex flex-col gap-2">
