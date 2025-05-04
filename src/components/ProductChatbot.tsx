@@ -728,35 +728,52 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
         {/* Enhanced Suggested Questions */}
         {showSuggestions && messages.length > 0 && !isLoading && (
           <motion.div 
-            className="mt-6 mb-4 px-2"
+            className="mt-6 mb-4 px-4"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
           >
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1">
-                <Lightbulb className="w-3 h-3" />
-                <span>Suggestions :</span>
-              </p>
+            <div className="flex items-center justify-between mb-4 bg-gradient-to-r from-violet-50 to-transparent dark:from-violet-900/20 dark:to-transparent p-3 rounded-xl border border-violet-100 dark:border-violet-800/30">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-md">
+                  <Lightbulb className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
+                    Suggestions
+                  </p>
+                  <p className="text-xs text-violet-500 dark:text-violet-400">
+                    Questions fréquentes
+                  </p>
+                </div>
+              </div>
               <motion.button 
                 onClick={() => setShowSuggestions(false)}
-                className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                className="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-800/50 hover:bg-violet-200 dark:hover:bg-violet-700 flex items-center justify-center transition-all duration-200"
+                whileHover={{ scale: 1.05, rotate: 90 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <X className="w-3 h-3" />
+                <X className="w-4 h-4 text-violet-600 dark:text-violet-300" />
               </motion.button>
             </div>
-            <div className="grid grid-cols-1 gap-2">
+            <div className="grid grid-cols-1 gap-3">
               {dynamicSuggestions.map((question, index) => (
                 <motion.button
                   key={index}
                   onClick={() => handleSuggestedQuestion(question)}
-                  className="text-left p-3 bg-white dark:bg-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-600 hover:border-violet-200 dark:hover:border-violet-400 flex items-start gap-2"
-                  whileHover={{ translateX: 5 }}
+                  className="group text-left p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-violet-100 dark:border-violet-800/50 hover:border-violet-300 dark:hover:border-violet-600 flex items-start gap-3 hover:bg-gradient-to-r hover:from-violet-50 hover:to-white dark:hover:from-violet-900/30 dark:hover:to-gray-800"
+                  whileHover={{ scale: 1.02, x: 8 }}
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
                 >
-                  <MessageSquare className="w-4 h-4 text-violet-500 dark:text-violet-400 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-gray-700 dark:text-gray-200">{question}</span>
+                  <div className="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/50 flex items-center justify-center group-hover:bg-violet-500 transition-colors duration-300">
+                    <MessageSquare className="w-4 h-4 text-violet-500 dark:text-violet-400 group-hover:text-white transition-colors duration-300" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200 group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors duration-300">
+                    {question}
+                  </span>
                 </motion.button>
               ))}
             </div>
