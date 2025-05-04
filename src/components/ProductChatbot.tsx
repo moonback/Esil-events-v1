@@ -15,7 +15,7 @@ interface Message {
   isNew?: boolean;
   isReasoned?: boolean;
   mentionedProducts?: Product[];
-  source?: 'deepseek' | 'google' | 'fallback';
+  source?: 'google' | 'fallback' | 'cache';
 }
 
 interface ProductChatbotProps {
@@ -116,7 +116,7 @@ const [apiType, setApiType] = useState<ChatbotApiType>('google');
   }, [messages, products]);
 
   // Fonction pour générer une réponse basée sur la question et les produits disponibles
-  const generateResponse = async (question: string): Promise<{text: string, isReasoned: boolean, source?: 'deepseek' | 'google' | 'fallback'}> => {
+  const generateResponse = async (question: string): Promise<{text: string, isReasoned: boolean, source?: 'google' | 'fallback' | 'cache'}> => {
     try {
       // Utiliser le service chatbot pour générer une réponse
       const result = await generateChatbotResponse(question, products);
@@ -125,7 +125,7 @@ const [apiType, setApiType] = useState<ChatbotApiType>('google');
         return {
           text: `Désolé, je ne peux pas répondre pour le moment: ${result.error}`,
           isReasoned: false,
-          source: result.source
+          source: result.source as 'google' | 'fallback' | 'cache' | undefined
         };
       }
       
@@ -315,7 +315,7 @@ const [apiType, setApiType] = useState<ChatbotApiType>('google');
         isNew: true,
         isReasoned,
         mentionedProducts: mentionedProducts.length > 0 ? mentionedProducts : undefined,
-        source: source
+        source: source as 'google' | 'fallback' | 'cache' | undefined
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -504,7 +504,7 @@ const [apiType, setApiType] = useState<ChatbotApiType>('google');
                       {message.source && (
                         <>
                           <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                            via {message.source === 'deepseek' ? 'DeepSeek' : message.source === 'google' ? 'Google Gemini' : 'Fallback'}
+                            via {message.source === 'google' ? 'Google Gemini' : message.source === 'cache' ? 'Cache' : 'Fallback'}
                           </span>
                         </>
                       )}
