@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import ProductChatbot from './ProductChatbot';
@@ -26,40 +26,49 @@ const FloatingChatbot: React.FC = () => {
   const [productQuestion, setProductQuestion] = useState<string | null>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
 
+  // Memoized handler for opening chatbot with product
+  const handleOpenChatbotWithProduct = useCallback(() => {
+    const product = getSelectedProductForChatbot();
+    if (product) {
+      setOpen(true);
+      setProductQuestion(`Je souhaite des informations sur le produit "${product.name}".`);
+    }
+  }, []);
+
   // Check for selected product when component mounts
   useEffect(() => {
-    const selectedProduct = getSelectedProductForChatbot();
-    if (selectedProduct) {
-      // Open the chatbot automatically
-      setOpen(true);
-      // Create a question about the product
-      setProductQuestion(`Je souhaite des informations sur le produit "${selectedProduct.name}".`);
-    }
+    // Initial check for product
+    handleOpenChatbotWithProduct();
     
     // Écouter l'événement personnalisé pour ouvrir le chatbot
-    const handleOpenChatbotEvent = () => {
-      // Vérifier à nouveau s'il y a un produit sélectionné
-      const product = getSelectedProductForChatbot();
-      if (product) {
-        setOpen(true);
-        setProductQuestion(`Je souhaite des informations sur le produit "${product.name}".`);
-      }
-    };
-    
-    window.addEventListener('openProductChatbot', handleOpenChatbotEvent);
+    window.addEventListener('openProductChatbot', handleOpenChatbotWithProduct);
     
     // Nettoyer l'écouteur d'événement lors du démontage du composant
     return () => {
-      window.removeEventListener('openProductChatbot', handleOpenChatbotEvent);
+      window.removeEventListener('openProductChatbot', handleOpenChatbotWithProduct);
     };
+  }, [handleOpenChatbotWithProduct]);
+
+  // Toggle chatbot visibility
+  const toggleChatbot = useCallback(() => {
+    setOpen(prevOpen => !prevOpen);
+    // Reset product question when closing
+    if (open) {
+      setProductQuestion(null);
+    }
+  }, [open]);
+
+  // Toggle fullscreen mode
+  const toggleFullScreen = useCallback(() => {
+    setIsFullScreen(prevState => !prevState);
   }, []);
 
   return (
     <>
       {/* Floating Button */}
       <button
-        className="fixed bottom-6 right-6 z-50 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg focus:outline-none"
-        onClick={() => setOpen(!open)}
+        className="fixed bottom-6 right-6 z-50 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200"
+        onClick={toggleChatbot}
         aria-label="Ouvrir le chatbot"
       >
         <IoChatbubbleEllipsesOutline size={28} />
@@ -73,14 +82,14 @@ const FloatingChatbot: React.FC = () => {
             <div className="flex items-center space-x-2">
               <button
                 className="text-gray-500 hover:text-blue-500 p-2 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onClick={() => setIsFullScreen(!isFullScreen)}
+                onClick={toggleFullScreen}
                 aria-label={isFullScreen ? "Quitter le mode plein écran" : "Passer en mode plein écran"}
               >
                 {isFullScreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
               </button>
               <button
                 className="text-gray-500 hover:text-red-500 p-2 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500"
-                onClick={() => setOpen(false)}
+                onClick={toggleChatbot}
                 aria-label="Fermer le chatbot"
               >
                 <span className="text-xl font-bold">×</span>

@@ -597,16 +597,31 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                   
                   {/* Afficher les produits mentionnés */}
                   {message.mentionedProducts && message.mentionedProducts.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center gap-1.5 mb-2">
-                        <Tag className="w-3.5 h-3.5 text-violet-500" />
-                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">Produits mentionnés</span>
+                    <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="p-1 bg-violet-50 dark:bg-violet-900/30 rounded-full">
+                          <Tag className="w-3.5 h-3.5 text-violet-500 dark:text-violet-400" />
+                        </div>
+                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">
+                          Produits mentionnés
+                        </span>
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <motion.div 
+                        className="flex flex-wrap gap-3"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
                         {message.mentionedProducts.map(product => (
-                          <ProductMiniCard key={product.id} product={product} />
+                          <motion.div
+                            key={product.id}
+                            whileHover={{ scale: 1.02, y: -2 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <ProductMiniCard product={product} />
+                          </motion.div>
                         ))}
-                      </div>
+                      </motion.div>
                     </div>
                   )}
                 </div>
