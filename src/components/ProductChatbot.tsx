@@ -18,6 +18,13 @@ interface Message {
   source?: 'google' | 'fallback' | 'cache';
 }
 
+// Interface pour les informations contextuelles de l'événement
+interface EventContext {
+  eventType: string;
+  eventDate: string;
+  budget: string;
+}
+
 interface ProductChatbotProps {
   initialQuestion?: string | null;
   onClose?: () => void;
@@ -42,6 +49,16 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
   const [cursorPosition, setCursorPosition] = useState(0);
   const [thinkingBudget, setThinkingBudget] = useState<number>(800); // Budget de tokens par défaut
   const [searchAnchor, setSearchAnchor] = useState<string>(''); // Ancrage de recherche
+  
+  // États pour le questionnaire contextuel d'événement
+  const [showEventQuestionnaire, setShowEventQuestionnaire] = useState(false);
+  const [eventContext, setEventContext] = useState<EventContext>({
+    eventType: '',
+    eventDate: '',
+    budget: ''
+  });
+  const [eventContextCollected, setEventContextCollected] = useState(false);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -57,6 +74,15 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
         // Récupérer l'historique des messages du localStorage
         const savedMessages = localStorage.getItem('chatHistory');
         
+        // Récupérer le contexte d'événement du localStorage
+        const savedEventContext = localStorage.getItem('eventContext');
+        if (savedEventContext) {
+          const parsedEventContext = JSON.parse(savedEventContext);
+          setEventContext(parsedEventContext);
+          setEventContextCollected(true);
+          setSearchAnchor(parsedEventContext.eventType); // Utiliser le type d'événement comme ancrage
+        }
+        
         if (savedMessages && JSON.parse(savedMessages).length > 0) {
           // Convertir les timestamps en objets Date
           const parsedMessages = JSON.parse(savedMessages).map((msg: any) => ({
@@ -68,11 +94,16 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
           // Ajouter un message de bienvenue si pas d'historique
           setMessages([{
             id: Date.now().toString(),
-            text: "Bonjour ! 👋 Je suis votre assistant virtuel ESIL Events, spécialisé dans la location d'équipements pour vos événements. Je peux vous aider à trouver les produits parfaits pour votre occasion, répondre à vos questions sur nos services, et vous guider dans votre processus de location. Comment puis-je vous assister aujourd'hui ?",
+            text: "Bonjour ! 👋 Je suis votre assistant virtuel ESIL Events, spécialisé dans la location d'équipements pour vos événements. Pour vous offrir des recommandations personnalisées, j'aimerais en savoir plus sur votre événement. Pouvez-vous me préciser le type d'événement, la date prévue et votre budget approximatif ?",
             sender: 'bot',
             timestamp: new Date(),
             isNew: true
           }]);
+           
+          // Afficher le questionnaire contextuel seulement si le contexte n'a pas déjà été collecté
+          if (!savedEventContext) {
+            setShowEventQuestionnaire(true);
+          }
         }
       } catch (error) {
         console.error('Erreur lors du chargement des produits:', error);
@@ -123,12 +154,27 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
   // Fonction pour générer une réponse basée sur la question et les produits disponibles
   const generateResponse = async (question: string): Promise<{text: string, isReasoned: boolean, source?: 'google' | 'fallback' | 'cache'}> => {
     try {
+      // Construire un ancrage de recherche enrichi avec le contexte de l'événement si disponible
+      let enrichedAnchor = searchAnchor.trim();
+      
+      // Si le contexte d'événement a été collecté, l'utiliser pour enrichir l'ancrage
+      if (eventContextCollected) {
+        // Utiliser le type d'événement comme base si l'ancrage est vide
+        if (!enrichedAnchor && eventContext.eventType) {
+          enrichedAnchor = eventContext.eventType;
+        }
+        
+        // Ajouter des informations contextuelles à la question
+        const contextualInfo = `Contexte: ${eventContext.eventType}, date: ${eventContext.eventDate}, budget: ${eventContext.budget}`;
+        question = `${contextualInfo}\n\nQuestion: ${question}`;
+      }
+      
       // Utiliser le service chatbot pour générer une réponse avec les nouveaux paramètres
       const result = await generateChatbotResponse(
         question, 
         products, 
         useReasoningMode ? thinkingBudget : undefined, // Utiliser le budget de réflexion si le mode raisonnement est activé
-        searchAnchor.trim() || undefined // Utiliser l'ancrage de recherche s'il est défini
+        enrichedAnchor || undefined // Utiliser l'ancrage de recherche enrichi s'il est défini
       );
       
       if (result.error) {
@@ -321,11 +367,40 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
     handleSendMessage(question);
   };
   
+  // Gérer la soumission du questionnaire contextuel
+  const handleEventContextSubmit = () => {
+    // Vérifier si tous les champs sont remplis
+    if (!eventContext.eventType || !eventContext.eventDate || !eventContext.budget) {
+      return; // Ne pas soumettre si des champs sont vides
+    }
+    
+    // Marquer le contexte comme collecté
+    setEventContextCollected(true);
+    setShowEventQuestionnaire(false);
+    
+    // Mettre à jour l'ancrage de recherche avec le type d'événement
+    setSearchAnchor(eventContext.eventType);
+    
+    // Ajouter un message de confirmation
+    const confirmationMessage: Message = {
+      id: Date.now().toString(),
+      text: `Merci pour ces informations ! Je vais adapter mes recommandations pour votre ${eventContext.eventType} prévu le ${eventContext.eventDate} avec un budget d'environ ${eventContext.budget}. Comment puis-je vous aider maintenant ?`,
+      sender: 'bot',
+      timestamp: new Date(),
+      isNew: true
+    };
+    
+    setMessages(prev => [...prev, confirmationMessage]);
+    
+    // Sauvegarder le contexte dans localStorage
+    localStorage.setItem('eventContext', JSON.stringify(eventContext));
+  };
+  
   // Effacer l'historique de conversation
   const clearConversation = () => {
     const welcomeMessage: Message = {
       id: Date.now().toString(),
-      text: "Bonjour ! 👋 Je suis votre assistant ESIL Events, spécialisé dans la location d'équipements événementiels. Notre catalogue comprend une large gamme de matériel professionnel pour tous types d'événements : mariages, conférences, festivals, soirées privées et bien plus. Je peux vous aider à :\n\n• Trouver les produits parfaits selon vos besoins spécifiques\n• Répondre à vos questions sur nos services et tarifs\n• Vous guider dans le processus de location et réservation\n• Fournir des conseils personnalisés pour votre événement\n\nComment puis-je vous assister aujourd'hui ?",
+      text: "Bonjour ! 👋 Je suis votre assistant ESIL Events, spécialisé dans la location d'équipements événementiels. Pour vous offrir des recommandations personnalisées, j'aimerais en savoir plus sur votre événement. Pouvez-vous me préciser le type d'événement, la date prévue et votre budget approximatif ?",
       sender: 'bot',
       timestamp: new Date(),
       isNew: true
@@ -333,6 +408,16 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
     
     setMessages([welcomeMessage]);
     localStorage.removeItem('chatHistory');
+    localStorage.removeItem('eventContext');
+    
+    // Réinitialiser le contexte d'événement
+    setEventContext({
+      eventType: '',
+      eventDate: '',
+      budget: ''
+    });
+    setEventContextCollected(false);
+    setShowEventQuestionnaire(true);
   };
 
   return (
@@ -405,6 +490,123 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
           )}
         </div>
       </div>
+      
+      {/* Event Context Questionnaire */}
+      <AnimatePresence>
+        {showEventQuestionnaire && (
+          <motion.div 
+            className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl p-6 border-b border-gray-200 dark:border-gray-700 shadow-lg"
+            initial={{ height: 0, opacity: 0, y: -20 }}
+            animate={{ height: 'auto', opacity: 1, y: 0 }}
+            exit={{ height: 0, opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            <div className="flex flex-col gap-4 max-w-2xl mx-auto">
+              <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                    <MessageSquare className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold bg-gradient-to-r from-violet-600 to-violet-400 bg-clip-text text-transparent">
+                    Informations sur votre événement
+                  </h3>
+                </div>
+                <motion.button
+                  onClick={() => setShowEventQuestionnaire(false)}
+                  className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Fermer le questionnaire"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <X size={18} />
+                </motion.button>
+              </div>
+              
+              <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                  Pour vous offrir des recommandations personnalisées, veuillez nous fournir quelques informations sur votre événement.
+                </p>
+                
+                {/* Type d'événement */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Type d'événement
+                  </label>
+                  <select
+                    value={eventContext.eventType}
+                    onChange={(e) => setEventContext({...eventContext, eventType: e.target.value})}
+                    className="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-700 border border-violet-200 dark:border-violet-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent"
+                    required
+                  >
+                    <option value="">Sélectionnez un type d'événement</option>
+                    <option value="Mariage">Mariage</option>
+                    <option value="Conférence">Conférence</option>
+                    <option value="Concert">Concert</option>
+                    <option value="Festival">Festival</option>
+                    <option value="Séminaire d'entreprise">Séminaire d'entreprise</option>
+                    <option value="Salon professionnel">Salon professionnel</option>
+                    <option value="Anniversaire">Anniversaire</option>
+                    <option value="Soirée privée">Soirée privée</option>
+                    <option value="Autre">Autre</option>
+                  </select>
+                </div>
+                
+                {/* Date de l'événement */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Date prévue
+                  </label>
+                  <input
+                    type="date"
+                    value={eventContext.eventDate}
+                    onChange={(e) => setEventContext({...eventContext, eventDate: e.target.value})}
+                    className="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-700 border border-violet-200 dark:border-violet-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent"
+                    required
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                
+                {/* Budget */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Budget approximatif
+                  </label>
+                  <select
+                    value={eventContext.budget}
+                    onChange={(e) => setEventContext({...eventContext, budget: e.target.value})}
+                    className="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-700 border border-violet-200 dark:border-violet-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent"
+                    required
+                  >
+                    <option value="">Sélectionnez une fourchette de budget</option>
+                    <option value="Moins de 500€">Moins de 500€</option>
+                    <option value="500€ - 1000€">500€ - 1000€</option>
+                    <option value="1000€ - 3000€">1000€ - 3000€</option>
+                    <option value="3000€ - 5000€">3000€ - 5000€</option>
+                    <option value="5000€ - 10000€">5000€ - 10000€</option>
+                    <option value="Plus de 10000€">Plus de 10000€</option>
+                  </select>
+                </div>
+                
+                <div className="flex justify-end mt-4">
+                  <motion.button
+                    onClick={handleEventContextSubmit}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white ${!eventContext.eventType || !eventContext.eventDate || !eventContext.budget ? 'bg-gray-400 cursor-not-allowed' : 'bg-violet-600 hover:bg-violet-700'}`}
+                    whileHover={{ scale: !eventContext.eventType || !eventContext.eventDate || !eventContext.budget ? 1 : 1.05 }}
+                    whileTap={{ scale: !eventContext.eventType || !eventContext.eventDate || !eventContext.budget ? 1 : 0.95 }}
+                    disabled={!eventContext.eventType || !eventContext.eventDate || !eventContext.budget}
+                  >
+                    <span>Continuer</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14"></path>
+                      <path d="m12 5 7 7-7 7"></path>
+                    </svg>
+                  </motion.button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Settings Panel */}
       <AnimatePresence>
@@ -483,6 +685,32 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
                   </div>
                 </div>
               )}
+              
+              {/* Informations sur l'événement */}
+              <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                      <MessageSquare className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Informations sur l'événement</span>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {eventContextCollected ? `${eventContext.eventType}, ${eventContext.eventDate}, ${eventContext.budget}` : "Non spécifié"}
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setShowEventQuestionnaire(!showEventQuestionnaire);
+                      setShowSettings(false); // Fermer le panneau de réglages
+                    }}
+                    className="text-xs text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-300 underline"
+                  >
+                    {eventContextCollected ? "Modifier" : "Spécifier"}
+                  </button>
+                </div>
+              </div>
               
               {/* Ancrage de recherche */}
               <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
