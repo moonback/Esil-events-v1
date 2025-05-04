@@ -591,32 +591,61 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
                 </div>
                 
                 {/* Type de location */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Type de location
-                  </label>
-                  <select
-                    multiple
-                    value={eventContext.locationType}
-                    onChange={(e) => {
-                      const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
-                      setEventContext({...eventContext, locationType: selectedOptions});
-                    }}
-                    className="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-700 border border-violet-200 dark:border-violet-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent"
-                    required
-                  >
-                    <option value="">Sélectionnez un ou plusieurs types de location</option>
-                    <option value="Sonorisation">Sonorisation</option>
-                    <option value="Éclairage">Éclairage</option>
-                    <option value="Jeux arcade">Jeux arcade</option>
-                    <option value="Babyfoot">Babyfoot</option>
-                    <option value="Mobilier">Mobilier</option>
-                    <option value="Décoration">Décoration</option>
-                    <option value="Vidéoprojection">Vidéoprojection</option>
-                    <option value="Scène">Scène</option>
-                    <option value="Autre">Autre</option>
-                  </select>
-                </div>
+<div className="mb-6">
+  <div className="flex items-center gap-2 mb-3">
+    <div className="p-1.5 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+      <Package className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+    </div>
+    <label className="text-sm font-medium bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
+      Type de location
+    </label>
+  </div>
+  
+  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+    {[
+      "Sonorisation",
+      "Éclairage",
+      "Jeux arcade",
+      "Mobilier",
+      "Décoration",
+      "Vidéoprojection",
+      "Scène",
+      "Autre"
+    ].map((option) => (
+      <motion.button
+        key={option}
+        onClick={() => {
+          const newTypes = eventContext.locationType.includes(option)
+            ? eventContext.locationType.filter(type => type !== option)
+            : [...eventContext.locationType, option];
+          setEventContext({...eventContext, locationType: newTypes});
+        }}
+        className={`p-3 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+          eventContext.locationType.includes(option)
+            ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/20'
+            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-violet-200 dark:hover:border-violet-700'
+        }`}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+          eventContext.locationType.includes(option)
+            ? 'border-white bg-white/20'
+            : 'border-gray-400 dark:border-gray-600'
+        }`}>
+          {eventContext.locationType.includes(option) && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="w-2 h-2 bg-white rounded-full"
+            />
+          )}
+        </div>
+        {option}
+      </motion.button>
+    ))}
+  </div>
+</div>
                 
                 <div className="flex justify-end mt-4">
                   <motion.button
