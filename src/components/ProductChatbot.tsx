@@ -338,41 +338,44 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
   return (
     <div className="w-full h-full bg-gradient-to-br from-white via-violet-50 to-violet-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
       {/* Combined Header */}
-      <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-4 flex justify-between items-center border-b border-violet-300/50 dark:border-violet-600/50 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-lg">
-            <span className="text-white text-sm font-bold">ESIL</span>
+      <div className="bg-gradient-to-r from-white to-violet-50 dark:from-gray-800 dark:to-gray-900 text-black dark:text-white p-6 flex justify-between items-center border-b border-violet-200 dark:border-violet-800 shadow-lg backdrop-blur-sm">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-400 to-violet-700 flex items-center justify-center shadow-xl transform hover:rotate-3 transition-all duration-300 ring-4 ring-violet-200 dark:ring-violet-900">
+            <span className="text-white text-base font-bold tracking-wider">ESIL</span>
           </div>
-          <span className="bg-gradient-to-r from-violet-500 to-violet-700 bg-clip-text text-transparent font-extrabold">
-            ESIL Assistant Pro
-          </span>
+          <div className="flex flex-col">
+            <span className="bg-gradient-to-r from-violet-500 via-purple-500 to-violet-700 bg-clip-text text-transparent font-extrabold text-xl">
+              ESIL Assistant Pro
+            </span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">Votre assistant intelligent</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <motion.button 
             onClick={() => setShowSettings(!showSettings)}
-            className="flex items-center justify-center text-sm bg-gradient-to-r from-violet-500 to-violet-100 dark:from-violet-800 dark:to-violet-900 hover:from-violet-100 hover:to-violet-200 dark:hover:from-violet-700 dark:hover:to-violet-800 text-violet-700 dark:text-violet-200 p-2.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md border border-violet-200 dark:border-violet-700"
+            className="flex items-center justify-center text-sm bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-900 dark:to-violet-800 hover:from-violet-100 hover:to-violet-200 dark:hover:from-violet-800 dark:hover:to-violet-700 text-violet-700 dark:text-violet-200 p-3 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl border border-violet-200/50 dark:border-violet-700/50 backdrop-blur-sm"
             title="Paramètres"
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.05, rotate: 90 }}
             whileTap={{ scale: 0.95 }}
           >
             <Settings className="w-5 h-5" />
           </motion.button>
           <motion.button 
             onClick={clearConversation}
-            className="flex items-center text-sm bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white px-4 py-2.5 rounded-xl transition-all duration-300 group shadow-sm hover:shadow-md"
+            className="flex items-center text-sm bg-gradient-to-br from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800 text-white px-5 py-3 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-xl ring-2 ring-violet-200 dark:ring-violet-900"
             title="Nouvelle discussion"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <RotateCcw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform" />
+            <RotateCcw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
             Nouvelle discussion
           </motion.button>
           {onToggleFullScreen && (
             <motion.button
-              className="text-gray-500 hover:text-violet-500 p-2 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="text-violet-500 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 p-3 rounded-2xl transition-all duration-300 bg-violet-50 dark:bg-violet-900/50 hover:bg-violet-100 dark:hover:bg-violet-800/50 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-violet-500 backdrop-blur-sm"
               onClick={onToggleFullScreen}
               aria-label={isFullScreen ? "Quitter le mode plein écran" : "Passer en mode plein écran"}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, rotate: 180 }}
               whileTap={{ scale: 0.95 }}
             >
               {isFullScreen ? (
@@ -391,10 +394,10 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
           )}
           {onClose && (
             <motion.button
-              className="text-gray-500 hover:text-red-500 p-2 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-3 rounded-2xl transition-all duration-300 bg-red-50 dark:bg-red-900/50 hover:bg-red-100 dark:hover:bg-red-800/50 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 backdrop-blur-sm"
               onClick={onClose}
               aria-label="Fermer le chatbot"
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, rotate: 90 }}
               whileTap={{ scale: 0.95 }}
             >
               <X size={20} />
@@ -407,46 +410,63 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
       <AnimatePresence>
         {showSettings && (
           <motion.div 
-            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-4 border-b border-gray-200 dark:border-gray-700"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl p-6 border-b border-gray-200 dark:border-gray-700 shadow-lg"
+            initial={{ height: 0, opacity: 0, y: -20 }}
+            animate={{ height: 'auto', opacity: 1, y: 0 }}
+            exit={{ height: 0, opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            <div className="flex flex-col gap-3">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Paramètres du chatbot</h3>
+            <div className="flex flex-col gap-4 max-w-2xl mx-auto">
+              <div className="flex items-center gap-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+                <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                  <Settings className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                </div>
+                <h3 className="text-lg font-semibold bg-gradient-to-r from-violet-600 to-violet-400 bg-clip-text text-transparent">
+                  Paramètres du chatbot
+                </h3>
+              </div>
               
               {/* Mode raisonnement */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <BrainCircuit className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Mode raisonnement avancé</span>
+              <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                      <BrainCircuit className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Mode raisonnement avancé</span>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Réponses plus détaillées et analytiques
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setUseReasoningMode(!useReasoningMode)}
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400 ${useReasoningMode ? 'bg-violet-600' : 'bg-gray-300 dark:bg-gray-600'}`}
+                  >
+                    <span className="sr-only">Activer le mode raisonnement</span>
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${useReasoningMode ? 'translate-x-6' : 'translate-x-1'}`}
+                    />
+                  </button>
                 </div>
-                <button 
-                  onClick={() => setUseReasoningMode(!useReasoningMode)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${useReasoningMode ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600'}`}
-                >
-                  <span className="sr-only">Activer le mode raisonnement</span>
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${useReasoningMode ? 'translate-x-6' : 'translate-x-1'}`}
-                  />
-                </button>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 mb-3">
-                Le mode raisonnement utile pour des réponses plus détaillées et analytiques.
-              </p>
               
               {/* Budget de réflexion */}
               {useReasoningMode && (
-                <div className="flex flex-col gap-2 mb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Token de réflexion</span>
+                <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                        <Sparkles className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Token de réflexion</span>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          {thinkingBudget} tokens (~{Math.round(thinkingBudget * 0.75)} mots)
+                        </p>
+                      </div>
                     </div>
-<span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">
-  {thinkingBudget} tokens (~{Math.round(thinkingBudget * 0.75)} mots)
-</span>
                   </div>
                   <input
                     type="range"
@@ -455,51 +475,36 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
                     step="100"
                     value={thinkingBudget}
                     onChange={(e) => setThinkingBudget(parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                    className="w-full h-2 bg-violet-200 dark:bg-violet-800 rounded-lg appearance-none cursor-pointer"
                   />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Plus le nombre de token est élevé, plus les réponses seront détaillées, mais le temps de génération sera plus long.
-                  </p>
+                  <div className="flex justify-between mt-2 text-xs text-gray-500">
+                    <span>400</span>
+                    <span>2000</span>
+                  </div>
                 </div>
               )}
               
               {/* Ancrage de recherche */}
-              <div className="flex flex-col gap-2 mb-3">
-                <div className="flex items-center gap-2">
-                  <Search className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Contexte de la conversation</span>
+              <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                    <Search className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Contexte de la conversation</span>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Orientez les réponses vers un contexte spécifique
+                    </p>
+                  </div>
                 </div>
                 <input
                   type="text"
                   value={searchAnchor}
                   onChange={(e) => setSearchAnchor(e.target.value)}
                   placeholder="Ex: mariage, conférence, festival..."
-                  className="w-full px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent"
+                  className="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-700 border border-violet-200 dark:border-violet-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent placeholder-gray-400 dark:placeholder-gray-500"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Orientez les réponses vers un contexte spécifique (type d'événement, besoin particulier...).
-                </p>
               </div>
-              
-              {/* Choix de l'API */}
-              {/* <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Modèle d'IA à utiliser</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 mt-1">
-                  
-                  <button
-                    onClick={() => setApiType('google')}
-                    className={`px-3 py-2 text-xs font-medium rounded-lg transition-all ${apiType === 'google' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
-                  >
-                    Google
-                  </button>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Auto: utilise l'API disponible avec fallback automatique. Google: utilise uniquement l'API Google Gemini.
-                </p>
-              </div> */}
             </div>
           </motion.div>
         )}
