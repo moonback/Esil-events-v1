@@ -23,7 +23,7 @@ interface EventContext {
   eventType: string;
   eventDate: string;
   budget: string;
-  locationType: string; // Type de location: sonorisation, éclairage, jeux arcade, etc.
+  locationType: string[]; // Types de location: sonorisation, éclairage, jeux arcade, etc. (sélection multiple)
 }
 
 interface ProductChatbotProps {
@@ -57,7 +57,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
     eventType: '',
     eventDate: '',
     budget: '',
-    locationType: ''
+    locationType: []
   });
   const [eventContextCollected, setEventContextCollected] = useState(false);
   
@@ -417,7 +417,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
       eventType: '',
       eventDate: '',
       budget: '',
-      locationType: ''
+      locationType: []
     });
     setEventContextCollected(false);
     setShowEventQuestionnaire(true);
@@ -596,12 +596,16 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
                     Type de location
                   </label>
                   <select
+                    multiple
                     value={eventContext.locationType}
-                    onChange={(e) => setEventContext({...eventContext, locationType: e.target.value})}
+                    onChange={(e) => {
+                      const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
+                      setEventContext({...eventContext, locationType: selectedOptions});
+                    }}
                     className="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-700 border border-violet-200 dark:border-violet-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent"
                     required
                   >
-                    <option value="">Sélectionnez un type de location</option>
+                    <option value="">Sélectionnez un ou plusieurs types de location</option>
                     <option value="Sonorisation">Sonorisation</option>
                     <option value="Éclairage">Éclairage</option>
                     <option value="Jeux arcade">Jeux arcade</option>
