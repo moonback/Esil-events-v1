@@ -9,10 +9,6 @@ interface ChatbotResponse {
   error?: string;
 }
 
-interface SuggestionResponse {
-  suggestions: string[];
-  error?: string;
-}
 
 /**
  * Prépare les données des produits pour le contexte du chatbot
@@ -114,6 +110,59 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
   return uniqueSuggestions.slice(0, 4);
 };
 
+/**
+ * Fonction pour effectuer une requête API avec retry
+ */
+async function makeApiRequest(requestBody: any, apiKey: string, retryCount = 0, maxRetries = 3): Promise<any> {
+  try {
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      let errorData;
+      try {
+        const errorText = await response.text();
+        errorData = JSON.parse(errorText);
+      } catch (parseError) {
+        errorData = { error: { message: `Erreur ${response.status}: ${response.statusText}. Réponse non JSON.` } };
+      }
+      
+      // Si on a atteint le nombre maximum de tentatives, lancer une erreur
+      if (retryCount >= maxRetries) {
+        throw new Error(`Erreur API (${response.status}): ${errorData?.error?.message || response.statusText || 'Erreur inconnue'}`);
+      }
+      
+      // Attendre avant de réessayer (backoff exponentiel)
+      const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
+      console.log(`Tentative ${retryCount + 1}/${maxRetries} échouée. Nouvelle tentative dans ${waitTime}ms...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      
+      // Réessayer
+      return makeApiRequest(requestBody, apiKey, retryCount + 1, maxRetries);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    if (retryCount < maxRetries) {
+      // Attendre avant de réessayer
+      const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
+      console.log(`Erreur lors de la tentative ${retryCount + 1}/${maxRetries}. Nouvelle tentative dans ${waitTime}ms...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      
+      // Réessayer
+      return makeApiRequest(requestBody, apiKey, retryCount + 1, maxRetries);
+    }
+    throw error;
+  }
+}
+
 export const generateChatbotResponse = async (question: string, products: Product[], useReasoningMode: boolean): Promise<ChatbotResponse> => {
   try {
     const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
@@ -149,53 +198,75 @@ export const generateChatbotResponse = async (question: string, products: Produc
     };
 
     // Configuration de la requête en fonction du mode de raisonnement
-    const requestBody = useReasoningMode
-      ? {
-          model: "deepseek-reasoner",
-          messages: [systemMessage, userMessage],
-          temperature: 0.5, // Température plus basse pour des réponses plus précises
-          max_tokens: 800, // Plus de tokens pour permettre un raisonnement détaillé
-          top_p: 0.9,
-          plugins: [{ type: "reasoner" }] // Activation du plugin de raisonnement
-        }
-      : {
-          model: "deepseek-chat",
-          messages: [systemMessage, userMessage],
-          temperature: 0.7,
-          max_tokens: 500,
-          top_p: 0.95
-        };
+    const requestBody = {
+      model: useReasoningMode ? "deepseek-reasoner" : "deepseek-chat",
+      messages: [systemMessage, userMessage],
+      temperature: useReasoningMode ? 0.3 : 0.7,  // Plus précis en mode raisonnement
+      max_tokens: useReasoningMode ? 1000 : 600,  // Plus de tokens pour les analyses complexes
+      top_p: 0.9,  // Équilibre entre diversité et pertinence
+      ...(useReasoningMode && { plugins: [{ type: "reasoner" }] })
+    };
 
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(requestBody),
-    });
+    try {
+      // Tenter d'utiliser le modèle demandé avec retry
+      const data = await makeApiRequest(requestBody, apiKey);
+      const generatedContent = data.choices?.[0]?.message?.content?.trim();
 
-    if (!response.ok) {
-      let errorData;
-      try {
-        const errorText = await response.text();
-        errorData = JSON.parse(errorText);
-      } catch (parseError) {
-        errorData = { error: { message: `Erreur ${response.status}: ${response.statusText}. Réponse non JSON.` } };
+      if (!generatedContent) {
+        throw new Error("La réponse de l'API est vide ou mal structurée.");
       }
-      throw new Error(`Erreur API (${response.status}): ${errorData?.error?.message || response.statusText || 'Erreur inconnue'}`);
+
+      return { response: generatedContent };
+    } catch (primaryError) {
+      // Si on est en mode raisonnement et qu'il y a une erreur, essayer avec le modèle par défaut
+      if (useReasoningMode) {
+        console.warn('Échec avec deepseek-reasoner, fallback vers deepseek-chat:', primaryError);
+        
+        try {
+          // Fallback vers le modèle par défaut
+          const fallbackRequestBody = {
+            model: "deepseek-chat",
+            messages: [systemMessage, userMessage],
+            temperature: 0.7,
+            max_tokens: 600,
+            top_p: 0.9
+          };
+          
+          const fallbackData = await makeApiRequest(fallbackRequestBody, apiKey);
+          const fallbackContent = fallbackData.choices?.[0]?.message?.content?.trim();
+          
+          if (!fallbackContent) {
+            throw new Error("La réponse de l'API de secours est vide ou mal structurée.");
+          }
+          
+          return { 
+            response: fallbackContent + "\n\n(Note: Cette réponse a été générée avec le modèle standard suite à une erreur avec le mode raisonnement avancé.)"
+          };
+        } catch (fallbackError: any) {
+          console.error('Échec du fallback vers deepseek-chat:', fallbackError);
+          throw fallbackError; // Propager l'erreur pour être gérée par le bloc catch principal
+        }
+      } else {
+        // Si on n'est pas en mode raisonnement, propager l'erreur
+        throw primaryError;
+      }
     }
-
-    const data = await response.json();
-    const generatedContent = data.choices?.[0]?.message?.content?.trim();
-
-    if (!generatedContent) {
-      throw new Error("La réponse de l'API est vide ou mal structurée.");
-    }
-
-    return { response: generatedContent };
   } catch (error: any) {
     console.error('Erreur lors de la génération de la réponse du chatbot:', error);
+    
+    // Enregistrer l'erreur pour débogage (à remplacer par Sentry ou autre service de logging)
+    try {
+      // Ici, on pourrait intégrer Sentry ou un autre service de logging
+      // Exemple: Sentry.captureException(error);
+      console.error('Détails de l\'erreur pour débogage:', {
+        message: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      });
+    } catch (loggingError) {
+      console.error('Erreur lors de la journalisation:', loggingError);
+    }
+    
     return { 
       error: `Désolé, une erreur s'est produite: ${error.message || 'Erreur inconnue'}. Veuillez réessayer plus tard.`
     };
