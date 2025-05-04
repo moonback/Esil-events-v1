@@ -533,7 +533,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
                 {/* Type d'événement */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Type d'événement
+                    Type d'événement organisé
                   </label>
                   <select
                     value={eventContext.eventType}
@@ -557,7 +557,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
                 {/* Date de l'événement */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Date prévue
+                    Date de location prévue
                   </label>
                   <input
                     type="date"
@@ -597,7 +597,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
       <Package className="w-4 h-4 text-violet-600 dark:text-violet-400" />
     </div>
     <label className="text-sm font-medium bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
-      Type de location
+      Mes besoins en location
     </label>
   </div>
   
