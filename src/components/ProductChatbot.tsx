@@ -647,7 +647,17 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
   </div>
 </div>
                 
-                <div className="flex justify-end mt-4">
+                <div className="flex justify-between mt-4">
+                  <motion.button
+                    onClick={() => setShowEventQuestionnaire(false)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <span>Ignorer</span>
+                    <X className="w-4 h-4" />
+                  </motion.button>
+                  
                   <motion.button
                     onClick={handleEventContextSubmit}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white ${!eventContext.eventType || !eventContext.eventDate || !eventContext.budget || !eventContext.locationType ? 'bg-gray-400 cursor-not-allowed' : 'bg-violet-600 hover:bg-violet-700'}`}
