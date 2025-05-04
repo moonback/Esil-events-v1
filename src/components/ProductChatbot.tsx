@@ -262,7 +262,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
       parts.push(
         <span 
           key={`mention-${match.index}`} 
-          className="bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-300 px-1 rounded font-medium"
+          className="bg-transparent text-white dark:text-violet-300 px-1 rounded font-medium"
         >
           {match[0]}
         </span>
@@ -558,64 +558,115 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                     </div>
                   )}
                   <div className="relative">
-                    <div className="text-sm/[1.6] font-medium prose prose-sm max-w-none dark:prose-invert">
-                      {message.text.split('\n').map((line, i) => (
-                        <React.Fragment key={i}>
-                          {line.trim() === '' ? (
-                            <div className="h-2"></div> // Empty line spacing
-                          ) : line.startsWith('• ') || line.startsWith('- ') ? (
-                            <div className="flex items-start gap-2 my-1">
-                              <div className="w-1.5 h-1.5 rounded-full bg-violet-300 dark:bg-violet-500 mt-1.5 flex-shrink-0"></div>
-                              <div>{line.substring(2)}</div>
-                            </div>
-                          ) : line.match(/^\d+\.\s/) ? (
-                            <div className="flex items-start gap-2 my-1">
-                              <div className="text-xs font-bold text-violet-400 dark:text-violet-300 mt-0.5 flex-shrink-0 w-4 text-right">
-                                {line.match(/^\d+/)?.[0]}.
-                              </div>
-                              <div>{line.replace(/^\d+\.\s/, '')}</div>
-                            </div>
-                          ) : line.includes('http') ? (
-                            <div>
-                              {line.split(/\b(https?:\/\/[^\s]+)\b/).map((part, j) => (
-                                <React.Fragment key={j}>
-                                  {part.match(/^https?:\/\//) ? (
-                                    <a 
-                                      href={part} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
-                                      className={`underline ${message.sender === 'user' ? 'text-indigo-100' : 'text-indigo-500 dark:text-indigo-400'}`}
-                                    >
-                                      {part}
-                                    </a>
-                                  ) : (
-                                    part
-                                  )}
-                                </React.Fragment>
-                              ))}
-                            </div>
-                          ) : line.includes('@') ? (
-                            <div>{highlightProductMentions(line)}</div>
-                          ) : (
-                            <div>{line}</div>
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </div>
+<div className="text-sm/[1.6] font-medium prose prose-sm max-w-none dark:prose-invert space-y-2">
+  {message.text.split('\n').map((line, i) => (
+    <React.Fragment key={i}>
+      {line.trim() === '' ? (
+        <div className="h-3"></div> // Increased empty line spacing
+      ) : line.startsWith('• ') || line.startsWith('- ') ? (
+        <div className="flex items-start gap-3 my-1.5 group hover:bg-violet-50/30 dark:hover:bg-violet-900/20 p-2 rounded-lg transition-all">
+          <div className="w-2 h-2 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 mt-1.5 flex-shrink-0 group-hover:scale-110 transition-transform"></div>
+          <div className="text-gray-700 dark:text-gray-200">{line.substring(2)}</div>
+        </div>
+      ) : line.match(/^\d+\.\s/) ? (
+        <div className="flex items-start gap-3 my-1.5 group hover:bg-violet-50/30 dark:hover:bg-violet-900/20 p-2 rounded-lg transition-all">
+          <div className="text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent mt-0.5 flex-shrink-0 w-5 text-right group-hover:scale-110 transition-transform">
+            {line.match(/^\d+/)?.[0]}.
+          </div>
+          <div className="text-gray-700 dark:text-gray-200">{line.replace(/^\d+\.\s/, '')}</div>
+        </div>
+      ) : line.includes('http') ? (
+        <div className="p-2 hover:bg-violet-50/30 dark:hover:bg-violet-900/20 rounded-lg transition-all">
+          {line.split(/\b(https?:\/\/[^\s]+)\b/).map((part, j) => (
+            <React.Fragment key={j}>
+              {part.match(/^https?:\/\//) ? (
+                <a 
+                  href={part} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={`underline decoration-2 decoration-violet-400/30 hover:decoration-violet-500 transition-all ${
+                    message.sender === 'user' 
+                      ? 'text-indigo-100 hover:text-white' 
+                      : 'text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300'
+                  }`}
+                >
+                  {part}
+                </a>
+              ) : (
+                <span className="text-gray-700 dark:text-gray-200">{part}</span>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      ) : line.includes('@') ? (
+        <div className="p-2 hover:bg-violet-50/30 dark:hover:bg-violet-900/20 rounded-lg transition-all">
+          {highlightProductMentions(line)}
+        </div>
+      ) : (
+        <div className="p-2 text-gray-700 dark:text-gray-200 hover:bg-violet-50/30 dark:hover:bg-violet-900/20 rounded-lg transition-all">
+          {line}
+        </div>
+      )}
+    </React.Fragment>
+  ))}
+</div>
                     
                     {/* Afficher les mini-fiches produit si des produits sont mentionnés */}
                     {message.mentionedProducts && message.mentionedProducts.length > 0 && (
-                      <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-                        <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1">
-                          <Package className="w-3 h-3" />
-                          <span>Produits mentionnés :</span>
+                      <motion.div 
+                        className="mt-6 pt-4 border-t border-gray-200/50 dark:border-gray-700/50"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-100 to-violet-200 dark:from-violet-900/40 dark:to-violet-800/40 flex items-center justify-center shadow-inner">
+                              <Package className="w-4 h-4 text-violet-600 dark:text-violet-300" />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-semibold bg-gradient-to-r from-white to-white dark:from-violet-400 dark:to-violet-300 bg-clip-text text-transparent">
+                                Produits mentionnés
+                              </span>
+                              <span className="text-xs text-white dark:text-gray-400">
+                                Sélection recommandée
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium text-violet-700 dark:text-violet-300 px-3 py-1.5 bg-violet-50 dark:bg-violet-900/30 rounded-lg border border-violet-100 dark:border-violet-700/50 shadow-sm">
+                              {message.mentionedProducts.length} {message.mentionedProducts.length > 1 ? 'produits' : 'produit'}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-3 justify-start">
+                        <motion.div 
+                          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                          initial="hidden"
+                          animate="visible"
+                          variants={{
+                            visible: {
+                              transition: {
+                                staggerChildren: 0.15
+                              }
+                            }
+                          }}
+                        >
                           {message.mentionedProducts.map(product => (
-                            <ProductMiniCard key={product.id} product={product} />
+                            <motion.div
+                              key={product.id}
+                              className="group"
+                              variants={{
+                                hidden: { opacity: 0, x: -20, scale: 0.95 },
+                                visible: { opacity: 1, x: 0, scale: 1 }
+                              }}
+                              whileHover={{ scale: 1.02 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <ProductMiniCard product={product} />
+                            </motion.div>
                           ))}
-                        </div>
-                      </div>
+                        </motion.div>
+                      </motion.div>
                     )}
                     <div className="text-xs text-gray-400 dark:text-gray-400 mt-3 text-right opacity-70 flex justify-end items-center gap-1">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-500"></span>
@@ -714,15 +765,18 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
           {showSuggestionsButton && !showSuggestions && (
             <motion.button
               onClick={() => setShowSuggestions(true)}
-              className="fixed bottom-[150px] right-6 p-3.5 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10 flex items-center justify-center group"
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              whileTap={{ scale: 0.9 }}
+              className="fixed bottom-[80px] left-1/2 transform -translate-x-1/2 p-4 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 z-10 flex items-center gap-2 group"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
             >
               <Lightbulb className="w-5 h-5 group-hover:text-yellow-200 transition-colors" />
-              <span className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-[10px] font-bold animate-pulse">{dynamicSuggestions.length}</span>
+              <span className="text-sm font-medium">Suggestions</span>
+              <span className="px-2 py-1 bg-white/20 rounded-lg text-xs font-bold">
+                {dynamicSuggestions.length}
+              </span>
             </motion.button>
           )}
         </AnimatePresence>
