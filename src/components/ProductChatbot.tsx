@@ -558,25 +558,25 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                     </div>
                   )}
                   <div className="relative">
-<div className="text-sm/[1.6] font-medium prose prose-sm max-w-none dark:prose-invert space-y-2">
+<div className="text-sm/[1.6] font-medium prose prose-sm max-w-none dark:prose-invert space-y-2.5">
   {message.text.split('\n').map((line, i) => (
     <React.Fragment key={i}>
       {line.trim() === '' ? (
-        <div className="h-3"></div> // Increased empty line spacing
+        <div className="h-4"></div> // Increased empty line spacing for better readability
       ) : line.startsWith('• ') || line.startsWith('- ') ? (
-        <div className="flex items-start gap-3 my-1.5 group hover:bg-violet-50/30 dark:hover:bg-violet-900/20 p-2 rounded-lg transition-all">
-          <div className="w-2 h-2 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 mt-1.5 flex-shrink-0 group-hover:scale-110 transition-transform"></div>
-          <div className="text-gray-700 dark:text-gray-200">{line.substring(2)}</div>
+        <div className="flex items-start gap-3.5 my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
+          <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 mt-1.5 flex-shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-200"></div>
+          <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.substring(2)}</div>
         </div>
       ) : line.match(/^\d+\.\s/) ? (
-        <div className="flex items-start gap-3 my-1.5 group hover:bg-violet-50/30 dark:hover:bg-violet-900/20 p-2 rounded-lg transition-all">
-          <div className="text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent mt-0.5 flex-shrink-0 w-5 text-right group-hover:scale-110 transition-transform">
+        <div className="flex items-start gap-3.5 my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
+          <div className="text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent mt-0.5 flex-shrink-0 w-6 text-right group-hover:scale-110 transition-all duration-200">
             {line.match(/^\d+/)?.[0]}.
           </div>
-          <div className="text-gray-700 dark:text-gray-200">{line.replace(/^\d+\.\s/, '')}</div>
+          <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.replace(/^\d+\.\s/, '')}</div>
         </div>
       ) : line.includes('http') ? (
-        <div className="p-2 hover:bg-violet-50/30 dark:hover:bg-violet-900/20 rounded-lg transition-all">
+        <div className="p-2.5 hover:bg-violet-50/40 dark:hover:bg-violet-900/30 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
           {line.split(/\b(https?:\/\/[^\s]+)\b/).map((part, j) => (
             <React.Fragment key={j}>
               {part.match(/^https?:\/\//) ? (
@@ -584,26 +584,26 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                   href={part} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className={`underline decoration-2 decoration-violet-400/30 hover:decoration-violet-500 transition-all ${
+                  className={`underline decoration-2 decoration-violet-400/40 hover:decoration-violet-500 transition-all duration-200 ${
                     message.sender === 'user' 
                       ? 'text-indigo-100 hover:text-white' 
                       : 'text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300'
-                  }`}
+                  } hover:shadow-sm`}
                 >
                   {part}
                 </a>
               ) : (
-                <span className="text-gray-700 dark:text-gray-200">{part}</span>
+                <span className="text-gray-700 dark:text-gray-200 leading-relaxed">{part}</span>
               )}
             </React.Fragment>
           ))}
         </div>
       ) : line.includes('@') ? (
-        <div className="p-2 hover:bg-violet-50/30 dark:hover:bg-violet-900/20 rounded-lg transition-all">
+        <div className="p-2.5 hover:bg-violet-50/40 dark:hover:bg-violet-900/30 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
           {highlightProductMentions(line)}
         </div>
       ) : (
-        <div className="p-2 text-gray-700 dark:text-gray-200 hover:bg-violet-50/30 dark:hover:bg-violet-900/20 rounded-lg transition-all">
+        <div className="p-2.5 text-gray-700 dark:text-gray-200 hover:bg-violet-50/40 dark:hover:bg-violet-900/30 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800 leading-relaxed">
           {line}
         </div>
       )}
