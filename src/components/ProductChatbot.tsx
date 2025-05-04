@@ -756,7 +756,18 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
                     <div>
                       <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Informations sur votre location</span>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {eventContextCollected ? `Mes besoins: ${eventContext.locationType} pour un(e) ${eventContext.eventType} le  ${eventContext.eventDate} avec un budget de  ${eventContext.budget}` : "Non spécifié"}
+                        {eventContextCollected ? (
+                          <span className="text-gray-600 dark:text-gray-300">
+                            <span className="font-medium">Type d'événement:</span> {eventContext.eventType} |{' '}
+                            <span className="font-medium">Date:</span> {eventContext.eventDate} |{' '}
+                            <span className="font-medium">Budget:</span> {eventContext.budget} |{' '}
+                            <span className="font-medium">Équipements:</span> {eventContext.locationType.join(', ')}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400 dark:text-gray-500 italic">
+                            Aucune information contextuelle spécifiée
+                          </span>
+                        )}
                       </p>
                     </div>
                   </div>
