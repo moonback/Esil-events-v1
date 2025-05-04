@@ -529,14 +529,17 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
               )}
               
               <motion.div 
-                className={`relative max-w-[85%] transition-all ${
+                className={`relative max-w-[85%] transition-all transform ${
                   message.sender === 'user'
-                    ? 'bg-gradient-to-br from-violet-600 to-violet-500 text-white rounded-2xl rounded-br-none shadow-md shadow-violet-200/50 dark:shadow-violet-900/30'
+                    ? 'bg-gradient-to-br from-gray-100 to-gray-100 text-white rounded-2xl rounded-br-none shadow-lg shadow-gray-300/50 dark:shadow-gray-900/40 border border-gray-400/20 backdrop-blur-sm'
                     : message.isReasoned 
-                      ? 'bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 text-gray-800 dark:text-gray-100 border border-indigo-200 dark:border-indigo-800/50 rounded-2xl rounded-tl-none shadow-md'
-                      : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-600 rounded-2xl rounded-tl-none shadow-md'
-                } ${message.isNew ? 'message-new' : ''}`}
-                whileHover={{ scale: 1.02 }}
+                      ? 'bg-gradient-to-br from-gray-100/90 to-gray-200/90 dark:from-gray-800/40 dark:to-gray-700/40 text-gray-800 dark:text-gray-100 border border-gray-300/50 dark:border-gray-600/30 rounded-2xl rounded-tl-none shadow-lg backdrop-blur-sm'
+                      : 'bg-gray-100/95 dark:bg-gray-800/95 text-gray-800 dark:text-gray-100 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl rounded-tl-none shadow-lg backdrop-blur-sm hover:border-gray-300 dark:hover:border-gray-600 transition-colors'
+                } ${message.isNew ? 'message-new scale-100' : 'scale-100'} hover:shadow-xl transition-all duration-300 ease-in-out`}
+                whileHover={{ 
+                  scale: 1.02,
+                  translateY: -2
+                }}
                 layout
               >
                 <div className="p-4">
