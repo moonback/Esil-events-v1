@@ -186,8 +186,7 @@ export const clearResponseCache = (): void => {
  */
 async function makeGoogleApiRequest(requestBody: any, apiKey: string, retryCount = 0, maxRetries = 3): Promise<any> {
   try {
-    // Changed model version from 2.0-flash to 2.5-flash-preview-04-17
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -549,4 +548,5 @@ export const generateChatbotResponse = async (question: string, products: Produc
     };
   }
 };
+
 
