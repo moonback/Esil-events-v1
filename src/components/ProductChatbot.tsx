@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getAllProducts, searchProducts } from '../services/productService';
-import { generateChatbotResponse, generateDynamicSuggestions } from '../services/chatbotService';
+import { generateChatbotResponse, generateDynamicSuggestions, ChatbotApiType } from '../services/chatbotService';
 import { Product } from '../types/Product';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BrainCircuit, Send, Sparkles, RotateCcw, Search, Tag, X, Package, User, Bot, MessageSquare, Lightbulb } from 'lucide-react';
+import { BrainCircuit, Send, Sparkles, RotateCcw, Search, Tag, X, Package, User, Bot, MessageSquare, Lightbulb, Globe } from 'lucide-react';
 import ProductMiniCard from './ProductMiniCard';
 import '../styles/chatbot.css';
 
@@ -15,6 +15,7 @@ interface Message {
   isNew?: boolean;
   isReasoned?: boolean;
   mentionedProducts?: Product[];
+  source?: 'deepseek' | 'google' | 'fallback';
 }
 
 interface ProductChatbotProps {
@@ -30,6 +31,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
   const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
   const [showSuggestionsButton, setShowSuggestionsButton] = useState(true);
   const [useReasoningMode, setUseReasoningMode] = useState(false);
+  const [apiType, setApiType] = useState<ChatbotApiType>('auto');
   const [showSettings, setShowSettings] = useState(false);
   const [isSearchingProducts, setIsSearchingProducts] = useState(false);
   const [productSearchResults, setProductSearchResults] = useState<Product[]>([]);
@@ -114,21 +116,23 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
   }, [messages, products]);
 
   // Fonction pour générer une réponse basée sur la question et les produits disponibles
-  const generateResponse = async (question: string): Promise<{text: string, isReasoned: boolean}> => {
+  const generateResponse = async (question: string): Promise<{text: string, isReasoned: boolean, source?: 'deepseek' | 'google' | 'fallback'}> => {
     try {
       // Utiliser le service chatbot pour générer une réponse
-      const result = await generateChatbotResponse(question, products, useReasoningMode);
+      const result = await generateChatbotResponse(question, products, useReasoningMode, apiType);
       
       if (result.error) {
         return {
           text: `Désolé, je ne peux pas répondre pour le moment: ${result.error}`,
-          isReasoned: false
+          isReasoned: false,
+          source: result.source
         };
       }
       
       return {
         text: result.response || "Désolé, je n'ai pas pu générer une réponse.",
-        isReasoned: useReasoningMode
+        isReasoned: useReasoningMode,
+        source: result.source
       };
     } catch (error) {
       console.error('Erreur lors de la génération de la réponse:', error);
@@ -297,7 +301,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
 
     try {
       // Générer une réponse
-      const { text: botResponseText, isReasoned } = await generateResponse(text);
+      const { text: botResponseText, isReasoned, source } = await generateResponse(text);
       
       // Détecter les produits mentionnés dans la réponse du bot
       const mentionedProducts = detectProductMentions(botResponseText);
@@ -310,7 +314,8 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
         timestamp: new Date(),
         isNew: true,
         isReasoned,
-        mentionedProducts: mentionedProducts.length > 0 ? mentionedProducts : undefined
+        mentionedProducts: mentionedProducts.length > 0 ? mentionedProducts : undefined,
+        source: source
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -405,6 +410,8 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
           >
             <div className="flex flex-col gap-3">
               <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Paramètres du chatbot</h3>
+              
+              {/* Mode raisonnement */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <BrainCircuit className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
@@ -420,9 +427,40 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                   />
                 </button>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 mb-3">
                 Le mode raisonnement utilise DeepSeek Reasoner pour des réponses plus détaillées et analytiques.
               </p>
+              
+              {/* Choix de l'API */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Modèle d'IA à utiliser</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 mt-1">
+                  <button
+                    onClick={() => setApiType('auto')}
+                    className={`px-3 py-2 text-xs font-medium rounded-lg transition-all ${apiType === 'auto' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
+                  >
+                    Auto
+                  </button>
+                  <button
+                    onClick={() => setApiType('deepseek')}
+                    className={`px-3 py-2 text-xs font-medium rounded-lg transition-all ${apiType === 'deepseek' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
+                  >
+                    DeepSeek
+                  </button>
+                  <button
+                    onClick={() => setApiType('google')}
+                    className={`px-3 py-2 text-xs font-medium rounded-lg transition-all ${apiType === 'google' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
+                  >
+                    Google
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Auto: utilise l'API disponible avec fallback automatique. DeepSeek: utilise uniquement l'API DeepSeek. Google: utilise uniquement l'API Google Gemini.
+                </p>
+              </div>
             </div>
           </motion.div>
         )}
@@ -461,10 +499,21 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                 layout
               >
                 <div className="p-4">
-                  {message.isReasoned && message.sender === 'bot' && (
+                  {message.sender === 'bot' && (
                     <div className="flex items-center gap-1 mb-2 pb-2 border-b border-indigo-100 dark:border-indigo-800/30">
-                      <Sparkles className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-                      <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">Réponse raisonnée</span>
+                      {message.isReasoned && (
+                        <>
+                          <Sparkles className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+                          <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 mr-2">Réponse raisonnée</span>
+                        </>
+                      )}
+                      {message.source && (
+                        <>
+                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                            via {message.source === 'deepseek' ? 'DeepSeek' : message.source === 'google' ? 'Google Gemini' : 'Fallback'}
+                          </span>
+                        </>
+                      )}
                     </div>
                   )}
                   <div className="relative">
