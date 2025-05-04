@@ -220,49 +220,100 @@ async function makeGoogleApiRequest(requestBody: any, apiKey: string, retryCount
  * Génère une réponse du chatbot basée sur la question de l'utilisateur et les produits disponibles
  */
 /**
- * Génère des suggestions de questions basées sur les produits disponibles et l'historique des conversations
+ * Génère des suggestions de questions intelligentes basées sur les produits disponibles et l'historique des conversations
  */
 export const generateDynamicSuggestions = (products: Product[], messageHistory: {text: string, sender: 'user' | 'bot'}[] = []): string[] => {
-  // Suggestions par défaut si aucun produit n'est disponible
-  const defaultSuggestions = [
-    "Quels sont vos produits les plus populaires pour un mariage ?",
-    "Avez-vous des systèmes de sonorisation disponibles ?",
-    "Comment fonctionne la livraison du matériel ?",
-    "Quels sont vos tarifs pour la location d'éclairage ?"
-  ];
+  // Suggestions par défaut organisées par catégorie
+  const defaultSuggestions = {
+    general: [
+      "Quels sont vos produits les plus populaires pour un événement professionnel ?",
+      "Quels équipements recommandez-vous pour un mariage en extérieur ?",
+      "Comment fonctionne votre service de livraison et installation ?",
+      "Proposez-vous des forfaits spéciaux pour les événements de grande envergure ?"
+    ],
+    pricing: [
+      "Quels sont vos tarifs pour une location sur un week-end complet ?",
+      "Proposez-vous des réductions pour les locations de longue durée ?",
+      "Y a-t-il des frais supplémentaires pour la livraison et l'installation ?",
+      "Comment fonctionne le système de caution pour vos équipements ?"
+    ],
+    logistics: [
+      "Quel est votre délai de réservation minimum pour un événement ?",
+      "Comment se déroule la livraison et la récupération du matériel ?",
+      "Proposez-vous un service d'assistance technique pendant l'événement ?",
+      "Que se passe-t-il en cas de problème avec l'équipement pendant l'événement ?"
+    ],
+    specific: [
+      "Avez-vous des systèmes de sonorisation adaptés pour des conférences ?",
+      "Quels types d'éclairages proposez-vous pour une ambiance festive ?",
+      "Disposez-vous de mobilier pour des événements en extérieur ?",
+      "Proposez-vous des solutions vidéo pour des projections en plein air ?"
+    ]
+  };
 
-  // Si pas de produits, retourner les suggestions par défaut
+  // Si pas de produits, retourner un mix de suggestions par défaut
   if (!products || products.length === 0) {
-    return defaultSuggestions;
+    return [
+      ...defaultSuggestions.general.slice(0, 1),
+      ...defaultSuggestions.pricing.slice(0, 1),
+      ...defaultSuggestions.logistics.slice(0, 1),
+      ...defaultSuggestions.specific.slice(0, 1)
+    ];
   }
 
-  // Extraire les catégories uniques des produits
-  const categories = new Set<string>();
+  // Extraire les catégories uniques des produits avec comptage de fréquence
+  const categoryFrequency: Record<string, number> = {};
   products.forEach(product => {
-    if (typeof product.category === 'string') {
-      categories.add(product.category);
+    if (typeof product.category === 'string' && product.category.trim()) {
+      categoryFrequency[product.category] = (categoryFrequency[product.category] || 0) + 1;
     } else if (Array.isArray(product.category)) {
-      product.category.forEach(cat => categories.add(cat));
+      product.category.forEach(cat => {
+        if (cat && cat.trim()) {
+          categoryFrequency[cat] = (categoryFrequency[cat] || 0) + 1;
+        }
+      });
     }
   });
 
-  // Générer des suggestions basées sur les catégories disponibles
-  const categorySuggestions = Array.from(categories).slice(0, 3).map(category => 
-    `Quels produits proposez-vous dans la catégorie ${category} ?`
-  );
+  // Trier les catégories par fréquence et prendre les plus populaires
+  const topCategories = Object.entries(categoryFrequency)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(entry => entry[0]);
 
-  // Générer des suggestions basées sur les produits populaires ou récents
-  const productSuggestions = products
-    .slice(0, 5)
-    .map(product => `Pouvez-vous me donner plus d'informations sur ${product.name} ?`);
+  // Générer des suggestions basées sur les catégories les plus populaires
+  const categorySuggestions = topCategories.map(category => {
+    const formattedCategory = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+    return `Quels produits proposez-vous dans la catégorie ${formattedCategory} ?`;
+  });
 
   // Analyser l'historique des messages pour des suggestions contextuelles
   let contextualSuggestions: string[] = [];
+  let conversationContext: 'pricing' | 'logistics' | 'specific' | 'general' = 'general';
   
   if (messageHistory.length > 0) {
-    // Extraire le dernier message du bot
-    const lastBotMessage = messageHistory.filter(msg => msg.sender === 'bot').pop();
+    // Extraire les derniers messages pour analyse contextuelle
+    const recentMessages = messageHistory.slice(-5);
+    const lastUserMessage = [...recentMessages].reverse().find(msg => msg.sender === 'user');
+    const lastBotMessage = [...recentMessages].reverse().find(msg => msg.sender === 'bot');
     
+    // Détecter le contexte de la conversation
+    const pricingKeywords = ['prix', 'tarif', 'coût', 'budget', '€', 'euro', 'euros', 'réduction', 'promotion'];
+    const logisticsKeywords = ['livraison', 'transport', 'installation', 'délai', 'disponibilité', 'réservation', 'date'];
+    const specificProductKeywords = ['modèle', 'référence', 'caractéristique', 'technique', 'puissance', 'dimension'];
+    
+    // Analyser les messages récents pour déterminer le contexte
+    const allText = recentMessages.map(msg => msg.text.toLowerCase()).join(' ');
+    
+    if (pricingKeywords.some(keyword => allText.includes(keyword))) {
+      conversationContext = 'pricing';
+    } else if (logisticsKeywords.some(keyword => allText.includes(keyword))) {
+      conversationContext = 'logistics';
+    } else if (specificProductKeywords.some(keyword => allText.includes(keyword))) {
+      conversationContext = 'specific';
+    }
+    
+    // Générer des suggestions basées sur le dernier message du bot
     if (lastBotMessage) {
       // Si le dernier message du bot mentionne un produit, suggérer des questions de suivi
       const mentionedProducts = products.filter(product => 
@@ -270,31 +321,87 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
       );
       
       if (mentionedProducts.length > 0) {
+        const product = mentionedProducts[0];
+        
+        // Suggestions personnalisées basées sur le produit mentionné
         contextualSuggestions = [
-          `Quel est le prix de location de ${mentionedProducts[0].name} ?`,
-          `Est-ce que ${mentionedProducts[0].name} est disponible pour ce week-end ?`,
-          `Avez-vous des produits similaires à ${mentionedProducts[0].name} ?`
+          `Quel est le prix de location de ${product.name} pour un week-end complet ?`,
+          `Quelles sont les spécifications techniques détaillées de ${product.name} ?`,
+          `Avez-vous des accessoires complémentaires recommandés avec ${product.name} ?`
         ];
+        
+        // Ajouter une suggestion basée sur la catégorie du produit si disponible
+        if (product.category) {
+          const category = Array.isArray(product.category) ? product.category[0] : product.category;
+          if (category) {
+            contextualSuggestions.push(`Quels autres produits de la catégorie ${category} pourriez-vous me recommander ?`);
+          }
+        }
       }
       
-      // Si le message mentionne des prix, suggérer des questions sur le budget
-      if (lastBotMessage.text.includes('€') || lastBotMessage.text.toLowerCase().includes('prix') || lastBotMessage.text.toLowerCase().includes('tarif')) {
-        contextualSuggestions.push("Proposez-vous des réductions pour les locations de longue durée ?");
+      // Suggestions basées sur des mots-clés spécifiques dans la conversation
+      if (lastBotMessage.text.toLowerCase().includes('disponible') || lastBotMessage.text.toLowerCase().includes('stock')) {
+        contextualSuggestions.push("Quel est votre délai de réservation minimum pour garantir la disponibilité ?");
       }
       
-      // Si le message mentionne la livraison
-      if (lastBotMessage.text.toLowerCase().includes('livraison') || lastBotMessage.text.toLowerCase().includes('transport')) {
-        contextualSuggestions.push("Quels sont vos délais de livraison habituels ?");
+      if (lastBotMessage.text.toLowerCase().includes('événement') || lastBotMessage.text.toLowerCase().includes('occasion')) {
+        contextualSuggestions.push("Proposez-vous des services de conseil pour optimiser le choix d'équipements selon le type d'événement ?");
+      }
+    }
+    
+    // Si l'utilisateur a posé une question sur un sujet spécifique, proposer des questions de suivi
+    if (lastUserMessage) {
+      const userText = lastUserMessage.text.toLowerCase();
+      
+      if (userText.includes('mariage')) {
+        contextualSuggestions.push("Quels packages recommandez-vous spécifiquement pour un mariage ?");
+      } else if (userText.includes('conférence') || userText.includes('séminaire')) {
+        contextualSuggestions.push("Quels équipements audio-visuels sont essentiels pour une conférence professionnelle ?");
+      } else if (userText.includes('festival') || userText.includes('concert')) {
+        contextualSuggestions.push("Quels systèmes de sonorisation recommandez-vous pour un événement musical en extérieur ?");
       }
     }
   }
 
+  // Sélectionner des suggestions par défaut basées sur le contexte détecté
+  const contextBasedDefaultSuggestions = defaultSuggestions[conversationContext].slice(0, 2);
+
+  // Générer des suggestions basées sur les produits populaires (limité à 2)
+  const productSuggestions = products
+    .slice(0, 5)
+    .map(product => `Pouvez-vous me donner plus d'informations sur ${product.name} et ses applications ?`)
+    .slice(0, 2);
+
   // Combiner et filtrer les suggestions pour éviter les doublons
-  const allSuggestions = [...contextualSuggestions, ...categorySuggestions, ...productSuggestions, ...defaultSuggestions];
-  const uniqueSuggestions = Array.from(new Set(allSuggestions));
+  // Priorité: suggestions contextuelles > catégories > produits > suggestions par défaut
+  const allSuggestions = [
+    ...contextualSuggestions,
+    ...categorySuggestions,
+    ...productSuggestions,
+    ...contextBasedDefaultSuggestions
+  ];
   
-  // Retourner un maximum de 4 suggestions
-  return uniqueSuggestions.slice(0, 4);
+  // Éliminer les doublons et les suggestions trop similaires
+  const uniqueSuggestions: string[] = [];
+  const lowercaseSuggestions = new Set<string>();
+  
+  for (const suggestion of allSuggestions) {
+    const normalized = suggestion.toLowerCase();
+    // Vérifier si une suggestion similaire existe déjà
+    const isDuplicate = Array.from(lowercaseSuggestions).some(existing => 
+      normalized.includes(existing) || existing.includes(normalized)
+    );
+    
+    if (!isDuplicate) {
+      uniqueSuggestions.push(suggestion);
+      lowercaseSuggestions.add(normalized);
+      
+      // Limiter à 4 suggestions
+      if (uniqueSuggestions.length >= 4) break;
+    }
+  }
+  
+  return uniqueSuggestions;
 };
 
 
