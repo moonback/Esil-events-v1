@@ -357,7 +357,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
   const clearConversation = () => {
     const welcomeMessage: Message = {
       id: Date.now().toString(),
-      text: "Bonjour ! Je suis votre assistant ESIL Events, spécialisé dans la location d'équipements événementiels. Je peux vous aider à trouver les produits parfaits, répondre à vos questions sur nos services, et vous guider dans votre processus de location. Comment puis-je vous assister aujourd'hui ?",
+      text: "Bonjour ! 👋 Je suis votre assistant ESIL Events, spécialisé dans la location d'équipements événementiels. Notre catalogue comprend une large gamme de matériel professionnel pour tous types d'événements : mariages, conférences, festivals, soirées privées et bien plus. Je peux vous aider à :\n\n• Trouver les produits parfaits selon vos besoins spécifiques\n• Répondre à vos questions sur nos services et tarifs\n• Vous guider dans le processus de location et réservation\n• Fournir des conseils personnalisés pour votre événement\n\nComment puis-je vous assister aujourd'hui ?",
       sender: 'bot',
       timestamp: new Date(),
       isNew: true
