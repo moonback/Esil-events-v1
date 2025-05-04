@@ -490,16 +490,18 @@ async function generateGoogleResponse(question: string, products: Product[], thi
  * @param thinkingBudget Budget de tokens pour la génération de réponse (défaut: 800)
  * @param searchAnchor Contexte d'ancrage pour orienter la recherche
  */
-export const generateChatbotResponse = async (question: string, products: Product[], thinkingBudget?: number, searchAnchor?: string): Promise<ChatbotResponse> => {
+export const generateChatbotResponse = async (question: string, products: Product[], thinkingBudget?: number, searchAnchor?: string, enableCache: boolean = true): Promise<ChatbotResponse> => {
   try {
     // Vérifier si une réponse existe dans le cache
-    const cachedResponse = getResponseFromCache(question);
-    if (cachedResponse) {
-      console.log('Réponse trouvée dans le cache');
-      return {
-        response: cachedResponse,
-        source: 'cache'
-      };
+    if (enableCache) {
+      const cachedResponse = getResponseFromCache(question);
+      if (cachedResponse) {
+        console.log('Réponse trouvée dans le cache');
+        return {
+          response: cachedResponse,
+          source: 'cache'
+        };
+      }
     }
     
     // Si pas de réponse en cache, vérifier si la clé API est disponible
@@ -517,7 +519,7 @@ export const generateChatbotResponse = async (question: string, products: Produc
       const googleResponse = await generateGoogleResponse(question, products, thinkingBudget, searchAnchor);
       
       // Si la réponse est valide, l'ajouter au cache
-      if (googleResponse.response && !googleResponse.error) {
+      if (googleResponse.response && !googleResponse.error && enableCache) {
         addResponseToCache(question, googleResponse.response);
       }
       

@@ -50,7 +50,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
   const [cursorPosition, setCursorPosition] = useState(0);
   const [thinkingBudget, setThinkingBudget] = useState<number>(800); // Budget de tokens par défaut
   const [searchAnchor, setSearchAnchor] = useState<string>(''); // Ancrage de recherche
-  
+  const [enableCache, setEnableCache] = useState(false); // Add this line
   // États pour le questionnaire contextuel d'événement
   const [showEventQuestionnaire, setShowEventQuestionnaire] = useState(false);
   const [eventContext, setEventContext] = useState<EventContext>({
@@ -197,8 +197,9 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
             enhancedQuestion,
             products,
             comparisonThinkingBudget,
-            enrichedAnchor || undefined
-          );
+            enrichedAnchor || undefined,
+            enableCache // Add this parameter
+        );
           
           if (result.error) {
             return {
@@ -232,9 +233,10 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
       const result = await generateChatbotResponse(
         enhancedQuestion, 
         products, 
-        useReasoningMode ? thinkingBudget : undefined, // Utiliser le budget de réflexion si le mode raisonnement est activé
-        enrichedAnchor || undefined // Utiliser l'ancrage de recherche enrichi s'il est défini
-      );
+        useReasoningMode ? thinkingBudget : undefined,
+        enrichedAnchor || undefined,
+        enableCache // Add this parameter
+    );
       
       if (result.error) {
         return {
@@ -794,6 +796,7 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
                 </h3>
               </div>
               
+
               {/* Mode raisonnement */}
               <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
                 <div className="flex items-center justify-between">
@@ -888,7 +891,31 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
                   </button>
                 </div>
               </div>
-              
+<div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
+    <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+            <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                <svg className="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                </svg>
+            </div>
+            <div>
+                <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Cache des réponses</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {enableCache ? 'Activé - Utilise les réponses en cache' : 'Désactivé - Requêtes fraîches uniquement'}
+                </p>
+            </div>
+        </div>
+        <button 
+            onClick={() => setEnableCache(!enableCache)}
+            className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400 ${enableCache ? 'bg-violet-600' : 'bg-gray-300 dark:bg-gray-600'}`}
+        >
+            <span className="sr-only">Toggle cache</span>
+            <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${enableCache ? 'translate-x-6' : 'translate-x-1'}`} />
+        </button>
+    </div>
+</div>
+
               {/* Ancrage de recherche */}
               {/* <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
                 <div className="flex items-center gap-3 mb-3">
