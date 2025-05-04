@@ -49,6 +49,16 @@
   animation: highlightNew 1s ease-in-out;
 }
 
+/* Styles pour les mini-fiches produit */
+.product-mini-card {
+  transition: all 0.3s ease;
+}
+
+.product-mini-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
 /* Animation pour le texte qui s'affiche progressivement */
 @keyframes typingEffect {
   from { width: 0 }
@@ -169,4 +179,38 @@
 
 .dark .prose ol li::before {
   color: #a78bfa;
+}
+
+/* Styles pour les mentions de produits */
+.product-mention {
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+  padding: 0 0.25rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.product-mention:hover {
+  background-color: rgba(139, 92, 246, 0.2);
+}
+
+.dark .product-mention {
+  background-color: rgba(167, 139, 250, 0.2);
+  color: #a78bfa;
+}
+
+.dark .product-mention:hover {
+  background-color: rgba(167, 139, 250, 0.3);
+}
+
+/* Conteneur pour les mini-fiches produit */
+.mentioned-products-container {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.dark .mentioned-products-container {
+  border-top-color: rgba(75, 85, 99, 0.5);
 }

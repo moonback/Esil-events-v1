@@ -4,6 +4,7 @@ import { generateChatbotResponse, generateDynamicSuggestions } from '../services
 import { Product } from '../types/Product';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BrainCircuit, Send, Sparkles, RotateCcw, Search, Tag, X, Package, User, Bot, MessageSquare, Lightbulb } from 'lucide-react';
+import ProductMiniCard from './ProductMiniCard';
 import '../styles/chatbot.css';
 
 interface Message {
@@ -13,6 +14,7 @@ interface Message {
   timestamp: Date;
   isNew?: boolean;
   isReasoned?: boolean;
+  mentionedProducts?: Product[];
 }
 
 interface ProductChatbotProps {
@@ -206,6 +208,66 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
     }
   };
 
+  // Fonction pour détecter les mentions de produits dans un texte
+  const detectProductMentions = (text: string): Product[] => {
+    const mentionRegex = /@([\w\s-]+)/g;
+    const mentions: string[] = [];
+    let match;
+    
+    // Extraire toutes les mentions de la forme @produitX
+    while ((match = mentionRegex.exec(text)) !== null) {
+      mentions.push(match[1].trim());
+    }
+    
+    // Trouver les produits correspondants aux mentions
+    const mentionedProducts = mentions
+      .map(mention => {
+        // Rechercher le produit par nom (insensible à la casse)
+        return products.find(product => 
+          product.name.toLowerCase().includes(mention.toLowerCase()) ||
+          mention.toLowerCase().includes(product.name.toLowerCase())
+        );
+      })
+      .filter((product): product is Product => product !== undefined);
+    
+    return mentionedProducts;
+  };
+  
+  // Fonction pour mettre en évidence les mentions de produits dans le texte
+  const highlightProductMentions = (text: string): JSX.Element[] => {
+    const mentionRegex = /@([\w\s-]+)/g;
+    const parts: JSX.Element[] = [];
+    let lastIndex = 0;
+    let match;
+    
+    // Parcourir toutes les mentions et créer des éléments JSX pour chaque partie du texte
+    while ((match = mentionRegex.exec(text)) !== null) {
+      // Ajouter le texte avant la mention
+      if (match.index > lastIndex) {
+        parts.push(<span key={`text-${lastIndex}`}>{text.substring(lastIndex, match.index)}</span>);
+      }
+      
+      // Ajouter la mention mise en évidence
+      parts.push(
+        <span 
+          key={`mention-${match.index}`} 
+          className="bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-300 px-1 rounded font-medium"
+        >
+          {match[0]}
+        </span>
+      );
+      
+      lastIndex = match.index + match[0].length;
+    }
+    
+    // Ajouter le reste du texte après la dernière mention
+    if (lastIndex < text.length) {
+      parts.push(<span key={`text-${lastIndex}`}>{text.substring(lastIndex)}</span>);
+    }
+    
+    return parts;
+  };
+
   // Gérer l'envoi d'un message
   const handleSendMessage = async (text = input) => {
     if (!text.trim()) return;
@@ -216,13 +278,17 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
     setIsSearchingProducts(false);
     setProductSearchResults([]);
     
+    // Détecter les produits mentionnés dans le message
+    const mentionedProducts = detectProductMentions(text);
+    
     // Ajouter le message de l'utilisateur
     const userMessage: Message = {
       id: Date.now().toString(),
       text: text,
       sender: 'user',
       timestamp: new Date(),
-      isNew: true
+      isNew: true,
+      mentionedProducts: mentionedProducts.length > 0 ? mentionedProducts : undefined
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -233,6 +299,9 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
       // Générer une réponse
       const { text: botResponseText, isReasoned } = await generateResponse(text);
       
+      // Détecter les produits mentionnés dans la réponse du bot
+      const mentionedProducts = detectProductMentions(botResponseText);
+      
       // Ajouter la réponse du bot
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -240,7 +309,8 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
         sender: 'bot',
         timestamp: new Date(),
         isNew: true,
-        isReasoned
+        isReasoned,
+        mentionedProducts: mentionedProducts.length > 0 ? mentionedProducts : undefined
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -253,7 +323,8 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
         text: "Désolé, une erreur s'est produite. Veuillez réessayer plus tard.",
         sender: 'bot',
         timestamp: new Date(),
-        isNew: true
+        isNew: true,
+        mentionedProducts: undefined
       };
 
       setMessages(prev => [...prev, errorMessage]);
@@ -433,12 +504,29 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null 
                                 </React.Fragment>
                               ))}
                             </div>
+                          ) : line.includes('@') ? (
+                            <div>{highlightProductMentions(line)}</div>
                           ) : (
                             <div>{line}</div>
                           )}
                         </React.Fragment>
                       ))}
                     </div>
+                    
+                    {/* Afficher les mini-fiches produit si des produits sont mentionnés */}
+                    {message.mentionedProducts && message.mentionedProducts.length > 0 && (
+                      <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1">
+                          <Package className="w-3 h-3" />
+                          <span>Produits mentionnés :</span>
+                        </div>
+                        <div className="flex flex-wrap gap-3 justify-start">
+                          {message.mentionedProducts.map(product => (
+                            <ProductMiniCard key={product.id} product={product} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <div className="text-xs text-gray-400 dark:text-gray-400 mt-3 text-right opacity-70 flex justify-end items-center gap-1">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-500"></span>
                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
