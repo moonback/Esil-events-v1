@@ -23,6 +23,7 @@ interface EventContext {
   eventType: string;
   eventDate: string;
   budget: string;
+  locationType: string; // Type de location: sonorisation, éclairage, jeux arcade, etc.
 }
 
 interface ProductChatbotProps {
@@ -55,7 +56,8 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
   const [eventContext, setEventContext] = useState<EventContext>({
     eventType: '',
     eventDate: '',
-    budget: ''
+    budget: '',
+    locationType: ''
   });
   const [eventContextCollected, setEventContextCollected] = useState(false);
   
@@ -165,7 +167,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
         }
         
         // Ajouter des informations contextuelles à la question
-        const contextualInfo = `Contexte: ${eventContext.eventType}, date: ${eventContext.eventDate}, budget: ${eventContext.budget}`;
+        const contextualInfo = `Contexte: ${eventContext.eventType}, date: ${eventContext.eventDate}, budget: ${eventContext.budget}, type de location: ${eventContext.locationType}`;
         question = `${contextualInfo}\n\nQuestion: ${question}`;
       }
       
@@ -370,7 +372,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
   // Gérer la soumission du questionnaire contextuel
   const handleEventContextSubmit = () => {
     // Vérifier si tous les champs sont remplis
-    if (!eventContext.eventType || !eventContext.eventDate || !eventContext.budget) {
+    if (!eventContext.eventType || !eventContext.eventDate || !eventContext.budget || !eventContext.locationType) {
       return; // Ne pas soumettre si des champs sont vides
     }
     
@@ -384,7 +386,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
     // Ajouter un message de confirmation
     const confirmationMessage: Message = {
       id: Date.now().toString(),
-      text: `Merci pour ces informations ! Je vais adapter mes recommandations pour votre ${eventContext.eventType} prévu le ${eventContext.eventDate} avec un budget d'environ ${eventContext.budget}. Comment puis-je vous aider maintenant ?`,
+      text: `Merci pour ces informations ! Je vais adapter mes recommandations pour votre ${eventContext.eventType} prévu le ${eventContext.eventDate} avec un budget d'environ ${eventContext.budget} et un besoin en ${eventContext.locationType}. Comment puis-je vous aider maintenant ?`,
       sender: 'bot',
       timestamp: new Date(),
       isNew: true
@@ -414,7 +416,8 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
     setEventContext({
       eventType: '',
       eventDate: '',
-      budget: ''
+      budget: '',
+      locationType: ''
     });
     setEventContextCollected(false);
     setShowEventQuestionnaire(true);
@@ -508,7 +511,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
                     <MessageSquare className="w-5 h-5 text-violet-600 dark:text-violet-400" />
                   </div>
                   <h3 className="text-lg font-semibold bg-gradient-to-r from-violet-600 to-violet-400 bg-clip-text text-transparent">
-                    Informations sur votre événement
+                    Informations pour votre futur location
                   </h3>
                 </div>
                 <motion.button
@@ -524,7 +527,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
               
               <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                  Pour vous offrir des recommandations personnalisées, veuillez nous fournir quelques informations sur votre événement.
+                  Pour vous aider à choisir le matériel adapté à votre événement, nous avons besoin de quelques informations sur vos besoins en location.
                 </p>
                 
                 {/* Type d'événement */}
@@ -587,13 +590,37 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
                   </select>
                 </div>
                 
+                {/* Type de location */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Type de location
+                  </label>
+                  <select
+                    value={eventContext.locationType}
+                    onChange={(e) => setEventContext({...eventContext, locationType: e.target.value})}
+                    className="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-700 border border-violet-200 dark:border-violet-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent"
+                    required
+                  >
+                    <option value="">Sélectionnez un type de location</option>
+                    <option value="Sonorisation">Sonorisation</option>
+                    <option value="Éclairage">Éclairage</option>
+                    <option value="Jeux arcade">Jeux arcade</option>
+                    <option value="Babyfoot">Babyfoot</option>
+                    <option value="Mobilier">Mobilier</option>
+                    <option value="Décoration">Décoration</option>
+                    <option value="Vidéoprojection">Vidéoprojection</option>
+                    <option value="Scène">Scène</option>
+                    <option value="Autre">Autre</option>
+                  </select>
+                </div>
+                
                 <div className="flex justify-end mt-4">
                   <motion.button
                     onClick={handleEventContextSubmit}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white ${!eventContext.eventType || !eventContext.eventDate || !eventContext.budget ? 'bg-gray-400 cursor-not-allowed' : 'bg-violet-600 hover:bg-violet-700'}`}
-                    whileHover={{ scale: !eventContext.eventType || !eventContext.eventDate || !eventContext.budget ? 1 : 1.05 }}
-                    whileTap={{ scale: !eventContext.eventType || !eventContext.eventDate || !eventContext.budget ? 1 : 0.95 }}
-                    disabled={!eventContext.eventType || !eventContext.eventDate || !eventContext.budget}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white ${!eventContext.eventType || !eventContext.eventDate || !eventContext.budget || !eventContext.locationType ? 'bg-gray-400 cursor-not-allowed' : 'bg-violet-600 hover:bg-violet-700'}`}
+                    whileHover={{ scale: !eventContext.eventType || !eventContext.eventDate || !eventContext.budget || !eventContext.locationType ? 1 : 1.05 }}
+                    whileTap={{ scale: !eventContext.eventType || !eventContext.eventDate || !eventContext.budget || !eventContext.locationType ? 1 : 0.95 }}
+                    disabled={!eventContext.eventType || !eventContext.eventDate || !eventContext.budget || !eventContext.locationType}
                   >
                     <span>Continuer</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -694,9 +721,9 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
                       <MessageSquare className="w-5 h-5 text-violet-600 dark:text-violet-400" />
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Informations sur l'événement</span>
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Informations sur votre location</span>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {eventContextCollected ? `${eventContext.eventType}, ${eventContext.eventDate}, ${eventContext.budget}` : "Non spécifié"}
+                        {eventContextCollected ? `Mes besoins: ${eventContext.locationType} pour un(e) ${eventContext.eventType} le  ${eventContext.eventDate} avec un budget de  ${eventContext.budget}` : "Non spécifié"}
                       </p>
                     </div>
                   </div>
