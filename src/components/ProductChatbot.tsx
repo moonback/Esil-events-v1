@@ -784,7 +784,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
               </div>
               
               {/* Ancrage de recherche */}
-              <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
+              {/* <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
                     <Search className="w-5 h-5 text-violet-600 dark:text-violet-400" />
@@ -803,7 +803,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
                   placeholder="Ex: mariage, conférence, festival..."
                   className="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-700 border border-violet-200 dark:border-violet-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent placeholder-gray-400 dark:placeholder-gray-500"
                 />
-              </div>
+              </div> */}
             </div>
           </motion.div>
         )}
