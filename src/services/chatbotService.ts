@@ -1,6 +1,6 @@
 import { Product } from '../types/Product';
 import { generateSystemPrompt, getGeminiRequestConfig, prepareProductContext } from '../config/chatbotConfig';
-import { optimizeConversationHistory, prepareOptimizedConversationHistory, compressConversationHistory } from '../utils/conversationUtils';
+import { optimizeConversationHistory } from '../utils/conversationUtils';
 
 /**
  * Service pour gérer les interactions du chatbot avec l'API Google Gemini
