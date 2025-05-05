@@ -76,7 +76,7 @@ const FloatingChatbot: React.FC = () => {
 
       {/* Chatbot Modal/Panel */}
       {open && (
-        <div className={`fixed bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-b border-gray-200 dark:border-gray-700 ${
+        <div className={`fixed  ${
           isFullScreen 
             ? 'inset-0' 
             : 'bottom-20 right-0 w-[95%] sm:w-[80%] md:w-[600px] lg:w-[600px] h-[60vh] sm:h-[70vh] md:h-[800px] mx-auto sm:mx-1 md:mx-0'
