@@ -12,37 +12,54 @@ import { Product } from '../../types/Product';
  * @returns Un tableau de suggestions de questions
  */
 export const generateDynamicSuggestions = (products: Product[], messageHistory: {text: string, sender: 'user' | 'bot'}[] = []): string[] => {
-  // Suggestions par défaut organisées par catégorie
+  // Suggestions par défaut organisées par catégorie - Version améliorée
   const defaultSuggestions = {
     general: [
       "Quels sont vos produits les plus populaires pour un événement professionnel ?",
       "Quels équipements recommandez-vous pour un mariage en extérieur ?",
       "Comment fonctionne votre service de livraison et installation ?",
-      "Proposez-vous des forfaits spéciaux pour les événements de grande envergure ?"
+      "Proposez-vous des forfaits spéciaux pour les événements de grande envergure ?",
+      "Quelles sont les nouveautés dans votre catalogue de location ?"
     ],
     pricing: [
       "Quels sont vos tarifs pour une location sur un week-end complet ?",
       "Proposez-vous des réductions pour les locations de longue durée ?",
       "Y a-t-il des frais supplémentaires pour la livraison et l'installation ?",
-      "Comment fonctionne le système de caution pour vos équipements ?"
+      "Comment fonctionne le système de caution pour vos équipements ?",
+      "Avez-vous des offres promotionnelles pour les réservations anticipées ?"
     ],
     logistics: [
       "Quel est votre délai de réservation minimum pour un événement ?",
       "Comment se déroule la livraison et la récupération du matériel ?",
       "Proposez-vous un service d'assistance technique pendant l'événement ?",
-      "Que se passe-t-il en cas de problème avec l'équipement pendant l'événement ?"
+      "Que se passe-t-il en cas de problème avec l'équipement pendant l'événement ?",
+      "Quelle est votre zone de livraison et les délais associés ?"
     ],
     specific: [
       "Avez-vous des systèmes de sonorisation adaptés pour des conférences ?",
       "Quels types d'éclairages proposez-vous pour une ambiance festive ?",
       "Disposez-vous de mobilier pour des événements en extérieur ?",
-      "Proposez-vous des solutions vidéo pour des projections en plein air ?"
+      "Proposez-vous des solutions vidéo pour des projections en plein air ?",
+      "Quelles sont les spécifications techniques de vos équipements audio ?"
     ],
     comparison: [
       "Pouvez-vous comparer les différents systèmes de sonorisation que vous proposez ?",
       "Quelle est la différence entre vos modèles d'éclairage LED et traditionnels ?",
       "Comparez les options de mobilier pour intérieur et extérieur",
-      "Quelles sont les différences entre vos vidéoprojecteurs standard et haut de gamme ?"
+      "Quelles sont les différences entre vos vidéoprojecteurs standard et haut de gamme ?",
+      "Quel équipement offre le meilleur rapport qualité-prix pour un petit événement ?"
+    ],
+    location: [
+      "Quels lieux recommandez-vous pour un événement en extérieur ?",
+      "Avez-vous des partenariats avec des salles de réception ?",
+      "Quels équipements sont adaptés pour un espace restreint ?",
+      "Comment adapter votre matériel à différents types de lieux ?"
+    ],
+    experience: [
+      "Pouvez-vous partager des exemples d'événements réussis avec votre matériel ?",
+      "Quels retours avez-vous des clients sur vos services ?",
+      "Avez-vous de l'expérience avec des événements internationaux ?",
+      "Comment assurez-vous la qualité de vos prestations ?"
     ]
   };
 
@@ -84,7 +101,7 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
 
   // Analyser l'historique des messages pour des suggestions contextuelles
   let contextualSuggestions: string[] = [];
-  let conversationContext: 'pricing' | 'logistics' | 'specific' | 'general' | 'comparison' = 'general';
+  let conversationContext: 'pricing' | 'logistics' | 'specific' | 'general' | 'comparison' | 'location' | 'experience' = 'general';
   
   if (messageHistory.length > 0) {
     // Extraire les derniers messages pour analyse contextuelle
@@ -92,23 +109,41 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
     const lastUserMessage = [...recentMessages].reverse().find(msg => msg.sender === 'user');
     const lastBotMessage = [...recentMessages].reverse().find(msg => msg.sender === 'bot');
     
-    // Détecter le contexte de la conversation
-    const pricingKeywords = ['prix', 'tarif', 'coût', 'budget', '€', 'euro', 'euros', 'réduction', 'promotion'];
-    const logisticsKeywords = ['livraison', 'transport', 'installation', 'délai', 'disponibilité', 'réservation', 'date'];
-    const specificProductKeywords = ['modèle', 'référence', 'caractéristique', 'technique', 'puissance', 'dimension'];
-    const comparisonKeywords = ['comparer', 'comparaison', 'versus', 'vs', 'différence', 'meilleur', 'comparatif', 'tableau'];
+    // Détecter le contexte de la conversation avec des mots-clés enrichis
+    const pricingKeywords = ['prix', 'tarif', 'coût', 'budget', '€', 'euro', 'euros', 'réduction', 'promotion', 'remise', 'économie', 'devis', 'facture', 'paiement', 'acompte'];
+    const logisticsKeywords = ['livraison', 'transport', 'installation', 'délai', 'disponibilité', 'réservation', 'date', 'planning', 'calendrier', 'horaire', 'retour', 'récupération', 'montage', 'démontage'];
+    const specificProductKeywords = ['modèle', 'référence', 'caractéristique', 'technique', 'puissance', 'dimension', 'taille', 'poids', 'capacité', 'autonomie', 'batterie', 'câble', 'connectique', 'compatible'];
+    const comparisonKeywords = ['comparer', 'comparaison', 'versus', 'vs', 'différence', 'meilleur', 'comparatif', 'tableau', 'alternative', 'équivalent', 'similaire', 'supérieur', 'inférieur', 'avantage', 'inconvénient'];
+    const locationKeywords = ['lieu', 'salle', 'espace', 'extérieur', 'intérieur', 'plein air', 'adresse', 'site', 'terrain', 'jardin', 'château', 'hôtel', 'restaurant'];
+    const experienceKeywords = ['expérience', 'avis', 'témoignage', 'client', 'satisfaction', 'qualité', 'service', 'prestation', 'professionnel', 'expertise', 'conseil', 'recommandation'];
     
-    // Analyser les messages récents pour déterminer le contexte
+    // Analyser les messages récents pour déterminer le contexte avec une logique améliorée
     const allText = recentMessages.map(msg => msg.text.toLowerCase()).join(' ');
     
-    if (comparisonKeywords.some(keyword => allText.includes(keyword))) {
-      conversationContext = 'comparison';
-    } else if (pricingKeywords.some(keyword => allText.includes(keyword))) {
-      conversationContext = 'pricing';
-    } else if (logisticsKeywords.some(keyword => allText.includes(keyword))) {
-      conversationContext = 'logistics';
-    } else if (specificProductKeywords.some(keyword => allText.includes(keyword))) {
-      conversationContext = 'specific';
+    // Compter les occurrences de mots-clés par catégorie pour une détection plus précise
+    const contextScores = {
+      comparison: comparisonKeywords.filter(keyword => allText.includes(keyword)).length,
+      pricing: pricingKeywords.filter(keyword => allText.includes(keyword)).length,
+      logistics: logisticsKeywords.filter(keyword => allText.includes(keyword)).length,
+      specific: specificProductKeywords.filter(keyword => allText.includes(keyword)).length,
+      location: locationKeywords.filter(keyword => allText.includes(keyword)).length,
+      experience: experienceKeywords.filter(keyword => allText.includes(keyword)).length
+    };
+    
+    // Déterminer le contexte dominant
+    const maxScore = Math.max(...Object.values(contextScores));
+    
+    if (maxScore > 0) {
+      // Trouver la catégorie avec le score le plus élevé
+      const dominantContext = Object.entries(contextScores)
+        .find(([_, score]) => score === maxScore)?.[0] as typeof conversationContext;
+      
+      if (dominantContext) {
+        conversationContext = dominantContext;
+      }
+    } else {
+      // Si aucun mot-clé n'est détecté, rester sur le contexte général
+      conversationContext = 'general';
     }
     
     // Générer des suggestions basées sur le dernier message du bot
@@ -121,12 +156,19 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
       if (mentionedProducts.length > 0) {
         const product = mentionedProducts[0];
         
-        // Suggestions personnalisées basées sur le produit mentionné
+        // Suggestions personnalisées enrichies basées sur le produit mentionné
         contextualSuggestions = [
           `Quel est le prix de location de ${product.name} pour un week-end complet ?`,
           `Quelles sont les spécifications techniques détaillées de ${product.name} ?`,
-          `Avez-vous des accessoires complémentaires recommandés avec ${product.name} ?`
+          `Avez-vous des accessoires complémentaires recommandés avec ${product.name} ?`,
+          `Quelle est la disponibilité actuelle de ${product.name} pour les prochains mois ?`,
+          `Pouvez-vous me montrer des exemples d'utilisation de ${product.name} lors d'événements précédents ?`
         ];
+        
+        // Limiter à 3 suggestions aléatoires pour plus de variété
+        contextualSuggestions = contextualSuggestions
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3);
         
         // Ajouter une suggestion basée sur la catégorie du produit si disponible
         if (product.category) {
