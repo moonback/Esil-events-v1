@@ -178,16 +178,12 @@ export const clearResponseCache = (): void => {
     console.error('Erreur lors de la suppression du cache de réponses:', error);
   }
 };
-
-
-// La fonction prepareProductContext a été déplacée vers ../config/chatbotConfig.ts
-
 /**
  * Fonction pour effectuer une requête API Google Gemini avec retry
  */
 async function makeGoogleApiRequest(requestBody: any, apiKey: string, retryCount = 0, maxRetries = 3): Promise<any> {
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-002:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
