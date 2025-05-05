@@ -104,7 +104,7 @@ const QuoteRequestList: React.FC<QuoteRequestListProps> = ({
                       {request.event_date && (
                         <div className="flex items-center text-gray-700">
                           <Calendar size={12} className="mr-1 text-indigo-400" />
-                          <span>Événement: {formatDate(request.event_date).split(' ')[0]}</span>
+                          <span>Événement: {formatDate(request.event_date.toString()).split(' ')[0]}</span>
                         </div>
                       )}
                     </div>
