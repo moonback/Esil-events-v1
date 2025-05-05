@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5';
-import { Maximize2, Minimize2 } from 'lucide-react';
+import { Maximize2, Minimize2, MessageSquareText, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ProductChatbot from './ProductChatbot';
 import { Product } from '../types/Product';
 
@@ -65,32 +66,51 @@ const FloatingChatbot: React.FC = () => {
 
   return (
     <>
-      {/* Floating Button */}
-      <button
-        className="fixed bottom-6 right-6 z-50 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200"
+      {/* Bouton flottant */}
+      <motion.button
+        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl hover:shadow-violet-500/20 focus:outline-none focus:ring-2 focus:ring-violet-400 transition-all duration-300"
         onClick={toggleChatbot}
         aria-label="Ouvrir le chatbot"
+        whileHover={{ scale: 1.05, y: -2 }}
+        whileTap={{ scale: 0.95 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 15 }}
       >
-        <IoChatbubbleEllipsesOutline size={28} />
-      </button>
-
-      {/* Chatbot Modal/Panel */}
-      {open && (
-        <div className={`fixed ${
-          isFullScreen 
-            ? 'inset-0' 
-            : 'bottom-20 right-0 w-[95%] sm:w-[80%] md:w-[600px] lg:w-[600px] h-[80vh] sm:h-[85vh] md:h-[600px] mx-auto sm:mx-1 md:mx-0'
-        } z-50 bg-white dark:bg-gray-900 border border-gray-300 rounded-xl shadow-2xl flex flex-col transition-all duration-300 ease-in-out overflow-hidden`}>
-          <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-800">
-            <ProductChatbot 
-              initialQuestion={productQuestion} 
-              onClose={toggleChatbot} 
-              onToggleFullScreen={toggleFullScreen} 
-              isFullScreen={isFullScreen} 
-            />
-          </div>
+        <div className="relative">
+          <IoChatbubbleEllipsesOutline size={28} className="relative z-10" />
+          <div className="absolute inset-0 rounded-full bg-white/20 blur-md opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
         </div>
-      )}
+      </motion.button>
+
+      {/* Modal/Panel du Chatbot */}
+      <AnimatePresence>
+        {open && (
+          <motion.div 
+            className={`fixed ${
+              isFullScreen 
+                ? 'inset-0' 
+                : 'bottom-20 right-6 w-[95%] sm:w-[80%] md:w-[600px] lg:w-[600px] h-[80vh] sm:h-[85vh] md:h-[600px] mx-auto sm:mx-1 md:mx-0'
+            } z-50 bg-white dark:bg-gray-900 border border-violet-200/50 dark:border-violet-800/30 rounded-2xl shadow-2xl flex flex-col transition-all duration-300 ease-in-out overflow-hidden`}
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          >
+            {/* Éléments décoratifs */}
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 dark:from-violet-500/10 dark:to-indigo-500/10 pointer-events-none"></div>
+            
+            <div className="flex-1 overflow-hidden bg-transparent">
+              <ProductChatbot 
+                initialQuestion={productQuestion} 
+                onClose={toggleChatbot} 
+                onToggleFullScreen={toggleFullScreen} 
+                isFullScreen={isFullScreen} 
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

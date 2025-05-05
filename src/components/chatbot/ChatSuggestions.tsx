@@ -57,36 +57,69 @@ const ChatSuggestions: React.FC<ChatSuggestionsProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
 
         {suggestions.map((suggestion, index) => {
-          // Déterminer l'icône en fonction du contenu de la suggestion
-          let icon = <MessageSquare className="w-3.5 h-3.5 text-violet-500 dark:text-violet-400" />;
-          
-          if (suggestion.toLowerCase().includes('prix') || suggestion.toLowerCase().includes('tarif') || suggestion.toLowerCase().includes('coût') || suggestion.toLowerCase().includes('€')) {
-            icon = <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500 dark:text-emerald-400"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>;
-          } else if (suggestion.toLowerCase().includes('livraison') || suggestion.toLowerCase().includes('délai') || suggestion.toLowerCase().includes('disponible')) {
-            icon = <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500 dark:text-blue-400"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
-          } else if (suggestion.toLowerCase().includes('catégorie') || suggestion.toLowerCase().includes('produit')) {
-            icon = <Package className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />;
-          } else if (suggestion.toLowerCase().includes('événement') || suggestion.toLowerCase().includes('mariage') || suggestion.toLowerCase().includes('conférence')) {
-            icon = <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-pink-500 dark:text-pink-400"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2"/><path d="M18 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/><path d="M18 21a6 6 0 0 0-6-6h-3"/></svg>;
-          }
-          
-          return (
-            <motion.button
-              key={index}
-              onClick={() => onSuggestionClick(suggestion)}
-              className="flex items-center gap-2 text-left text-xs sm:text-sm bg-white dark:bg-gray-700/70 text-gray-700 dark:text-gray-200 p-2.5 rounded-xl shadow-sm border border-gray-200/80 dark:border-gray-600/50 hover:bg-gradient-to-r hover:from-violet-50 hover:to-indigo-50 dark:hover:from-violet-900/30 dark:hover:to-indigo-900/30 hover:border-violet-200 dark:hover:border-violet-700/70 transition-all duration-200 group"
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <div className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg group-hover:bg-white dark:group-hover:bg-gray-700 transition-colors duration-200 flex-shrink-0">
-                {icon}
-              </div>
-              <span className="line-clamp-2">
-                {suggestion}
-              </span>
-            </motion.button>
-          );
-        })}
+            // Déterminer l'icône et la couleur en fonction du contenu de la suggestion
+            let icon = <MessageSquare className="w-4 h-4" />;
+            let bgGradient = "from-violet-100 to-indigo-100 dark:from-violet-900/30 dark:to-indigo-900/30";
+            let textGradient = "from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400";
+            let shadowColor = "shadow-violet-500/10 dark:shadow-violet-900/20";
+            
+            if (suggestion.toLowerCase().includes('prix') || suggestion.toLowerCase().includes('tarif') || suggestion.toLowerCase().includes('coût') || suggestion.toLowerCase().includes('€')) {
+              icon = <DollarSign className="w-4 h-4" />;
+              bgGradient = "from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30";
+              textGradient = "from-emerald-600 to-green-600 dark:from-emerald-400 dark:to-green-400";
+              shadowColor = "shadow-emerald-500/10 dark:shadow-emerald-900/20";
+            } else if (suggestion.toLowerCase().includes('livraison') || suggestion.toLowerCase().includes('délai') || suggestion.toLowerCase().includes('disponible')) {
+              icon = <Clock className="w-4 h-4" />;
+              bgGradient = "from-blue-100 to-sky-100 dark:from-blue-900/30 dark:to-sky-900/30";
+              textGradient = "from-blue-600 to-sky-600 dark:from-blue-400 dark:to-sky-400";
+              shadowColor = "shadow-blue-500/10 dark:shadow-blue-900/20";
+            } else if (suggestion.toLowerCase().includes('catégorie') || suggestion.toLowerCase().includes('produit')) {
+              icon = <Package className="w-4 h-4" />;
+              bgGradient = "from-amber-100 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30";
+              textGradient = "from-amber-600 to-yellow-600 dark:from-amber-400 dark:to-yellow-400";
+              shadowColor = "shadow-amber-500/10 dark:shadow-amber-900/20";
+            } else if (suggestion.toLowerCase().includes('événement') || suggestion.toLowerCase().includes('mariage') || suggestion.toLowerCase().includes('conférence')) {
+              icon = <Calendar className="w-4 h-4" />;
+              bgGradient = "from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30";
+              textGradient = "from-pink-600 to-rose-600 dark:from-pink-400 dark:to-rose-400";
+              shadowColor = "shadow-pink-500/10 dark:shadow-pink-900/20";
+            }
+            
+            return (
+              <motion.button
+                key={index}
+                onClick={() => onSuggestionClick(suggestion)}
+                className={`flex items-center gap-3 text-left text-xs sm:text-sm bg-white/90 dark:bg-gray-800/70 text-gray-700 dark:text-gray-200 p-3.5 rounded-xl shadow-md ${shadowColor} border border-gray-200/50 dark:border-gray-700/50 hover:border-violet-200/70 dark:hover:border-violet-700/50 transition-all duration-300 group overflow-hidden relative`}
+                whileHover={{ scale: 1.03, y: -3 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              >
+                {/* Effet de brillance sur hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/0 to-transparent hover:via-white/20 dark:hover:via-white/5 transition-all duration-700 ease-in-out bg-[length:0%_100%] hover:bg-[length:100%_100%] bg-no-repeat"></div>
+                
+                {/* Icône avec fond coloré */}
+                <div className={`p-2 bg-gradient-to-br ${bgGradient} rounded-lg shadow-sm group-hover:shadow-md transition-shadow duration-200 flex-shrink-0 relative z-10 ring-1 ring-white/50 dark:ring-gray-800/50`}>
+                  <div className={`text-gradient bg-gradient-to-br ${textGradient} bg-clip-text text-transparent`}>
+                    {icon}
+                  </div>
+                </div>
+                
+                {/* Texte de la suggestion */}
+                <div className="flex-1 relative z-10">
+                  <span className="line-clamp-2 font-medium group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors duration-200">
+                    {suggestion}
+                  </span>
+                </div>
+                
+                {/* Indicateur de flèche sur hover */}
+                <div className="w-6 h-6 rounded-full bg-violet-100/0 group-hover:bg-violet-100 dark:group-hover:bg-violet-900/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 relative z-10 mr-1">
+                  <svg className="w-3 h-3 text-violet-600/0 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </motion.button>
+            );
+          })}
       </div>
     </motion.div>
   );

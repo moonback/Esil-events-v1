@@ -33,6 +33,23 @@
   }
 }
 
+/* Motif de grille pour l'arrière-plan */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(128, 90, 213, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(128, 90, 213, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Mode sombre pour le motif de grille */
+@media (prefers-color-scheme: dark) {
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, rgba(128, 90, 213, 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(128, 90, 213, 0.1) 1px, transparent 1px);
+  }
+}
+
 /* Styles existants */
 /* chatbot.css - Styles spécifiques pour le composant ProductChatbot */
 
@@ -82,7 +99,62 @@
 }
 
 .message-new {
-  animation: highlightNew 1s ease-in-out;
+  animation: highlightNew 1.2s ease-in-out;
+}
+
+/* Animation de pulsation */
+@keyframes pulse-subtle {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+}
+
+/* Animation de déplacement du dégradé */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Animation de rebond pour les éléments interactifs */
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Animation pour le ressort */
+@keyframes spring {
+  0% {
+    transform: scale(1);
+  }
+  10% {
+    transform: scale(1.1);
+  }
+  55% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Styles pour les mini-fiches produit */
