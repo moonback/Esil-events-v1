@@ -16,13 +16,14 @@ export interface EventContext {
  */
 interface UseEventContextOptions {
   saveToLocalStorage?: boolean;
+  autoOpenQuestionnaire?: boolean;
 }
 
 /**
  * Hook personnalisé pour gérer le contexte d'événement
  */
 export const useEventContext = (options: UseEventContextOptions = {}) => {
-  const { saveToLocalStorage = true } = options;
+  const { saveToLocalStorage = true, autoOpenQuestionnaire = false } = options;
 
   // État initial du contexte d'événement
   const [eventContext, setEventContext] = useState<EventContext>({
@@ -47,12 +48,12 @@ export const useEventContext = (options: UseEventContextOptions = {}) => {
         const parsedEventContext = JSON.parse(savedEventContext);
         setEventContext(parsedEventContext);
         setEventContextCollected(true);
-      } else {
-        // Si pas de contexte sauvegardé, afficher le questionnaire
+      } else if (autoOpenQuestionnaire) {
+        // Si pas de contexte sauvegardé et autoOpenQuestionnaire est activé, afficher le questionnaire
         setShowEventQuestionnaire(true);
       }
     }
-  }, [saveToLocalStorage]);
+  }, [saveToLocalStorage, autoOpenQuestionnaire]);
 
   /**
    * Mettre à jour le contexte d'événement

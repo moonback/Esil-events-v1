@@ -82,7 +82,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           whileTap={{ scale: 0.95 }}
         >
           <RotateCcw className="w-3 h-3" />
-          <span className="hidden sm:inline font-medium">Nouveau</span>
+          <span className="hidden sm:inline font-medium">Nouvelle location</span>
         </motion.button>
         
         {onToggleFullScreen && (
