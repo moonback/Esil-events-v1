@@ -54,7 +54,28 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
  * Prépare la requête pour l'API Google Gemini
  */
 const prepareGeminiRequest = (productData: Partial<ProductFormData>) => {
-  const systemPrompt = "Tu es un expert en rédaction de descriptions de produits pour ESIL-events Créateur d'Événements Inoubliables, entreprise spécialisée dans la création d'événements de A à Z incluant location de mobilier, installation, régie son & lumière, et animation. Génère des descriptions détaillées, persuasives et SEO-friendly pour les produits. Principes clés : Ton professionnel, mettre en valeur les caractéristiques premium, souligner l'exclusivité et la qualité des produits ESIL, décrire l'impact visuel et pratique sur l'événement. Structure : Description physique détaillée, matériaux et finitions, dimensions, utilisations recommandées, avantages pour l'événement, caractéristiques techniques importantes, suggestions de combinaisons avec d'autres services ESIL (son, lumière, animation).";
+  const systemPrompt = `Tu es un expert en rédaction de descriptions de produits pour ESIL-events Créateur d'Événements Inoubliables, entreprise spécialisée dans la création d'événements de A à Z incluant location de mobilier, installation, régie son & lumière, et animation.
+
+En tant qu'expert en marketing événementiel et rédaction SEO, ta mission est de créer des descriptions qui :
+- Captent immédiatement l'attention du lecteur
+- Mettent en avant l'exclusivité et le prestige de la marque ESIL-events
+- Créent une connexion émotionnelle avec le client potentiel
+- Optimisent le référencement naturel
+- Convertissent les visiteurs en clients
+
+Structure attendue :
+1. Accroche percutante mettant en avant la valeur unique du produit
+2. Description détaillée incluant matériaux, finitions, dimensions et spécifications techniques
+3. Bénéfices concrets pour l'événement (ambiance, praticité, impact visuel)
+4. Suggestions d'utilisations et de combinaisons avec d'autres produits/services ESIL
+5. Call-to-action subtil encourageant la location
+
+Points clés à respecter :
+- Ton professionnel mais chaleureux
+- Vocabulaire premium et élégant
+- Mise en valeur de l'expertise ESIL-events
+- Focus sur l'expérience client
+- Intégration naturelle des mots-clés SEO`;
 
   const userQuestion = `Génère une description détaillée et persuasive pour ce produit :
 
@@ -69,19 +90,19 @@ PRODUIT:
 • Prix HT: ${productData.priceHT || 'Non spécifié'}€
 • Couleurs disponibles: ${productData.colors?.join(', ') || 'Non spécifiées'}
 • Spécifications techniques: ${Object.entries(productData.technicalSpecs || {}).map(([key, value]) => `${key}: ${value}`).join(', ') || 'Non spécifiées'}
-. Prix TTC: ${productData.priceTTC || 'Non spécifié'}€
+• Prix TTC: ${productData.priceTTC || 'Non spécifié'}€
 
 INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
-1. Rédige une description détaillée et attrayante du produit en 3-4 paragraphes (MAXIMUM 1500 caractères au total).
-2. Mets en valeur les caractéristiques premium et l'élégance du produit.
-3. Décris l'impact visuel et pratique que ce produit peut avoir sur un événement.
-4. Suggère des utilisations idéales et des combinaisons possibles avec d'autres produits.
-5. Inclus des mots-clés pertinents pour le SEO.
-6. N'invente pas de détails techniques non fournis.
-7. Utilise un ton professionnel mais engageant.
-8. Fournis uniquement la description, sans phrases d'introduction comme "Voici la description suggérée :".
-9. IMPORTANT: La description complète ne doit pas dépasser 1500 caractères, espaces compris.
-10. IMPORTANT: Optimise la description pour le référencement naturel en incluant les mots-clés pertinents de manière naturelle et en respectant une densité de mots-clés appropriée (2-3%).`;
+1. Rédige une description captivante en 3-4 paragraphes (MAXIMUM 1500 caractères).
+2. Commence par une accroche forte qui met en valeur l'unicité du produit.
+3. Détaille les caractéristiques premium et l'impact sur l'ambiance de l'événement.
+4. Suggère des scénarios d'utilisation concrets et des combinaisons avec d'autres produits ESIL.
+5. Intègre naturellement les mots-clés SEO pertinents (densité 2-3%).
+6. Utilise uniquement les informations fournies, sans invention.
+7. Adopte un ton professionnel mais engageant qui inspire confiance.
+8. Termine par une suggestion subtile incitant à la location.
+9. CRUCIAL: Respecte la limite de 1500 caractères, espaces compris.
+10. IMPORTANT: Optimise pour le SEO avec des phrases naturelles et bien structurées.`;
 
   return {
     contents: [
@@ -93,13 +114,13 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
       }
     ],
     generationConfig: {
-      temperature: 0.7,
-      maxOutputTokens: 800,
-      topP: 0.9
+      temperature: 0.8, // Slightly increased for more creative variations
+      maxOutputTokens: 1000, // Increased to ensure full description generation
+      topP: 0.95, // Slightly increased for more diverse outputs
+      topK: 40 // Added for better response quality
     }
   };
 };
-
 /**
  * Fonction pour effectuer une requête API Google Gemini avec retry
  */
