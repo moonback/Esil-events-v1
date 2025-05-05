@@ -125,7 +125,16 @@ Vous devez utiliser ces informations pour répondre aux questions sur l'entrepri
 /**
  * Configuration de la requête pour l'API Google Gemini
  */
-export const getGeminiRequestConfig = (systemPrompt: string, question: string, thinkingBudget?: number, searchAnchor?: string) => {
+export const getGeminiRequestConfig = (systemPrompt: string, question: string, messageHistory: { text: string, sender: 'user' | 'bot' }[] = [], thinkingBudget?: number, searchAnchor?: string) => {
+  // Préparer le contexte de conversation avec l'historique des messages
+  const conversationContext = messageHistory
+    .slice(-5) // Prendre les 5 derniers messages pour le contexte
+    .map(msg => `${msg.sender === 'user' ? 'Client' : 'Assistant'}: ${msg.text}`)
+    .join('\n');
+
+  // Enrichir le prompt système avec le contexte de la conversation
+  const enrichedSystemPrompt = `${systemPrompt}\n\nContexte de la conversation précédente:\n${conversationContext}\n\nQuestion actuelle: ${question}`;
+
   // Préparer la question avec l'ancrage de recherche si fourni
   const enhancedQuestion = searchAnchor 
     ? `${question} (Contexte de recherche: ${searchAnchor})` 

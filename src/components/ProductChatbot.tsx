@@ -196,9 +196,10 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
           const result = await generateChatbotResponse(
             enhancedQuestion,
             products,
+            messages.map(msg => ({ text: msg.text, sender: msg.sender })),
             comparisonThinkingBudget,
             enrichedAnchor || undefined,
-            enableCache // Add this parameter
+            enableCache
         );
           
           if (result.error) {
@@ -232,10 +233,11 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
       // Utiliser le service chatbot pour générer une réponse avec les nouveaux paramètres
       const result = await generateChatbotResponse(
         enhancedQuestion, 
-        products, 
+        products,
+        messages.map(msg => ({ text: msg.text, sender: msg.sender })),
         useReasoningMode ? thinkingBudget : undefined,
         enrichedAnchor || undefined,
-        enableCache // Add this parameter
+        enableCache
     );
       
       if (result.error) {

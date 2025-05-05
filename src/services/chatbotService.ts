@@ -441,7 +441,7 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
 /**
  * Génère une réponse du chatbot en utilisant l'API Google Gemini
  */
-async function generateGoogleResponse(question: string, products: Product[], thinkingBudget?: number, searchAnchor?: string): Promise<ChatbotResponse> {
+async function generateGoogleResponse(question: string, products: Product[], messageHistory: { text: string, sender: 'user' | 'bot' }[] = [], thinkingBudget?: number, searchAnchor?: string): Promise<ChatbotResponse> {
   try {
     const apiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
     
@@ -457,7 +457,7 @@ async function generateGoogleResponse(question: string, products: Product[], thi
     const systemPrompt = generateSystemPrompt(productContext);
 
     // Configuration de la requête pour Google Gemini avec les nouveaux paramètres
-    const requestBody = getGeminiRequestConfig(systemPrompt, question, thinkingBudget, searchAnchor);
+    const requestBody = getGeminiRequestConfig(systemPrompt, question, messageHistory, thinkingBudget, searchAnchor);
 
     try {
       const data = await makeGoogleApiRequest(requestBody, apiKey);
@@ -490,7 +490,7 @@ async function generateGoogleResponse(question: string, products: Product[], thi
  * @param thinkingBudget Budget de tokens pour la génération de réponse (défaut: 800)
  * @param searchAnchor Contexte d'ancrage pour orienter la recherche
  */
-export const generateChatbotResponse = async (question: string, products: Product[], thinkingBudget?: number, searchAnchor?: string, enableCache: boolean = true): Promise<ChatbotResponse> => {
+export const generateChatbotResponse = async (question: string, products: Product[], messageHistory: { text: string, sender: 'user' | 'bot' }[] = [], thinkingBudget?: number, searchAnchor?: string, enableCache: boolean = true): Promise<ChatbotResponse> => {
   try {
     // Vérifier si une réponse existe dans le cache
     if (enableCache) {
@@ -516,7 +516,7 @@ export const generateChatbotResponse = async (question: string, products: Produc
 
     try {
       // Générer la réponse avec Google en transmettant les nouveaux paramètres
-      const googleResponse = await generateGoogleResponse(question, products, thinkingBudget, searchAnchor);
+      const googleResponse = await generateGoogleResponse(question, products, messageHistory, thinkingBudget, searchAnchor);
       
       // Si la réponse est valide, l'ajouter au cache
       if (googleResponse.response && !googleResponse.error && enableCache) {
