@@ -13,6 +13,7 @@ import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 import ProductDescriptionGenerator from './ProductDescriptionGenerator';
 import { generateProductSeo, ProductSeoGenerationOptions } from '../services/productSeoService';
 import { Sparkles } from 'lucide-react';
+import { generateSlug } from '../utils/slugUtils';
 
 interface ProductFormProps {
   initialData?: Product;
@@ -158,7 +159,18 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
   // (useEffect pour calculer le prix TTC reste inchangé)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const updates = { ...prev, [name]: value };
+      
+      // Générer automatiquement le slug lors de la modification du nom
+      if (name === 'name' && !initialData) {
+        const baseSlug = generateSlug(value);
+        updates.slug = baseSlug;
+      }
+      
+      return updates;
+    });
+    
     if (name === 'description') {
       setDescriptionLength(value.length);
     }
