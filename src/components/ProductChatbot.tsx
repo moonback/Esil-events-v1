@@ -12,6 +12,8 @@ import { Product } from '../types/Product';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BrainCircuit, Send, Sparkles, RotateCcw, Search, Tag, X, Package, User, Bot, MessageSquare, Lightbulb, Globe, Settings } from 'lucide-react';
 import ProductMiniCard from './ProductMiniCard';
+import ReactMarkdown from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
 import '../styles/chatbot.css';
 
 interface Message {
@@ -941,148 +943,79 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
                     </div>
                   )}
                   <div className="relative">
-                    <div className="text-xs/[1.5] sm:text-sm/[1.6] font-medium prose prose-sm max-w-none dark:prose-invert space-y-1.5 sm:space-y-2.5">
-                      {(() => {
-                        // Détecter si le message contient un tableau Markdown
-                        const lines = message.text.split('\n');
-                        const hasTable = lines.some(line => line.trim().startsWith('|') && line.trim().endsWith('|'));
-                        
-                        // Si le message contient un tableau, traiter le tableau spécialement
-                        if (hasTable) {
-                          let inTable = false;
-                          let tableRows: string[] = [];
-                          let otherContent: JSX.Element[] = [];
+                    <div className="text-xs/[1.5] sm:text-sm/[1.6] font-medium prose prose-sm max-w-none dark:prose-invert space-y-1.5 sm:space-y-2.5 markdown-content">
+                      <ReactMarkdown 
+                        rehypePlugins={[rehypeSanitize]}
+                        components={{
+                          // Personnalisation des titres
+                          h1: ({node, ...props}: {node?: any, [key: string]: any}) => <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100 my-3 pb-2 border-b border-gray-200 dark:border-gray-700" {...props} />,
+                          h2: ({node, ...props}: {node?: any, [key: string]: any}) => <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 my-2.5" {...props} />,
+                          h3: ({node, ...props}: {node?: any, [key: string]: any}) => <h3 className="text-base font-bold text-gray-800 dark:text-gray-100 my-2" {...props} />,
+                          h4: ({node, ...props}: {node?: any, [key: string]: any}) => <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100 my-1.5" {...props} />,
                           
-                          lines.forEach((line, i) => {
-                            // Détecter les lignes de tableau
-                            if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
-                              if (!inTable) {
-                                inTable = true;
-                                tableRows = [];
-                              }
-                              tableRows.push(line);
+                          // Personnalisation des paragraphes
+                          p: ({node, ...props}: {node?: any, [key: string]: any}) => <p className="text-gray-700 dark:text-gray-200 leading-relaxed my-2" {...props} />,
+                          
+                          // Personnalisation des listes
+                          ul: ({node, ...props}: {node?: any, [key: string]: any}) => <ul className="my-2 space-y-1" {...props} />,
+                          ol: ({node, ...props}: {node?: any, [key: string]: any}) => <ol className="my-2 space-y-1 pl-1" {...props} />,
+                          li: ({node, children, ...props}: {node?: any, children?: React.ReactNode, [key: string]: any}) => {
+                            const parentType = node?.parent?.type;
+                            if (parentType === 'ul') {
+                              return (
+                                <li className="flex items-start gap-2 sm:gap-3 my-1 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800" {...props}>
+                                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 mt-1.5 flex-shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-200"></div>
+                                  <span className="text-gray-700 dark:text-gray-200">{children}</span>
+                                </li>
+                              );
                             } else {
-                              // Si on était dans un tableau et qu'on en sort
-                              if (inTable) {
-                                // Rendre le tableau accumulé
-                                otherContent.push(
-                                  <div key={`table-${i}`} className="overflow-x-auto my-4">
-                                    <table className="w-full">
-                                      <tbody>
-                                        {tableRows.map((row, rowIndex) => {
-                                          const cells = row.split('|').filter(cell => cell.trim() !== '');
-                                          const isHeader = rowIndex === 0 || (rowIndex === 1 && row.includes('---'));
-                                          
-                                          // Ignorer les lignes de séparation (---)
-                                          if (row.includes('---') && rowIndex === 1) {
-                                            return null;
-                                          }
-                                          
-                                          return (
-                                            <tr key={rowIndex}>
-                                              {cells.map((cell, cellIndex) => {
-                                                if (isHeader && rowIndex === 0) {
-                                                  return <th key={cellIndex} className="text-left">{cell.trim()}</th>;
-                                                } else {
-                                                  return <td key={cellIndex}>{cell.trim()}</td>;
-                                                }
-                                              })}
-                                            </tr>
-                                          );
-                                        })}
-                                      </tbody>
-                                    </table>
+                              return (
+                                <li className="flex items-start gap-2 sm:gap-3 my-1 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800" {...props}>
+                                  <div className="text-xs sm:text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent mt-0.5 flex-shrink-0 w-5 text-right group-hover:scale-110 transition-all duration-200">
+                                    {(props as any).index + 1}.
                                   </div>
-                                );
-                                inTable = false;
-                              }
-                              
-                              // Traiter le contenu non-tableau normalement
-                              if (line.trim() === '') {
-                                otherContent.push(<div key={i} className="h-2 sm:h-4"></div>);
-                              } else if (line.startsWith('• ') || line.startsWith('- ')) {
-                                otherContent.push(
-                                  <div key={i} className="flex items-start gap-2 sm:gap-3.5 my-1 sm:my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 sm:p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
-                                    <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 mt-1 sm:mt-1.5 flex-shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-200"></div>
-                                    <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.substring(2)}</div>
-                                  </div>
-                                );
-                              } else if (line.match(/^\d+\.\s/)) {
-                                otherContent.push(
-                                  <div key={i} className="flex items-start gap-2 sm:gap-3.5 my-1 sm:my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 sm:p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
-                                    <div className="text-xs sm:text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent mt-0.5 flex-shrink-0 w-4 sm:w-6 text-right group-hover:scale-110 transition-all duration-200">
-                                      {line.match(/^\d+/)?.[0]}.
-                                    </div>
-                                    <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.replace(/^\d+\.\s/, '')}</div>
-                                  </div>
-                                );
-                              } else {
-                                otherContent.push(
-                                  <p key={i} className="text-gray-700 dark:text-gray-200 leading-relaxed">{line}</p>
-                                );
-                              }
+                                  <span className="text-gray-700 dark:text-gray-200">{children}</span>
+                                </li>
+                              );
                             }
-                          });
+                          },
                           
-                          // Si on était encore dans un tableau à la fin, le rendre
-                          if (inTable) {
-                            otherContent.push(
-                              <div key="final-table" className="overflow-x-auto my-4">
-                                <table className="w-full">
-                                  <tbody>
-                                    {tableRows.map((row, rowIndex) => {
-                                      const cells = row.split('|').filter(cell => cell.trim() !== '');
-                                      const isHeader = rowIndex === 0 || (rowIndex === 1 && row.includes('---'));
-                                      
-                                      // Ignorer les lignes de séparation (---)
-                                      if (row.includes('---') && rowIndex === 1) {
-                                        return null;
-                                      }
-                                      
-                                      return (
-                                        <tr key={rowIndex}>
-                                          {cells.map((cell, cellIndex) => {
-                                            if (isHeader && rowIndex === 0) {
-                                              return <th key={cellIndex} className="text-left">{cell.trim()}</th>;
-                                            } else {
-                                              return <td key={cellIndex}>{cell.trim()}</td>;
-                                            }
-                                          })}
-                                        </tr>
-                                      );
-                                    })}
-                                  </tbody>
-                                </table>
-                              </div>
-                            );
-                          }
+                          // Personnalisation des tableaux
+                          table: ({node, ...props}: {node?: any, [key: string]: any}) => (
+                            <div className="overflow-x-auto my-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                              <table className="w-full border-collapse" {...props} />
+                            </div>
+                          ),
+                          thead: ({node, ...props}: {node?: any, [key: string]: any}) => <thead className="bg-gray-50 dark:bg-gray-800" {...props} />,
+                          tbody: ({node, ...props}: {node?: any, [key: string]: any}) => <tbody className="divide-y divide-gray-200 dark:divide-gray-700" {...props} />,
+                          tr: ({node, ...props}: {node?: any, [key: string]: any}) => <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors" {...props} />,
+                          th: ({node, ...props}: {node?: any, [key: string]: any}) => <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-100 dark:bg-gray-800" {...props} />,
+                          td: ({node, ...props}: {node?: any, [key: string]: any}) => <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-t border-gray-200 dark:border-gray-700" {...props} />,
                           
-                          return otherContent;
-                        } else {
-                          // Si pas de tableau, traiter normalement
-                          return lines.map((line, i) => (
-                            <React.Fragment key={i}>
-                              {line.trim() === '' ? (
-                                <div className="h-2 sm:h-4"></div>
-                              ) : line.startsWith('• ') || line.startsWith('- ') ? (
-                                <div className="flex items-start gap-2 sm:gap-3.5 my-1 sm:my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 sm:p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
-                                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 mt-1 sm:mt-1.5 flex-shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-200"></div>
-                                  <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.substring(2)}</div>
-                                </div>
-                              ) : line.match(/^\d+\.\s/) ? (
-                                <div className="flex items-start gap-2 sm:gap-3.5 my-1 sm:my-2 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 sm:p-2.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800">
-                                  <div className="text-xs sm:text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent mt-0.5 flex-shrink-0 w-4 sm:w-6 text-right group-hover:scale-110 transition-all duration-200">
-                                    {line.match(/^\d+/)?.[0]}.
-                                  </div>
-                                  <div className="text-gray-700 dark:text-gray-200 leading-relaxed">{line.replace(/^\d+\.\s/, '')}</div>
-                                </div>
-                              ) : (
-                                <p className="text-gray-700 dark:text-gray-200 leading-relaxed">{line}</p>
-                              )}
-                            </React.Fragment>
-                          ));
-                        }
-                      })()}
+                          // Personnalisation des liens
+                          a: ({node, ...props}: {node?: any, [key: string]: any}) => <a className="text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-300 underline transition-colors" target="_blank" rel="noopener noreferrer" {...props} />,
+                          
+                          // Personnalisation du code
+                          code: ({node, inline, ...props}: {node?: any, inline?: boolean, [key: string]: any}) => {
+                            if (inline) {
+                              return <code className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-violet-600 dark:text-violet-400 text-xs font-mono" {...props} />;
+                            }
+                            return <code className="block p-3 rounded-lg bg-gray-100 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 text-xs font-mono overflow-x-auto" {...props} />;
+                          },
+                          pre: ({node, ...props}: {node?: any, [key: string]: any}) => <pre className="my-3 rounded-lg bg-gray-100 dark:bg-gray-800/80 overflow-hidden" {...props} />,
+                          
+                          // Personnalisation des citations
+                          blockquote: ({node, ...props}: {node?: any, [key: string]: any}) => <blockquote className="pl-4 border-l-4 border-violet-300 dark:border-violet-700 italic text-gray-600 dark:text-gray-300 my-3" {...props} />,
+                          
+                          // Personnalisation des séparateurs
+                          hr: ({node, ...props}: {node?: any, [key: string]: any}) => <hr className="my-4 border-t border-gray-200 dark:border-gray-700" {...props} />,
+                          
+                          // Personnalisation des images
+                          img: ({node, ...props}: {node?: any, [key: string]: any}) => <img className="max-w-full h-auto rounded-lg my-3 border border-gray-200 dark:border-gray-700" {...props} alt={props.alt || 'Image'} />,
+                        }}
+                      >
+                        {message.text}
+                      </ReactMarkdown>
                     </div>
                   </div>
                   
