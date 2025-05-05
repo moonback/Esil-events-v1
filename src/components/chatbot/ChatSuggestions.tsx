@@ -86,38 +86,41 @@ const ChatSuggestions: React.FC<ChatSuggestionsProps> = ({
             }
             
             return (
-              <motion.button
-                key={index}
-                onClick={() => onSuggestionClick(suggestion)}
-                className={`flex items-center gap-3 text-left text-xs sm:text-sm bg-white/90 dark:bg-gray-800/70 text-gray-700 dark:text-gray-200 p-3.5 rounded-xl shadow-md ${shadowColor} border border-gray-200/50 dark:border-gray-700/50 hover:border-violet-200/70 dark:hover:border-violet-700/50 transition-all duration-300 group overflow-hidden relative`}
-                whileHover={{ scale: 1.03, y: -3 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-              >
-                {/* Effet de brillance sur hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/0 to-transparent hover:via-white/20 dark:hover:via-white/5 transition-all duration-700 ease-in-out bg-[length:0%_100%] hover:bg-[length:100%_100%] bg-no-repeat"></div>
-                
-                {/* Icône avec fond coloré */}
-                <div className={`p-2 bg-gradient-to-br ${bgGradient} rounded-lg shadow-sm group-hover:shadow-md transition-shadow duration-200 flex-shrink-0 relative z-10 ring-1 ring-white/50 dark:ring-gray-800/50`}>
-                  <div className={`text-gradient bg-gradient-to-br ${textGradient} bg-clip-text text-transparent`}>
-                    {icon}
-                  </div>
-                </div>
-                
-                {/* Texte de la suggestion */}
-                <div className="flex-1 relative z-10">
-                  <span className="line-clamp-2 font-medium group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors duration-200">
-                    {suggestion}
-                  </span>
-                </div>
-                
-                {/* Indicateur de flèche sur hover */}
-                <div className="w-6 h-6 rounded-full bg-violet-100/0 group-hover:bg-violet-100 dark:group-hover:bg-violet-900/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 relative z-10 mr-1">
-                  <svg className="w-3 h-3 text-violet-600/0 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </motion.button>
+<motion.button
+  key={index}
+  onClick={() => onSuggestionClick(suggestion)}
+  className={`flex items-center gap-3 text-left text-xs sm:text-sm md:text-base bg-white/90 dark:bg-gray-800/70 text-gray-700 dark:text-gray-200 p-3.5 sm:p-4 rounded-xl shadow-md ${shadowColor} border border-gray-200/50 dark:border-gray-700/50 hover:border-violet-200/70 dark:hover:border-violet-700/50 transition-all duration-300 group overflow-hidden relative`}
+  whileHover={{ scale: 1.03, y: -3 }}
+  whileTap={{ scale: 0.97 }}
+  transition={{ type: "spring", stiffness: 300, damping: 15 }}
+>
+  {/* Effet de brillance sur hover */}
+  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/0 to-transparent hover:via-white/20 dark:hover:via-white/5 transition-all duration-700 ease-in-out bg-[length:0%_100%] hover:bg-[length:100%_100%] bg-no-repeat"></div>
+  
+  {/* Icône avec fond coloré */}
+  <div className={`p-2.5 sm:p-3 bg-gradient-to-br ${bgGradient} rounded-lg shadow-sm group-hover:shadow-md transition-shadow duration-200 flex-shrink-0 relative z-10 ring-1 ring-white/50 dark:ring-gray-800/50`}>
+    <div className={`text-gradient bg-gradient-to-br ${textGradient} bg-clip-text text-transparent`}>
+      {icon}
+    </div>
+  </div>
+  
+  {/* Texte de la suggestion */}
+  <div className="flex-1 relative z-10">
+    <span className="line-clamp-3 font-medium group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors duration-200">
+      {suggestion}
+    </span>
+    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 opacity-80">
+      Cliquez pour obtenir une réponse détaillée à cette question
+    </p>
+  </div>
+  
+  {/* Indicateur de flèche sur hover */}
+  <div className="w-8 h-8 rounded-full bg-violet-100/0 group-hover:bg-violet-100 dark:group-hover:bg-violet-900/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 relative z-10 mr-1">
+    <svg className="w-4 h-4 text-violet-600/0 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+    </svg>
+  </div>
+</motion.button>
             );
           })}
       </div>
