@@ -13,7 +13,6 @@ interface Message {
   sender: 'user' | 'bot';
   timestamp: Date;
   isNew?: boolean;
-  isReasoned?: boolean;
   mentionedProducts?: Product[];
   source?: 'google' | 'fallback' | 'cache';
 }
@@ -41,14 +40,12 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
   const [showSuggestionsButton, setShowSuggestionsButton] = useState(true);
-  const [useReasoningMode, setUseReasoningMode] = useState(false);
   const [apiType] = useState<ChatbotApiType>('google');
   const [showSettings, setShowSettings] = useState(false);
   const [isSearchingProducts, setIsSearchingProducts] = useState(false);
   const [productSearchResults, setProductSearchResults] = useState<Product[]>([]);
   const [productSearchQuery, setProductSearchQuery] = useState('');
   const [cursorPosition, setCursorPosition] = useState(0);
-  const [thinkingBudget, setThinkingBudget] = useState<number>(800); // Budget de tokens par défaut
   const [searchAnchor, setSearchAnchor] = useState<string>(''); // Ancrage de recherche
   const [enableCache, setEnableCache] = useState(false); // Add this line
   // États pour le questionnaire contextuel d'événement
@@ -154,7 +151,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
   }, [messages, products]);
 
   // Fonction pour générer une réponse basée sur la question et les produits disponibles
-  const generateResponse = async (question: string): Promise<{text: string, isReasoned: boolean, source?: 'google' | 'fallback' | 'cache'}> => {
+  const generateResponse = async (question: string): Promise<{text: string, source?: 'google' | 'fallback' | 'cache'}> => {
     try {
       // Construire un ancrage de recherche enrichi avec le contexte de l'événement si disponible
       let enrichedAnchor = searchAnchor.trim();
@@ -189,15 +186,12 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
           
           enhancedQuestion = `${comparisonInstruction}\n\nQuestion originale: ${question}`;
           
-          // Forcer un budget de tokens plus élevé pour les comparaisons
-          const comparisonThinkingBudget = Math.max(thinkingBudget, 1200);
-          
           // Utiliser le service chatbot avec les paramètres spécifiques pour la comparaison
           const result = await generateChatbotResponse(
             enhancedQuestion,
             products,
             messages.map(msg => ({ text: msg.text, sender: msg.sender })),
-            comparisonThinkingBudget,
+            1200, // Valeur fixe pour les comparaisons
             enrichedAnchor || undefined,
             enableCache
         );
@@ -205,14 +199,12 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
           if (result.error) {
             return {
               text: `Désolé, je ne peux pas générer la comparaison pour le moment: ${result.error}`,
-              isReasoned: true,
               source: result.source as 'google' | 'fallback' | 'cache' | undefined
             };
           }
           
           return {
             text: result.response || "Désolé, je n'ai pas pu générer la comparaison demandée.",
-            isReasoned: true,
             source: result.source
           };
         }
@@ -235,7 +227,7 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
         enhancedQuestion, 
         products,
         messages.map(msg => ({ text: msg.text, sender: msg.sender })),
-        useReasoningMode ? thinkingBudget : undefined,
+        undefined,
         enrichedAnchor || undefined,
         enableCache
     );
@@ -243,21 +235,18 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
       if (result.error) {
         return {
           text: `Désolé, je ne peux pas répondre pour le moment: ${result.error}`,
-          isReasoned: false,
           source: result.source as 'google' | 'fallback' | 'cache' | undefined
         };
       }
       
       return {
         text: result.response || "Désolé, je n'ai pas pu générer une réponse.",
-        isReasoned: useReasoningMode,
         source: result.source
       };
     } catch (error) {
       console.error('Erreur lors de la génération de la réponse:', error);
       return {
-        text: "Désolé, une erreur s'est produite lors de la génération de la réponse. Veuillez réessayer plus tard.",
-        isReasoned: false
+        text: "Désolé, une erreur s'est produite lors de la génération de la réponse. Veuillez réessayer plus tard."
       };
     }
   };
@@ -424,7 +413,7 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
 
     try {
       // Générer une réponse
-      const { text: botResponseText, isReasoned, source } = await generateResponse(text);
+      const { text: botResponseText, source } = await generateResponse(text);
       
       // Détecter les produits mentionnés dans la réponse du bot
       const mentionedProducts = detectProductMentions(botResponseText);
@@ -436,7 +425,6 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
         sender: 'bot',
         timestamp: new Date(),
         isNew: true,
-        isReasoned,
         mentionedProducts: mentionedProducts.length > 0 ? mentionedProducts : undefined,
         source: source as 'google' | 'fallback' | 'cache' | undefined
       };
@@ -799,63 +787,7 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
               </div>
               
 
-              {/* Mode raisonnement */}
-              <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
-                      <BrainCircuit className="w-5 h-5 text-violet-600 dark:text-violet-400" />
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Mode raisonnement avancé</span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        Réponses plus détaillées et analytiques
-                      </p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => setUseReasoningMode(!useReasoningMode)}
-                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400 ${useReasoningMode ? 'bg-violet-600' : 'bg-gray-300 dark:bg-gray-600'}`}
-                  >
-                    <span className="sr-only">Activer le mode raisonnement</span>
-                    <span
-                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${useReasoningMode ? 'translate-x-6' : 'translate-x-1'}`}
-                    />
-                  </button>
-                </div>
-              </div>
-              
-              {/* Budget de réflexion */}
-              {useReasoningMode && (
-                <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
-                        <Sparkles className="w-5 h-5 text-violet-600 dark:text-violet-400" />
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Token de réflexion</span>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {thinkingBudget} tokens (~{Math.round(thinkingBudget * 0.75)} mots)
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <input
-                    type="range"
-                    min="400"
-                    max="2000"
-                    step="100"
-                    value={thinkingBudget}
-                    onChange={(e) => setThinkingBudget(parseInt(e.target.value))}
-                    className="w-full h-2 bg-violet-200 dark:bg-violet-800 rounded-lg appearance-none cursor-pointer"
-                  />
-                  <div className="flex justify-between mt-2 text-xs text-gray-500">
-                    <span>400</span>
-                    <span>2000</span>
-                  </div>
-                </div>
-              )}
+              {/* Le mode raisonnement avancé a été retiré */}
               
               {/* Informations sur l'événement */}
               <div className="p-4 bg-violet-50/50 dark:bg-violet-900/10 rounded-xl border border-violet-100 dark:border-violet-800/50">
@@ -969,9 +901,7 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
                 className={`relative max-w-[85%] transition-all transform ${
                   message.sender === 'user'
                     ? 'bg-gradient-to-br from-gray-100 to-gray-100 text-white rounded-2xl rounded-br-none shadow-lg shadow-gray-300/50 dark:shadow-gray-900/40 border border-gray-400/20 backdrop-blur-sm'
-                    : message.isReasoned 
-                      ? 'bg-gradient-to-br from-gray-100/90 to-gray-200/90 dark:from-gray-800/40 dark:to-gray-700/40 text-gray-800 dark:text-gray-100 border border-gray-300/50 dark:border-gray-600/30 rounded-2xl rounded-tl-none shadow-lg backdrop-blur-sm'
-                      : 'bg-gray-100/95 dark:bg-gray-800/95 text-gray-800 dark:text-gray-100 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl rounded-tl-none shadow-lg backdrop-blur-sm hover:border-gray-300 dark:hover:border-gray-600 transition-colors'
+                    : 'bg-gray-100/95 dark:bg-gray-800/95 text-gray-800 dark:text-gray-100 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl rounded-tl-none shadow-lg backdrop-blur-sm hover:border-gray-300 dark:hover:border-gray-600 transition-colors'
                 } ${message.isNew ? 'message-new scale-100' : 'scale-100'} hover:shadow-xl transition-all duration-300 ease-in-out`}
                 whileHover={{ 
                   scale: 1.02,
@@ -980,21 +910,11 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
                 layout
               >
                 <div className="p-4">
-                  {message.sender === 'bot' && (
+                  {message.sender === 'bot' && message.source && (
                     <div className="flex items-center gap-1 mb-2 pb-2 border-b border-indigo-100 dark:border-indigo-800/30">
-                      {message.isReasoned && (
-                        <>
-                          <Sparkles className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-                          <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 mr-2">Réponse raisonnée</span>
-                        </>
-                      )}
-                      {message.source && (
-                        <>
-                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                            via {message.source === 'google' ? 'Google Gemini' : message.source === 'cache' ? 'Cache' : 'Fallback'}
-                          </span>
-                        </>
-                      )}
+                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                        via {message.source === 'google' ? 'Google Gemini' : message.source === 'cache' ? 'Cache' : 'Fallback'}
+                      </span>
                     </div>
                   )}
                   <div className="relative">
