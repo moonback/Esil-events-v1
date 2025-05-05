@@ -39,22 +39,29 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading }) => {
             {/* Avatar pour le bot */}
             {message.sender === 'bot' && (
               <motion.div 
-                className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 dark:shadow-indigo-900/30 ring-2 ring-white/70 dark:ring-gray-800/70 overflow-hidden relative group"
-                initial={{ rotate: -10, scale: 0.9 }}
-                animate={{ rotate: 0, scale: 1 }}
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 dark:shadow-indigo-900/40 ring-2 ring-white/80 dark:ring-gray-800/80 overflow-hidden relative group hover:shadow-xl hover:shadow-indigo-500/40 dark:hover:shadow-indigo-900/50 transition-all duration-300"
+                initial={{ rotate: -15, scale: 0.8, opacity: 0 }}
+                animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                whileHover={{ scale: 1.15, rotate: 5 }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 400, 
+                  damping: 20,
+                  mass: 1
+                }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-400/0 to-violet-500/0 group-hover:from-indigo-400/30 group-hover:to-violet-500/30 transition-colors duration-300"></div>
-                <MessageSquareText className="w-5 h-5 text-white relative z-10" />
-                <div className="absolute -bottom-6 -right-6 w-12 h-12 bg-violet-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-400/0 via-purple-500/0 to-violet-500/0 group-hover:from-indigo-400/40 group-hover:via-purple-500/40 group-hover:to-violet-500/40 transition-colors duration-500"></div>
+                <div className="absolute inset-0 bg-grid-pattern opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
+                <MessageSquareText className="w-5 h-5 text-white relative z-10 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300" />
+                <div className="absolute -inset-2 bg-violet-500/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 animate-pulse"></div>
+                <div className="absolute -bottom-8 -right-8 w-16 h-16 bg-violet-500/30 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               </motion.div>
             )}
             
             <motion.div 
               className={`relative max-w-[85%] transition-all transform ${
                 message.sender === 'user'
-                  ? 'bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-2xl rounded-br-none shadow-lg shadow-violet-500/20 dark:shadow-violet-900/30 border border-violet-500/20 backdrop-blur-sm'
+                  ? 'bg-gradient-to-br from-gray-200 to-gray-200 text-white rounded-2xl rounded-br-none shadow-lg shadow-violet-500/20 dark:shadow-violet-900/30 border border-violet-500/20 backdrop-blur-sm'
                   : 'bg-white/95 dark:bg-gray-800/95 text-gray-800 dark:text-gray-100 border border-violet-200/50 dark:border-violet-800/30 rounded-2xl rounded-tl-none shadow-lg backdrop-blur-sm hover:border-violet-300/70 dark:hover:border-violet-700/50 transition-colors'
               } ${message.isNew ? 'message-new scale-100' : 'scale-100'} hover:shadow-xl transition-all duration-300 ease-in-out overflow-hidden`}
               whileHover={{ 

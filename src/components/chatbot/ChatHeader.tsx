@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Settings, RotateCcw, X, Maximize2, Minimize2, MessageSquareText } from 'lucide-react';
 
 interface ChatHeaderProps {
