@@ -96,7 +96,7 @@ const QuoteRequestDetails: React.FC<QuoteRequestDetailsProps> = ({
               <Calendar className="h-5 w-5 text-indigo-600" /> Détails de l'événement
             </h3>
             <div className="grid grid-cols-1 gap-y-3 text-sm">
-              <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Date</span> <span className="font-medium text-gray-900">{selectedRequest.event_date ? formatDate(selectedRequest.event_date).split(' ')[0] : '-'}</span></div>
+              <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Date</span> <span className="font-medium text-gray-900">{selectedRequest.event_date ? formatDate(selectedRequest.event_date.toString()).split(' ')[0] : '-'}</span></div>
               <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Durée</span> <span className="font-medium text-gray-900">{selectedRequest.event_duration || '-'}</span></div>
               <div className="grid grid-cols-2 gap-x-3">
                 <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Début</span> <span className="font-medium text-gray-900">{selectedRequest.event_start_time || '-'}</span></div>
@@ -167,9 +167,9 @@ const QuoteRequestDetails: React.FC<QuoteRequestDetailsProps> = ({
             <Truck className="h-5 w-5 text-indigo-600" /> Livraison / Retrait
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
-            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Type</span> <span className="font-medium text-gray-900">{getDeliveryTypeLabel(selectedRequest.delivery_type)}</span></div>
+            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Type</span> <span className="font-medium text-gray-900">{getDeliveryTypeLabel(selectedRequest.delivery_type || undefined)}</span></div>
             <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Date</span> <span className="font-medium text-gray-900">{selectedRequest.delivery_date ? formatDate(selectedRequest.delivery_date).split(' ')[0] : '-'}</span></div>
-            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Créneau</span> <span className="font-medium text-gray-900">{getTimeSlotLabel(selectedRequest.delivery_time_slot)}</span></div>
+            <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Créneau</span> <span className="font-medium text-gray-900">{getTimeSlotLabel(selectedRequest.delivery_time_slot || undefined)}</span></div>
             <div className="p-3 bg-gray-50 rounded-lg sm:col-span-2"><span className="text-gray-600 block mb-1">Adresse Livraison</span> <span className="font-medium text-gray-900">{[selectedRequest.delivery_address, selectedRequest.delivery_postal_code, selectedRequest.delivery_city].filter(Boolean).join(', ') || '-'}</span></div>
           </div>
         </div>
@@ -181,8 +181,8 @@ const QuoteRequestDetails: React.FC<QuoteRequestDetailsProps> = ({
               <MapPin className="h-5 w-5 text-indigo-600" /> Accès
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
-              <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Extérieur</span> <span className="font-medium text-gray-900">{getAccessLabel(selectedRequest.exterior_access)}</span></div>
-              <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Intérieur</span> <span className="font-medium text-gray-900">{getAccessLabel(selectedRequest.interior_access)}</span></div>
+              <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Extérieur</span> <span className="font-medium text-gray-900">{getAccessLabel(selectedRequest.exterior_access || undefined)}</span></div>
+              <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Intérieur</span> <span className="font-medium text-gray-900">{getAccessLabel(selectedRequest.interior_access || undefined)}</span></div>
               {selectedRequest.interior_access === 'elevator' && (
                 <div className="sm:col-span-2 grid grid-cols-3 gap-3">
                   <div className="p-3 bg-gray-50 rounded-lg"><span className="text-gray-600 block mb-1">Largeur</span> <span className="font-medium text-gray-900">{selectedRequest.elevator_width ? `${selectedRequest.elevator_width} cm` : '-'}</span></div>
