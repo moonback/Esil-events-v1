@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lightbulb, MessageSquare, Package, X } from 'lucide-react';
+import { Lightbulb, MessageSquare, Package, X, Sparkles, DollarSign, Clock, Calendar } from 'lucide-react';
 
 interface ChatSuggestionsProps {
   suggestions: string[];
@@ -19,33 +19,43 @@ const ChatSuggestions: React.FC<ChatSuggestionsProps> = ({
 
   return (
     <motion.div 
-      className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-700 bg-gradient-to-b from-white/95 to-violet-50/95 dark:from-gray-800/95 dark:to-gray-900/95 backdrop-blur-md shadow-inner"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      transition={{ duration: 0.3 }}
+      className="p-4 sm:p-5 border-t border-violet-200/50 dark:border-violet-800/30 bg-gradient-to-b from-white/95 via-violet-50/30 to-violet-100/50 dark:from-gray-800/95 dark:via-gray-850/90 dark:to-gray-900/95 backdrop-blur-md shadow-inner relative overflow-hidden"
+      initial={{ opacity: 0, y: 20, height: 0 }}
+      animate={{ opacity: 1, y: 0, height: 'auto' }}
+      exit={{ opacity: 0, y: 20, height: 0 }}
+      transition={{ duration: 0.4, ease: "easeInOut" }}
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-700/30 dark:to-amber-900/30 rounded-lg shadow-sm">
-            <Lightbulb className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+      {/* Éléments décoratifs */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10 pointer-events-none"></div>
+      <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-gradient-to-br from-amber-400/5 to-amber-500/10 rounded-full blur-3xl dark:from-amber-600/10 dark:to-amber-700/15 animate-pulse" style={{ animationDuration: '15s' }}></div>
+      <div className="absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-br from-violet-400/5 to-violet-500/10 rounded-full blur-3xl dark:from-violet-600/10 dark:to-violet-700/15 animate-pulse" style={{ animationDuration: '12s' }}></div>
+      
+      <div className="flex items-center justify-between mb-4 relative z-10">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-700/30 dark:to-amber-900/30 rounded-lg shadow-md ring-1 ring-amber-200/50 dark:ring-amber-800/30 group">
+            <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400 group-hover:animate-ping" style={{ animationDuration: '3s' }} />
           </div>
-          <span className="text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 dark:from-gray-200 dark:to-gray-300 bg-clip-text text-transparent">
-            Questions suggérées
-          </span>
+          <div>
+            <span className="text-sm font-medium bg-gradient-to-r from-amber-600 to-amber-500 dark:from-amber-400 dark:to-amber-300 bg-clip-text text-transparent">
+              Questions suggérées
+            </span>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Sélectionnez une question pour obtenir une réponse rapide</p>
+          </div>
         </div>
         <motion.button 
           onClick={onClose}
-          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-full"
+          className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-white/80 dark:hover:bg-gray-700/80 rounded-full shadow-sm hover:shadow-md transition-all duration-200"
           aria-label="Fermer les suggestions"
-          whileHover={{ rotate: 90 }}
-          transition={{ type: "spring", stiffness: 200 }}
+          whileHover={{ rotate: 90, scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 300 }}
         >
           <X className="w-4 h-4" />
         </motion.button>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
+
         {suggestions.map((suggestion, index) => {
           // Déterminer l'icône en fonction du contenu de la suggestion
           let icon = <MessageSquare className="w-3.5 h-3.5 text-violet-500 dark:text-violet-400" />;

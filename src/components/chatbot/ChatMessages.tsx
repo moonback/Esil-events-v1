@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Bot, Tag } from 'lucide-react';
+import { User, Bot, Tag, MessageSquareText, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import ProductMiniCard from '../ProductMiniCard';
@@ -20,44 +20,73 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading }) => {
   }, [messages]);
 
   return (
-    <div className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-white/50 to-violet-50/30 dark:from-gray-800/80 dark:to-gray-900">
+    <div className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-white/80 via-violet-50/20 to-violet-100/30 dark:from-gray-800/90 dark:via-gray-850/80 dark:to-gray-900/90 relative">
+      {/* Éléments décoratifs en arrière-plan */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10 pointer-events-none"></div>
+      <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/50 to-transparent dark:from-gray-800/50 pointer-events-none z-10"></div>
+      <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-violet-50/50 to-transparent dark:from-gray-900/50 pointer-events-none z-10"></div>
       <AnimatePresence>
         {messages.map((message) => (
           <motion.div 
             key={message.id} 
-            className={`mb-5 flex items-end gap-2 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`mb-6 flex items-end gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            layout
           >
             {/* Avatar pour le bot */}
             {message.sender === 'bot' && (
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-gray-800">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 001.5 2.25m0 0v2.572a2.25 2.25 0 01-1.5 2.25m0 0c-1.283.918-2.617 1.843-4.5 2.25m0 0c-1.883-.407-3.217-1.332-4.5-2.25m0 0A2.25 2.25 0 013.75 19.5v-2.572a2.25 2.25 0 01.658-1.591L8.5 14.5" />
-                </svg>
-              </div>
+              <motion.div 
+                className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 dark:shadow-indigo-900/30 ring-2 ring-white/70 dark:ring-gray-800/70 overflow-hidden relative group"
+                initial={{ rotate: -10, scale: 0.9 }}
+                animate={{ rotate: 0, scale: 1 }}
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-400/0 to-violet-500/0 group-hover:from-indigo-400/30 group-hover:to-violet-500/30 transition-colors duration-300"></div>
+                <MessageSquareText className="w-5 h-5 text-white relative z-10" />
+                <div className="absolute -bottom-6 -right-6 w-12 h-12 bg-violet-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </motion.div>
             )}
             
             <motion.div 
               className={`relative max-w-[85%] transition-all transform ${
                 message.sender === 'user'
-                  ? 'bg-gradient-to-br from-gray-100 to-gray-100 text-white rounded-2xl rounded-br-none shadow-lg shadow-gray-300/50 dark:shadow-gray-900/40 border border-gray-400/20 backdrop-blur-sm'
-                  : 'bg-gray-100/95 dark:bg-gray-800/95 text-gray-800 dark:text-gray-100 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl rounded-tl-none shadow-lg backdrop-blur-sm hover:border-gray-300 dark:hover:border-gray-600 transition-colors'
-              } ${message.isNew ? 'message-new scale-100' : 'scale-100'} hover:shadow-xl transition-all duration-300 ease-in-out`}
+                  ? 'bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-2xl rounded-br-none shadow-lg shadow-violet-500/20 dark:shadow-violet-900/30 border border-violet-500/20 backdrop-blur-sm'
+                  : 'bg-white/95 dark:bg-gray-800/95 text-gray-800 dark:text-gray-100 border border-violet-200/50 dark:border-violet-800/30 rounded-2xl rounded-tl-none shadow-lg backdrop-blur-sm hover:border-violet-300/70 dark:hover:border-violet-700/50 transition-colors'
+              } ${message.isNew ? 'message-new scale-100' : 'scale-100'} hover:shadow-xl transition-all duration-300 ease-in-out overflow-hidden`}
               whileHover={{ 
                 scale: 1.02,
                 translateY: -2
               }}
               layout
             >
+              {/* Effet de brillance sur hover */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/0 to-transparent hover:via-white/10 dark:hover:via-white/5 transition-all duration-700 ease-in-out bg-[length:0%_100%] hover:bg-[length:100%_100%] bg-no-repeat"></div>
               <div className="p-4">
                 {message.sender === 'bot' && message.source && (
-                  <div className="flex items-center gap-1 mb-2 pb-2 border-b border-indigo-100 dark:border-indigo-800/30">
-                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                      via {message.source === 'google' ? 'Google Gemini' : message.source === 'cache' ? 'Cache' : 'Fallback'}
+                  <div className="flex items-center gap-2 mb-3 pb-2 border-b border-violet-100 dark:border-violet-800/30">
+                    <div className="p-1 bg-violet-50 dark:bg-violet-900/20 rounded-md">
+                      <svg className="w-3 h-3 text-violet-500 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      via 
+                      <span className="font-semibold bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 bg-clip-text text-transparent">
+                        {message.source === 'google' ? 'Google Gemini' : message.source === 'cache' ? 'Cache' : 'Fallback'}
+                      </span>
                     </span>
+                  </div>
+                )}
+                
+                {/* Indicateur de chargement */}
+                {isLoading && message.id === messages[messages.length - 1]?.id && message.sender === 'bot' && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <Loader2 className="w-4 h-4 text-violet-500 dark:text-violet-400 animate-spin" />
+                    <span className="text-xs text-violet-500 dark:text-violet-400">Génération de la réponse...</span>
                   </div>
                 )}
                 <div className="relative">
