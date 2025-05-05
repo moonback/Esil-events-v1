@@ -88,7 +88,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({ initialQuestion = null,
           const parsedEventContext = JSON.parse(savedEventContext);
           setEventContext(parsedEventContext);
           setEventContextCollected(true);
-          setSearchAnchor(parsedEventContext.eventType); // Utiliser le type d'événement comme ancrage
+          setSearchAnchor(parsedEventContext.eventType || ''); // Utiliser le type d'événement comme ancrage
         }
         
         if (savedMessages && JSON.parse(savedMessages).length > 0) {

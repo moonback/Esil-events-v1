@@ -186,12 +186,13 @@ export const getGeminiRequestConfig = (systemPrompt: string, question: string, m
     : question;
 
   return {
+    systemInstruction: {
+      parts: [{ text: systemPrompt }]
+    },
     contents: [
       {
-        parts: [
-          { text: systemPrompt },
-          { text: `Question du client: ${enhancedQuestion}` }
-        ]
+        role: 'user',
+        parts: [{ text: enhancedQuestion }]
       }
     ],
     generationConfig: {
