@@ -142,8 +142,8 @@ Créer un fichier `.env` à la racine du projet avec les variables suivantes :
 VITE_SUPABASE_URL=VOTRE_URL_SUPABASE
 VITE_SUPABASE_ANON_KEY=VOTRE_CLE_ANON_SUPABASE
 
-# Deepseek API (pour suggestion de réponse IA)
-VITE_DEEPSEEK_API_KEY=VOTRE_CLE_API_DEEPSEEK
+# Google Gemini API (pour suggestion de réponse IA)
+VITE_GOOGLE_GEMINI_API_KEY=VOTRE_CLE_API_GEMINI
 
 # SMTP Configuration (pour envoi d'emails via API backend)
 # Ces variables sont utilisées par le service `emailService.ts` mais l'API backend n'est pas incluse ici.

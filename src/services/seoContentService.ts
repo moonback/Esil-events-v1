@@ -1,7 +1,7 @@
 import { Category, Subcategory, SubSubcategory } from './categoryService';
 
 /**
- * Service pour générer du contenu SEO à l'aide de l'API DeepSeek
+ * Service pour générer du contenu SEO à l'aide de l'API Gemini de Google
  */
 
 // Interface pour les options de génération SEO
@@ -81,28 +81,37 @@ export const generateSeoContent = async (
   options?: SeoGenerationOptions
 ): Promise<{ seoContent?: { seo_title: string; seo_description: string; seo_keywords: string }; error?: string }> => {
   try {
-    const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
+    const apiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
     
     if (!apiKey) {
-      return { error: 'Erreur de configuration: Clé API DeepSeek manquante (VITE_DEEPSEEK_API_KEY).' };
+      return { error: 'Erreur de configuration: Clé API Gemini manquante (VITE_GOOGLE_GEMINI_API_KEY).' };
     }
 
     const { messages } = prepareSeoContentPrompt(item, itemType, options);
 
+    // Adapter le format des messages pour Gemini
+    const prompt = messages.map(msg => msg.content).join('\n\n');
+    
     const requestBody = {
-      model: "deepseek-chat",
-      messages: messages,
-      temperature: 0.7,
-      max_tokens: 1024,
-      top_p: 0.95,
-      response_format: { type: "json_object" }
+      contents: [
+        {
+          parts: [
+            { text: prompt }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 1024,
+        topP: 0.95,
+        responseMimeType: "application/json"
+      }
     };
 
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(requestBody),
     });
@@ -119,7 +128,7 @@ export const generateSeoContent = async (
     }
 
     const data = await response.json();
-    const generatedContent = data.choices?.[0]?.message?.content?.trim();
+    const generatedContent = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!generatedContent) {
       throw new Error("La réponse de l'API est vide ou mal structurée.");
