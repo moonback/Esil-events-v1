@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown, Copy } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import { Product } from '../../types/Product';
-import { getAllProducts, deleteProduct, createProduct, updateProduct, duplicateProduct } from '../../services/productService';
+import { getAllProducts, deleteProduct, createProduct, updateProduct, duplicateProduct, regenerateMissingSlugs } from '../../services/productService';
 import ProductForm from '../../components/ProductForm';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { DEFAULT_PRODUCT_IMAGE } from '../../constants/images';
@@ -267,8 +267,40 @@ const AdminProducts: React.FC = () => {
               toggleFilter={toggleFilter}
             />
             
-            {/* Bouton Nouveau produit */}
-            <div className="flex justify-end mb-6">
+            {/* Boutons d'action */}
+            <div className="flex justify-end mb-6 space-x-4">
+              <button
+                onClick={async () => {
+                  try {
+                    setError('');
+                    const result = await regenerateMissingSlugs();
+                    
+                    // Afficher un message de succès temporaire
+                    const successMessage = document.createElement('div');
+                    successMessage.className = `fixed bottom-4 right-4 ${result.success ? 'bg-green-100 border-green-500 text-green-700' : 'bg-red-100 border-red-500 text-red-700'} border-l-4 p-4 rounded shadow-md z-50 animate-fade-in`;
+                    successMessage.innerHTML = result.message;
+                    document.body.appendChild(successMessage);
+                    
+                    // Supprimer le message après 3 secondes
+                    setTimeout(() => {
+                      if (document.body.contains(successMessage)) {
+                        document.body.removeChild(successMessage);
+                      }
+                    }, 3000);
+                    
+                    // Recharger la liste des produits pour s'assurer que tout est à jour
+                    await loadProducts();
+                  } catch (err: any) {
+                    setError(`Erreur lors de la régénération des slugs: ${err.message || 'Erreur inconnue'}`);
+                    console.error('Erreur de régénération des slugs:', err);
+                  }
+                }}
+                className="px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 md:space-x-3 font-medium"
+              >
+                <Tag className="w-4 h-4 mr-2" />
+                <span>Régénérer les slugs</span>
+              </button>
+              
               <button
                 onClick={() => {
                   setEditingProduct(null);

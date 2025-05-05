@@ -1127,6 +1127,89 @@ export const updateProductColors = async (id: string, colors: string[]): Promise
   }
 };
 
+// Régénérer les slugs manquants pour tous les produits
+export const regenerateMissingSlugs = async (): Promise<{success: boolean, count: number, message: string}> => {
+  try {
+    console.log('Régénération des slugs manquants...');
+    
+    // Vérifier l'authentification
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('Authentification requise pour régénérer les slugs');
+    }
+    console.log('Utilisateur authentifié:', session.user.email);
+
+    // Récupérer tous les produits sans slug
+    const { data: productsWithoutSlug, error: fetchError } = await supabase
+      .from('products')
+      .select('id, name, slug')
+      .is('slug', null);
+
+    if (fetchError) {
+      console.error('Erreur lors de la récupération des produits sans slug:', fetchError);
+      throw new Error(`Échec de la récupération des produits: ${fetchError.message}`);
+    }
+
+    if (!productsWithoutSlug || productsWithoutSlug.length === 0) {
+      return {
+        success: true,
+        count: 0,
+        message: 'Aucun produit sans slug trouvé.'
+      };
+    }
+
+    console.log(`${productsWithoutSlug.length} produits sans slug trouvés.`);
+
+    // Récupérer tous les slugs existants pour éviter les doublons
+    const { data: productsWithSlug, error: slugError } = await supabase
+      .from('products')
+      .select('slug')
+      .not('slug', 'is', null);
+
+    if (slugError) {
+      console.error('Erreur lors de la récupération des slugs existants:', slugError);
+      throw new Error(`Échec de la récupération des slugs existants: ${slugError.message}`);
+    }
+
+    const existingSlugs = productsWithSlug ? productsWithSlug.map(p => p.slug) : [];
+    console.log(`${existingSlugs.length} slugs existants trouvés.`);
+
+    // Mettre à jour chaque produit avec un nouveau slug
+    let updatedCount = 0;
+    for (const product of productsWithoutSlug) {
+      const baseSlug = generateSlug(product.name);
+      const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs);
+      
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({ slug: uniqueSlug })
+        .eq('id', product.id);
+
+      if (updateError) {
+        console.error(`Erreur lors de la mise à jour du slug pour le produit ${product.id}:`, updateError);
+        continue;
+      }
+
+      // Ajouter le nouveau slug à la liste des slugs existants pour éviter les doublons
+      existingSlugs.push(uniqueSlug);
+      updatedCount++;
+    }
+
+    return {
+      success: true,
+      count: updatedCount,
+      message: `${updatedCount} produits ont été mis à jour avec de nouveaux slugs.`
+    };
+  } catch (error: any) {
+    console.error('Erreur dans regenerateMissingSlugs:', error);
+    return {
+      success: false,
+      count: 0,
+      message: error.message || 'Une erreur est survenue lors de la régénération des slugs.'
+    };
+  }
+};
+
 // Fetch products by subsubcategory
 export const getProductsBySubSubCategory = async (category: string, subCategory: string, subSubCategory: string): Promise<Product[]> => {
   try {
