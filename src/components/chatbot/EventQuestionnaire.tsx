@@ -110,6 +110,20 @@ const EventQuestionnaire: React.FC<EventQuestionnaireProps> = ({
             </select>
           </div>
           
+          {/* Expliquation */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Expliquer votre projet en quelque lignes
+            </label>
+            <input
+              type="text"
+              value={eventContext.text}
+              onChange={(e) => updateEventContext({ text: e.target.value })}
+              className="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-700 border border-violet-200 dark:border-violet-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent"
+              required
+              min=  {1}
+            />
+          </div>
           {/* Type de location */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">

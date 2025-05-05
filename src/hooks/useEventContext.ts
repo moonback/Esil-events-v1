@@ -8,6 +8,7 @@ export interface EventContext {
   eventDate: string;
   budget: string;
   locationType: string[];
+  text: string;
 }
 
 /**
@@ -28,7 +29,8 @@ export const useEventContext = (options: UseEventContextOptions = {}) => {
     eventType: '',
     eventDate: '',
     budget: '',
-    locationType: []
+    locationType: [],
+    text: ''
   });
 
   // État pour suivre si le contexte a été collecté
@@ -70,6 +72,7 @@ export const useEventContext = (options: UseEventContextOptions = {}) => {
     if (!eventContext.eventType || !eventContext.eventDate || !eventContext.budget || !eventContext.locationType.length) {
       return false; // Ne pas soumettre si des champs sont vides
     }
+    // Note: Le champ text est optionnel et n'est pas vérifié ici
     
     // Marquer le contexte comme collecté
     setEventContextCollected(true);
@@ -91,7 +94,8 @@ export const useEventContext = (options: UseEventContextOptions = {}) => {
       eventType: '',
       eventDate: '',
       budget: '',
-      locationType: []
+      locationType: [],
+      text: ''
     });
     setEventContextCollected(false);
     setShowEventQuestionnaire(true);

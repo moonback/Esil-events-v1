@@ -139,7 +139,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({
       // Construire le contexte d'information si disponible
       let contextualInfo = '';
       if (eventContextCollected) {
-        contextualInfo = `Contexte: ${eventContext.eventType}, date: ${eventContext.eventDate}, budget: ${eventContext.budget}, type de location: ${eventContext.locationType.join(', ')}`;
+        contextualInfo = `Contexte: ${eventContext.eventType}, date: ${eventContext.eventDate}, budget: ${eventContext.budget}, type de location: ${eventContext.locationType.join(', ')}, ${eventContext.text}`;
       }
 
       // Générer une réponse
@@ -260,6 +260,8 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({
                             <span className="font-medium">Date:</span> {eventContext.eventDate} |{' '}
                             <span className="font-medium">Budget:</span> {eventContext.budget} |{' '}
                             <span className="font-medium">Équipements:</span> {eventContext.locationType.join(', ')}
+                            <span className="font-medium">Équipements:</span> {eventContext.text}
+
                           </span>
                         ) : (
                           <span className="text-gray-400 dark:text-gray-500 italic">
