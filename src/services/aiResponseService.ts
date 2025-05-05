@@ -16,7 +16,7 @@ export interface ResponseOptions {
 /**
  * Prépare les données pour la génération de réponse IA
  */
-export const prepareAIPromptData = (selectedRequest: QuoteRequest, useReasoner: boolean = false, options?: ResponseOptions) => {
+export const prepareAIPromptData = (selectedRequest: QuoteRequest, options?: ResponseOptions) => {
   const itemsDetails = formatItemsDetails(selectedRequest);
   const totalAmount = calculateTotalAmount(selectedRequest);
 
@@ -120,43 +120,45 @@ L'élégance pour chaque événement
 
   const messages = [systemMessage, userMessage];
 
-  return { messages, useReasoner };
+  return { messages };
 };
 
 /**
- * Génère une réponse IA pour une demande de devis
+ * Prépare la requête pour l'API Google Gemini
  */
-export const generateAIResponse = async (selectedRequest: QuoteRequest, useReasoner: boolean = false, options?: ResponseOptions): Promise<{ response?: string; error?: string }> => {
-  try {
-    const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
-    
-    if (!apiKey) {
-      return { error: 'Erreur de configuration: Clé API DeepSeek manquante (VITE_DEEPSEEK_API_KEY).' };
-    }
+const prepareGeminiRequest = (selectedRequest: QuoteRequest, options?: ResponseOptions) => {
+  const { messages } = prepareAIPromptData(selectedRequest, options);
+  
+  // Extraire les messages système et utilisateur
+  const systemPrompt = messages[0].content;
+  const userQuestion = messages[1].content;
 
-    const { messages, useReasoner: shouldUseReasoner } = prepareAIPromptData(selectedRequest, useReasoner, options);
-
-    const requestBody = {
-      model: "deepseek-chat",
-      messages: messages,
+  return {
+    contents: [
+      {
+        parts: [
+          { text: systemPrompt },
+          { text: userQuestion }
+        ]
+      }
+    ],
+    generationConfig: {
       temperature: 0.7,
-      max_tokens: 1024,
-      top_p: 0.95,
-      tools: shouldUseReasoner ? [
-        {
-          type: "reasoner",
-          reasoner: {
-            reasoning: true
-          }
-        }
-      ] : undefined
-    };
+      maxOutputTokens: 1024,
+      topP: 0.9
+    }
+  };
+};
 
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+/**
+ * Fonction pour effectuer une requête API Google Gemini avec retry
+ */
+async function makeGeminiApiRequest(requestBody: any, apiKey: string, retryCount = 0, maxRetries = 3): Promise<any> {
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(requestBody),
     });
@@ -169,11 +171,55 @@ export const generateAIResponse = async (selectedRequest: QuoteRequest, useReaso
       } catch (parseError) {
         errorData = { error: { message: `Erreur ${response.status}: ${response.statusText}. Réponse non JSON.` } };
       }
-      throw new Error(`Erreur API (${response.status}): ${errorData?.error?.message || response.statusText || 'Erreur inconnue'}`);
+      
+      // Si on a atteint le nombre maximum de tentatives, lancer une erreur
+      if (retryCount >= maxRetries) {
+        throw new Error(`Erreur API Google (${response.status}): ${errorData?.error?.message || response.statusText || 'Erreur inconnue'}`);
+      }
+      
+      // Attendre avant de réessayer (backoff exponentiel)
+      const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
+      console.log(`Tentative Google API ${retryCount + 1}/${maxRetries} échouée. Nouvelle tentative dans ${waitTime}ms...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      
+      // Réessayer
+      return makeGeminiApiRequest(requestBody, apiKey, retryCount + 1, maxRetries);
     }
 
     const data = await response.json();
-    const generatedContent = data.choices?.[0]?.message?.content?.trim();
+    return data;
+  } catch (error) {
+    if (retryCount < maxRetries) {
+      // Attendre avant de réessayer
+      const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
+      console.log(`Erreur lors de la tentative Google API ${retryCount + 1}/${maxRetries}. Nouvelle tentative dans ${waitTime}ms...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      
+      // Réessayer
+      return makeGeminiApiRequest(requestBody, apiKey, retryCount + 1, maxRetries);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Génère une réponse IA pour une demande de devis en utilisant l'API Google Gemini
+ */
+export const generateAIResponse = async (selectedRequest: QuoteRequest, options?: ResponseOptions): Promise<{ response?: string; error?: string }> => {
+  try {
+    // Utiliser l'API Google Gemini au lieu de DeepSeek
+    const geminiApiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
+    
+    if (!geminiApiKey) {
+      return { error: 'Erreur de configuration: Clé API Google Gemini manquante (VITE_GOOGLE_GEMINI_API_KEY).' };
+    }
+
+    // Préparer la requête pour Gemini
+    const requestBody = prepareGeminiRequest(selectedRequest, options);
+
+    // Appeler l'API Gemini
+    const data = await makeGeminiApiRequest(requestBody, geminiApiKey);
+    const generatedContent = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!generatedContent) {
       throw new Error("La réponse de l'API est vide ou mal structurée.");
