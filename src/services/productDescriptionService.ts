@@ -29,19 +29,25 @@ PRODUIT:
 • Prix HT: ${productData.priceHT || 'Non spécifié'}€
 • Couleurs disponibles: ${productData.colors?.join(', ') || 'Non spécifiées'}
 • Spécifications techniques: ${Object.entries(productData.technicalSpecs || {}).map(([key, value]) => `${key}: ${value}`).join(', ') || 'Non spécifiées'}
-. Prix TTC: ${productData.priceTTC || 'Non spécifié'}€
+• Prix TTC: ${productData.priceTTC || 'Non spécifié'}€
 
 INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
 1. Rédige une description détaillée et attrayante du produit en 3-4 paragraphes (MAXIMUM 1500 caractères au total).
 2. Mets en valeur les caractéristiques premium et l'élégance du produit.
 3. Décris l'impact visuel et pratique que ce produit peut avoir sur un événement.
 4. Suggère des utilisations idéales et des combinaisons possibles avec d'autres produits.
-5. Inclus des mots-clés pertinents pour le SEO.
+5. Optimise pour le SEO :
+   - Utilise le nom du produit dans le premier paragraphe
+   - Inclus la catégorie et sous-catégorie naturellement dans le texte
+   - Intègre les mots-clés "location", "événement", "ESIL-events" stratégiquement
+   - Utilise des variations sémantiques des mots-clés principaux
+   - Structure le texte avec des phrases courtes et des paragraphes bien définis
+   - Maintiens une densité de mots-clés optimale (2-3%)
 6. N'invente pas de détails techniques non fournis.
 7. Utilise un ton professionnel mais engageant.
-8. Fournis uniquement la description, sans phrases d'introduction comme "Voici la description suggérée :".
+8. Fournis uniquement la description, sans phrases d'introduction.
 9. IMPORTANT: La description complète ne doit pas dépasser 1500 caractères, espaces compris.
-10. IMPORTANT: Optimise la description pour le référencement naturel en incluant les mots-clés pertinents de manière naturelle et en respectant une densité de mots-clés appropriée (2-3%).
+11. Ajoute des liens internes naturels vers d'autres catégories de produits pertinentes.
 `
   };
 
