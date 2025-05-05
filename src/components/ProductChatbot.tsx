@@ -200,7 +200,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({
   };
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-white via-violet-50 to-violet-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+    <div className="w-full h-full min-h-[400px] max-h-[800px] bg-gradient-to-br from-white via-violet-50 to-violet-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
       {/* Header */}
       <ChatHeader
         onSettingsClick={() => setShowSettings(!showSettings)}
