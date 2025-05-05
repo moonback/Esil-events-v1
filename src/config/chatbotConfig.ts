@@ -1,4 +1,5 @@
 import { Product } from '../types/Product';
+import { prepareOptimizedConversationHistory } from '../utils/conversationUtils';
 
 /**
  * Configuration du chatbot ESIL Events
@@ -123,14 +124,34 @@ Vous devez utiliser ces informations pour répondre aux questions sur l'entrepri
 };
 
 /**
+ * Prépare le contexte de conversation de manière intelligente
+ * @param messageHistory L'historique complet des messages
+ * @param maxTokens Le nombre maximum de tokens à utiliser pour le contexte
+ * @returns Le contexte de conversation formaté
+ */
+export const prepareConversationContext = (messageHistory: { text: string, sender: 'user' | 'bot' }[], maxTokens: number = 2000): string => {
+  if (!messageHistory || messageHistory.length === 0) return '';
+  
+  // Importer directement la fonction depuis conversationUtils
+  // Cette fonction gère intelligemment la sélection des messages les plus pertinents
+  // et la compression de l'historique pour respecter la limite de tokens
+  // Convertir les messages au format attendu par prepareOptimizedConversationHistory
+  const conversationMessages = messageHistory.map(msg => ({
+    text: msg.text,
+    sender: msg.sender,
+    timestamp: new Date() // Ajouter un timestamp pour le tri chronologique
+  }));
+  
+  // Utiliser la fonction importée en haut du fichier
+  return prepareOptimizedConversationHistory(conversationMessages, maxTokens);
+};
+
+/**
  * Configuration de la requête pour l'API Google Gemini
  */
 export const getGeminiRequestConfig = (systemPrompt: string, question: string, messageHistory: { text: string, sender: 'user' | 'bot' }[] = [], thinkingBudget?: number, searchAnchor?: string) => {
-  // Préparer le contexte de conversation avec l'historique des messages
-  const conversationContext = messageHistory
-    .slice(-5) // Prendre les 5 derniers messages pour le contexte
-    .map(msg => `${msg.sender === 'user' ? 'Client' : 'Assistant'}: ${msg.text}`)
-    .join('\n');
+  // Préparer le contexte de conversation avec l'historique des messages de manière intelligente
+  const conversationContext = prepareConversationContext(messageHistory);
 
   // Enrichir le prompt système avec le contexte de la conversation
   const enrichedSystemPrompt = `${systemPrompt}\n\nContexte de la conversation précédente:\n${conversationContext}\n\nQuestion actuelle: ${question}`;

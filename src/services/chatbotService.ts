@@ -1,5 +1,6 @@
 import { Product } from '../types/Product';
 import { generateSystemPrompt, getGeminiRequestConfig, prepareProductContext } from '../config/chatbotConfig';
+import { optimizeConversationHistory, prepareOptimizedConversationHistory, compressConversationHistory } from '../utils/conversationUtils';
 
 /**
  * Service pour gérer les interactions du chatbot avec l'API Google Gemini
@@ -438,10 +439,118 @@ export const generateDynamicSuggestions = (products: Product[], messageHistory: 
 
 
 
+
+
+
+/**
+ * Génère une réponse du chatbot basée sur la question de l'utilisateur et les produits disponibles
+ * @param question La question posée par l'utilisateur
+ * @param products La liste des produits disponibles
+ * @param thinkingBudget Budget de tokens pour la génération de réponse (défaut: 800)
+ * @param searchAnchor Contexte d'ancrage pour orienter la recherche
+ */
+/**
+ * Interface pour gérer le contexte de conversation
+ */
+interface ConversationContext {
+  recentMessages: { text: string, sender: 'user' | 'bot' }[];
+  keyTopics: string[];
+  lastInteractionTimestamp: number;
+}
+
+// Clé de stockage pour le contexte de conversation dans localStorage
+const CONVERSATION_CONTEXT_KEY = 'chatbot_conversation_context';
+
+/**
+ * Sauvegarde le contexte de conversation dans localStorage
+ */
+export const saveConversationContext = (messages: { text: string, sender: 'user' | 'bot' }[]): void => {
+  try {
+    if (!messages || messages.length === 0) return;
+    
+    // Extraire les sujets clés des derniers messages (mots importants)
+    const extractKeyTopics = (msgs: { text: string, sender: 'user' | 'bot' }[]): string[] => {
+      // Combiner tous les textes des messages
+      const allText = msgs.map(m => m.text.toLowerCase()).join(' ');
+      
+      // Filtrer les mots courants et garder les mots significatifs
+      const commonWords = new Set(['le', 'la', 'les', 'un', 'une', 'des', 'et', 'ou', 'mais', 'donc', 'car', 'pour', 'dans', 'sur', 'avec', 'sans', 'vous', 'nous', 'ils', 'elles', 'je', 'tu', 'il', 'elle', 'ce', 'cette', 'ces', 'mon', 'ton', 'son', 'votre', 'notre', 'leur']);
+      
+      // Extraire les mots, filtrer les mots courts et communs
+      const words = allText.split(/\s+/)
+        .filter(word => word.length > 3 && !commonWords.has(word))
+        .map(word => word.replace(/[.,?!;:()]/g, ''));
+      
+      // Compter la fréquence des mots
+      const wordFrequency: Record<string, number> = {};
+      words.forEach(word => {
+        wordFrequency[word] = (wordFrequency[word] || 0) + 1;
+      });
+      
+      // Trier par fréquence et prendre les 10 plus fréquents
+      return Object.entries(wordFrequency)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(entry => entry[0]);
+    };
+    
+    const context: ConversationContext = {
+      recentMessages: messages.slice(-10), // Garder les 10 derniers messages
+      keyTopics: extractKeyTopics(messages.slice(-15)), // Analyser les 15 derniers messages pour les sujets
+      lastInteractionTimestamp: Date.now()
+    };
+    
+    localStorage.setItem(CONVERSATION_CONTEXT_KEY, JSON.stringify(context));
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du contexte de conversation:', error);
+  }
+};
+
+/**
+ * Récupère le contexte de conversation depuis localStorage
+ */
+export const getConversationContext = (): ConversationContext | null => {
+  try {
+    const data = localStorage.getItem(CONVERSATION_CONTEXT_KEY);
+    if (!data) return null;
+    
+    return JSON.parse(data) as ConversationContext;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du contexte de conversation:', error);
+    return null;
+  }
+};
+
+/**
+ * Optimise l'historique des messages pour l'envoi à l'API
+ * Sélectionne intelligemment les messages les plus pertinents
+ */
+export const optimizeMessageHistory = (messages: { text: string, sender: 'user' | 'bot' }[]): { text: string, sender: 'user' | 'bot' }[] => {
+  if (!messages || messages.length === 0) return messages;
+  
+  // Convertir les messages au format attendu par optimizeConversationHistory
+  const conversationMessages = messages.map(msg => ({
+    text: msg.text,
+    sender: msg.sender,
+    timestamp: new Date() // Ajouter un timestamp pour le tri chronologique
+  }));
+  
+  // Utiliser la fonction optimizeConversationHistory des utilitaires de conversation
+  const optimizedMessages = optimizeConversationHistory(conversationMessages, 12);
+  
+  // Reconvertir au format attendu par le reste du code
+  return optimizedMessages.map(msg => ({
+    text: msg.text,
+    sender: msg.sender
+  }));
+};
+
+
 /**
  * Génère une réponse du chatbot en utilisant l'API Google Gemini
  */
 async function generateGoogleResponse(question: string, products: Product[], messageHistory: { text: string, sender: 'user' | 'bot' }[] = [], thinkingBudget?: number, searchAnchor?: string): Promise<ChatbotResponse> {
+  // messageHistory est déjà l'historique optimisé passé par generateChatbotResponse
   try {
     const apiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
     
@@ -455,9 +564,20 @@ async function generateGoogleResponse(question: string, products: Product[], mes
 
     // Générer le prompt système avec le contexte des produits
     const systemPrompt = generateSystemPrompt(productContext);
-
+    
+    // Utiliser directement l'historique optimisé qui est passé en paramètre
+    // L'optimisation a déjà été faite dans generateChatbotResponse
+    console.log('Utilisation de l\'historique optimisé pour la requête API');
+    
     // Configuration de la requête pour Google Gemini avec les nouveaux paramètres
+    // Utiliser l'historique optimisé au lieu de l'historique complet
     const requestBody = getGeminiRequestConfig(systemPrompt, question, messageHistory, thinkingBudget, searchAnchor);
+    
+    // Vérifier si l'historique a été correctement optimisé
+    console.log(`Requête API avec ${messageHistory.length} messages dans l'historique`);
+    if (messageHistory.length > 10) {
+      console.log('Historique volumineux optimisé pour la requête API');
+    }
 
     try {
       const data = await makeGoogleApiRequest(requestBody, apiKey);
@@ -492,6 +612,13 @@ async function generateGoogleResponse(question: string, products: Product[], mes
  */
 export const generateChatbotResponse = async (question: string, products: Product[], messageHistory: { text: string, sender: 'user' | 'bot' }[] = [], thinkingBudget?: number, searchAnchor?: string, enableCache: boolean = true): Promise<ChatbotResponse> => {
   try {
+    // Sauvegarder le contexte de conversation pour une utilisation future
+    saveConversationContext(messageHistory);
+    
+    // Optimiser l'historique des messages pour l'API
+    const optimizedHistory = optimizeMessageHistory(messageHistory);
+    console.log('Historique optimisé:', optimizedHistory.length, 'messages sur', messageHistory.length, 'originaux');
+    
     // Vérifier si une réponse existe dans le cache
     if (enableCache) {
       const cachedResponse = getResponseFromCache(question);
@@ -515,8 +642,10 @@ export const generateChatbotResponse = async (question: string, products: Produc
     }
 
     try {
-      // Générer la réponse avec Google en transmettant les nouveaux paramètres
-      const googleResponse = await generateGoogleResponse(question, products, messageHistory, thinkingBudget, searchAnchor);
+      // Générer la réponse avec Google en transmettant les nouveaux paramètres et l'historique optimisé
+      // C'est ici que l'historique optimisé est réellement utilisé
+      const googleResponse = await generateGoogleResponse(question, products, optimizedHistory, thinkingBudget, searchAnchor);
+      console.log('Réponse générée avec historique optimisé:', optimizedHistory.length, 'messages');
       
       // Si la réponse est valide, l'ajouter au cache
       if (googleResponse.response && !googleResponse.error && enableCache) {

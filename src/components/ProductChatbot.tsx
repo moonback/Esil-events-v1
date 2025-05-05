@@ -1,6 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { getAllProducts, searchProducts } from '../services/productService';
-import { generateChatbotResponse, generateDynamicSuggestions, ChatbotApiType } from '../services/chatbotService';
+import { 
+  generateChatbotResponse, 
+  generateDynamicSuggestions, 
+  ChatbotApiType,
+  saveConversationContext,
+  getConversationContext,
+  optimizeMessageHistory
+} from '../services/chatbotService';
 import { Product } from '../types/Product';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BrainCircuit, Send, Sparkles, RotateCcw, Search, Tag, X, Package, User, Bot, MessageSquare, Lightbulb, Globe, Settings } from 'lucide-react';
@@ -398,58 +405,74 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
     const mentionedProducts = detectProductMentions(text);
     
     // Ajouter le message de l'utilisateur
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: text,
-      sender: 'user',
+  const userMessage: Message = {
+    id: Date.now().toString(),
+    text: text,
+    sender: 'user',
+    timestamp: new Date(),
+    isNew: true,
+    mentionedProducts: mentionedProducts.length > 0 ? mentionedProducts : undefined
+  };
+
+    // Mettre à jour les messages avec le message de l'utilisateur
+  const updatedMessages = [...messages, userMessage];
+  setMessages(updatedMessages);
+  
+  // Sauvegarder le contexte de conversation après l'ajout du message utilisateur
+  saveConversationContext(updatedMessages.map(msg => ({ text: msg.text, sender: msg.sender })));
+  
+  setInput('');
+  setIsLoading(true);
+
+  try {
+    // Générer une réponse
+    const { text: botResponseText, source } = await generateResponse(text);
+    
+    // Détecter les produits mentionnés dans la réponse du bot
+    const mentionedProducts = detectProductMentions(botResponseText);
+    
+    // Ajouter la réponse du bot
+    const botMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: botResponseText,
+      sender: 'bot',
       timestamp: new Date(),
       isNew: true,
-      mentionedProducts: mentionedProducts.length > 0 ? mentionedProducts : undefined
+      mentionedProducts: mentionedProducts.length > 0 ? mentionedProducts : undefined,
+      source: source as 'google' | 'fallback' | 'cache' | undefined
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
+    // Mettre à jour les messages avec la réponse du bot
+    const messagesWithBotResponse = [...updatedMessages, botMessage];
+    setMessages(messagesWithBotResponse);
+    
+    // Sauvegarder le contexte de conversation après l'ajout de la réponse du bot
+    saveConversationContext(messagesWithBotResponse.map(msg => ({ text: msg.text, sender: msg.sender })));
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi du message:', error);
+    
+    // Message d'erreur
+    const errorMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: "Désolé, une erreur s'est produite. Veuillez réessayer plus tard.",
+      sender: 'bot',
+      timestamp: new Date(),
+      isNew: true,
+      mentionedProducts: undefined
+    };
 
-    try {
-      // Générer une réponse
-      const { text: botResponseText, source } = await generateResponse(text);
-      
-      // Détecter les produits mentionnés dans la réponse du bot
-      const mentionedProducts = detectProductMentions(botResponseText);
-      
-      // Ajouter la réponse du bot
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: botResponseText,
-        sender: 'bot',
-        timestamp: new Date(),
-        isNew: true,
-        mentionedProducts: mentionedProducts.length > 0 ? mentionedProducts : undefined,
-        source: source as 'google' | 'fallback' | 'cache' | undefined
-      };
-
-      setMessages(prev => [...prev, botMessage]);
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi du message:', error);
-      
-      // Message d'erreur
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: "Désolé, une erreur s'est produite. Veuillez réessayer plus tard.",
-        sender: 'bot',
-        timestamp: new Date(),
-        isNew: true,
-        mentionedProducts: undefined
-      };
-
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-      // Réafficher le bouton de suggestions après un délai
-      setTimeout(() => setShowSuggestionsButton(true), 1000);
-    }
-  };
+    // Mettre à jour les messages avec le message d'erreur
+    const messagesWithError = [...updatedMessages, errorMessage];
+    setMessages(messagesWithError);
+    
+    // Sauvegarder le contexte même en cas d'erreur
+    saveConversationContext(messagesWithError.map(msg => ({ text: msg.text, sender: msg.sender })));
+  } finally {
+    setIsLoading(false);
+    // Réafficher le bouton de suggestions après un délai
+    setTimeout(() => setShowSuggestionsButton(true), 1000);
+  }
+};
   
   // Gérer le clic sur une question suggérée
   const handleSuggestedQuestion = (question: string) => {
