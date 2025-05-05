@@ -118,36 +118,117 @@ INSTRUCTIONS SPÉCIFIQUES:
 };
 
 /**
- * Génère du contenu SEO optimisé pour un produit
+ * Prépare la requête pour l'API Google Gemini
  */
-export const generateProductSeo = async (
-  productData: Partial<ProductFormData>,
-  categories?: { category?: Category; subCategory?: Subcategory },
-  options?: ProductSeoGenerationOptions
-): Promise<{ seoContent?: { seo_title: string; seo_description: string; seo_keywords: string }; error?: string }> => {
-  try {
-    const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
-    
-    if (!apiKey) {
-      return { error: 'Erreur de configuration: Clé API DeepSeek manquante (VITE_DEEPSEEK_API_KEY).' };
+const prepareGeminiRequest = (productData: Partial<ProductFormData>, categories?: { category?: Category; subCategory?: Subcategory }, options?: ProductSeoGenerationOptions) => {
+  // Déterminer le contexte de catégorie pour enrichir le prompt
+  let categoryContext = '';
+  if (categories?.category) {
+    categoryContext = `Ce produit appartient à la catégorie principale "${categories.category.name}"`;
+    if (categories.subCategory) {
+      categoryContext += ` et à la sous-catégorie "${categories.subCategory.name}"`;
     }
+    categoryContext += '.';
+  }
 
-    const { messages } = prepareProductSeoPrompt(productData, categories, options);
+  // Ajuster le message en fonction des options
+  let lengthInstruction = '';
+  if (options?.targetLength === 'short') {
+    lengthInstruction = 'Génère un contenu concis et direct, idéal pour les recherches mobiles.';
+  } else if (options?.targetLength === 'long') {
+    lengthInstruction = 'Génère un contenu détaillé et approfondi, riche en mots-clés secondaires.';
+  } else {
+    lengthInstruction = 'Génère un contenu équilibré, optimisé pour le référencement et la conversion.';
+  }
 
-    const requestBody = {
-      model: "deepseek-chat",
-      messages: messages,
+  // Ajouter des mots-clés de focus si fournis
+  let keywordsInstruction = '';
+  if (options?.focusKeywords && options.focusKeywords.length > 0) {
+    keywordsInstruction = `Assure-toi d'inclure ces mots-clés importants: ${options.focusKeywords.join(', ')}. Intègre-les naturellement dans le titre et la description.`;
+  }
+
+  // Ajouter des informations sur le public cible si fournies
+  let audienceInstruction = '';
+  if (options?.targetAudience) {
+    audienceInstruction = `Ce produit cible principalement: ${options.targetAudience}. Adapte le ton et le vocabulaire en conséquence.`;
+  }
+
+  // Ajouter des informations sur le type d'événement si fourni
+  let eventTypeInstruction = '';
+  if (options?.eventType) {
+    eventTypeInstruction = `Ce produit est particulièrement adapté pour les événements de type: ${options.eventType}. Mentionne cet usage spécifique.`;
+  }
+
+  // Informations techniques pour enrichir le contenu
+  const technicalSpecsText = productData.technicalSpecs ? 
+    Object.entries(productData.technicalSpecs).map(([key, value]) => `${key}: ${value}`).join(', ') : 
+    'Non spécifiées';
+
+  const systemPrompt = "Tu es un expert en SEO spécialisé dans l'optimisation de contenu pour les sites de location de matériel événementiel. Tu excelles dans la création de métadonnées SEO pour des produits de location destinés aux événements professionnels et particuliers. Tu as une expertise approfondie dans le domaine de l'événementiel, couvrant tous les aspects : Location de matériel, Installation professionnelle, Régie Son & Lumière, et Animation événementielle. Tu comprends parfaitement les intentions de recherche des organisateurs d'événements et sais comment optimiser le contenu pour maximiser la visibilité dans les moteurs de recherche tout en maintenant un taux de conversion élevé. Tu maîtrises les dernières tendances SEO, les algorithmes de Google, et les meilleures pratiques en matière de référencement local pour le marché français de l'événementiel. Tu sais adapter le ton et le vocabulaire selon le type d'événement (mariage, séminaire d'entreprise, salon professionnel, etc.) et le public cible (particuliers, entreprises, institutions).";
+
+  const userQuestion = `Génère du contenu SEO optimisé pour ce produit de location événementielle :
+
+INFORMATIONS PRODUIT:
+• Nom: ${productData.name || 'Non spécifié'}
+• Référence: ${productData.reference || 'Non spécifiée'}
+• Catégorie: ${productData.category || 'Non spécifiée'}
+• Sous-catégorie: ${productData.subCategory || 'Non spécifiée'}
+• Sous-sous-catégorie: ${productData.subSubCategory || 'Non spécifiée'}
+• Description actuelle: ${productData.description || 'Non spécifiée'}
+• Prix: ${productData.priceHT || 'Non spécifié'}€ HT
+• Couleurs disponibles: ${productData.colors?.join(', ') || 'Non spécifiées'}
+• Spécifications techniques: ${technicalSpecsText}
+${categoryContext}
+
+CONTEXTE MARKETING:
+• ESIL-events est spécialisé dans la création d'événements de A à Z incluant location de mobilier, installation, régie son & lumière, et animation.
+• Nos produits sont premium et destinés à créer des événements inoubliables.
+• Notre expertise s'étend sur toute la France, avec une présence forte en région PARISIENNE.
+• Nous servons une clientèle exigeante composée de professionnels de l'événementiel et de particuliers.
+• ${audienceInstruction}
+• ${eventTypeInstruction}
+
+INSTRUCTIONS SPÉCIFIQUES:
+1. Génère un titre SEO optimisé (60-70 caractères maximum) qui soit accrocheur et contienne les mots-clés principaux.
+2. Génère une méta-description SEO (150-160 caractères maximum) qui soit informative, persuasive et incite à l'action.
+3. Génère une liste de 5-10 mots-clés pertinents séparés par des virgules, incluant:
+   - Des mots-clés liés au produit lui-même
+   - Des mots-clés liés à l'usage événementiel
+   - Des termes de recherche géographiques (Région parisienne, Île-de-France, Livraison France entière)
+   - Des termes liés à la location/prestation et au service national
+4. ${lengthInstruction}
+5. ${keywordsInstruction}
+6. Assure-toi que le contenu soit optimisé pour le référencement tout en restant naturel et persuasif.
+7. Inclus des termes liés à la qualité premium et à l'exclusivité.
+8. Mentionne notre expertise régionale et notre service personnalisé.
+9. Fournis le résultat au format JSON avec les clés suivantes: "seo_title", "seo_description", "seo_keywords".`;
+
+  return {
+    contents: [
+      {
+        parts: [
+          { text: systemPrompt },
+          { text: `Question du client: ${userQuestion}` }
+        ]
+      }
+    ],
+    generationConfig: {
       temperature: 0.7,
-      max_tokens: 1024,
-      top_p: 0.95,
-      response_format: { type: "json_object" }
-    };
+      maxOutputTokens: 800,
+      topP: 0.9
+    }
+  };
+};
 
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+/**
+ * Fonction pour effectuer une requête API Google Gemini avec retry
+ */
+async function makeGeminiApiRequest(requestBody: any, apiKey: string, retryCount = 0, maxRetries = 3): Promise<any> {
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(requestBody),
     });
@@ -160,11 +241,59 @@ export const generateProductSeo = async (
       } catch (parseError) {
         errorData = { error: { message: `Erreur ${response.status}: ${response.statusText}. Réponse non JSON.` } };
       }
-      throw new Error(`Erreur API (${response.status}): ${errorData?.error?.message || response.statusText || 'Erreur inconnue'}`);
+      
+      // Si on a atteint le nombre maximum de tentatives, lancer une erreur
+      if (retryCount >= maxRetries) {
+        throw new Error(`Erreur API Google (${response.status}): ${errorData?.error?.message || response.statusText || 'Erreur inconnue'}`);
+      }
+      
+      // Attendre avant de réessayer (backoff exponentiel)
+      const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
+      console.log(`Tentative Google API ${retryCount + 1}/${maxRetries} échouée. Nouvelle tentative dans ${waitTime}ms...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      
+      // Réessayer
+      return makeGeminiApiRequest(requestBody, apiKey, retryCount + 1, maxRetries);
     }
 
     const data = await response.json();
-    const generatedContent = data.choices?.[0]?.message?.content?.trim();
+    return data;
+  } catch (error) {
+    if (retryCount < maxRetries) {
+      // Attendre avant de réessayer
+      const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
+      console.log(`Erreur lors de la tentative Google API ${retryCount + 1}/${maxRetries}. Nouvelle tentative dans ${waitTime}ms...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      
+      // Réessayer
+      return makeGeminiApiRequest(requestBody, apiKey, retryCount + 1, maxRetries);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Génère du contenu SEO optimisé pour un produit en utilisant l'API Google Gemini
+ */
+export const generateProductSeo = async (
+  productData: Partial<ProductFormData>,
+  categories?: { category?: Category; subCategory?: Subcategory },
+  options?: ProductSeoGenerationOptions
+): Promise<{ seoContent?: { seo_title: string; seo_description: string; seo_keywords: string }; error?: string }> => {
+  try {
+    // Utiliser l'API Google Gemini
+    const geminiApiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
+    
+    if (!geminiApiKey) {
+      return { error: 'Erreur de configuration: Clé API Google Gemini manquante (VITE_GOOGLE_GEMINI_API_KEY).' };
+    }
+
+    // Préparer la requête pour Gemini
+    const requestBody = prepareGeminiRequest(productData, categories, options);
+
+    // Appeler l'API Gemini
+    const data = await makeGeminiApiRequest(requestBody, geminiApiKey);
+    let generatedContent = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!generatedContent) {
       throw new Error("La réponse de l'API est vide ou mal structurée.");
@@ -173,7 +302,10 @@ export const generateProductSeo = async (
     // Analyser le contenu JSON
     let parsedContent;
     try {
-      parsedContent = JSON.parse(generatedContent);
+      // Essayer de trouver un objet JSON dans la réponse
+      const jsonMatch = generatedContent.match(/\{[\s\S]*\}/);
+      const jsonString = jsonMatch ? jsonMatch[0] : generatedContent;
+      parsedContent = JSON.parse(jsonString);
     } catch (parseError) {
       // Si le contenu n'est pas un JSON valide, essayer d'extraire manuellement
       const titleMatch = generatedContent.match(/"seo_title"\s*:\s*"([^"]+)"/i);

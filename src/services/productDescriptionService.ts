@@ -1,7 +1,8 @@
 import { ProductFormData } from '../types/Product';
 
 /**
- * Service pour générer des descriptions de produits à l'aide de l'API Deepseek
+ * Service pour générer des descriptions de produits à l'aide de l'API Google Gemini
+ * (Remplacement de l'API Deepseek suite à un problème de solde insuffisant)
  */
 
 /**
@@ -50,31 +51,64 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
 };
 
 /**
- * Génère une description pour un produit
+ * Prépare la requête pour l'API Google Gemini
  */
-export const generateProductDescription = async (productData: Partial<ProductFormData>): Promise<{ description?: string; error?: string }> => {
-  try {
-    const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
-    
-    if (!apiKey) {
-      return { error: 'Erreur de configuration: Clé API DeepSeek manquante (VITE_DEEPSEEK_API_KEY).' };
-    }
+const prepareGeminiRequest = (productData: Partial<ProductFormData>) => {
+  const systemPrompt = "Tu es un expert en rédaction de descriptions de produits pour ESIL-events Créateur d'Événements Inoubliables, entreprise spécialisée dans la création d'événements de A à Z incluant location de mobilier, installation, régie son & lumière, et animation. Génère des descriptions détaillées, persuasives et SEO-friendly pour les produits. Principes clés : Ton professionnel, mettre en valeur les caractéristiques premium, souligner l'exclusivité et la qualité des produits ESIL, décrire l'impact visuel et pratique sur l'événement. Structure : Description physique détaillée, matériaux et finitions, dimensions, utilisations recommandées, avantages pour l'événement, caractéristiques techniques importantes, suggestions de combinaisons avec d'autres services ESIL (son, lumière, animation).";
 
-    const { messages } = prepareProductDescriptionPrompt(productData);
+  const userQuestion = `Génère une description détaillée et persuasive pour ce produit :
 
-    const requestBody = {
-      model: "deepseek-chat",
-      messages: messages,
+PRODUIT:
+• Nom: ${productData.name || 'Non spécifié'}
+• Référence: ${productData.reference || 'Non spécifiée'}
+• Catégorie: ${productData.category || 'Non spécifiée'}
+• Sous-catégorie: ${productData.subCategory || 'Non spécifiée'}
+• Sous-sous-catégorie: ${productData.subSubCategory || 'Non spécifiée'}
+• Description: ${productData.description || 'Non spécifiée'}
+• Images: ${productData.images?.join(', ') || 'Aucune image'}
+• Prix HT: ${productData.priceHT || 'Non spécifié'}€
+• Couleurs disponibles: ${productData.colors?.join(', ') || 'Non spécifiées'}
+• Spécifications techniques: ${Object.entries(productData.technicalSpecs || {}).map(([key, value]) => `${key}: ${value}`).join(', ') || 'Non spécifiées'}
+. Prix TTC: ${productData.priceTTC || 'Non spécifié'}€
+
+INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
+1. Rédige une description détaillée et attrayante du produit en 3-4 paragraphes (MAXIMUM 1500 caractères au total).
+2. Mets en valeur les caractéristiques premium et l'élégance du produit.
+3. Décris l'impact visuel et pratique que ce produit peut avoir sur un événement.
+4. Suggère des utilisations idéales et des combinaisons possibles avec d'autres produits.
+5. Inclus des mots-clés pertinents pour le SEO.
+6. N'invente pas de détails techniques non fournis.
+7. Utilise un ton professionnel mais engageant.
+8. Fournis uniquement la description, sans phrases d'introduction comme "Voici la description suggérée :".
+9. IMPORTANT: La description complète ne doit pas dépasser 1500 caractères, espaces compris.
+10. IMPORTANT: Optimise la description pour le référencement naturel en incluant les mots-clés pertinents de manière naturelle et en respectant une densité de mots-clés appropriée (2-3%).`;
+
+  return {
+    contents: [
+      {
+        parts: [
+          { text: systemPrompt },
+          { text: `Question du client: ${userQuestion}` }
+        ]
+      }
+    ],
+    generationConfig: {
       temperature: 0.7,
-      max_tokens: 600, // Réduit pour s'assurer que la réponse reste dans les limites
-      top_p: 0.95
-    };
+      maxOutputTokens: 800,
+      topP: 0.9
+    }
+  };
+};
 
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+/**
+ * Fonction pour effectuer une requête API Google Gemini avec retry
+ */
+async function makeGeminiApiRequest(requestBody: any, apiKey: string, retryCount = 0, maxRetries = 3): Promise<any> {
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(requestBody),
     });
@@ -87,11 +121,55 @@ export const generateProductDescription = async (productData: Partial<ProductFor
       } catch (parseError) {
         errorData = { error: { message: `Erreur ${response.status}: ${response.statusText}. Réponse non JSON.` } };
       }
-      throw new Error(`Erreur API (${response.status}): ${errorData?.error?.message || response.statusText || 'Erreur inconnue'}`);
+      
+      // Si on a atteint le nombre maximum de tentatives, lancer une erreur
+      if (retryCount >= maxRetries) {
+        throw new Error(`Erreur API Google (${response.status}): ${errorData?.error?.message || response.statusText || 'Erreur inconnue'}`);
+      }
+      
+      // Attendre avant de réessayer (backoff exponentiel)
+      const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
+      console.log(`Tentative Google API ${retryCount + 1}/${maxRetries} échouée. Nouvelle tentative dans ${waitTime}ms...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      
+      // Réessayer
+      return makeGeminiApiRequest(requestBody, apiKey, retryCount + 1, maxRetries);
     }
 
     const data = await response.json();
-    let generatedContent = data.choices?.[0]?.message?.content?.trim();
+    return data;
+  } catch (error) {
+    if (retryCount < maxRetries) {
+      // Attendre avant de réessayer
+      const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
+      console.log(`Erreur lors de la tentative Google API ${retryCount + 1}/${maxRetries}. Nouvelle tentative dans ${waitTime}ms...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      
+      // Réessayer
+      return makeGeminiApiRequest(requestBody, apiKey, retryCount + 1, maxRetries);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Génère une description pour un produit en utilisant l'API Google Gemini
+ */
+export const generateProductDescription = async (productData: Partial<ProductFormData>): Promise<{ description?: string; error?: string }> => {
+  try {
+    // Essayer d'abord avec l'API Gemini
+    const geminiApiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
+    
+    if (!geminiApiKey) {
+      return { error: 'Erreur de configuration: Clé API Google Gemini manquante (VITE_GOOGLE_GEMINI_API_KEY).' };
+    }
+
+    // Préparer la requête pour Gemini
+    const requestBody = prepareGeminiRequest(productData);
+
+    // Appeler l'API Gemini
+    const data = await makeGeminiApiRequest(requestBody, geminiApiKey);
+    let generatedContent = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!generatedContent) {
       throw new Error("La réponse de l'API est vide ou mal structurée.");
