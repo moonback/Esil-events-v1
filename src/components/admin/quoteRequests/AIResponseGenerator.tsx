@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, Clipboard, Check, Edit, Mail, ExternalLink, Sparkles, Brain, Save, History, Trash2, Download, MessageSquare, Wand2, X } from 'lucide-react';
+import { Send, Clipboard, Check, Edit, Mail, ExternalLink, Sparkles, Save, History, Trash2, Download, MessageSquare, X } from 'lucide-react';
 import { QuoteRequest } from '../../../services/quoteRequestService';
 import { formatDate, formatItemsDetails, calculateTotalAmount, getDeliveryTypeLabel, getTimeSlotLabel } from './QuoteRequestUtils';
 
@@ -7,7 +7,7 @@ interface AIResponseGeneratorProps {
   selectedRequest: QuoteRequest | null;
   suggestedResponse: string;
   generatingResponse: boolean;
-  onGenerateResponse: (useReasoner?: boolean, options?: ResponseOptions) => void;
+  onGenerateResponse: (options?: ResponseOptions) => void;
   onCopyResponse: () => void;
 }
 
@@ -35,9 +35,7 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [useReasoner, setUseReasoner] = useState(false);
-  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-  const [responseOptions, setResponseOptions] = useState<ResponseOptions>({
+  const [responseOptions] = useState<ResponseOptions>({
     tone: 'formal',
     includePromotion: true,
     focusOnDetails: true,
@@ -82,7 +80,7 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
   }, [suggestedResponse]);
 
   const handleGenerateResponse = () => {
-    onGenerateResponse(useReasoner, responseOptions);
+    onGenerateResponse(responseOptions);
   };
   
   const saveResponse = () => {
@@ -200,15 +198,15 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
         <div className="grid grid-cols-2 gap-2">
           <div>
             <span className="text-gray-500">Date événement:</span>{' '}
-            {selectedRequest.event_date ? formatDate(selectedRequest.event_date).split(' ')[0] : '-'}
+            {selectedRequest.event_date ? formatDate(selectedRequest.event_date.toString()).split(' ')[0] : '-'}
           </div>
           <div>
             <span className="text-gray-500">Livraison:</span>{' '}
-            {getDeliveryTypeLabel(selectedRequest.delivery_type)}
+            {getDeliveryTypeLabel(selectedRequest.delivery_type || undefined)}
           </div>
           <div>
             <span className="text-gray-500">Créneau:</span>{' '}
-            {getTimeSlotLabel(selectedRequest.delivery_time_slot)}
+            {getTimeSlotLabel(selectedRequest.delivery_time_slot || undefined)}
           </div>
           <div>
             <span className="text-gray-500">Articles:</span>{' '}
@@ -218,101 +216,8 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
         </div>
       </div>
 
-      {/* Options de génération */}
-      <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
-        <div className="flex justify-between items-center mb-2">
-          <div className="flex items-center space-x-2">
-            <Wand2 className="h-4 w-4 text-indigo-500" />
-            <span className="text-sm font-medium text-gray-700">Options de génération</span>
-          </div>
-          <button 
-            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-            className="text-xs text-indigo-600 hover:text-indigo-800 transition-colors"
-          >
-            {showAdvancedOptions ? 'Masquer les options avancées' : 'Afficher les options avancées'}
-          </button>
-        </div>
-        
-        {/* Reasoner toggle */}
-        <div className="flex items-center space-x-2 mb-2">
-          <label className="flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={useReasoner}
-              onChange={() => setUseReasoner(!useReasoner)}
-              className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-              disabled={generatingResponse}
-            />
-            <span className="ml-2 text-sm text-gray-700 flex items-center">
-              <Brain className="h-4 w-4 mr-1 text-indigo-500" />
-              Utiliser le raisonnement avancé
-            </span>
-          </label>
-          <div className="text-xs text-gray-500 italic">
-            {useReasoner ? "Génère des réponses plus réfléchies (peut prendre plus de temps)" : "Mode standard"}
-          </div>
-        </div>
-        
-        {/* Options avancées */}
-        {showAdvancedOptions && (
-          <div className="mt-3 pt-3 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-3">
-            {/* Ton de la réponse */}
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Ton de la réponse</label>
-              <select
-                value={responseOptions.tone}
-                onChange={(e) => setResponseOptions({...responseOptions, tone: e.target.value as any})}
-                disabled={generatingResponse}
-                className="w-full text-sm border border-gray-300 rounded-md p-1.5 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="formal">Formel</option>
-                <option value="friendly">Amical</option>
-                <option value="persuasive">Persuasif</option>
-              </select>
-            </div>
-            
-            {/* Longueur de la réponse */}
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Longueur de la réponse</label>
-              <select
-                value={responseOptions.responseLength}
-                onChange={(e) => setResponseOptions({...responseOptions, responseLength: e.target.value as any})}
-                disabled={generatingResponse}
-                className="w-full text-sm border border-gray-300 rounded-md p-1.5 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="concise">Concise</option>
-                <option value="standard">Standard</option>
-                <option value="detailed">Détaillée</option>
-              </select>
-            </div>
-            
-            {/* Options supplémentaires */}
-            <div className="col-span-1 md:col-span-2 flex flex-wrap gap-4">
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={responseOptions.includePromotion}
-                  onChange={() => setResponseOptions({...responseOptions, includePromotion: !responseOptions.includePromotion})}
-                  disabled={generatingResponse}
-                  className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                />
-                <span className="ml-2 text-xs text-gray-700">Inclure une promotion</span>
-              </label>
-              
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={responseOptions.focusOnDetails}
-                  onChange={() => setResponseOptions({...responseOptions, focusOnDetails: !responseOptions.focusOnDetails})}
-                  disabled={generatingResponse}
-                  className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                />
-                <span className="ml-2 text-xs text-gray-700">Détailler les articles</span>
-              </label>
-            </div>
-          </div>
-        )}
-      </div>
+      
+      
 
       {/* Historique des réponses */}
       {showHistory && savedResponses.length > 0 && (
@@ -467,7 +372,7 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mb-3"></div>
               <p className="font-medium">Génération de la réponse en cours...</p>
               <p className="text-xs mt-2">
-                {useReasoner ? "Raisonnement avancé activé - cela peut prendre plus de temps" : "Cela peut prendre quelques secondes"}
+                Cela peut prendre quelques secondes
               </p>
             </div>
           ) : (

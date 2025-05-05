@@ -16,7 +16,7 @@ export interface ResponseOptions {
 /**
  * Prépare les données pour la génération de réponse IA
  */
-export const prepareAIPromptData = (selectedRequest: QuoteRequest, useReasoner: boolean = false, options?: ResponseOptions) => {
+export const prepareAIPromptData = (selectedRequest: QuoteRequest, options?: ResponseOptions) => {
   const itemsDetails = formatItemsDetails(selectedRequest);
   const totalAmount = calculateTotalAmount(selectedRequest);
 
@@ -120,14 +120,14 @@ L'élégance pour chaque événement
 
   const messages = [systemMessage, userMessage];
 
-  return { messages, useReasoner };
+  return { messages };
 };
 
 /**
  * Prépare la requête pour l'API Google Gemini
  */
-const prepareGeminiRequest = (selectedRequest: QuoteRequest, useReasoner: boolean = false, options?: ResponseOptions) => {
-  const { messages } = prepareAIPromptData(selectedRequest, useReasoner, options);
+const prepareGeminiRequest = (selectedRequest: QuoteRequest, options?: ResponseOptions) => {
+  const { messages } = prepareAIPromptData(selectedRequest, options);
   
   // Extraire les messages système et utilisateur
   const systemPrompt = messages[0].content;
@@ -205,7 +205,7 @@ async function makeGeminiApiRequest(requestBody: any, apiKey: string, retryCount
 /**
  * Génère une réponse IA pour une demande de devis en utilisant l'API Google Gemini
  */
-export const generateAIResponse = async (selectedRequest: QuoteRequest, useReasoner: boolean = false, options?: ResponseOptions): Promise<{ response?: string; error?: string }> => {
+export const generateAIResponse = async (selectedRequest: QuoteRequest, options?: ResponseOptions): Promise<{ response?: string; error?: string }> => {
   try {
     // Utiliser l'API Google Gemini au lieu de DeepSeek
     const geminiApiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
@@ -215,7 +215,7 @@ export const generateAIResponse = async (selectedRequest: QuoteRequest, useReaso
     }
 
     // Préparer la requête pour Gemini
-    const requestBody = prepareGeminiRequest(selectedRequest, useReasoner, options);
+    const requestBody = prepareGeminiRequest(selectedRequest, options);
 
     // Appeler l'API Gemini
     const data = await makeGeminiApiRequest(requestBody, geminiApiKey);

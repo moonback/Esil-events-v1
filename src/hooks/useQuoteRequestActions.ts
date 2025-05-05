@@ -102,7 +102,7 @@ export const useQuoteRequestActions = (
   };
 
   // Génération de réponse IA
-  const handleGenerateResponse = async (useReasoner: boolean = false, options?: ResponseOptions) => {
+  const handleGenerateResponse = async (options?: ResponseOptions) => {
     if (!selectedRequest) {
       setFeedbackMessage({ type: 'error', text: 'Aucune demande sélectionnée.' });
       return;
@@ -115,7 +115,7 @@ export const useQuoteRequestActions = (
     setError('');
 
     try {
-      const { response, error } = await generateAIResponse(selectedRequest, useReasoner, options);
+      const { response, error } = await generateAIResponse(selectedRequest, options);
       
       if (error) {
         throw new Error(error);
