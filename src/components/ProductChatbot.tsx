@@ -957,25 +957,32 @@ Présentez cette comparaison sous forme de tableau markdown pour une meilleure l
                           p: ({node, ...props}: {node?: any, [key: string]: any}) => <p className="text-gray-700 dark:text-gray-200 leading-relaxed my-2" {...props} />,
                           
                           // Personnalisation des listes
-                          ul: ({node, ...props}: {node?: any, [key: string]: any}) => <ul className="my-2 space-y-1" {...props} />,
-                          ol: ({node, ...props}: {node?: any, [key: string]: any}) => <ol className="my-2 space-y-1 pl-1" {...props} />,
+                          // Personnalisation des listes
+                          ul: ({node, ...props}: {node?: any, [key: string]: any}) => <ul className="my-2 space-y-1 list-none pl-0" {...props} />,
+                          ol: ({node, ...props}: {node?: any, [key: string]: any}) => <ol className="my-2 space-y-1 list-none pl-1" {...props} />,
                           li: ({node, children, ...props}: {node?: any, children?: React.ReactNode, [key: string]: any}) => {
                             const parentType = node?.parent?.type;
                             if (parentType === 'ul') {
                               return (
-                                <li className="flex items-start gap-2 sm:gap-3 my-1 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800" {...props}>
-                                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 mt-1.5 flex-shrink-0 group-hover:scale-110 group-hover:shadow-md transition-all duration-200"></div>
-                                  <span className="text-gray-700 dark:text-gray-200">{children}</span>
-                                </li>
+<li className="flex items-start gap-3 sm:gap-4 my-2 group hover:bg-gradient-to-r hover:from-violet-50/30 hover:to-violet-100/30 dark:hover:from-violet-900/20 dark:hover:to-violet-800/20 p-3 rounded-2xl transition-all duration-300 ease-in-out border border-transparent hover:border-violet-200/50 dark:hover:border-violet-700/50 hover:shadow-lg hover:shadow-violet-100/20 dark:hover:shadow-violet-900/20" {...props}>
+  <div className="relative mt-1">
+    <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-gradient-to-br from-violet-400 via-violet-500 to-violet-600 dark:from-violet-500 dark:via-violet-600 dark:to-violet-700 flex-shrink-0 group-hover:scale-125 group-hover:rotate-180 group-hover:shadow-xl group-hover:shadow-violet-400/30 dark:group-hover:shadow-violet-700/30 transition-all duration-500 ease-spring"></div>
+    <div className="absolute -inset-2 bg-violet-400/20 dark:bg-violet-600/20 rounded-full blur-md opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-all duration-300 -z-10"></div>
+  </div>
+  <span className="text-gray-700 dark:text-gray-200 flex-1 group-hover:translate-x-1 group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-all duration-300">{children}</span>
+</li>
                               );
                             } else {
                               return (
-                                <li className="flex items-start gap-2 sm:gap-3 my-1 group hover:bg-violet-50/40 dark:hover:bg-violet-900/30 p-1.5 rounded-xl transition-all duration-200 border border-transparent hover:border-violet-100 dark:hover:border-violet-800" {...props}>
-                                  <div className="text-xs sm:text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent mt-0.5 flex-shrink-0 w-5 text-right group-hover:scale-110 transition-all duration-200">
-                                    {(props as any).index + 1}.
-                                  </div>
-                                  <span className="text-gray-700 dark:text-gray-200">{children}</span>
-                                </li>
+<li className="flex items-start gap-2 sm:gap-3 my-1.5 group hover:bg-gradient-to-r hover:from-violet-50/30 hover:to-violet-100/30 dark:hover:from-violet-900/20 dark:hover:to-violet-800/20 p-2 rounded-xl transition-all duration-300 ease-in-out border border-transparent hover:border-violet-200/50 dark:hover:border-violet-700/50 hover:shadow-lg hover:shadow-violet-100/20 dark:hover:shadow-violet-900/20" {...props}>
+  <div className="relative">
+    <div className="text-xs sm:text-sm font-bold bg-gradient-to-br from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600 bg-clip-text text-transparent flex-shrink-0 w-5 text-right group-hover:scale-110 transition-all duration-300">
+      {(props as any).index + 1 || '•'}
+    </div>
+    <div className="absolute -inset-2 bg-violet-400/10 dark:bg-violet-600/10 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+  </div>
+  <span className="text-gray-700 dark:text-gray-200 flex-1 group-hover:translate-x-1 group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-all duration-300">{children}</span>
+</li>
                               );
                             }
                           },
