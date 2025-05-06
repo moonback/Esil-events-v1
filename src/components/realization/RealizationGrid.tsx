@@ -49,7 +49,7 @@ const RealizationGrid: React.FC<RealizationGridProps> = ({ realizations, error, 
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-2">
       {realizations.map((realization) => (
         <RealizationCard 
           key={realization.id} 
@@ -69,32 +69,41 @@ interface RealizationCardProps {
 const RealizationCard: React.FC<RealizationCardProps> = ({ realization, onViewDetails }) => {
   return (
     <div 
-      className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+      className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
       onClick={() => onViewDetails(realization)}
     >
-      <div className="aspect-w-16 aspect-h-9 w-full overflow-hidden bg-gray-100">
+      <div className="relative h-48 w-full overflow-hidden bg-gray-100">
         <img
           src={realization.images && realization.images.length > 0 
             ? realization.images[0]
             : "/images/default-product.svg"}
           alt={realization.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500 ease-in-out"
         />
-      </div>
-      <div className="p-4">
         {realization.category && (
-          <span className="inline-block px-2 py-1 text-xs font-medium bg-violet-100 text-violet-800 rounded-full mb-2">
+          <span className="absolute top-3 right-3 px-3 py-1 text-xs font-medium bg-violet-600 text-white rounded-full shadow-md">
             {realization.category}
           </span>
         )}
-        <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-violet-600 transition-colors">
+      </div>
+      <div className="p-5 border-t border-gray-100">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-violet-600 transition-colors line-clamp-1">
           {realization.title}
         </h3>
-        <p className="text-sm text-gray-500 mb-2">{realization.location}</p>
+        <div className="flex items-center text-sm text-gray-500 mb-2">
+          <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <p className="truncate">{realization.location}</p>
+        </div>
         {realization.event_date && (
-          <p className="text-xs text-gray-400">
+          <div className="flex items-center text-xs text-gray-400">
+            <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
             {new Date(realization.event_date).toLocaleDateString('fr-FR')}
-          </p>
+          </div>
         )}
       </div>
     </div>
