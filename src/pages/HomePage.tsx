@@ -463,7 +463,7 @@ const HomePage: React.FC = () => {
       </motion.section>
 {/* Photo Gallery Section */}
 <motion.section 
-  className="section relative overflow-hidden py-12"
+  className="relative overflow-hidden py-12"
   initial="hidden"
   whileInView="visible"
   viewport={{ once: true }}
@@ -482,6 +482,7 @@ const HomePage: React.FC = () => {
           className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
         />
       </motion.div>
+
       <motion.div 
         className="overflow-hidden"
         whileHover={{ scale: 1.05 }}
@@ -493,8 +494,9 @@ const HomePage: React.FC = () => {
           className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
         />
       </motion.div>
+
       <motion.div 
-        className="overflow
+        className="overflow-hidden"
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.3 }}
       >
@@ -506,7 +508,7 @@ const HomePage: React.FC = () => {
       </motion.div>
 
       <motion.div 
-        className="overflow-hidden rounded-lg"
+        className="overflow-hidden"
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.3 }}
       >
@@ -518,7 +520,7 @@ const HomePage: React.FC = () => {
       </motion.div>
 
       <motion.div 
-        className="overflow-hidden rounded-lg"
+        className="overflow-hidden"
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.3 }}
       >
@@ -530,7 +532,7 @@ const HomePage: React.FC = () => {
       </motion.div>
 
       <motion.div 
-        className="overflow-hidden rounded-lg"
+        className="overflow-hidden"
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.3 }}
       >
