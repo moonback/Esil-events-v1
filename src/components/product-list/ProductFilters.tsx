@@ -99,7 +99,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                             />
                           </svg>
                         </Link>
-                        <div className="ml-3 space-y-1 border-l border-gray-200 pl-2">
+                        {/* <div className="ml-3 space-y-1 border-l border-gray-200 pl-2">
                           {Array.from(new Set(products
                             .filter(product => 
                               product.category === category && 
@@ -114,7 +114,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                                 <span>{subsubcategory}</span>
                               </Link>
                             ))}
-                        </div>
+                        </div> */}
                       </div>
                     ))}
                 </div>
