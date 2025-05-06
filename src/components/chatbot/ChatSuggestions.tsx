@@ -36,11 +36,15 @@ const ChatSuggestions: React.FC<ChatSuggestionsProps> = ({
     <AnimatePresence mode="wait">
       <motion.div 
         key="suggestions-panel"
-        className="p-4 sm:p-5 border-t border-violet-200/50 dark:border-violet-800/30 bg-gradient-to-b from-white/95 via-violet-50/30 to-violet-100/50 dark:from-gray-800/95 dark:via-gray-850/90 dark:to-gray-900/95 backdrop-blur-md shadow-inner relative overflow-hidden"
+        className="p-2.5 sm:p-3 border-t border-violet-200/50 dark:border-violet-800/30 bg-gradient-to-b from-white/95 via-violet-50/30 to-violet-100/50 dark:from-gray-800/95 dark:via-gray-850/90 dark:to-gray-900/95 backdrop-blur-md shadow-inner relative overflow-auto max-h-[70vh]"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(139, 92, 246, 0.5) transparent'
+        }}
         initial={{ opacity: 0, y: 20, height: 0 }}
         animate={{ opacity: 1, y: 0, height: 'auto' }}
         exit={{ opacity: 0, y: 20, height: 0 }}
-        transition={{ duration: 0.4, ease: "easeInOut" }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
         layout
       >
       {/* Éléments décoratifs améliorés */}
@@ -70,32 +74,32 @@ const ChatSuggestions: React.FC<ChatSuggestionsProps> = ({
         style={{ animationDuration: '18s' }}
       />
       
-      <div className="flex items-center justify-between mb-4 relative z-10">
+      <div className="flex items-center justify-between mb-2.5 relative z-10">
         <motion.div 
-          className="flex items-center gap-2.5"
+          className="flex items-center gap-2"
           initial={{ x: -10, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.3 }}
         >
-          <div className="p-2 bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-700/30 dark:to-amber-900/30 rounded-lg shadow-md ring-1 ring-amber-200/50 dark:ring-amber-800/30 group overflow-hidden relative">
+          <div className="p-1.5 bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-700/30 dark:to-amber-900/30 rounded-lg shadow-sm ring-1 ring-amber-200/50 dark:ring-amber-800/30 group overflow-hidden relative">
             <motion.div 
               className="absolute inset-0 bg-gradient-to-r from-amber-400/0 via-amber-400/30 to-amber-400/0 dark:from-amber-600/0 dark:via-amber-600/20 dark:to-amber-600/0"
               initial={{ x: '-100%' }}
               animate={{ x: '100%' }}
               transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
             />
-            <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400 relative z-10" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 relative z-10" />
           </div>
           <div>
             <motion.span 
-              className="text-sm font-medium bg-gradient-to-r from-amber-600 via-amber-500 to-amber-400 dark:from-amber-400 dark:via-amber-300 dark:to-amber-200 bg-clip-text text-transparent"
+              className="text-xs font-medium bg-gradient-to-r from-amber-600 via-amber-500 to-amber-400 dark:from-amber-400 dark:via-amber-300 dark:to-amber-200 bg-clip-text text-transparent"
               initial={{ backgroundPosition: '0% 50%' }}
               whileHover={{ backgroundPosition: '100% 50%' }}
               transition={{ duration: 1, ease: 'easeInOut' }}
             >
               Questions suggérées
             </motion.span>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Sélectionnez une question pour obtenir une réponse rapide</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 text-[10px]">Sélectionnez une question pour obtenir une réponse rapide</p>
           </div>
         </motion.div>
         <motion.button 
@@ -115,14 +119,14 @@ const ChatSuggestions: React.FC<ChatSuggestionsProps> = ({
       </div>
       
       <motion.div 
-        className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 relative z-10"
         variants={{
           hidden: { opacity: 0 },
           show: {
             opacity: 1,
             transition: {
-              staggerChildren: 0.07,
-              delayChildren: 0.2
+              staggerChildren: 0.05,
+              delayChildren: 0.15
             }
           }
         }}
@@ -233,33 +237,33 @@ const ChatSuggestions: React.FC<ChatSuggestionsProps> = ({
 <motion.button
   key={index}
   onClick={() => onSuggestionClick(suggestion)}
-  className={`flex items-center gap-3 text-left text-xs sm:text-sm md:text-base bg-white/90 dark:bg-gray-800/70 text-gray-700 dark:text-gray-200 p-3.5 sm:p-4 rounded-xl shadow-md ${shadowColor} border border-gray-200/50 dark:border-gray-700/50 hover:border-violet-200/70 dark:hover:border-violet-700/50 transition-all duration-300 group overflow-hidden relative`}
-  initial={{ opacity: 0, y: 15, scale: 0.95 }}
+  className={`flex items-center gap-2 text-left text-xs sm:text-sm bg-white/90 dark:bg-gray-800/70 text-gray-700 dark:text-gray-200 p-2.5 sm:p-3 rounded-lg shadow-sm ${shadowColor} border border-gray-200/50 dark:border-gray-700/50 hover:border-violet-200/70 dark:hover:border-violet-700/50 transition-all duration-200 group overflow-hidden relative`}
+  initial={{ opacity: 0, y: 10, scale: 0.95 }}
   animate={{ opacity: 1, y: 0, scale: 1 }}
   transition={{ 
     type: "spring", 
     stiffness: 300, 
     damping: 15,
-    delay: 0.1 + (index * 0.05) // Animation séquentielle
+    delay: 0.1 + (index * 0.03) // Animation séquentielle plus rapide
   }}
-  whileHover={{ scale: 1.03, y: -3 }}
-  whileTap={{ scale: 0.97 }}
+  whileHover={{ scale: 1.02, y: -2 }}
+  whileTap={{ scale: 0.98 }}
 >
   {/* Effet de brillance sur hover */}
   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/0 to-transparent hover:via-white/20 dark:hover:via-white/5 transition-all duration-700 ease-in-out bg-[length:0%_100%] hover:bg-[length:100%_100%] bg-no-repeat"></div>
   
   {/* Icône avec fond coloré */}
-  <div className={`p-2.5 sm:p-3 bg-gradient-to-br ${bgGradient} rounded-lg shadow-sm group-hover:shadow-md transition-all duration-200 flex-shrink-0 relative z-10 ring-1 ring-white/50 dark:ring-gray-800/50 overflow-hidden`}>
+  <div className={`p-2 bg-gradient-to-br ${bgGradient} rounded-md shadow-sm group-hover:shadow transition-all duration-200 flex-shrink-0 relative z-10 ring-1 ring-white/50 dark:ring-gray-800/50 overflow-hidden`}>
     <motion.div 
-      className="absolute inset-0 bg-white/0 group-hover:bg-white/20 dark:group-hover:bg-white/10 rounded-lg"
+      className="absolute inset-0 bg-white/0 group-hover:bg-white/20 dark:group-hover:bg-white/10 rounded-md"
       initial={{ scale: 0, opacity: 0 }}
       whileHover={{ scale: 1, opacity: 1 }}
       transition={{ type: "spring", stiffness: 400, damping: 10 }}
     />
     <div className={`text-gradient bg-gradient-to-br ${textGradient} bg-clip-text text-transparent relative z-10`}>
       <motion.div
-        whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-        transition={{ duration: 0.5 }}
+        whileHover={{ rotate: [0, -5, 5, -5, 0] }}
+        transition={{ duration: 0.4 }}
       >
         {icon}
       </motion.div>
@@ -267,27 +271,27 @@ const ChatSuggestions: React.FC<ChatSuggestionsProps> = ({
   </div>
   
   {/* Texte de la suggestion */}
-  <div className="flex-1 relative z-10">
-    <span className="line-clamp-3 font-medium group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors duration-200">
+  <div className="flex-1 relative z-10 min-h-[45px] flex flex-col justify-center">
+    <span className="font-medium text-xs sm:text-sm group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors duration-200 break-words">
       {suggestion}
     </span>
-    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 opacity-80">
-      Cliquez pour obtenir une réponse détaillée
+    <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 opacity-80">
+      Cliquez pour obtenir une réponse
     </p>
   </div>
   
   {/* Indicateur de flèche sur hover */}
   <motion.div 
-    className="w-8 h-8 rounded-full bg-violet-100/0 group-hover:bg-violet-100 dark:group-hover:bg-violet-900/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 relative z-10 mr-1"
-    whileHover={{ scale: 1.2, rotate: 5 }}
+    className="w-6 h-6 rounded-full bg-violet-100/0 group-hover:bg-violet-100 dark:group-hover:bg-violet-900/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 relative z-10 mr-0.5"
+    whileHover={{ scale: 1.1, rotate: 5 }}
     transition={{ type: "spring", stiffness: 400, damping: 10 }}
   >
     <motion.svg 
-      className="w-4 h-4 text-violet-600/0 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200" 
+      className="w-3 h-3 text-violet-600/0 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200" 
       fill="none" 
       stroke="currentColor" 
       viewBox="0 0 24 24"
-      initial={{ x: -5, opacity: 0 }}
+      initial={{ x: -3, opacity: 0 }}
       whileHover={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2 }}
     >
