@@ -71,12 +71,6 @@ const App: React.FC = () => {
           {/* Route admin avec le composant AdminRoutes */}
           <Route path="/admin/*" element={<AdminRoutes />} />
           
-          {/* Route spécifique pour le callback d'authentification Google */}
-          {/* <Route path="/admin/google-auth-callback" element={
-            <Suspense fallback={<div>Chargement...</div>}>
-              <GoogleAuthCallback />
-            </Suspense>
-          } /> */}
 
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />
