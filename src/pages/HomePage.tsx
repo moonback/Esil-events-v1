@@ -461,6 +461,88 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </motion.section>
+{/* Photo Gallery Section */}
+<motion.section 
+  className="section relative overflow-hidden py-12"
+  initial="hidden"
+  whileInView="visible"
+  viewport={{ once: true }}
+  variants={fadeIn}
+>
+  <div className="container-custom">
+    <div className="grid grid-cols-6 gap-0">
+      <motion.div 
+        className="overflow-hidden"
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.3 }}
+      >
+        <img 
+          src="/images/esil-events.JPG" 
+          alt="Event Gallery 1"
+          className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
+        />
+      </motion.div>
+      <motion.div 
+        className="overflow-hidden"
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.3 }}
+      >
+        <img 
+          src="/images/esil-events.JPG" 
+          alt="Event Gallery 2"
+          className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
+        />
+      </motion.div>
+      <motion.div 
+        className="overflow
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.3 }}
+      >
+        <img 
+          src="/images/esil-events.JPG" 
+          alt="Event Gallery 3"
+          className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
+        />
+      </motion.div>
+
+      <motion.div 
+        className="overflow-hidden rounded-lg"
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.3 }}
+      >
+        <img 
+          src="/images/esil-events.JPG" 
+          alt="Event Gallery 4"
+          className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
+        />
+      </motion.div>
+
+      <motion.div 
+        className="overflow-hidden rounded-lg"
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.3 }}
+      >
+        <img 
+          src="/images/esil-events.JPG" 
+          alt="Event Gallery 5"
+          className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
+        />
+      </motion.div>
+
+      <motion.div 
+        className="overflow-hidden rounded-lg"
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.3 }}
+      >
+        <img 
+          src="/images/esil-events.JPG" 
+          alt="Event Gallery 6"
+          className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
+        />
+      </motion.div>
+    </div>
+  </div>
+</motion.section>
 
       {/* Delivery Options Section avec animations */}
       <motion.section 
