@@ -550,37 +550,48 @@ const AboutPage = () => {
               realizations.slice(0, 6).map((realization, index) => (
                 <motion.div 
                   key={realization.id}
-                  className="group relative overflow-hidden rounded-2xl cursor-pointer"
+                  className="group relative overflow-hidden rounded-2xl cursor-pointer h-[400px]" // Fixed height
                   whileHover={{ scale: 1.02 }}
                   variants={scaleIn}
                 >
-                  <div className="aspect-w-16 aspect-h-9">
+                  <div className="h-full w-full">
                     <img 
                       src={realization.images && realization.images.length > 0 ? realization.images[0] : "/images/default-product.svg"}
                       alt={realization.title}
                       className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                     />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                    <span className="text-violet-400 text-sm font-medium block mb-2">{realization.category || "Événement"}</span>
-                    <h3 className="text-white text-xl font-bold">{realization.title}</h3>
-                    <p className="text-gray-300 text-sm mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">{realization.location}</p>
+                  {/* Enhanced gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
+                  {/* Enhanced content positioning and styling */}
+                  <div className="absolute bottom-0 left-0 right-0 p-8 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/90 to-transparent">
+                    <div className="flex flex-col gap-2">
+                      <span className="inline-block bg-violet-500/20 text-violet-300 text-sm font-medium px-3 py-1 rounded-full w-fit">
+                        {realization.category || "Événement"}
+                      </span>
+                      <h3 className="text-white text-2xl font-bold">{realization.title}</h3>
+                      <p className="text-gray-300 text-base opacity-0 group-hover:opacity-100 transition-opacity duration-300 line-clamp-2">
+                        {realization.location}
+                      </p>
+                    </div>
                   </div>
                 </motion.div>
               ))
             ) : (
-              // Afficher des placeholders pendant le chargement
+              // Enhanced loading placeholders
               Array(6).fill(0).map((_, index) => (
                 <motion.div 
                   key={index}
-                  className="group relative overflow-hidden rounded-2xl bg-gray-800 animate-pulse"
+                  className="group relative overflow-hidden rounded-2xl bg-gray-800 animate-pulse h-[400px]" // Matching height
                   variants={scaleIn}
                 >
-                  <div className="aspect-w-16 aspect-h-9 bg-gray-700"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="h-4 bg-gray-700 rounded w-1/3 mb-2"></div>
-                    <div className="h-6 bg-gray-700 rounded w-2/3"></div>
+                  <div className="h-full w-full bg-gray-700"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 to-transparent">
+                    <div className="flex flex-col gap-3">
+                      <div className="h-6 bg-gray-600 rounded-full w-1/3"></div>
+                      <div className="h-8 bg-gray-600 rounded w-3/4"></div>
+                      <div className="h-4 bg-gray-600 rounded w-1/2"></div>
+                    </div>
                   </div>
                 </motion.div>
               ))
@@ -591,9 +602,18 @@ const AboutPage = () => {
             className="text-center mt-16"
             variants={fadeInUp}
           >
-            <a href="/realisations" className="inline-flex items-center text-violet-400 hover:text-violet-300 transition-colors font-medium">
+            <a 
+              href="/realisations" 
+              className="inline-flex items-center px-6 py-3 bg-violet-500 hover:bg-violet-600 text-white rounded-full transition-all duration-300 font-medium group"
+            >
               Voir toutes nos réalisations
-              <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg 
+                className="ml-2 w-5 h-5 transform group-hover:translate-x-1 transition-transform" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
               </svg>
             </a>

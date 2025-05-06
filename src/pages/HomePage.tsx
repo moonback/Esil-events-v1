@@ -350,7 +350,7 @@ const HomePage: React.FC = () => {
             >
               <div className="h-48 overflow-hidden relative">
                 <img 
-                  src="public\images\4.png" 
+                  src="\images\4.png" 
                   alt="Technique" 
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                 />
