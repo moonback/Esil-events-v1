@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
-import { ArrowRight, CheckCircle, Package, Truck } from 'lucide-react';
+import { ArrowRight, CheckCircle, Diamond, Package, Truck } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const HomePage: React.FC = () => {
@@ -236,7 +236,7 @@ const HomePage: React.FC = () => {
         variants={staggerContainer}
       >
         {/* Forme décorative en arrière-plan */}
-        <div className="absolute inset-0 bg-gradient-to-r from-violet-50 to-indigo-50 transform -skew-y-3"></div>
+        <div className="absolute inset-0 bg-black transform -skew-y-3"></div>
         
         <div className="container-custom relative z-10">
           <motion.div 
@@ -244,10 +244,10 @@ const HomePage: React.FC = () => {
             variants={fadeInUp}
           >
             <span className="inline-block text-sm font-semibold text-violet-600 uppercase tracking-wider mb-2">Nos produits</span>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
-              Louez votre <span className="text-violet-700">matériel évènementiel</span> !
+            <h2 className="text-3xl text-white md:text-4xl font-bold mb-6 text-center">
+              Louez votre matériel évènementiel !
             </h2>
-            <p className="text-center mb-6 max-w-3xl mx-auto text-gray-600">
+            <p className="text-center text-white mb-6 max-w-3xl mx-auto text-gray-600">
               ESIL Events met à votre disposition une large gamme d'équipements professionnels, disponibles en location avec ou sans installation, pour tous vos événements !
             </p>
           </motion.div>
@@ -261,7 +261,7 @@ const HomePage: React.FC = () => {
             >
               <div className="h-48 overflow-hidden relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                  src="public\images\3.png" 
                   alt="Mobilier & Déco" 
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                 />
@@ -286,7 +286,7 @@ const HomePage: React.FC = () => {
             >
               <div className="h-48 overflow-hidden relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                  src="public\images\1.png" 
                   alt="Jeux" 
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                 />
@@ -319,7 +319,7 @@ const HomePage: React.FC = () => {
             >
               <div className="h-48 overflow-hidden relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1588412079929-790b9f593d8e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                  src="public\images\2.png" 
                   alt="Signalétique" 
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                 />
@@ -350,7 +350,7 @@ const HomePage: React.FC = () => {
             >
               <div className="h-48 overflow-hidden relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                  src="public\images\4.png" 
                   alt="Technique" 
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                 />
@@ -420,7 +420,9 @@ const HomePage: React.FC = () => {
                 >
                   Chaque événement est unique et mérite une exécution parfaite. Chez ESIL Events, nous transformons vos idées en expériences marquantes, en combinant créativité, expertise technique et gestion rigoureuse.
                   <br /><br />
-                  <span className="font-semibold">Vous avez un projet en tête ? Discutons-en et créons ensemble un événement à la hauteur de vos ambitions.</span>
+                  <span className="font-semibold">Vous avez un projet en tête ?
+                  Notre équipe est là pour vous aider, créons
+                  ensemble cet événement !</span>
                 </motion.p>
                 
                 <motion.div 
@@ -435,7 +437,7 @@ const HomePage: React.FC = () => {
                       to="/contact" 
                       className="bg-white text-violet-700 px-8 py-4 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center group"
                     >
-                      <span>Discuter de mon événement</span>
+                      <span>Créons cet événement !</span>
                       <svg className="ml-2 w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                       </svg>
@@ -492,11 +494,11 @@ const HomePage: React.FC = () => {
               variants={scaleIn}
               whileHover={{ y: -10 }}
             >
-              <div className="bg-gradient-to-r from-violet-600 to-violet-800 text-white p-4 flex items-center justify-center">
+              <div className="bg-black text-white p-4 flex items-center justify-center">
                 <Package className="w-8 h-8" />
               </div>
               <div className="p-6">
-                <h2 className="text-2xl font-bold mb-2 text-violet-700">Retrait sur place</h2>
+                <h2 className="text-2xl font-bold mb-2 text-black">Retrait sur place</h2>
                 <p className="text-green-600 font-bold mb-4">Gratuit</p>
                 <p className="mb-4 text-gray-600">
                   Récupérez votre matériel directement dans notre entrepôt à Mantes-la-Ville. Du lundi au vendredi de 9h30 à 12h et 14h15 à 16h.
@@ -527,11 +529,11 @@ const HomePage: React.FC = () => {
               variants={scaleIn}
               whileHover={{ y: -10 }}
             >
-              <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-4 flex items-center justify-center">
+              <div className="bg-black  text-white p-4 flex items-center justify-center">
                 <Truck className="w-8 h-8" />
               </div>
               <div className="p-6">
-                <h2 className="text-2xl font-bold mb-2 text-indigo-700">Livraison Économique</h2>
+                <h2 className="text-2xl font-bold mb-2 text-black">Livraison Économique</h2>
                 <p className="text-gray-600 font-bold mb-4">Sur devis</p>
                 <p className="mb-4 text-gray-600">
                   Nous livrons sur site et vous participez au déchargement si nécessaire. Pensez à vérifier les accès (escaliers, ascenseurs, largeur des portes…).
@@ -562,11 +564,11 @@ const HomePage: React.FC = () => {
               variants={scaleIn}
               whileHover={{ y: -10 }}
             >
-              <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white p-4 flex items-center justify-center">
-                <Truck className="w-8 h-8" />
+              <div className="bg-black  text-white p-4 flex items-center justify-center">
+                <Diamond className="w-8 h-8" />
               </div>
               <div className="p-6">
-                <h2 className="text-2xl font-bold mb-2 text-purple-700">Formule Premium</h2>
+                <h2 className="text-2xl font-bold mb-2 text-black">Formule Premium</h2>
                 <p className="text-gray-600 font-bold mb-4">Sur devis</p>
                 <p className="mb-4 text-gray-600">
                   Service clé en main : livraison, installation et démontage pris en charge par nos techniciens événementiels 7j/7 et 24h/24, partout en France.
