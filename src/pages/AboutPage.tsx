@@ -538,10 +538,8 @@ const AboutPage = () => {
             conférences et plus
             </h2>
             <p className="text-xl text-gray-300 max-w-4xl mx-auto">
-            Nous accompagnons les entreprises dans
-l’organisation d’événements sur-mesure,
-retrouvez nos projets récents que nous avons
-eu le plaisir de concevoir et coordonner.
+            Nous accompagnons les entreprises dans l’organisation d’événements sur-mesure,
+            retrouvez nos projets récents que nous avons eu le plaisir de concevoir et coordonner.
             </p>
           </motion.div>
           
