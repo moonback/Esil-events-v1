@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import SEO from '../components/SEO';
+import { useState, useEffect } from 'react';
+import { getAllRealizations, Realization } from '../services/realizationService';
 
 const teamMembers = [
   {
@@ -38,7 +40,7 @@ const services = [
     color: "black",
     icon: (
       <img 
-        src="public\images\Location-materiel.JPG" 
+        src="\images\Location-materiel.JPG" 
         alt="Matériel événementiel"
         className="w-8 h-8 object-cover"
       />
@@ -51,7 +53,7 @@ const services = [
     color: "black",
     icon: (
       <img 
-        src="public\images\Location-jeux.jpg"
+        src="\images\Location-jeux.jpg"
         alt="Jeux événementiels" 
         className="w-8 h-8 object-cover"
       />
@@ -64,7 +66,7 @@ const services = [
     color: "black",
     icon: (
       <img 
-        src="public\images\Soirer-entreprise.jpg"
+        src="\images\Soirer-entreprise.jpg"
         alt="Organisation d'événements"
         className="w-8 h-8 object-cover"
       />
@@ -75,6 +77,30 @@ const services = [
 ];
 
 const AboutPage = () => {
+  // État pour stocker les réalisations
+  const [realizations, setRealizations] = useState<Realization[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Charger les réalisations au montage du composant
+  useEffect(() => {
+    const fetchRealizations = async () => {
+      try {
+        setLoading(true);
+        const data = await getAllRealizations();
+        setRealizations(data);
+        setError(null);
+      } catch (err) {
+        console.error('Erreur lors du chargement des réalisations:', err);
+        setError('Impossible de charger les réalisations. Veuillez réessayer plus tard.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRealizations();
+  }, []);
+
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
     visible: { 
@@ -491,7 +517,7 @@ const AboutPage = () => {
         </div>
       </motion.section>
 
-      {/* Section Partenaires avec Design Amélioré */}
+      {/* Section Réalisations avec Design Amélioré */}
       <motion.section 
         className="py-20 mb-32 relative overflow-hidden"
         initial="hidden"
@@ -508,48 +534,70 @@ const AboutPage = () => {
           >
             <span className="inline-block text-sm font-semibold text-violet-400 uppercase tracking-wider mb-2">Nos réalisations</span>
             <h2 className="text-4xl font-bold mb-6 text-white">
-              Séminaires, soirées d’entreprise,
-              conférences et plus
+              Découvrez nos plus belles réalisations
             </h2>
             <p className="text-xl text-gray-300 max-w-4xl mx-auto">
-            Nous accompagnons les entreprises dans
-            l’organisation d’événements sur-mesure,
-            retrouvez nos projets récents que nous avons
-            eu le plaisir de concevoir et coordonner.
+              De la conception à la réalisation, explorez notre portfolio d'événements 
+              qui témoigne de notre expertise et de notre créativité.
             </p>
           </motion.div>
           
           <motion.div 
-            className="grid grid-cols-2 md:grid-cols-4 gap-8"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
             variants={staggerContainer}
           >
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
-              <motion.div 
-                key={index}
-                className="bg-gray-800 bg-opacity-50 backdrop-blur-sm p-6 rounded-2xl flex items-center justify-center border border-gray-700 hover:border-violet-500 transition-colors duration-300"
-                whileHover={{ scale: 1.05, borderColor: "#8B5CF6" }}
-                variants={scaleIn}
-              >
-                <img 
-                  src={`https://placehold.co/200x100/gray/white?text=Partner+${index}`} 
-                  alt={`Partner ${index}`} 
-                  className="max-h-16 transition-opacity filter grayscale hover:grayscale-0 hover:opacity-100 opacity-80"
-                />
-              </motion.div>
-            ))}
+            {realizations.length > 0 ? (
+              realizations.slice(0, 6).map((realization, index) => (
+                <motion.div 
+                  key={realization.id}
+                  className="group relative overflow-hidden rounded-2xl cursor-pointer"
+                  whileHover={{ scale: 1.02 }}
+                  variants={scaleIn}
+                >
+                  <div className="aspect-w-16 aspect-h-9">
+                    <img 
+                      src={realization.images && realization.images.length > 0 ? realization.images[0] : "/images/default-product.svg"}
+                      alt={realization.title}
+                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                    <span className="text-violet-400 text-sm font-medium block mb-2">{realization.category || "Événement"}</span>
+                    <h3 className="text-white text-xl font-bold">{realization.title}</h3>
+                    <p className="text-gray-300 text-sm mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">{realization.location}</p>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              // Afficher des placeholders pendant le chargement
+              Array(6).fill(0).map((_, index) => (
+                <motion.div 
+                  key={index}
+                  className="group relative overflow-hidden rounded-2xl bg-gray-800 animate-pulse"
+                  variants={scaleIn}
+                >
+                  <div className="aspect-w-16 aspect-h-9 bg-gray-700"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="h-4 bg-gray-700 rounded w-1/3 mb-2"></div>
+                    <div className="h-6 bg-gray-700 rounded w-2/3"></div>
+                  </div>
+                </motion.div>
+              ))
+            )}
           </motion.div>
           
-          {/* <motion.div 
+          <motion.div 
             className="text-center mt-16"
             variants={fadeInUp}
           >
-            <a href="#" className="inline-flex items-center text-violet-400 hover:text-violet-300 transition-colors font-medium">
-              Voir tous nos partenaires
+            <a href="/realisations" className="inline-flex items-center text-violet-400 hover:text-violet-300 transition-colors font-medium">
+              Voir toutes nos réalisations
               <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
               </svg>
             </a>
-          </motion.div> */}
+          </motion.div>
         </div>
       </motion.section>
 
@@ -660,7 +708,7 @@ const AboutPage = () => {
             </a>
             <a href="#" className="text-gray-600 hover:text-violet-600 dark:text-gray-400 dark:hover:text-violet-400 transition-colors">
               <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
+                <path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
               </svg>
             </a>
             <a href="#" className="text-gray-600 hover:text-violet-600 dark:text-gray-400 dark:hover:text-violet-400 transition-colors">

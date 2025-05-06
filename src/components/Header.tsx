@@ -208,12 +208,26 @@ const Header: React.FC = () => {
                   <Link to="/delivery" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     Livraison
                   </Link>
+                  
+                  <Link to="/realisations" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
+                    Nos réalisations
+                  </Link>
+                  <Link 
+                    to="/agence-evenementielle" 
+                    className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border relative group"
+                  >
+                    <span className="inline-block animate-pulse bg-gradient-to-r from-violet-500 to-purple-600 text-transparent bg-clip-text font-bold group-hover:scale-105 transition-transform duration-300">
+                      Agence événementielle
+                    </span>
+                    <span className="absolute -top-1 -right-2 flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                    </span>
+                  </Link>
                   <Link to="/contact" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     Contact
                   </Link>
-                  <Link to="/agence-evenementielle" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
-                    <i>Agence événementielle</i>
-                  </Link>
+                  
                 </nav>
               </div>
 
