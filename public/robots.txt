@@ -6,4 +6,4 @@ Disallow: /admin/
 Disallow: /admin/*
 
 # Sitemap
-Sitemap: https://esil-events.com/sitemap.xml
+Sitemap: https://esil-events.fr/sitemap.xml

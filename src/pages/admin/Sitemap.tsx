@@ -58,7 +58,7 @@ const AdminSitemap: React.FC = () => {
     const today = new Date().toISOString().split('T')[0];
     const newEntry: SitemapEntry = {
       id: `entry-${Date.now()}`,
-      loc: 'https://esil-events.com/',
+      loc: 'https://esil-events.fr/',
       lastmod: today,
       changefreq: 'monthly',
       priority: '0.5'

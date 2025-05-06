@@ -14,7 +14,7 @@ const SEO: React.FC<SEOProps> = ({
   description = 'ESIL Events vous accompagne dans l\'organisation de vos événements professionnels et particuliers. Découvrez nos services sur mesure.',
   keywords = 'événementiel, organisation événements, ESIL Events, événements professionnels, événements particuliers',
   image = '/images/logo.png',
-  url = 'https://esil-events.com',
+  url = 'https://esil-events.fr',
   type = 'website'
 }) => {
   const siteTitle = title ? `${title} | ESIL Events` : 'ESIL Events';
@@ -60,7 +60,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="application-name" content="ESIL Events" />
       <meta name="msapplication-TileColor" content="#ffffff" />
       <meta name="format-detection" content="telephone=no" />
-      <link rel="alternate" hrefLang="fr" href="https://esil-events.com/" />
+      <link rel="alternate" hrefLang="fr" href="https://esil-events.fr/" />
       
       {/* Structured Data / Schema.org */}
       <script type="application/ld+json">
@@ -68,7 +68,7 @@ const SEO: React.FC<SEOProps> = ({
           "@context": "https://schema.org",
           "@type": "Organization",
           "name": "ESIL Events",
-          "url": "https://esil-events.com",
+          "url": "https://esil-events.fr",
           "logo": `${url}/images/logo.png`,
           "description": description,
           "address": {

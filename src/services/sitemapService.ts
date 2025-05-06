@@ -24,7 +24,7 @@ export const generateProductSitemapEntries = async (): Promise<SitemapEntry[]> =
       
       return {
         id: `product-${product.id}`,
-        loc: `https://esil-events.com/product/${product.slug}`,
+        loc: `https://esil-events.fr/product/${product.slug}`,
         lastmod,
         changefreq: 'weekly',  // Les produits sont mis à jour régulièrement
         priority: '0.7'        // Priorité moyenne-haute pour les pages produits
