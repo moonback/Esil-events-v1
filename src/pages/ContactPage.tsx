@@ -487,7 +487,14 @@ const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-bold mb-2 text-violet-300">Téléphone</h3>
-                    <a href="tel:+33620461385" className="text-gray-300 hover:text-violet-300 transition-colors">06 20 46 13 85</a>
+                    <div className="space-y-2">
+                      <a href="tel:+33785959723" className="block text-gray-300 hover:text-violet-300 transition-colors">
+                        Service commercial : 07 85 95 97 23
+                      </a>
+                      <a href="tel:+33620461385" className="block text-gray-300 hover:text-violet-300 transition-colors">
+                        Service technique : 06 20 46 13 85
+                      </a>
+                    </div>
                   </div>
                 </motion.li>
                 <motion.li 
@@ -511,7 +518,7 @@ const ContactPage: React.FC = () => {
                 <h3 className="font-bold mb-6 text-violet-300">Suivez-nous</h3>
                 <div className="flex space-x-6">
                   <motion.a
-                    href="https://facebook.com/esilevents"
+                    href="https://www.facebook.com/profile.php?id=61574583021091"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gray-800 hover:bg-violet-600 text-white p-3 rounded-full transition-all duration-300"
@@ -521,7 +528,7 @@ const ContactPage: React.FC = () => {
                     <Facebook className="w-5 h-5" />
                   </motion.a>
                   <motion.a
-                    href="https://instagram.com/esilevents"
+                    href="https://www.instagram.com/esilevents/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gray-800 hover:bg-violet-600 text-white p-3 rounded-full transition-all duration-300"
