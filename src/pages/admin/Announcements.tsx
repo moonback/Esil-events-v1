@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, X, AlertCircle } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
-import { Announcement, getActiveAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement } from '../../services/localStorageAnnouncementService';
+import { Announcement, getAllAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement } from '../../services/announcementService';
 
 const AdminAnnouncements: React.FC = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -33,7 +33,8 @@ const AdminAnnouncements: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getActiveAnnouncements();
+      // Utiliser getAllAnnouncements au lieu de getActiveAnnouncements
+      const data = await getAllAnnouncements();
       setAnnouncements(data);
     } catch (err) {
       console.error('Error fetching announcements:', err);

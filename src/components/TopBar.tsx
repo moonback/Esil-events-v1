@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
-import { Announcement, getActiveAnnouncements } from '../services/localStorageAnnouncementService';
+import { Announcement, getActiveAnnouncements } from '../services/announcementService';
 
 interface TopBarProps {
   onClose?: () => void;
