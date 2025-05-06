@@ -39,7 +39,6 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({
   // Utilisation des hooks personnalisés
   const {
     products,
-    isLoading: isProductsLoading,
     searchResults: productSearchResults,
     searchProductsByName,
     detectProductMentions,
@@ -65,12 +64,10 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({
     setShowSuggestions,
     showSuggestionsButton,
     setShowSuggestionsButton,
-    searchAnchor,
     setSearchAnchor,
     generateResponse,
     generateComparisonResponse,
-    updateSuggestions,
-    enableCache: chatbotEnableCache
+    updateSuggestions
   } = useChatbotInteraction({ enableCache });
 
   const {
