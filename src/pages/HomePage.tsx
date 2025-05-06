@@ -149,7 +149,7 @@ const HomePage: React.FC = () => {
                 to="/agence-evenementielle" 
                 className="btn-primary inline-flex items-center gap-2 group"
               >
-                Notre Agence évènementielle
+                Notre Agence événementielle
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <div className="absolute inset-0 bg-violet-400 opacity-20 blur-lg rounded-full transform scale-150 -z-10" />
@@ -218,7 +218,7 @@ const HomePage: React.FC = () => {
             >
               <div className="absolute -top-4 -right-4 w-full h-full bg-gradient-to-br from-violet-500 to-indigo-500 rounded-lg opacity-30 blur-sm transform rotate-3"></div>
               <img 
-                src="https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                src="public\images\esil-events.JPG" 
                 alt="Événement d'entreprise" 
                 className="rounded-lg shadow-xl w-full h-auto relative z-10"
               />

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Menu, X, User, Settings, Mail, Phone, Sun, Moon, ChevronDown, Package, LogOut } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
-import { signOut } from '../services/authService';
 import MegaMenu from './MegaMenu';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
@@ -19,7 +18,7 @@ const Header: React.FC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   // const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(false);
+ 
   const { items } = useCart();
   const { user, isAdminUser } = useAuth();
   const navigate = useNavigate();
@@ -61,14 +60,6 @@ const Header: React.FC = () => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [showMegaMenu]);
   
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate('/login');
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-    }
-  };
 
   const [showTopBar, setShowTopBar] = useState(true);
 
@@ -126,19 +117,20 @@ const Header: React.FC = () => {
                   )}
                 </div>
                 <div className="hidden md:flex space-x-2 ml-4">
-                  <a 
-                    href="tel:0620461385" 
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
-                  >
-                    <Phone className="w-4 h-4 animate-pulse" />
-                    <span className="text-sm font-medium tracking-wide">06.20.46.13.85</span>
-                  </a>
+                  
                   <a 
                     href="tel:07.85.95.97.23" 
                     className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
                   >
                     <Phone className="w-4 h-4 animate-pulse" />
                     <span className="text-sm font-medium tracking-wide">07.85.95.97.23</span>
+                  </a>
+                  <a 
+                    href="tel:0620461385" 
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
+                  >
+                    <Phone className="w-4 h-4 animate-pulse" />
+                    <span className="text-sm font-medium tracking-wide">06.20.46.13.85</span>
                   </a>
                   <Link
                     to="/contact"
