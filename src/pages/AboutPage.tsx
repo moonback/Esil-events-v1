@@ -534,11 +534,14 @@ const AboutPage = () => {
           >
             <span className="inline-block text-sm font-semibold text-violet-400 uppercase tracking-wider mb-2">Nos réalisations</span>
             <h2 className="text-4xl font-bold mb-6 text-white">
-              Découvrez nos plus belles réalisations
+            Séminaires, soirées d’entreprise,
+            conférences et plus
             </h2>
             <p className="text-xl text-gray-300 max-w-4xl mx-auto">
-              De la conception à la réalisation, explorez notre portfolio d'événements 
-              qui témoigne de notre expertise et de notre créativité.
+            Nous accompagnons les entreprises dans
+l’organisation d’événements sur-mesure,
+retrouvez nos projets récents que nous avons
+eu le plaisir de concevoir et coordonner.
             </p>
           </motion.div>
           
@@ -547,10 +550,10 @@ const AboutPage = () => {
             variants={staggerContainer}
           >
             {realizations.length > 0 ? (
-              realizations.slice(0, 6).map((realization, index) => (
+              realizations.slice(0, 3).map((realization, index) => (
                 <motion.div 
                   key={realization.id}
-                  className="group relative overflow-hidden rounded-2xl cursor-pointer h-[400px]" // Fixed height
+                  className="group relative overflow-hidden rounded-2xl cursor-pointer h-[400px]"
                   whileHover={{ scale: 1.02 }}
                   variants={scaleIn}
                 >
@@ -579,10 +582,10 @@ const AboutPage = () => {
               ))
             ) : (
               // Enhanced loading placeholders
-              Array(6).fill(0).map((_, index) => (
+              Array(3).fill(0).map((_, index) => (
                 <motion.div 
                   key={index}
-                  className="group relative overflow-hidden rounded-2xl bg-gray-800 animate-pulse h-[400px]" // Matching height
+                  className="group relative overflow-hidden rounded-2xl bg-gray-800 animate-pulse h-[400px]"
                   variants={scaleIn}
                 >
                   <div className="h-full w-full bg-gray-700"></div>
