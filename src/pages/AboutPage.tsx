@@ -35,34 +35,39 @@ const teamMembers = [
 const services = [
   {
     title: "Location de matériel événementiel",
-    color: "violet",
+    color: "black",
     icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-      </svg>
+      <img 
+        src="public\images\Location-materiel.JPG" 
+        alt="Matériel événementiel"
+        className="w-8 h-8 object-cover"
+      />
     ),
     description: "Nous proposons la location de matériel de sonorisation, d'éclairage, de scènes, de signalétique et plus encore. Que vous organisiez une soirée d'entreprise, un séminaire, une conférence ou un lancement de produit, nous vous aidons à choisir le matériel adapté à vos besoins.",
     additionalInfo: "Nos services incluent également la livraison, l'installation et la présence de techniciens spécialisés en son et lumière pour garantir la réussite de votre événement. Vous pouvez compter sur notre expertise pour faire de votre projet un véritable succès."
   },
   {
     title: "Location de jeux pour événements ludiques",
-    color: "indigo",
+    color: "black",
     icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-      </svg>
+      <img 
+        src="public\images\Location-jeux.jpg"
+        alt="Jeux événementiels" 
+        className="w-8 h-8 object-cover"
+      />
     ),
     description: "Pour des événements plus ludiques et interactifs, nous proposons une large gamme de jeux de type rétro et moderne : des arcades des années 80, des flippers, des tables de ping-pong, des paniers de basket, des jeux de coup de poing, des machines à pince et bien plus.",
     additionalInfo: "Ces animations sont idéales pour des fêtes d'entreprise, des salons ou des kermesses, et elles apportent une dimension conviviale et fun à vos événements."
   },
   {
     title: "Organisation complète d'événements",
-    color: "purple",
+    color: "black",
     icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-      </svg>
+      <img 
+        src="public\images\Soirer-entreprise.jpg"
+        alt="Organisation d'événements"
+        className="w-8 h-8 object-cover"
+      />
     ),
     description: "En tant qu'agence événementielle, nous prenons en charge l'organisation complète de votre événement, de A à Z. Cela comprend la planification, la conception, l'organisation et la coordination de séminaires, conférences, lancements de produits ou tout autre type de manifestation.",
     additionalInfo: "Nous travaillons avec un large réseau de professionnels : artistes (magiciens, DJ, chanteurs, danseurs, comédiens), techniciens et prestataires pour créer des événements sur-mesure, à la hauteur de vos attentes."
@@ -284,14 +289,11 @@ const AboutPage = () => {
               >
                 <div className="h-56 overflow-hidden relative">
                   <div className={`absolute inset-0 bg-gradient-to-br from-${service.color}-600 to-${service.color}-800 flex items-center justify-center`}>
-                    <div className="text-white transform scale-150 opacity-30">
-                      {service.icon}
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className={`bg-white dark:bg-gray-800 rounded-full p-5 shadow-lg text-${service.color}-600 transform group-hover:scale-110 transition-transform duration-300`}>
-                      {service.icon}
-                    </div>
+                    <img 
+                      src={service.icon.props.src}
+                      alt={service.icon.props.alt}
+                      className="w-full h-full object-cover opacity-100"
+                    />
                   </div>
                 </div>
                 <div className="p-8">

@@ -56,7 +56,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           <h4 className="font-medium mb-3 text-gray-900">Catégories</h4>
           <div className="space-y-1">
             {Array.from(new Set(products.map(product => product.category))).map(category => (
-              <div key={category} className="space-y-1">
+              <div key={category as React.Key} className="space-y-1">
                 <Link
                   to={`/products/${category}`}
                   className="flex items-center justify-between w-full text-left text-sm text-gray-700 hover:text-violet-700 px-2 py-1 rounded hover:bg-violet-50 transition-colors"
@@ -80,7 +80,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                     .filter(product => product.category === category)
                     .map(product => product.subCategory)))
                     .map(subcategory => (
-                      <div key={subcategory} className="space-y-1">
+                      <div key={subcategory as React.Key} className="space-y-1">
                         <Link
                           to={`/products/${category}/${subcategory}`}
                           className="flex items-center justify-between w-full text-left text-sm text-gray-600 hover:text-violet-700 px-2 py-1 rounded hover:bg-violet-50 transition-colors"
@@ -107,7 +107,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                             .map(product => product.subSubCategory)))
                             .map(subsubcategory => (
                               <Link
-                                key={subsubcategory}
+                                key={subsubcategory as React.Key}
                                 to={`/products/${category}/${subcategory}/${subsubcategory}`}
                                 className="flex items-center w-full text-left text-sm text-gray-500 hover:text-violet-700 px-2 py-1 rounded hover:bg-violet-50 transition-colors"
                               >
