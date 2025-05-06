@@ -12,7 +12,8 @@ const RealizationForm: React.FC<{
   onSubmit: (data: RealizationFormData) => void;
   onCancel: () => void;
   initialData?: Realization;
-}> = ({ onSubmit, onCancel, initialData }) => {
+  setPreviewUrls: React.Dispatch<React.SetStateAction<string[]>>;
+}> = ({ onSubmit, onCancel, initialData, setPreviewUrls }) => {
   const [formData, setFormData] = useState<RealizationFormData>({
     title: initialData?.title || '',
     location: initialData?.location || '',
@@ -20,7 +21,7 @@ const RealizationForm: React.FC<{
     mission: initialData?.mission || '',
     images: initialData?.images || [],
     category: initialData?.category || '',
-    event_Date: initialData?.event_date || '', // Fixed property name to match RealizationFormData
+    event_Date: initialData?.event_date || '', // Using correct property name from RealizationFormData interface
     testimonial: initialData?.testimonial || ''
   });
 
@@ -41,20 +42,52 @@ const RealizationForm: React.FC<{
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      // Simuler l'upload d'images (à remplacer par une vraie implémentation)
-      const newImageUrls = Array.from(e.target.files).map(file => URL.createObjectURL(file));
+      // Stocker les fichiers pour un téléchargement ultérieur vers Supabase Storage
+      const files = Array.from(e.target.files);
+      
+      // Créer des URLs temporaires pour la prévisualisation
+      const newImageUrls = files.map(file => URL.createObjectURL(file));
+      
+      // Mettre à jour l'état des prévisualisations dans le composant parent
+      setPreviewUrls(prev => [...prev, ...newImageUrls]);
+      
+      // Mettre à jour le formulaire avec les fichiers et les URLs de prévisualisation
       setFormData(prev => ({
         ...prev,
-        images: [...prev.images, ...newImageUrls]
+        images: [...prev.images, ...newImageUrls],
+        imageFiles: [...(prev.imageFiles || []), ...files]
       }));
     }
   };
 
   const removeImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }));
+    setFormData(prev => {
+      // Récupérer l'URL de l'image à supprimer
+      const imageUrl = prev.images[index];
+      
+      // Si c'est une URL temporaire (blob:), la révoquer
+      if (imageUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(imageUrl);
+        
+        // Mettre à jour l'état des prévisualisations dans le composant parent
+        setPreviewUrls(prevUrls => prevUrls.filter(url => url !== imageUrl));
+      }
+      
+      // Supprimer l'image de la liste des images
+      const newImages = prev.images.filter((_, i) => i !== index);
+      
+      // Si nous avons des fichiers d'image, supprimer également le fichier correspondant
+      let newImageFiles = prev.imageFiles || [];
+      if (newImageFiles.length > 0 && index < newImageFiles.length) {
+        newImageFiles = newImageFiles.filter((_, i) => i !== index);
+      }
+      
+      return {
+        ...prev,
+        images: newImages,
+        imageFiles: newImageFiles
+      };
+    });
   };
 
   const validateForm = () => {
@@ -71,7 +104,14 @@ const RealizationForm: React.FC<{
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      onSubmit(formData);
+      // Filtrer les URLs temporaires (blob:) des images existantes
+      // Seules les URLs Supabase et les URLs externes valides seront conservées
+      const filteredFormData = {
+        ...formData,
+        images: formData.images.filter(url => !url.startsWith('blob:'))
+      };
+      
+      onSubmit(filteredFormData);
     }
   };
 
@@ -231,6 +271,9 @@ export const AdminRealizations: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [quickViewRealization, setQuickViewRealization] = useState<Realization | null>(null);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
 
   // Fonction pour charger les réalisations depuis le service
   const loadRealizations = async () => {
@@ -276,36 +319,43 @@ export const AdminRealizations: React.FC = () => {
     }
   };
 
-  // Gérer la mise à jour d'une réalisation
-  const handleUpdateRealization = async (data: RealizationFormData) => {
+  // Gérer la mise à jour d'une réalisation existante
+  const handleUpdateRealization = async (formData: RealizationFormData) => {
     if (!editingRealization) return;
     
     try {
-      await updateRealization(editingRealization.id, data);
-      await loadRealizations(); // Recharger la liste après la mise à jour
+      await updateRealization(editingRealization.id, formData);
+      await loadRealizations();
       setEditingRealization(null);
-      // Afficher un message de succès
       setError('');
-    } catch (err: any) {
-      setError(`Erreur lors de la mise à jour de la réalisation: ${err.message || 'Erreur inconnue'}`);
+      
+      // Nettoyer les URLs de prévisualisation
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
+      setPreviewUrls([]);
+    } catch (err) {
+      setError(`Erreur lors de la mise à jour de la réalisation: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
       console.error('Erreur de mise à jour:', err);
     }
   };
 
   // Gérer la suppression d'une réalisation
   const handleDeleteRealization = async (id: string) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette réalisation ?')) {
-      return;
-    }
-
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette réalisation?')) return;
+    
     try {
+      setIsLoading(true);
       await deleteRealization(id);
-      await loadRealizations(); // Recharger la liste après la suppression
-      // Afficher un message de succès
-      setError('');
-    } catch (err: any) {
-      setError(`Erreur lors de la suppression de la réalisation: ${err.message || 'Erreur inconnue'}`);
-      console.error('Erreur de suppression:', err);
+      loadRealizations();
+      setNotification({ type: 'success', message: 'Réalisation supprimée avec succès!' });
+      
+      // Nettoyer les URLs de prévisualisation
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
+      setPreviewUrls([]);
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la réalisation:', error);
+      setNotification({ type: 'error', message: 'Erreur lors de la suppression de la réalisation' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -322,6 +372,8 @@ export const AdminRealizations: React.FC = () => {
 
   // Obtenir les catégories uniques pour le filtre
   const uniqueCategories = Array.from(new Set(realizations.map(r => r.category).filter(Boolean))) as string[];
+
+
 
   return (
     <AdminLayout>
@@ -357,6 +409,7 @@ export const AdminRealizations: React.FC = () => {
           <RealizationForm
             onSubmit={handleAddRealization}
             onCancel={() => setShowForm(false)}
+            setPreviewUrls={setPreviewUrls}
           />
         )}
 
@@ -366,6 +419,7 @@ export const AdminRealizations: React.FC = () => {
             initialData={editingRealization}
             onSubmit={handleUpdateRealization}
             onCancel={() => setEditingRealization(null)}
+            setPreviewUrls={setPreviewUrls}
           />
         )}
 

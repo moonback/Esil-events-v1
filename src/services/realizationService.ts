@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { uploadFile, deleteFile } from './storageService';
 
 // Interface pour les réalisations
 export interface Realization {
@@ -17,6 +18,7 @@ export interface Realization {
 
 export interface RealizationFormData extends Omit<Realization, 'id' | 'created_at' | 'updated_at'> {
     event_Date: string | number | readonly string[] | undefined;
+    imageFiles?: File[];
 }
 
 // Récupérer toutes les réalisations
@@ -96,6 +98,18 @@ export const createRealization = async (realizationData: RealizationFormData): P
     
     const userId = session.user.id;
     
+    // Télécharger les images vers Supabase Storage si des fichiers sont fournis
+    let imageUrls = [...(realizationData.images || [])];
+    
+    if (realizationData.imageFiles && realizationData.imageFiles.length > 0) {
+      const uploadPromises = realizationData.imageFiles.map(file => 
+        uploadFile(file, 'realizations')
+      );
+      
+      const uploadedUrls = await Promise.all(uploadPromises);
+      imageUrls = [...imageUrls, ...uploadedUrls];
+    }
+    
     const { data, error } = await supabase
       .from('realizations')
       .insert([
@@ -104,7 +118,7 @@ export const createRealization = async (realizationData: RealizationFormData): P
           location: realizationData.location,
           objective: realizationData.objective,
           mission: realizationData.mission,
-          images: realizationData.images || [],
+          images: imageUrls,
           category: realizationData.category || null,
           event_date: realizationData.event_date || null,
           testimonial: realizationData.testimonial || null,
@@ -139,6 +153,42 @@ export const updateRealization = async (id: string, realizationData: Realization
     
     const userId = session.user.id;
     
+    // Récupérer les images existantes pour pouvoir comparer
+    const { data: existingRealization } = await supabase
+      .from('realizations')
+      .select('images')
+      .eq('id', id)
+      .single();
+    
+    // Télécharger les nouvelles images vers Supabase Storage si des fichiers sont fournis
+    let imageUrls = [...(realizationData.images || [])];
+    
+    if (realizationData.imageFiles && realizationData.imageFiles.length > 0) {
+      const uploadPromises = realizationData.imageFiles.map(file => 
+        uploadFile(file, 'realizations')
+      );
+      
+      const uploadedUrls = await Promise.all(uploadPromises);
+      imageUrls = [...imageUrls, ...uploadedUrls];
+    }
+    
+    // Identifier les images qui ont été supprimées pour les supprimer du stockage
+    if (existingRealization && existingRealization.images) {
+      const removedImages = existingRealization.images.filter(
+        (url: string) => !imageUrls.includes(url) && url.includes('supabase.co')
+      );
+      
+      // Supprimer les images qui ne sont plus utilisées
+      for (const imageUrl of removedImages) {
+        try {
+          await deleteFile(imageUrl);
+        } catch (deleteError) {
+          console.error(`Erreur lors de la suppression de l'image ${imageUrl}:`, deleteError);
+          // Continuer malgré l'erreur de suppression
+        }
+      }
+    }
+    
     const { error } = await supabase
       .from('realizations')
       .update({
@@ -146,7 +196,7 @@ export const updateRealization = async (id: string, realizationData: Realization
         location: realizationData.location,
         objective: realizationData.objective,
         mission: realizationData.mission,
-        images: realizationData.images || [],
+        images: imageUrls,
         category: realizationData.category || null,
         event_date: realizationData.event_date || null,
         testimonial: realizationData.testimonial || null,
@@ -168,14 +218,44 @@ export const updateRealization = async (id: string, realizationData: Realization
 // Supprimer une réalisation
 export const deleteRealization = async (id: string): Promise<void> => {
   try {
-    const { error } = await supabase
+    // Récupérer d'abord les images associées à la réalisation
+    const { data: realization, error: fetchError } = await supabase
+      .from('realizations')
+      .select('images')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      console.error(`Erreur lors de la récupération des images de la réalisation ${id}:`, fetchError);
+      throw fetchError;
+    }
+
+    // Supprimer la réalisation de la base de données
+    const { error: deleteError } = await supabase
       .from('realizations')
       .delete()
       .eq('id', id);
 
-    if (error) {
-      console.error(`Erreur lors de la suppression de la réalisation ${id}:`, error);
-      throw error;
+    if (deleteError) {
+      console.error(`Erreur lors de la suppression de la réalisation ${id}:`, deleteError);
+      throw deleteError;
+    }
+
+    // Supprimer les images associées du stockage Supabase
+    if (realization && realization.images && realization.images.length > 0) {
+      const supabaseImages = realization.images.filter((url: string) => 
+        url.includes('supabase.co')
+      );
+
+      for (const imageUrl of supabaseImages) {
+        try {
+          await deleteFile(imageUrl);
+          console.log(`Image supprimée avec succès: ${imageUrl}`);
+        } catch (imageError) {
+          console.error(`Erreur lors de la suppression de l'image ${imageUrl}:`, imageError);
+          // Continuer malgré l'erreur de suppression d'image
+        }
+      }
     }
   } catch (error) {
     console.error('Erreur dans deleteRealization:', error);

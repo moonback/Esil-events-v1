@@ -218,7 +218,7 @@ const HomePage: React.FC = () => {
             >
               <div className="absolute -top-4 -right-4 w-full h-full bg-gradient-to-br from-violet-500 to-indigo-500 rounded-lg opacity-30 blur-sm transform rotate-3"></div>
               <img 
-                src="public\images\esil-events.JPG" 
+                src="\images\esil-events.JPG" 
                 alt="Événement d'entreprise" 
                 className="rounded-lg shadow-xl w-full h-auto relative z-10"
               />
@@ -261,7 +261,7 @@ const HomePage: React.FC = () => {
             >
               <div className="h-48 overflow-hidden relative">
                 <img 
-                  src="public\images\3.png" 
+                  src="\images\3.png" 
                   alt="Mobilier & Déco" 
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                 />
@@ -286,7 +286,7 @@ const HomePage: React.FC = () => {
             >
               <div className="h-48 overflow-hidden relative">
                 <img 
-                  src="public\images\1.png" 
+                  src="\images\1.png" 
                   alt="Jeux" 
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                 />
@@ -319,7 +319,7 @@ const HomePage: React.FC = () => {
             >
               <div className="h-48 overflow-hidden relative">
                 <img 
-                  src="public\images\2.png" 
+                  src="\images\2.png" 
                   alt="Signalétique" 
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                 />

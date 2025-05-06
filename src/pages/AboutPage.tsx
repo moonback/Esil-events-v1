@@ -40,7 +40,7 @@ const services = [
     color: "black",
     icon: (
       <img 
-        src="public\images\Location-materiel.JPG" 
+        src="\images\Location-materiel.JPG" 
         alt="Matériel événementiel"
         className="w-8 h-8 object-cover"
       />
@@ -53,7 +53,7 @@ const services = [
     color: "black",
     icon: (
       <img 
-        src="public\images\Location-jeux.jpg"
+        src="\images\Location-jeux.jpg"
         alt="Jeux événementiels" 
         className="w-8 h-8 object-cover"
       />
@@ -66,7 +66,7 @@ const services = [
     color: "black",
     icon: (
       <img 
-        src="public\images\Soirer-entreprise.jpg"
+        src="\images\Soirer-entreprise.jpg"
         alt="Organisation d'événements"
         className="w-8 h-8 object-cover"
       />
