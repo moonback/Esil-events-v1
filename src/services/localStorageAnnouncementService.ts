@@ -23,8 +23,8 @@ const getStoredAnnouncements = (): Announcement[] => {
           id: uuidv4(),
           message: "🚧Site en construction 🚧",
           link: "/",
-          background_color: "#8854d0",
-          text_color: "rgb(255, 0, 0)",
+          background_color: "rgb(255, 0, 0)",
+          text_color: "#ffffff",
           active: true,
           start_date: new Date().toISOString().split('T')[0],
           end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
