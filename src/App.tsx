@@ -29,8 +29,6 @@ import { HelmetProvider } from 'react-helmet-async';
 import FloatingChatbot from './components/FloatingChatbot';
 
 // Admin pages
-import AdminKeywordTracking from './pages/admin/KeywordTracking';
-const GoogleAuthCallback = lazy(() => import('./pages/admin/GoogleAuthCallback'));
 
 function App() {
   return (
@@ -74,16 +72,10 @@ function App() {
           {/* Route admin avec le composant AdminRoutes */}
           <Route path="/admin/*" element={<AdminRoutes />} />
           
-          {/* Route spécifique pour le callback d'authentification Google */}
-          <Route path="/admin/google-auth-callback" element={
-            <Suspense fallback={<div>Chargement...</div>}>
-              <GoogleAuthCallback />
-            </Suspense>
-          } />
+          
 
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />
-          <Route path="/admin/keyword-tracking" element={<AdminKeywordTracking />} />
         </Routes>
       </CartProvider>
       <FloatingChatbot />
