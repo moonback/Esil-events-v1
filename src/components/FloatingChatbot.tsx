@@ -68,18 +68,18 @@ const FloatingChatbot: React.FC = () => {
     <>
       {/* Bouton flottant */}
       <motion.button
-        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl hover:shadow-violet-500/20 focus:outline-none focus:ring-2 focus:ring-violet-400 transition-all duration-300"
+        className="fixed bottom-4 right-4 z-50 bg-gradient-to-br from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white rounded-full p-3 shadow-md hover:shadow-lg hover:shadow-violet-400/20 focus:outline-none focus:ring-2 focus:ring-violet-300 transition-all duration-200"
         onClick={toggleChatbot}
         aria-label="Ouvrir le chatbot"
-        whileHover={{ scale: 1.05, y: -2 }}
-        whileTap={{ scale: 0.95 }}
-        initial={{ opacity: 0, y: 20 }}
+        whileHover={{ scale: 1.03, y: -1 }}
+        whileTap={{ scale: 0.97 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+        transition={{ type: "spring", stiffness: 500, damping: 20 }}
       >
         <div className="relative">
-          <IoChatbubbleEllipsesOutline size={28} className="relative z-10" />
-          <div className="absolute inset-0 rounded-full bg-white/20 blur-md opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+          <IoChatbubbleEllipsesOutline size={24} className="relative z-10" />
+          <div className="absolute inset-0 rounded-full bg-white/10 blur-sm opacity-0 hover:opacity-100 transition-opacity duration-200"></div>
         </div>
       </motion.button>
 
