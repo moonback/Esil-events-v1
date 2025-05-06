@@ -371,7 +371,7 @@ return (
   </button>
 
   {/* Chatbot Button with improved hover effects */}
-  <button
+  {/* <button
     onClick={handleOpenChatbot}
     className="w-full bg-gradient-to-r from-violet-500 to-violet-600 text-white py-3 md:py-4 px-6 rounded-xl 
     hover:from-violet-600 hover:to-violet-700 transition-all duration-300 
@@ -395,7 +395,7 @@ return (
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
     <span>Poser une question sur ce produit</span>
-  </button>
+  </button> */}
 </div>
 
               {/* Description */}

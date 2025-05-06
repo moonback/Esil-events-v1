@@ -78,7 +78,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           </motion.button>
         )}
         
-        <motion.button 
+        {/* <motion.button 
           onClick={onSettingsClick}
           className="p-2 text-violet-700 dark:text-violet-300 rounded-lg hover:bg-white/80 dark:hover:bg-gray-700/80 hover:shadow-md transition-all duration-200 relative overflow-hidden group"
           title="Paramètres"
@@ -87,7 +87,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         >
           <div className="absolute inset-0 bg-gradient-to-r from-violet-100/0 via-violet-100/70 to-violet-100/0 dark:from-violet-800/0 dark:via-violet-800/20 dark:to-violet-800/0 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-300"></div>
           <Settings className="w-4 h-4 relative z-10" />
-        </motion.button>
+        </motion.button> */}
         
         <motion.button 
           onClick={onResetClick}
