@@ -24,12 +24,10 @@ import ArtistPage from './pages/ArtistPage';
 import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import CguPage from './pages/CguPage';
-import { HelmetProvider } from 'react-helmet-async';
 
 // Admin pages
-import AdminKeywordTracking from './pages/admin/KeywordTracking';
 import RealisationPage from './pages/RealisationPage';
-const GoogleAuthCallback = lazy(() => import('./pages/admin/GoogleAuthCallback'));
+
 
 const App: React.FC = () => {
   return (
@@ -82,7 +80,6 @@ const App: React.FC = () => {
 
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />
-          <Route path="/admin/keyword-tracking" element={<AdminKeywordTracking />} />
         </Routes>
       </CartProvider>
     </BrowserRouter>
