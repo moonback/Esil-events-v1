@@ -125,7 +125,16 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
             {activeCat && (
               <>
                 <h2 className="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
-                  {activeCat.name}
+                  <Link 
+                    to={`/products/${activeCat.slug}`}
+                    className="hover:text-violet-700 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onLinkClick) onLinkClick();
+                    }}
+                  >
+                    {activeCat.name}
+                  </Link>
                 </h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
