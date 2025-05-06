@@ -133,11 +133,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       icon: <Music className="w-5 h-5" />,
       path: '/admin/artists'
     },
-    // {
-    //   label: 'Pages',
-    //   icon: <FileText className="w-5 h-5" />,
-    //   path: '/admin/pages'
-    // },
+    {
+      label: 'Réalisations',
+      icon: <FileText className="w-5 h-5" />,
+      path: '/admin/realizations'
+    },
     // {
     //   label: 'Clients',
     //   icon: <Users className="w-5 h-5" />,
