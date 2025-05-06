@@ -55,7 +55,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({
     submitEventContext,
     resetEventContext,
     getSearchAnchor
-  } = useEventContext();
+  } = useEventContext({ autoOpenQuestionnaire: false }); // Désactiver l'ouverture automatique
 
   const {
     isLoading,
@@ -207,6 +207,7 @@ const ProductChatbot: React.FC<ProductChatbotProps> = ({
         onResetClick={handleResetConversation}
         onToggleFullScreen={onToggleFullScreen}
         onClose={onClose}
+        onOpenQuestionnaire={() => setShowEventQuestionnaire(true)}
         isFullScreen={isFullScreen}
       />
 

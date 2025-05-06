@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Settings, RotateCcw, X, Maximize2, Minimize2, MessageSquareText } from 'lucide-react';
+import { Settings, RotateCcw, X, Maximize2, Minimize2, MessageSquareText, ClipboardList } from 'lucide-react';
 
 interface ChatHeaderProps {
   onSettingsClick: () => void;
   onResetClick: () => void;
   onToggleFullScreen?: () => void;
   onClose?: () => void;
+  onOpenQuestionnaire?: () => void;
   isFullScreen?: boolean;
 }
 
@@ -15,6 +16,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   onResetClick,
   onToggleFullScreen,
   onClose,
+  onOpenQuestionnaire,
   isFullScreen
 }) => {
   return (
@@ -63,6 +65,19 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       </div>
       
       <div className="flex items-center gap-2 z-10">
+        {onOpenQuestionnaire && (
+          <motion.button 
+            onClick={onOpenQuestionnaire}
+            className="p-2 text-violet-700 dark:text-violet-300 rounded-lg hover:bg-white/80 dark:hover:bg-gray-700/80 hover:shadow-md transition-all duration-200 relative overflow-hidden group"
+            title="Questionnaire de location"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-violet-100/0 via-violet-100/70 to-violet-100/0 dark:from-violet-800/0 dark:via-violet-800/20 dark:to-violet-800/0 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-300"></div>
+            <ClipboardList className="w-4 h-4 relative z-10" />
+          </motion.button>
+        )}
+        
         <motion.button 
           onClick={onSettingsClick}
           className="p-2 text-violet-700 dark:text-violet-300 rounded-lg hover:bg-white/80 dark:hover:bg-gray-700/80 hover:shadow-md transition-all duration-200 relative overflow-hidden group"
