@@ -28,6 +28,7 @@ import { HelmetProvider } from 'react-helmet-async';
 
 // Admin pages
 import AdminKeywordTracking from './pages/admin/KeywordTracking';
+import RealisationPage from './pages/RealisationPage';
 const GoogleAuthCallback = lazy(() => import('./pages/admin/GoogleAuthCallback'));
 
 const App: React.FC = () => {
@@ -58,6 +59,7 @@ const App: React.FC = () => {
             <Route path="/artist/:id" element={<ArtistDetailPage />} />
             <Route path="/agence-evenementielle" element={<EventsPage />} />
             <Route path="/cgu" element={<CguPage />} />
+            <Route path='/realisations' element={<RealisationPage />} />
 
           </Route>
 
@@ -72,11 +74,11 @@ const App: React.FC = () => {
           <Route path="/admin/*" element={<AdminRoutes />} />
           
           {/* Route spécifique pour le callback d'authentification Google */}
-          <Route path="/admin/google-auth-callback" element={
+          {/* <Route path="/admin/google-auth-callback" element={
             <Suspense fallback={<div>Chargement...</div>}>
               <GoogleAuthCallback />
             </Suspense>
-          } />
+          } /> */}
 
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />
