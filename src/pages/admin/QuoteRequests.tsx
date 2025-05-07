@@ -9,6 +9,7 @@ import {
   AIResponseGenerator, 
   FilterPanel,
   FeedbackMessage,
+  QuoteEmailGenerator
   // QuoteRequestActions
 } from '../../components/admin/quoteRequests';
 import { useQuoteRequestFilters } from '../../hooks/useQuoteRequestFilters';
@@ -209,9 +210,7 @@ const QuoteRequestsAdmin: React.FC = () => {
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-8 items-start"> {/* Use items-start */}
-
             {/* Requests List */}
-                        {/* Requests List */}
             <QuoteRequestList
               currentItems={currentItems}
               selectedRequest={selectedRequest}
@@ -262,24 +261,35 @@ const QuoteRequestsAdmin: React.FC = () => {
               )}
               {/* AI Response Generator */}
               {selectedRequest && (
-                <AIResponseGenerator
-                  selectedRequest={selectedRequest}
-                  suggestedResponse={suggestedResponse}
-                  generatingResponse={generatingResponse}
-                  onGenerateResponse={handleGenerateResponse}
-                  onCopyResponse={() => {
-                    navigator.clipboard.writeText(suggestedResponse);
-                    setFeedbackMessage({
-                      type: 'success',
-                      text: 'Réponse copiée dans le presse-papiers.'
-                    });
-                    setTimeout(() => setFeedbackMessage(null), 2500);
-                  }}
-                />
+                <>
+                  <QuoteEmailGenerator
+                    selectedRequest={selectedRequest}
+                    onSuccess={() => {
+                      setFeedbackMessage({ type: 'success', text: 'Devis généré et envoyé avec succès' });
+                      loadQuoteRequests();
+                    }}
+                    onError={(error) => {
+                      setFeedbackMessage({ type: 'error', text: `Erreur: ${error}` });
+                    }}
+                  />
+                  <AIResponseGenerator
+                    selectedRequest={selectedRequest}
+                    suggestedResponse={suggestedResponse}
+                    generatingResponse={generatingResponse}
+                    onGenerateResponse={handleGenerateResponse}
+                    onCopyResponse={() => {
+                      navigator.clipboard.writeText(suggestedResponse);
+                      setFeedbackMessage({
+                        type: 'success',
+                        text: 'Réponse copiée dans le presse-papiers.'
+                      });
+                      setTimeout(() => setFeedbackMessage(null), 2500);
+                    }}
+                  />
+                </>
               )}
-              
-            </div> {/* End Details Panel */}
-          </div> // End Main Content Flex Container
+            </div>
+          </div>
         )}
       </div> {/* End Page Container */}
     </AdminLayout>
