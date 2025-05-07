@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Send, X, Minimize2, Maximize2 } from 'lucide-react';
+import { MessageSquare, Send, X, Minimize2, Maximize2, HelpCircle } from 'lucide-react';
 import { generateChatbotResponse, ChatMessage, saveChatSession, loadChatSession } from '../services/chatbotService';
 import { useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import '../styles/chatbot.css';
 
 const ChatbotWidget: React.FC = () => {
   // État pour gérer l'ouverture/fermeture du chatbot
@@ -12,6 +15,22 @@ const ChatbotWidget: React.FC = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  
+  // Suggestions de questions pour guider l'utilisateur
+  const questionSuggestions = [
+    "Quels types d'événements proposez-vous ?",
+    "Comment fonctionne la location de matériel ?",
+    "Quels sont vos délais de livraison ?",
+    "Puis-je obtenir un devis personnalisé ?",
+    "Quelles sont vos options de personnalisation ?",
+    "Comment annuler ou modifier ma commande ?"
+  ];
+  
+  // Fonction pour réafficher les suggestions
+  const toggleSuggestions = () => {
+    setShowSuggestions(!showSuggestions);
+  };
   
   // Récupérer l'URL actuelle pour le contexte de navigation
   const location = useLocation();
@@ -78,6 +97,12 @@ const ChatbotWidget: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputMessage(e.target.value);
   };
+  
+  // Fonction pour utiliser une suggestion
+  const handleSuggestionClick = (suggestion: string) => {
+    setInputMessage(suggestion);
+    inputRef.current?.focus();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,6 +121,7 @@ const ChatbotWidget: React.FC = () => {
     setMessages(updatedMessages);
     setInputMessage('');
     setIsLoading(true);
+    setShowSuggestions(false); // Masquer les suggestions après l'envoi d'un message
     
     // Sauvegarder la session mise à jour
     saveChatSession(sessionId, { messages: updatedMessages });
@@ -154,7 +180,7 @@ const ChatbotWidget: React.FC = () => {
       {/* Bouton du chatbot */}
       <button
         onClick={toggleChatbot}
-        className="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 animate-pulse-subtle"
         aria-label="Ouvrir le chatbot"
       >
         <MessageSquare size={24} />
@@ -162,7 +188,7 @@ const ChatbotWidget: React.FC = () => {
 
       {/* Fenêtre du chatbot */}
       {isOpen && (
-        <div className="absolute bottom-16 right-0 w-80 md:w-96 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden transition-all duration-300 ease-in-out">
+        <div className="absolute bottom-16 right-0 w-80 md:w-96 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden transition-all duration-300 ease-in-out animate-fade-in">
           {/* En-tête du chatbot */}
           <div className="bg-indigo-600 text-white p-3 flex justify-between items-center">
             <div className="flex items-center">
@@ -192,6 +218,15 @@ const ChatbotWidget: React.FC = () => {
             <>
               {/* Zone des messages */}
               <div className="h-80 overflow-y-auto p-4 bg-gray-50">
+                <div className="flex justify-end mb-2">
+                  <button 
+                    onClick={toggleSuggestions}
+                    className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded-md transition-colors"
+                  >
+                    <HelpCircle size={14} className="mr-1" />
+                    {showSuggestions ? 'Masquer suggestions' : 'Afficher suggestions'}
+                  </button>
+                </div>
                 {messages.map((msg) => (
                   <div 
                     key={msg.id} 
@@ -202,13 +237,55 @@ const ChatbotWidget: React.FC = () => {
                         ? 'bg-indigo-600 text-white' 
                         : 'bg-white border border-gray-200 text-gray-800'}`}
                     >
-                      <div className="text-sm">{msg.content}</div>
+                      {msg.role === 'assistant' ? (
+                        <div className="text-sm markdown-content">
+                          <ReactMarkdown 
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              a: ({node, ...props}) => <a {...props} className="text-indigo-600 hover:underline" target="_blank" rel="noopener noreferrer" />,
+                              ul: ({node, ...props}) => <ul {...props} className="list-disc pl-4 my-2" />,
+                              ol: ({node, ...props}) => <ol {...props} className="list-decimal pl-4 my-2" />,
+                              h1: ({node, ...props}) => <h1 {...props} className="text-lg font-bold my-2" />,
+                              h2: ({node, ...props}) => <h2 {...props} className="text-base font-bold my-2" />,
+                              h3: ({node, ...props}) => <h3 {...props} className="text-sm font-bold my-2" />,
+                              p: ({node, ...props}) => <p {...props} className="my-1" />,
+                              code: ({node, ...props}) => <code {...props} className="bg-gray-100 px-1 py-0.5 rounded text-xs" />,
+                              pre: ({node, ...props}) => <pre {...props} className="bg-gray-100 p-2 rounded my-2 overflow-x-auto text-xs" />
+                            }}
+                          >
+                            {msg.content}
+                          </ReactMarkdown>
+                        </div>
+                      ) : (
+                        <div className="text-sm">{msg.content}</div>
+                      )}
                       <div className={`text-xs mt-1 ${msg.role === 'user' ? 'text-indigo-200' : 'text-gray-500'}`}>
                         {formatTimestamp(msg.timestamp)}
                       </div>
                     </div>
                   </div>
                 ))}
+                
+                {/* Suggestions de questions */}
+                {showSuggestions && messages.length <= 1 && (
+                  <div className="mt-4 mb-2">
+                    <div className="flex items-center mb-2">
+                      <HelpCircle size={16} className="text-indigo-500 mr-2" />
+                      <span className="text-sm font-medium text-gray-700">Questions fréquentes</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {questionSuggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors px-3 py-1.5 rounded-full"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {isLoading && (
                   <div className="flex justify-start mb-4">
                     <div className="bg-white border border-gray-200 text-gray-800 rounded-lg p-3 max-w-[80%]">
@@ -232,7 +309,7 @@ const ChatbotWidget: React.FC = () => {
                     value={inputMessage}
                     onChange={handleInputChange}
                     placeholder="Tapez votre message..."
-                    className="flex-1 border border-gray-300 rounded-l-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="flex-1 border border-gray-300 rounded-l-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                     disabled={isLoading}
                   />
                   <button
@@ -240,7 +317,7 @@ const ChatbotWidget: React.FC = () => {
                     className="bg-indigo-600 text-white rounded-r-lg p-2 hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={!inputMessage.trim() || isLoading}
                   >
-                    <Send size={20} />
+                    <Send size={20} className={isLoading ? '' : 'animate-pulse-once'} />
                   </button>
                 </div>
               </form>
