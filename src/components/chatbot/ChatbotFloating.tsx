@@ -30,7 +30,8 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
   // Options du chatbot
   const chatOptions: ChatOptions = {
     tone: 'friendly',
-    responseLength: 'concise'
+    responseLength: 'concise',
+    includeProductData: true // Activer l'accès aux données des produits
   };
 
   // Initialiser une nouvelle conversation ou charger une conversation existante
@@ -354,7 +355,7 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
             
             {/* Corps du chat avec les messages */}
             <div className="flex-1 overflow-y-auto p-4 bg-gray-50" style={{ maxHeight: '350px' }}>
-              <AnimatePresence initial={false} mode="wait">
+              <AnimatePresence initial={false}>
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}

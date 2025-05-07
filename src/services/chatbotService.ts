@@ -1,4 +1,6 @@
 import { generateAIResponse } from './aiResponseService';
+import { getProductsForChatbot, getProductCategoriesForChatbot } from './productChatbotService';
+import { Product } from '../types/Product';
 
 /**
  * Service pour gérer les interactions avec le chatbot Gemini
@@ -17,19 +19,48 @@ export interface ChatMessage {
 export interface ChatOptions {
   tone?: 'formal' | 'friendly' | 'persuasive';
   responseLength?: 'concise' | 'standard' | 'detailed';
+  includeProductData?: boolean;
 }
 
 /**
  * Prépare la requête pour l'API Google Gemini
  */
-const prepareGeminiRequest = (messages: ChatMessage[], options?: ChatOptions) => {
+const prepareGeminiRequest = async (messages: ChatMessage[], options?: ChatOptions) => {
+  // Récupérer les données des produits si l'option est activée
+  let productData = '';
+  if (options?.includeProductData !== false) { // Par défaut, inclure les données produits
+    try {
+      // Récupérer les catégories de produits
+      const categories = await getProductCategoriesForChatbot();
+      
+      // Récupérer un échantillon de produits (limité pour éviter de surcharger le contexte)
+      const products = await getProductsForChatbot();
+      const sampleProducts = products.slice(0, 20); // Limiter à 20 produits pour le contexte
+      
+      // Formater les données des produits pour le contexte
+      productData = `
+      Informations sur les produits ESIL Events:
+      
+      Catégories disponibles: ${categories.join(', ')}
+      
+      Échantillon de produits (${sampleProducts.length} sur ${products.length}):
+      ${sampleProducts.map(p => `- ${p.name} (Réf: ${p.reference}): ${p.priceHT}€ HT - Catégorie: ${Array.isArray(p.category) ? p.category.join(', ') : p.category}`).join('\n')}
+      `;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des données produits pour le chatbot:', error);
+      productData = 'Note: Les données des produits ne sont pas disponibles actuellement.';
+    }
+  }
+
   // Extraire le contexte système et l'historique des conversations
   const systemPrompt = `Tu es un assistant virtuel pour ESIL Events, spécialiste de la location de mobilier événementiel premium. 
   Réponds aux questions des utilisateurs de manière ${options?.tone || 'professionnelle'} et ${options?.responseLength || 'standard'}.
   Ton rôle est d'aider les visiteurs du site à trouver des informations sur nos services, nos produits, et à répondre à leurs questions concernant l'organisation d'événements.
   Mets en avant l'expertise d'ESIL Events dans le domaine de l'événementiel et notre engagement pour la qualité et l'élégance.
   Si tu ne connais pas la réponse à une question, propose de mettre l'utilisateur en contact avec notre équipe via le formulaire de contact ou par téléphone au 06 20 46 13 85.
-  IMPORTANT: Maintiens le contexte de la conversation et fais référence aux échanges précédents lorsque c'est pertinent.`;
+  IMPORTANT: Maintiens le contexte de la conversation et fais référence aux échanges précédents lorsque c'est pertinent.
+  
+  ${productData}`;
   
   // Formater l'historique des messages pour Gemini avec indication des rôles
   const conversationHistory = messages.slice(0, -1).map(msg => 
@@ -121,8 +152,8 @@ export const sendMessageToChatbot = async (messages: ChatMessage[], options?: Ch
       return { error: 'Erreur de configuration: Clé API Google Gemini manquante (VITE_GOOGLE_GEMINI_API_KEY).' };
     }
 
-    // Préparer la requête pour Gemini
-    const requestBody = prepareGeminiRequest(messages, options);
+    // Préparer la requête pour Gemini (avec les données produits)
+    const requestBody = await prepareGeminiRequest(messages, options);
 
     // Appeler l'API Gemini
     const data = await makeGeminiApiRequest(requestBody, geminiApiKey);
