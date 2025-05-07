@@ -257,13 +257,13 @@ async function sendQuoteEmail(
  */
 async function updateQuoteRequestAfterEmailSent(quoteRequestId: string): Promise<void> {
   try {
-    // Mettre à jour le statut et ajouter une note indiquant que le devis a été envoyé
+    // Mettre à jour le statut pour indiquer que le devis a été envoyé
     const { error } = await supabase
       .from('quote_requests')
       .update({
         status: 'quote_sent', // Nouveau statut pour indiquer que le devis a été envoyé
-        updated_at: new Date().toISOString(),
-        notes: `${(await supabase.from('quote_requests').select('notes').eq('id', quoteRequestId).single()).data?.notes || ''}\n[${new Date().toISOString()}] Devis généré et envoyé par email.`
+        updated_at: new Date().toISOString()
+        // La colonne 'notes' n'existe pas dans la table quote_requests
       })
       .eq('id', quoteRequestId);
 
