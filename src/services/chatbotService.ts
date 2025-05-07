@@ -17,6 +17,8 @@ export interface ChatSession {
 export interface ChatbotOptions {
   includeProductInfo?: boolean;
   maxProductsToInclude?: number;
+  currentUrl?: string; // URL actuelle pour le contexte de navigation
+  cartItems?: any[]; // Éléments du panier pour des suggestions personnalisées
 }
 
 /**
@@ -96,12 +98,29 @@ export const extractKeywords = (message: string): string[] => {
 export const preparePrompt = (
   message: string,
   history: ChatMessage[],
-  productContext: string
+  productContext: string,
+  currentUrl?: string,
+  cartItems?: any[]
 ): string => {
   const historyText = history
     .slice(-6) // Limiter à 6 derniers messages pour éviter un prompt trop long
     .map(msg => `${msg.role === 'user' ? 'Utilisateur' : 'Assistant'}: ${msg.content}`)
     .join('\n');
+
+  // Préparer le contexte de navigation
+  let navigationContext = '';
+  if (currentUrl) {
+    navigationContext = `L'utilisateur est actuellement sur la page: ${currentUrl}\n`;
+  }
+
+  // Préparer le contexte du panier
+  let cartContext = '';
+  if (cartItems && cartItems.length > 0) {
+    cartContext = `Panier actuel de l'utilisateur:\n`;
+    cartItems.forEach(item => {
+      cartContext += `- ${item.name} (Quantité: ${item.quantity}, Prix: ${item.priceTTC.toFixed(2)}€)\n`;
+    });
+  }
 
   return `
     Tu es un assistant chatbot pour ESIL Events, une entreprise de location de matériel événementiel.
@@ -111,6 +130,8 @@ export const preparePrompt = (
     Historique de la conversation:
     ${historyText}
 
+    ${navigationContext}
+    ${cartContext}
     Informations produits pertinentes (si disponibles):
     ${productContext}
 
@@ -162,8 +183,14 @@ export const generateChatbotResponse = async (
       }
     }
 
-    // 3. Préparer le prompt pour le modèle de langage
-    const prompt = preparePrompt(message, history, productContext);
+    // 3. Préparer le prompt pour le modèle de langage avec le contexte de navigation et du panier
+    const prompt = preparePrompt(
+      message, 
+      history, 
+      productContext, 
+      options.currentUrl, 
+      options.cartItems
+    );
 
     // 4. Appeler l'API du modèle de langage (Google Gemini)
     const geminiApiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;

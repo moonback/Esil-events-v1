@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Send, X, Minimize2, Maximize2 } from 'lucide-react';
 import { generateChatbotResponse, ChatMessage, saveChatSession, loadChatSession } from '../services/chatbotService';
+import { useLocation } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const ChatbotWidget: React.FC = () => {
   // État pour gérer l'ouverture/fermeture du chatbot
@@ -10,6 +12,12 @@ const ChatbotWidget: React.FC = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState('');
+  
+  // Récupérer l'URL actuelle pour le contexte de navigation
+  const location = useLocation();
+  
+  // Récupérer les informations du panier
+  const { items: cartItems } = useCart();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -93,11 +101,16 @@ const ChatbotWidget: React.FC = () => {
     saveChatSession(sessionId, { messages: updatedMessages });
     
     try {
-      // Générer une réponse
+      // Générer une réponse avec le contexte de navigation et du panier
       const result = await generateChatbotResponse(
         userMessage.content,
         updatedMessages,
-        { includeProductInfo: true, maxProductsToInclude: 3 }
+        { 
+          includeProductInfo: true, 
+          maxProductsToInclude: 3,
+          currentUrl: `${window.location.origin}${location.pathname}`,
+          cartItems: cartItems
+        }
       );
       
       // Ajouter la réponse du chatbot
