@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Send, X, Minimize2, Maximize2, HelpCircle, Tag } from 'lucide-react';
+import { MessageSquare, Send, X, Minimize2, Maximize2, HelpCircle, Tag, RefreshCw } from 'lucide-react';
 import { generateChatbotResponse, ChatMessage, saveChatSession, loadChatSession, handleQuoteRequestViaChatbot } from '../services/chatbotService';
 import { useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -52,6 +52,27 @@ const ChatbotWidget: React.FC = () => {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Fonction pour démarrer une nouvelle conversation
+  const startNewConversation = () => {
+    // Générer un nouvel ID de session
+    const newSessionId = `session_${Date.now()}`;
+    localStorage.setItem('chatbot_session_id', newSessionId);
+    setSessionId(newSessionId);
+    
+    // Message de bienvenue pour la nouvelle session
+    const welcomeMessage: ChatMessage = {
+      id: `msg_${Date.now()}`,
+      role: 'assistant',
+      content: 'Bonjour ! Je suis l\'assistant virtuel d\'ESIL Events. Comment puis-je vous aider aujourd\'hui ?',
+      timestamp: Date.now()
+    };
+    
+    // Réinitialiser les messages et sauvegarder la nouvelle session
+    setMessages([welcomeMessage]);
+    saveChatSession(newSessionId, { messages: [welcomeMessage] });
+    setShowSuggestions(true); // Afficher les suggestions pour la nouvelle conversation
+  };
 
   // Initialiser la session de chat
   useEffect(() => {
@@ -291,6 +312,14 @@ const ChatbotWidget: React.FC = () => {
               <h3 className="font-medium">Assistant ESIL Events</h3>
             </div>
             <div className="flex items-center space-x-2">
+              <button 
+                onClick={startNewConversation} 
+                className="text-white hover:text-gray-200 focus:outline-none" 
+                aria-label="Nouvelle conversation"
+                title="Démarrer une nouvelle conversation"
+              >
+                <RefreshCw size={18} />
+              </button>
               <button 
                 onClick={toggleMinimize} 
                 className="text-white hover:text-gray-200 focus:outline-none"
