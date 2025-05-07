@@ -1,13 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { Realization } from '../../services/realizationService';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Grid, List, Calendar, MapPin, Tag, ArrowUpDown, Eye } from 'lucide-react';
 
 interface RealizationGridProps {
   realizations: Realization[];
   error: string | null;
   onViewDetails: (realization: Realization) => void;
+  animationVariants?: any;
 }
 
-const RealizationGrid: React.FC<RealizationGridProps> = ({ realizations, error, onViewDetails }) => {
+const RealizationGrid: React.FC<RealizationGridProps> = ({ realizations, error, onViewDetails, animationVariants }) => {
   const [sortBy, setSortBy] = useState<'date' | 'title'>('date');
   const [filters, setFilters] = useState<{
     category: string | null;
@@ -16,6 +19,7 @@ const RealizationGrid: React.FC<RealizationGridProps> = ({ realizations, error, 
     category: null,
     searchTerm: ''
   });
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Extract unique categories for filter dropdown
   const categories = useMemo(() => {
@@ -58,6 +62,15 @@ const RealizationGrid: React.FC<RealizationGridProps> = ({ realizations, error, 
     setFilters({ category: null, searchTerm: '' });
     setSortBy('date');
   };
+
+  // Animation variants for items
+  const defaultVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
+  };
+
+  const variants = animationVariants || defaultVariants;
 
   if (error) {
     return (
@@ -109,6 +122,24 @@ const RealizationGrid: React.FC<RealizationGridProps> = ({ realizations, error, 
         </div>
         
         <div className="flex gap-3">
+          {/* View mode toggle */}
+          <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-2 flex items-center ${viewMode === 'grid' ? 'bg-violet-100 text-violet-700' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+              aria-label="Vue en grille"
+            >
+              <Grid size={18} />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-2 flex items-center ${viewMode === 'list' ? 'bg-violet-100 text-violet-700' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+              aria-label="Vue en liste"
+            >
+              <List size={18} />
+            </button>
+          </div>
+          
           <select 
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'date' | 'title')}
@@ -134,7 +165,12 @@ const RealizationGrid: React.FC<RealizationGridProps> = ({ realizations, error, 
 
       {/* Empty state */}
       {filteredRealizations.length === 0 && (
-        <div className="bg-white p-12 rounded-xl shadow-lg text-center border border-gray-100">
+        <motion.div 
+          className="bg-white p-12 rounded-xl shadow-lg text-center border border-gray-100"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <div className="mb-6">
             <svg 
               className="mx-auto h-16 w-16 text-gray-400"
@@ -160,20 +196,64 @@ const RealizationGrid: React.FC<RealizationGridProps> = ({ realizations, error, 
           >
             Réinitialiser les filtres
           </button>
-        </div>
+        </motion.div>
       )}
 
-      {/* Grid of cards */}
+      {/* Grid or List view of cards */}
       {filteredRealizations.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-2">
-          {filteredRealizations.map((realization) => (
-            <RealizationCard 
-              key={realization.id} 
-              realization={realization} 
-              onViewDetails={onViewDetails}
-            />
-          ))}
-        </div>
+        <AnimatePresence mode="wait">
+          {viewMode === 'grid' ? (
+            <motion.div 
+              key="grid-view"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {filteredRealizations.map((realization) => (
+                <motion.div 
+                  key={realization.id}
+                  variants={variants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  layout
+                >
+                  <RealizationCard 
+                    realization={realization} 
+                    onViewDetails={onViewDetails}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="list-view"
+              className="space-y-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {filteredRealizations.map((realization) => (
+                <motion.div 
+                  key={realization.id}
+                  variants={variants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  layout
+                >
+                  <RealizationListItem 
+                    realization={realization} 
+                    onViewDetails={onViewDetails}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
     </div>
   );
@@ -199,10 +279,11 @@ const RealizationCard: React.FC<RealizationCardProps> = ({ realization, onViewDe
   };
 
   return (
-    <div 
+    <motion.div 
       className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
       onClick={() => onViewDetails(realization)}
       data-testid={`realization-card-${realization.id}`}
+      whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
     >
       <div className="relative h-48 w-full overflow-hidden bg-gray-100">
         {realization.images && realization.images.length > 0 ? (
@@ -259,7 +340,92 @@ const RealizationCard: React.FC<RealizationCardProps> = ({ realization, onViewDe
           </svg>
         </button>
       </div>
-    </div>
+    </motion.div>
+  );
+};
+
+// New component for list view
+const RealizationListItem: React.FC<RealizationCardProps> = ({ realization, onViewDetails }) => {
+  // Format date in French locale
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch {
+      return 'Date invalide';
+    }
+  };
+
+  return (
+    <motion.div 
+      className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md border border-gray-100 transition-all duration-300"
+      whileHover={{ y: -2, boxShadow: "0 4px 12px -2px rgba(0, 0, 0, 0.05)" }}
+    >
+      <div className="flex flex-col md:flex-row">
+        <div className="md:w-1/4 h-40 md:h-auto relative overflow-hidden bg-gray-100">
+          {realization.images && realization.images.length > 0 ? (
+            <img
+              src={realization.images[0]}
+              alt={`Image de ${realization.title}`}
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-in-out"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-50">
+              <svg className="w-12 h-12 text-gray-200" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+              </svg>
+            </div>
+          )}
+          {realization.category && (
+            <span className="absolute top-2 left-2 px-2 py-1 text-xs font-medium bg-violet-600 text-white rounded-md shadow-sm">
+              {realization.category}
+            </span>
+          )}
+        </div>
+        
+        <div className="md:w-3/4 p-5 flex flex-col justify-between">
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-violet-600 transition-colors">
+              {realization.title}
+            </h3>
+            
+            <div className="flex flex-wrap gap-3 mb-3">
+              <div className="flex items-center text-sm text-gray-500">
+                <MapPin className="w-4 h-4 mr-1 text-violet-500" />
+                <span>{realization.location}</span>
+              </div>
+              
+              {realization.event_date && (
+                <div className="flex items-center text-sm text-gray-500">
+                  <Calendar className="w-4 h-4 mr-1 text-violet-500" />
+                  <span>{formatDate(realization.event_date)}</span>
+                </div>
+              )}
+            </div>
+            
+            {realization.objective && (
+              <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+                {realization.objective}
+              </p>
+            )}
+          </div>
+          
+          <div className="flex justify-end">
+            <button
+              onClick={() => onViewDetails(realization)}
+              className="flex items-center px-4 py-2 text-sm font-medium text-violet-700 hover:text-violet-900 hover:bg-violet-50 rounded-lg transition-colors"
+            >
+              <Eye className="w-4 h-4 mr-1" />
+              Voir les détails
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 };
 
