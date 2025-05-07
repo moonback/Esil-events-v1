@@ -241,6 +241,10 @@ const ProductListPage: React.FC = () => {
             resetFilters={resetFilters}
             products={products}
             isFilterOpen={isFilterOpen}
+            categories={categories}
+            currentCategory={category}
+            currentSubcategory={subcategory}
+            currentSubsubcategory={subsubcategory}
           />
 
           {/* Product Grid */}

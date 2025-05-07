@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../../types/Product';
+import { Category } from '../../services/categoryService';
 
 interface ProductFiltersProps {
   priceRange: [number, number];
@@ -14,6 +15,10 @@ interface ProductFiltersProps {
   resetFilters: () => void;
   products: Product[];
   isFilterOpen: boolean;
+  categories: Category[];
+  currentCategory?: string;
+  currentSubcategory?: string;
+  currentSubsubcategory?: string;
 }
 
 const ProductFilters: React.FC<ProductFiltersProps> = ({
@@ -27,7 +32,11 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   setAvailability,
   resetFilters,
   products,
-  isFilterOpen
+  isFilterOpen,
+  categories,
+  currentCategory,
+  currentSubcategory,
+  currentSubsubcategory
 }) => {
   const handlePriceRangeChange = (index: number, value: number) => {
     const newRange = [...priceRange] as [number, number];
@@ -55,30 +64,84 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         <div className="mb-6">
           <h4 className="font-medium mb-3 text-gray-900">Catégories</h4>
           <div className="space-y-1">
-            {/* Display all categories */}
+            {/* Display all categories with hierarchy */}
             <div className="space-y-1">
-              {Array.from(new Set(products.map(product => product.subCategory))).map(subcategory => (
-                <div key={subcategory as React.Key} className="space-y-1">
-                  <Link
-                    to={`/products/${subcategory}`}
-                    className="flex items-center justify-between w-full text-left text-sm text-gray-600 hover:text-violet-700 px-2 py-1 rounded hover:bg-violet-50 transition-colors"
-                  >
-                    <span>{subcategory}</span>
-                    <svg 
-                      className="w-3 h-3 text-gray-400" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
+              {/* Main categories */}
+              {categories.map(category => {
+                const isActiveCategory = category.slug === currentCategory;
+                return (
+                  <div key={category.id} className="space-y-1">
+                    <Link
+                      to={`/products/${category.slug}`}
+                      className={`flex items-center justify-between w-full text-left text-sm px-2 py-1 rounded hover:bg-violet-50 transition-colors ${isActiveCategory ? 'font-medium text-violet-700 bg-violet-50' : 'text-gray-600 hover:text-violet-700'}`}
                     >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeWidth="2" 
-                        d="M9 5l7 7-7 7" 
-                      />
-                    </svg>
-                  </Link>
-                </div>
-              ))}
+                      <span>{category.name}</span>
+                      {category.subcategories && category.subcategories.length > 0 && (
+                        <svg 
+                          className="w-3 h-3 text-gray-400" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path 
+                            strokeLinecap="round" 
+                            strokeWidth="2" 
+                            d="M9 5l7 7-7 7" 
+                          />
+                        </svg>
+                      )}
+                    </Link>
+                    
+                    {/* Subcategories (only show if parent category is active) */}
+                    {isActiveCategory && category.subcategories && category.subcategories.length > 0 && (
+                      <div className="pl-3 border-l border-gray-200 ml-2 space-y-1">
+                        {category.subcategories.map(subcategory => {
+                          const isActiveSubcategory = subcategory.slug === currentSubcategory;
+                          return (
+                            <div key={subcategory.id} className="space-y-1">
+                              <Link
+                                to={`/products/${category.slug}/${subcategory.slug}`}
+                                className={`flex items-center justify-between w-full text-left text-sm px-2 py-1 rounded hover:bg-violet-50 transition-colors ${isActiveSubcategory ? 'font-medium text-violet-700 bg-violet-50' : 'text-gray-600 hover:text-violet-700'}`}
+                              >
+                                <span>{subcategory.name}</span>
+                                {subcategory.subsubcategories && subcategory.subsubcategories.length > 0 && (
+                                  <svg 
+                                    className="w-3 h-3 text-gray-400" 
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path 
+                                      strokeLinecap="round" 
+                                      strokeWidth="2" 
+                                      d="M9 5l7 7-7 7" 
+                                    />
+                                  </svg>
+                                )}
+                              </Link>
+                              
+                              {/* Sub-subcategories (only show if parent subcategory is active) */}
+                              {isActiveSubcategory && subcategory.subsubcategories && subcategory.subsubcategories.length > 0 && (
+                                <div className="pl-3 border-l border-gray-200 ml-2 space-y-1">
+                                  {subcategory.subsubcategories.map(subsubcategory => (
+                                    <Link
+                                      key={subsubcategory.id}
+                                      to={`/products/${category.slug}/${subcategory.slug}/${subsubcategory.slug}`}
+                                      className={`block text-sm px-2 py-1 rounded hover:bg-violet-50 transition-colors ${subsubcategory.slug === currentSubsubcategory ? 'font-medium text-violet-700 bg-violet-50' : 'text-gray-600 hover:text-violet-700'}`}
+                                    >
+                                      {subsubcategory.name}
+                                    </Link>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
