@@ -173,7 +173,7 @@ CONDITIONS:
 Génère un devis formel au format HTML, prêt à être envoyé par email. Inclus un design élégant et professionnel avec le logo et les couleurs d'ESIL Events (indigo/violet). Ajoute un bouton d'appel à l'action pour accepter le devis.`;
 
     // Appel à l'API Gemini
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const apiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error('Clé API Gemini non configurée');
     }
