@@ -1,5 +1,7 @@
 import { supabase } from './supabaseClient';
 import { searchProducts } from './productService';
+import { generateAndSendQuoteEmail, QuoteGenerationOptions } from './quoteEmailService';
+import { getQuoteRequestById } from './quoteRequestService';
 
 // Types pour le chatbot
 export interface ChatMessage {
@@ -26,7 +28,7 @@ export interface ChatbotOptions {
  * @param message Le message de l'utilisateur
  * @returns Le type d'intention identifié
  */
-export const analyzeIntent = (message: string): 'product_search' | 'product_info' | 'general_question' => {
+export const analyzeIntent = (message: string): 'product_search' | 'product_info' | 'quote_request' | 'general_question' => {
   const lowerMessage = message.toLowerCase();
   
   // Recherche de produits
@@ -53,6 +55,19 @@ export const analyzeIntent = (message: string): 'product_search' | 'product_info
     lowerMessage.includes('disponible')
   ) {
     return 'product_info';
+  }
+  
+  // Demande de devis
+  if (
+    lowerMessage.includes('devis') ||
+    lowerMessage.includes('générer un devis') ||
+    lowerMessage.includes('envoyer un devis') ||
+    lowerMessage.includes('créer un devis') ||
+    lowerMessage.includes('faire un devis') ||
+    (lowerMessage.includes('envoyer') && lowerMessage.includes('mail') && lowerMessage.includes('devis')) ||
+    (lowerMessage.includes('envoyer') && lowerMessage.includes('email') && lowerMessage.includes('devis'))
+  ) {
+    return 'quote_request';
   }
   
   // Question générale par défaut
@@ -273,4 +288,121 @@ export const loadChatSession = (sessionId: string): ChatSession => {
     return JSON.parse(savedSession);
   }
   return { messages: [] };
+};
+
+/**
+ * Extrait l'ID de la demande de devis à partir du message de l'utilisateur
+ * @param message Le message de l'utilisateur
+ * @returns L'ID de la demande de devis ou null si non trouvé
+ */
+export const extractQuoteRequestId = (message: string): string | null => {
+  // Recherche d'un ID au format UUID (pattern simplifié)
+  const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+  const uuidMatch = message.match(uuidPattern);
+  
+  if (uuidMatch) {
+    return uuidMatch[0];
+  }
+  
+  // Recherche d'un ID au format "devis #12345678" ou "demande #12345678"
+  const idPattern = /#([0-9a-zA-Z]{8})/;
+  const idMatch = message.match(idPattern);
+  
+  if (idMatch && idMatch[1]) {
+    // Rechercher l'ID complet dans la base de données à partir de ce préfixe
+    return idMatch[1];
+  }
+  
+  return null;
+};
+
+/**
+ * Génère et envoie un devis par email via le chatbot
+ * @param message Le message de l'utilisateur contenant la demande de devis
+ * @returns Résultat de l'opération avec message de réponse
+ */
+export const handleQuoteRequestViaChatbot = async (
+  message: string
+): Promise<{ success: boolean; response: string; error?: string }> => {
+  try {
+    // 1. Extraire l'ID de la demande de devis du message
+    const quoteRequestId = extractQuoteRequestId(message);
+    
+    if (!quoteRequestId) {
+      return {
+        success: false,
+        response: "Je n'ai pas pu identifier la demande de devis. Veuillez préciser le numéro de la demande (par exemple #12345678) ou fournir l'identifiant complet."
+      };
+    }
+    
+    // 2. Vérifier si la demande existe
+    const { data: quoteRequest, error: quoteError } = await getQuoteRequestById(quoteRequestId);
+    
+    if (quoteError || !quoteRequest) {
+      return {
+        success: false,
+        response: `Je n'ai pas trouvé de demande de devis correspondant à l'identifiant ${quoteRequestId}. Veuillez vérifier et réessayer.`
+      };
+    }
+    
+    // 3. Extraire les options de génération du message (promotions, notes, etc.)
+    const options: QuoteGenerationOptions = {};
+    
+    // Vérifier si une promotion est mentionnée
+    if (message.toLowerCase().includes('promotion') || message.toLowerCase().includes('remise')) {
+      options.includePromotion = true;
+      
+      // Essayer d'extraire les détails de la promotion
+      const promotionMatch = message.match(/promotion[\s:]+(.*?)(?:\.|$)/i);
+      if (promotionMatch && promotionMatch[1]) {
+        options.promotionDetails = promotionMatch[1].trim();
+      }
+    }
+    
+    // Vérifier si des notes additionnelles sont mentionnées
+    if (message.toLowerCase().includes('note') || message.toLowerCase().includes('commentaire')) {
+      const notesMatch = message.match(/notes?[\s:]+(.*?)(?:\.|$)/i) || message.match(/commentaires?[\s:]+(.*?)(?:\.|$)/i);
+      if (notesMatch && notesMatch[1]) {
+        options.additionalNotes = notesMatch[1].trim();
+      }
+    }
+    
+    // Vérifier si une période de validité est mentionnée
+    const validityMatch = message.match(/(\d+)\s*jours/i);
+    if (validityMatch && validityMatch[1]) {
+      options.validityPeriod = parseInt(validityMatch[1], 10);
+    }
+    
+    // 4. Générer et envoyer le devis
+    const result = await generateAndSendQuoteEmail(quoteRequestId, options);
+    
+    if (!result.success) {
+      return {
+        success: false,
+        response: `Une erreur est survenue lors de la génération du devis: ${result.error}. Veuillez réessayer ultérieurement ou contacter notre équipe.`,
+        error: result.error
+      };
+    }
+    
+    if (!result.emailSent) {
+      return {
+        success: true,
+        response: `Le devis a été généré avec succès, mais l'envoi par email a échoué: ${result.error}. Veuillez vérifier l'adresse email ou réessayer ultérieurement.`,
+        error: result.error
+      };
+    }
+    
+    return {
+      success: true,
+      response: `Le devis a été généré et envoyé avec succès à ${quoteRequest.email}. Le client recevra un email contenant tous les détails de sa demande.`
+    };
+    
+  } catch (error: any) {
+    console.error('Erreur lors du traitement de la demande de devis via chatbot:', error);
+    return {
+      success: false,
+      response: `Une erreur inattendue est survenue: ${error.message}. Veuillez réessayer ultérieurement ou contacter notre équipe.`,
+      error: error.message
+    };
+  }
 };
