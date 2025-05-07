@@ -10,6 +10,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  conversationId?: string;
 }
 
 // Interface pour les options de conversation
@@ -27,10 +28,13 @@ const prepareGeminiRequest = (messages: ChatMessage[], options?: ChatOptions) =>
   Réponds aux questions des utilisateurs de manière ${options?.tone || 'professionnelle'} et ${options?.responseLength || 'standard'}.
   Ton rôle est d'aider les visiteurs du site à trouver des informations sur nos services, nos produits, et à répondre à leurs questions concernant l'organisation d'événements.
   Mets en avant l'expertise d'ESIL Events dans le domaine de l'événementiel et notre engagement pour la qualité et l'élégance.
-  Si tu ne connais pas la réponse à une question, propose de mettre l'utilisateur en contact avec notre équipe via le formulaire de contact ou par téléphone au 06 20 46 13 85.`;
+  Si tu ne connais pas la réponse à une question, propose de mettre l'utilisateur en contact avec notre équipe via le formulaire de contact ou par téléphone au 06 20 46 13 85.
+  IMPORTANT: Maintiens le contexte de la conversation et fais référence aux échanges précédents lorsque c'est pertinent.`;
   
-  // Convertir l'historique des messages en format compatible avec Gemini
-  const conversationHistory = messages.map(msg => msg.content).join('\n');
+  // Formater l'historique des messages pour Gemini avec indication des rôles
+  const conversationHistory = messages.slice(0, -1).map(msg => 
+    `${msg.role === 'user' ? 'Utilisateur' : 'Assistant'}: ${msg.content}`
+  ).join('\n');
   
   // Dernière question de l'utilisateur (le dernier message)
   const lastUserMessage = messages[messages.length - 1].content;

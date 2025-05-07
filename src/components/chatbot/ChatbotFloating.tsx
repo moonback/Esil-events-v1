@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Loader2, Bot, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { MessageSquare, X, Send, Loader2, Bot, ChevronDown, ChevronUp, Sparkles, Trash2 } from 'lucide-react';
 import { sendMessageToChatbot, ChatMessage, ChatOptions } from '../../services/chatbotService';
+import { createConversation, saveMessage, getConversationMessages, updateConversationTimestamp, deleteConversation } from '../../services/chatbotStorageService';
+import ConversationContext from './ConversationContext';
+import { supabase } from '../../services/supabaseClient';
 
 interface ChatbotFloatingProps {
   position?: 'bottom-right' | 'bottom-left';
   initialOpen?: boolean;
 }
+
+const STORAGE_KEY = 'esil_events_chatbot_history';
 
 const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
   position = 'bottom-right',
@@ -17,6 +22,8 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [conversationId, setConversationId] = useState<string>(`conversation-${Date.now()}`);
+  const [isContextExpanded, setIsContextExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -26,23 +33,88 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
     responseLength: 'concise'
   };
 
-  // Ajouter un message de bienvenue au chargement
+  // Initialiser une nouvelle conversation ou charger une conversation existante
   useEffect(() => {
-    if (messages.length === 0) {
-      const welcomeMessage: ChatMessage = {
-        id: 'welcome',
-        role: 'assistant',
-        content: 'Bonjour ! Je suis l\'assistant virtuel d\'ESIL Events. Comment puis-je vous aider aujourd\'hui ?',
-        timestamp: new Date()
-      };
-      setMessages([welcomeMessage]);
-    }
+    const initializeConversation = async () => {
+      try {
+        // Vérifier si l'utilisateur est connecté
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id;
+        
+        // Vérifier s'il y a un ID de conversation dans le localStorage
+        const savedData = localStorage.getItem(STORAGE_KEY);
+        let conversationIdToUse = '';
+        
+        if (savedData) {
+          try {
+            const parsedData = JSON.parse(savedData);
+            conversationIdToUse = parsedData.conversationId;
+            
+            // Si on a un ID de conversation valide, charger les messages depuis Supabase
+            if (conversationIdToUse && conversationIdToUse.length > 10) {
+              const messagesFromDB = await getConversationMessages(conversationIdToUse);
+              
+              if (messagesFromDB && messagesFromDB.length > 0) {
+                setMessages(messagesFromDB);
+                setConversationId(conversationIdToUse);
+                return;
+              }
+            }
+          } catch (e) {
+            console.error('Erreur lors du chargement de l\'historique du chat:', e);
+            localStorage.removeItem(STORAGE_KEY);
+          }
+        }
+        
+        // Si pas d'historique valide, créer une nouvelle conversation
+        const newConversationId = await createConversation(userId);
+        setConversationId(newConversationId);
+        
+        // Ajouter un message de bienvenue
+        const welcomeMessage: ChatMessage = {
+          id: 'welcome',
+          role: 'assistant',
+          content: 'Bonjour ! Je suis l\'assistant virtuel d\'ESIL Events. Comment puis-je vous aider aujourd\'hui ?',
+          timestamp: new Date(),
+          conversationId: newConversationId
+        };
+        
+        // Sauvegarder le message de bienvenue dans Supabase
+        await saveMessage(welcomeMessage);
+        setMessages([welcomeMessage]);
+        
+        // Sauvegarder l'ID de conversation dans le localStorage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ conversationId: newConversationId }));
+      } catch (error) {
+        console.error('Erreur lors de l\'initialisation de la conversation:', error);
+        // Fallback en mode local si Supabase n'est pas disponible
+        const localConversationId = `local-${Date.now()}`;
+        setConversationId(localConversationId);
+        
+        const welcomeMessage: ChatMessage = {
+          id: 'welcome',
+          role: 'assistant',
+          content: 'Bonjour ! Je suis l\'assistant virtuel d\'ESIL Events. Comment puis-je vous aider aujourd\'hui ?',
+          timestamp: new Date(),
+          conversationId: localConversationId
+        };
+        setMessages([welcomeMessage]);
+      }
+    };
+    
+    initializeConversation();
   }, []);
 
   // Faire défiler vers le bas lorsque de nouveaux messages sont ajoutés
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+    
+    // Sauvegarder l'ID de conversation dans localStorage
+    if (conversationId) {
+      const dataToSave = { conversationId };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+    }
+  }, [messages, conversationId]);
 
   // Focus sur l'input lorsque le chat est ouvert
   useEffect(() => {
@@ -60,6 +132,10 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
   const toggleChat = () => {
     setIsOpen(!isOpen);
   };
+  
+  const toggleContextExpanded = () => {
+    setIsContextExpanded(!isContextExpanded);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
@@ -74,7 +150,8 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
       id: `user-${Date.now()}`,
       role: 'user',
       content: inputValue.trim(),
-      timestamp: new Date()
+      timestamp: new Date(),
+      conversationId
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -83,7 +160,13 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
     setError(null);
 
     try {
-      // Envoyer le message au service de chatbot
+      // Sauvegarder le message de l'utilisateur dans Supabase
+      await saveMessage(userMessage);
+      
+      // Mettre à jour le timestamp de la conversation
+      await updateConversationTimestamp(conversationId);
+      
+      // Envoyer le message au service de chatbot avec tout l'historique pour maintenir le contexte
       const result = await sendMessageToChatbot([...messages, userMessage], chatOptions);
 
       if (result.error) {
@@ -94,15 +177,76 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
           id: `assistant-${Date.now()}`,
           role: 'assistant',
           content: result.response,
-          timestamp: new Date()
+          timestamp: new Date(),
+          conversationId
         };
+        
+        // Sauvegarder la réponse du chatbot dans Supabase
+        await saveMessage(botMessage);
+        
+        // Mettre à jour l'interface utilisateur
         setMessages(prev => [...prev, botMessage]);
+        
+        // Mettre à jour le timestamp de la conversation
+        await updateConversationTimestamp(conversationId);
       }
     } catch (err: any) {
       setError('Une erreur est survenue lors de la communication avec le chatbot.');
       console.error('Erreur chatbot:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  // Fonction pour effacer l'historique de conversation
+  const clearConversation = async () => {
+    try {
+      // Supprimer l'ancienne conversation de Supabase si elle existe
+      if (conversationId && conversationId.length > 10 && !conversationId.startsWith('local-')) {
+        await deleteConversation(conversationId);
+      }
+      
+      // Vérifier si l'utilisateur est connecté
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      
+      // Créer une nouvelle conversation dans Supabase
+      const newConversationId = await createConversation(userId);
+      setConversationId(newConversationId);
+      
+      // Ajouter un message de bienvenue
+      const welcomeMessage: ChatMessage = {
+        id: `welcome-${Date.now()}`,
+        role: 'assistant',
+        content: 'Historique effacé. Comment puis-je vous aider aujourd\'hui ?',
+        timestamp: new Date(),
+        conversationId: newConversationId
+      };
+      
+      // Sauvegarder le message de bienvenue dans Supabase
+      await saveMessage(welcomeMessage);
+      
+      // Mettre à jour l'interface utilisateur
+      setMessages([welcomeMessage]);
+      
+      // Sauvegarder l'ID de conversation dans le localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ conversationId: newConversationId }));
+    } catch (error) {
+      console.error('Erreur lors de la réinitialisation de la conversation:', error);
+      
+      // Fallback en mode local si Supabase n'est pas disponible
+      const localConversationId = `local-${Date.now()}`;
+      setConversationId(localConversationId);
+      
+      const welcomeMessage: ChatMessage = {
+        id: `welcome-${Date.now()}`,
+        role: 'assistant',
+        content: 'Historique effacé. Comment puis-je vous aider aujourd\'hui ?',
+        timestamp: new Date(),
+        conversationId: localConversationId
+      };
+      
+      setMessages([welcomeMessage]);
     }
   };
 
@@ -163,7 +307,7 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
       </motion.button>
 
       {/* Conteneur du chat */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isOpen && (
           <motion.div
             className="absolute bottom-20 right-0 w-80 sm:w-96 bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200 flex flex-col"
@@ -172,6 +316,7 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
             animate="visible"
             exit="exit"
             style={{ maxHeight: 'calc(100vh - 120px)' }}
+            key="chat-container"
           >
             {/* En-tête du chat */}
             <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white p-4 flex items-center justify-between">
@@ -179,18 +324,37 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
                 <Bot className="mr-2 h-5 w-5" />
                 <h3 className="font-medium">Assistant ESIL Events</h3>
               </div>
-              <button 
-                onClick={toggleChat}
-                className="text-white/80 hover:text-white transition-colors"
-                aria-label="Fermer le chat"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={clearConversation}
+                  className="text-white/70 hover:text-white transition-colors"
+                  aria-label="Effacer la conversation"
+                  title="Effacer la conversation"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+                <button 
+                  onClick={toggleChat}
+                  className="text-white/80 hover:text-white transition-colors"
+                  aria-label="Fermer le chat"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
+            {/* Contexte de la conversation */}
+            {messages.length > 1 && (
+              <ConversationContext 
+                messages={messages} 
+                isExpanded={isContextExpanded} 
+                toggleExpanded={toggleContextExpanded} 
+              />
+            )}
+            
             {/* Corps du chat avec les messages */}
             <div className="flex-1 overflow-y-auto p-4 bg-gray-50" style={{ maxHeight: '350px' }}>
-              <AnimatePresence initial={false}>
+              <AnimatePresence initial={false} mode="wait">
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}
@@ -217,6 +381,7 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
                 ))}
                 {isLoading && (
                   <motion.div 
+                    key="loading-indicator"
                     className="flex justify-start mb-4"
                     variants={messageVariants}
                     initial="hidden"
@@ -230,6 +395,7 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
                 )}
                 {error && (
                   <motion.div 
+                    key="error-message"
                     className="flex justify-center mb-4"
                     variants={messageVariants}
                     initial="hidden"
