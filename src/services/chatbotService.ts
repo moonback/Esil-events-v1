@@ -23,13 +23,181 @@ export interface ChatbotOptions {
   cartItems?: any[]; // Éléments du panier pour des suggestions personnalisées
 }
 
+// Type pour les résultats d'ajout au panier
+export interface CartAdditionResult {
+  success: boolean;
+  productName?: string;
+  quantity?: number;
+  message: string;
+  productId?: string;
+  price?: number;
+  image?: string;
+}
+
+/**
+ * Extrait les informations de produit à partir d'un message utilisateur
+ * @param message Le message de l'utilisateur
+ * @returns Un objet contenant le nom du produit et la quantité demandée
+ */
+export const extractProductInfoFromMessage = (message: string): { productName: string, quantity: number } | null => {
+  const lowerMessage = message.toLowerCase();
+  
+  // Détection des produits mentionnés avec @ (prioritaire)
+  const mentionMatch = message.match(/@([\w\s\-]+)/);
+  if (mentionMatch && mentionMatch[1]) {
+    // Extraire le nom du produit après le @
+    const productName = mentionMatch[1].trim();
+    console.log('Produit détecté via @:', productName);
+    return { productName, quantity: 1 }; // Quantité par défaut = 1
+  }
+  
+  // Recherche de motifs comme "ajouter 2 chaises" ou "mettre 3 tables dans mon panier"
+  const quantityMatch = lowerMessage.match(/\b(\d+)\s+([\w\s\-]+?)\b(?=\s+(?:au|dans|à|a|mon|le|panier|svp|s'il vous plaît|merci)|$)/i);
+  
+  // Si on trouve une quantité et un nom de produit
+  if (quantityMatch) {
+    const quantity = parseInt(quantityMatch[1], 10);
+    let productName = quantityMatch[2].trim();
+    
+    // Nettoyer le nom du produit (enlever les mots comme "des", "les", etc.)
+    productName = productName.replace(/^(des|les|le|la|l'|un|une|de|d')\s+/i, '');
+    console.log('Produit détecté avec quantité:', productName, quantity);
+    return { productName, quantity };
+  }
+  
+  // Recherche de motifs comme "ajouter des chaises au panier" (sans quantité spécifiée)
+  const productMatch = lowerMessage.match(/\b(?:ajouter|mettre)\s+(?:des|les|le|la|l'|un|une|de|d')?\s*([\w\s\-]+?)\s+(?:au|dans|à|a|mon|le)\s+panier/i);
+  
+  if (productMatch) {
+    const productName = productMatch[1].trim();
+    console.log('Produit détecté sans quantité:', productName);
+    return { productName, quantity: 1 }; // Quantité par défaut = 1
+  }
+  
+  // Si aucun motif n'est trouvé
+  console.log('Aucun produit détecté dans le message');
+  return null;
+};
+
+/**
+ * Recherche un produit par nom et l'ajoute au panier
+ * @param productName Le nom du produit à rechercher
+ * @param quantity La quantité à ajouter
+ * @returns Un résultat indiquant le succès ou l'échec de l'opération
+ */
+export const findProductAndPrepareForCart = async (productName: string, quantity: number = 1): Promise<CartAdditionResult> => {
+  try {
+    console.log('Recherche du produit:', productName, 'Quantité:', quantity);
+    
+    if (!productName || productName.trim().length < 2) {
+      console.log('Nom de produit invalide ou trop court');
+      return {
+        success: false,
+        message: "Je n'ai pas pu identifier le produit que vous souhaitez ajouter au panier."
+      };
+    }
+
+    // Nettoyer le nom du produit pour la recherche
+    // Supprimer le @ si présent au début du nom
+    const cleanProductName = productName.replace(/^@/, '').trim();
+    console.log('Nom de produit nettoyé pour la recherche:', cleanProductName);
+
+    // Recherche du produit dans la base de données
+    // Utiliser une recherche plus flexible pour les noms complexes
+    const { data, error } = await supabase
+      .from('products')
+      .select('id, name, price_ttc, images, main_image_index')
+      .ilike('name', `%${cleanProductName}%`)
+      .limit(5); // Récupérer plusieurs résultats pour trouver le meilleur match
+
+    if (error) {
+      console.error("Erreur lors de la recherche du produit:", error);
+      return {
+        success: false,
+        message: "Une erreur s'est produite lors de la recherche du produit."
+      };
+    }
+
+    console.log('Résultats de recherche:', data);
+
+    if (!data || data.length === 0) {
+      console.log('Aucun produit trouvé pour:', cleanProductName);
+      return {
+        success: false,
+        message: `Je n'ai pas trouvé de produit correspondant à "${cleanProductName}" dans notre catalogue. Pouvez-vous préciser votre demande ou consulter notre catalogue de produits ?`
+      };
+    }
+
+    // Trouver le meilleur match parmi les résultats
+    // Si un produit correspond exactement, le prioriser
+    let bestMatch = data[0];
+    const exactMatch = data.find(p => 
+      p.name.toLowerCase() === cleanProductName.toLowerCase() ||
+      p.name.toLowerCase().includes(cleanProductName.toLowerCase())
+    );
+    
+    if (exactMatch) {
+      bestMatch = exactMatch;
+      console.log('Match exact trouvé:', bestMatch.name);
+    } else {
+      console.log('Meilleur match approximatif:', bestMatch.name);
+    }
+    
+    // Déterminer l'URL de l'image à utiliser
+    let imageUrl = '/images/default-product.svg';
+    if (bestMatch.images && bestMatch.images.length > 0) {
+      const imageIndex = typeof bestMatch.main_image_index === 'number' ? bestMatch.main_image_index : 0;
+      imageUrl = bestMatch.images[imageIndex] || bestMatch.images[0];
+    }
+
+    console.log('Produit trouvé et préparé pour le panier:', bestMatch.name);
+    return {
+      success: true,
+      productId: bestMatch.id,
+      productName: bestMatch.name,
+      quantity: quantity,
+      price: parseFloat(bestMatch.price_ttc),
+      image: imageUrl,
+      message: `J'ai trouvé "${bestMatch.name}" et je l'ai ajouté à votre panier.`
+    };
+  } catch (error) {
+    console.error("Erreur lors de la recherche du produit:", error);
+    return {
+      success: false,
+      message: "Une erreur s'est produite lors de la recherche du produit."
+    };
+  }
+};
+
 /**
  * Analyse l'intention de l'utilisateur à partir de son message
  * @param message Le message de l'utilisateur
  * @returns Le type d'intention identifié
  */
-export const analyzeIntent = (message: string): 'product_search' | 'product_info' | 'quote_request' | 'general_question' => {
+export const analyzeIntent = (message: string): 'product_search' | 'product_info' | 'quote_request' | 'add_to_cart' | 'general_question' => {
   const lowerMessage = message.toLowerCase();
+  
+  // Détection des mentions de produits avec @ (considéré comme intention d'ajout au panier)
+  if (message.match(/@[\w\s\-]+/)) {
+    console.log('Intention détectée: ajout au panier via mention @');
+    return 'add_to_cart';
+  }
+  
+  // Intention d'ajout au panier
+  if (
+    lowerMessage.includes('ajouter au panier') ||
+    lowerMessage.includes('mettre dans le panier') ||
+    lowerMessage.includes('ajouter dans mon panier') ||
+    lowerMessage.includes('ajouter à mon panier') ||
+    lowerMessage.includes('acheter') ||
+    lowerMessage.includes('ajoutes a mon panier') ||
+    lowerMessage.includes('ajoutes au panier') ||
+    (lowerMessage.includes('ajouter') && lowerMessage.includes('panier')) ||
+    (lowerMessage.includes('mettre') && lowerMessage.includes('panier'))
+  ) {
+    console.log('Intention détectée: ajout au panier via texte');
+    return 'add_to_cart';
+  }
   
   // Recherche de produits
   if (
@@ -41,6 +209,7 @@ export const analyzeIntent = (message: string): 'product_search' | 'product_info
     lowerMessage.includes('proposez') ||
     lowerMessage.includes('vendez')
   ) {
+    console.log('Intention détectée: recherche de produits');
     return 'product_search';
   }
   
@@ -54,6 +223,7 @@ export const analyzeIntent = (message: string): 'product_search' | 'product_info
     lowerMessage.includes('coûte') ||
     lowerMessage.includes('disponible')
   ) {
+    console.log('Intention détectée: information sur un produit');
     return 'product_info';
   }
   
@@ -67,10 +237,12 @@ export const analyzeIntent = (message: string): 'product_search' | 'product_info
     (lowerMessage.includes('envoyer') && lowerMessage.includes('mail') && lowerMessage.includes('devis')) ||
     (lowerMessage.includes('envoyer') && lowerMessage.includes('email') && lowerMessage.includes('devis'))
   ) {
+    console.log('Intention détectée: demande de devis');
     return 'quote_request';
   }
   
   // Question générale par défaut
+  console.log('Intention détectée: question générale');
   return 'general_question';
 };
 

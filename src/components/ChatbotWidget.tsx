@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Send, X, Minimize2, Maximize2, HelpCircle, Tag, RefreshCw } from 'lucide-react';
-import { generateChatbotResponse, ChatMessage, saveChatSession, loadChatSession, handleQuoteRequestViaChatbot } from '../services/chatbotService';
+import { 
+  generateChatbotResponse, 
+  ChatMessage, 
+  saveChatSession, 
+  loadChatSession, 
+  handleQuoteRequestViaChatbot,
+  analyzeIntent,
+  extractProductInfoFromMessage,
+  findProductAndPrepareForCart
+} from '../services/chatbotService';
 import { useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import ReactMarkdown from 'react-markdown';
@@ -48,7 +57,10 @@ const ChatbotWidget: React.FC = () => {
   const location = useLocation();
   
   // Récupérer les informations du panier
-  const { items: cartItems } = useCart();
+  const { items: cartItems, addToCart } = useCart();
+  
+  // État pour forcer la mise à jour de l'interface après l'ajout au panier
+  const [cartUpdateTrigger, setCartUpdateTrigger] = useState(0);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -107,6 +119,32 @@ const ChatbotWidget: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+  
+  // Effet pour s'assurer que l'interface est mise à jour après l'ajout au panier
+  useEffect(() => {
+    // Cet effet se déclenche chaque fois que cartUpdateTrigger change
+    // ce qui force un re-rendu du composant avec les données du panier à jour
+    if (cartUpdateTrigger > 0) {
+      console.log('Panier mis à jour via chatbot, déclenchement de la mise à jour de l\'interface');
+    }
+  }, [cartUpdateTrigger]);
+  
+  // Écouteur d'événement pour les mises à jour du panier
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      console.log('Événement de mise à jour du panier détecté');
+      // Forcer un re-rendu du composant
+      setCartUpdateTrigger(prev => prev + 1);
+    };
+    
+    // Ajouter l'écouteur d'événement
+    window.addEventListener('cart-updated', handleCartUpdate);
+    
+    // Nettoyer l'écouteur d'événement lors du démontage du composant
+    return () => {
+      window.removeEventListener('cart-updated', handleCartUpdate);
+    };
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -217,13 +255,86 @@ const ChatbotWidget: React.FC = () => {
     saveChatSession(sessionId, { messages: updatedMessages });
     
     try {
+      // Analyser l'intention de l'utilisateur
+      const intent = analyzeIntent(userMessage.content);
+      
       // Vérifier si le message concerne une demande de devis
       const isQuoteRequest = userMessage.content.toLowerCase().includes('devis') && 
         (userMessage.content.toLowerCase().includes('envoyer') || 
          userMessage.content.toLowerCase().includes('générer') || 
          userMessage.content.toLowerCase().includes('créer'));
       
-      if (isQuoteRequest) {
+      // Traiter l'intention d'ajout au panier
+      if (intent === 'add_to_cart') {
+        // Extraire les informations du produit à partir du message
+        const productInfo = extractProductInfoFromMessage(userMessage.content);
+        
+        if (productInfo) {
+          // Rechercher le produit dans la base de données
+          const cartResult = await findProductAndPrepareForCart(productInfo.productName, productInfo.quantity);
+          
+          if (cartResult.success && cartResult.productId) {
+            // Ajouter le produit au panier
+            addToCart({
+              id: cartResult.productId,
+              name: cartResult.productName!,
+              image: cartResult.image!,
+              priceTTC: cartResult.price!,
+              quantity: cartResult.quantity!
+            });
+            
+            // Forcer un rafraîchissement du panier en utilisant setTimeout
+            // pour s'assurer que l'ajout au panier est terminé avant de mettre à jour l'interface
+            setTimeout(() => {
+              console.log('Mise à jour du panier après ajout via chatbot');
+              // Mettre à jour l'état local pour forcer un re-rendu
+              setCartUpdateTrigger(prev => prev + 1);
+            }, 300); // Augmenter le délai pour s'assurer que le panier est bien mis à jour
+            
+            // Ajouter la réponse du chatbot confirmant l'ajout au panier
+            const botMessage: ChatMessage = {
+              id: `msg_${Date.now()}`,
+              role: 'assistant',
+              content: `J'ai ajouté ${cartResult.quantity} ${cartResult.productName} à votre panier. Vous pouvez continuer vos achats ou consulter votre panier pour finaliser votre commande.`,
+              timestamp: Date.now()
+            };
+            
+            const finalMessages = [...updatedMessages, botMessage];
+            setMessages(finalMessages);
+            
+            // Sauvegarder la session avec la réponse
+            saveChatSession(sessionId, { messages: finalMessages });
+          } else {
+            // Produit non trouvé ou erreur
+            const botMessage: ChatMessage = {
+              id: `msg_${Date.now()}`,
+              role: 'assistant',
+              content: cartResult.message,
+              timestamp: Date.now()
+            };
+            
+            const finalMessages = [...updatedMessages, botMessage];
+            setMessages(finalMessages);
+            
+            // Sauvegarder la session avec la réponse
+            saveChatSession(sessionId, { messages: finalMessages });
+          }
+        } else {
+          // Impossible d'extraire les informations du produit
+          const botMessage: ChatMessage = {
+            id: `msg_${Date.now()}`,
+            role: 'assistant',
+            content: "Je n'ai pas pu identifier le produit que vous souhaitez ajouter au panier. Pourriez-vous préciser le nom du produit et la quantité souhaitée ? Par exemple : 'Ajouter 2 chaises pliantes au panier'.",
+            timestamp: Date.now()
+          };
+          
+          const finalMessages = [...updatedMessages, botMessage];
+          setMessages(finalMessages);
+          
+          // Sauvegarder la session avec la réponse
+          saveChatSession(sessionId, { messages: finalMessages });
+        }
+      } else if (isQuoteRequest) {
         // Traiter la demande de devis via la fonction spécifique
         console.log('Détection d\'une demande de devis dans le message:', userMessage.content);
         const quoteResult = await handleQuoteRequestViaChatbot(userMessage.content);

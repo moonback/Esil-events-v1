@@ -18,6 +18,8 @@ const Header: React.FC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   // const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  // État pour forcer la mise à jour de l'interface après l'ajout au panier
+  const [cartUpdateTrigger, setCartUpdateTrigger] = useState(0);
  
   const { items } = useCart();
   const { user, isAdminUser } = useAuth();
@@ -32,6 +34,23 @@ const Header: React.FC = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  // Écouteur d'événement pour les mises à jour du panier
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      console.log('Header: Événement de mise à jour du panier détecté');
+      // Forcer un re-rendu du composant
+      setCartUpdateTrigger(prev => prev + 1);
+    };
+    
+    // Ajouter l'écouteur d'événement
+    window.addEventListener('cart-updated', handleCartUpdate);
+    
+    // Nettoyer l'écouteur d'événement lors du démontage du composant
+    return () => {
+      window.removeEventListener('cart-updated', handleCartUpdate);
+    };
   }, []);
   
 
