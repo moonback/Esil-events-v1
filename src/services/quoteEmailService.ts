@@ -22,33 +22,61 @@ export const generateAndSendQuoteEmail = async (
   quoteRequestId: string,
   options?: QuoteGenerationOptions
 ): Promise<{ success: boolean; error?: string; emailSent?: boolean }> => {
+  console.log('=== DÉBUT GÉNÉRATION ET ENVOI DE DEVIS ===');
+  console.log('ID de la demande:', quoteRequestId);
+  console.log('Options:', options);
+  
   try {
     // 1. Récupérer la demande de devis complète
+    console.log('Étape 1: Récupération de la demande de devis');
     const { data: quoteRequest, error: quoteError } = await getQuoteRequestById(quoteRequestId);
     
-    if (quoteError || !quoteRequest) {
+    if (quoteError) {
+      console.error('Erreur lors de la récupération de la demande:', quoteError);
       throw new Error(`Demande de devis ${quoteRequestId} non trouvée ou erreur: ${quoteError?.message}`);
     }
+    
+    if (!quoteRequest) {
+      console.error('Demande de devis non trouvée avec ID:', quoteRequestId);
+      throw new Error(`Demande de devis ${quoteRequestId} non trouvée`);
+    }
+    
+    console.log('Demande récupérée avec succès:', { 
+      id: quoteRequest.id, 
+      client: `${quoteRequest.first_name} ${quoteRequest.last_name}`,
+      email: quoteRequest.email,
+      nbItems: quoteRequest.items?.length || 0
+    });
 
     // 2. Récupérer les détails à jour des produits demandés
+    console.log('Étape 2: Récupération des détails des produits');
+    console.log('Nombre d\'articles à traiter:', quoteRequest.items?.length || 0);
+    
     const productDetailsPromises = (quoteRequest.items || []).map(async (item) => {
       try {
+        console.log('Récupération du produit avec ID:', item.id);
         const product = await getProductById(item.id);
-        return product ? {
-          ...item,
-          name: product.name,
-          priceHT: product.priceHT,
-          priceTTC: product.priceTTC,
-          description: product.description,
-          isAvailable: product.isAvailable,
-          stock: product.stock,
-          reference: product.reference
-        } : {
-          ...item,
-          error: true
-        };
+        if (product) {
+          console.log('Produit trouvé:', product.name);
+          return {
+            ...item,
+            name: product.name,
+            priceHT: product.priceHT,
+            priceTTC: product.priceTTC,
+            description: product.description,
+            isAvailable: product.isAvailable,
+            stock: product.stock,
+            reference: product.reference
+          };
+        } else {
+          console.warn('Produit non trouvé avec ID:', item.id);
+          return {
+            ...item,
+            error: true
+          };
+        }
       } catch (err) {
-        console.warn(`Impossible de récupérer le produit ${item.id}:`, err);
+        console.error(`Exception lors de la récupération du produit ${item.id}:`, err);
         return {
           ...item,
           error: true
@@ -57,8 +85,10 @@ export const generateAndSendQuoteEmail = async (
     });
 
     const productDetails = await Promise.all(productDetailsPromises);
+    console.log('Détails des produits récupérés:', productDetails.length);
 
     // 3. Construire les données pour le prompt LLM
+    console.log('Étape 3: Construction des données pour le prompt');
     const quoteData = {
       ...quoteRequest,
       items: productDetails.map(item => ({
@@ -69,16 +99,25 @@ export const generateAndSendQuoteEmail = async (
     };
 
     // 4. Générer le contenu du devis via l'API Gemini
+    console.log('Étape 4: Génération du contenu du devis via API Gemini');
     const quoteContent = await generateQuoteContent(quoteData, options);
+    console.log('Contenu du devis généré avec succès, longueur:', quoteContent.length);
 
     // 5. Envoyer l'email au client
+    console.log('Étape 5: Envoi de l\'email au client:', quoteRequest.email);
     const emailResult = await sendQuoteEmail(quoteRequest, quoteContent);
+    console.log('Résultat de l\'envoi d\'email:', emailResult);
 
     // 6. Mettre à jour le statut de la demande si l'email a été envoyé avec succès
     if (emailResult.success) {
+      console.log('Étape 6: Mise à jour du statut de la demande');
       await updateQuoteRequestAfterEmailSent(quoteRequestId);
+      console.log('Statut de la demande mis à jour avec succès');
+    } else {
+      console.warn('Email non envoyé, pas de mise à jour du statut');
     }
 
+    console.log('=== FIN GÉNÉRATION ET ENVOI DE DEVIS ===');
     return {
       success: true,
       emailSent: emailResult.success,
@@ -86,7 +125,9 @@ export const generateAndSendQuoteEmail = async (
     };
 
   } catch (error: any) {
-    console.error('Erreur lors de la génération et envoi du devis:', error);
+    console.error('Exception lors de la génération et envoi du devis:', error);
+    console.error('Stack trace:', error.stack);
+    console.log('=== FIN GÉNÉRATION ET ENVOI DE DEVIS (ERREUR) ===');
     return {
       success: false,
       emailSent: false,
