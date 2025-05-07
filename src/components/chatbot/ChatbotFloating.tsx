@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Loader2, Bot, ChevronDown, ChevronUp, Sparkles, Trash2 } from 'lucide-react';
+import { MessageSquare, X, Send, Loader2, Bot, Sparkles, Trash2 } from 'lucide-react';
 import { sendMessageToChatbot, ChatMessage, ChatOptions } from '../../services/chatbotService';
 import { createConversation, saveMessage, getConversationMessages, updateConversationTimestamp, deleteConversation } from '../../services/chatbotStorageService';
-import ConversationContext from './ConversationContext';
 import { supabase } from '../../services/supabaseClient';
 
 interface ChatbotFloatingProps {
@@ -23,7 +22,6 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string>(`conversation-${Date.now()}`);
-  const [isContextExpanded, setIsContextExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -132,10 +130,6 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
-  };
-  
-  const toggleContextExpanded = () => {
-    setIsContextExpanded(!isContextExpanded);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -344,14 +338,7 @@ const ChatbotFloating: React.FC<ChatbotFloatingProps> = ({
               </div>
             </div>
 
-            {/* Contexte de la conversation */}
-            {messages.length > 1 && (
-              <ConversationContext 
-                messages={messages} 
-                isExpanded={isContextExpanded} 
-                toggleExpanded={toggleContextExpanded} 
-              />
-            )}
+            {/* La section d'affichage du contexte a été retirée pour améliorer la mémoire du chatbot */}
             
             {/* Corps du chat avec les messages */}
             <div className="flex-1 overflow-y-auto p-4 bg-gray-50" style={{ maxHeight: '350px' }}>
