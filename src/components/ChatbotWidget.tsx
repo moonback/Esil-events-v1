@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Send, X, Minimize2, Maximize2, HelpCircle, Tag } from 'lucide-react';
-import { generateChatbotResponse, ChatMessage, saveChatSession, loadChatSession } from '../services/chatbotService';
+import { generateChatbotResponse, ChatMessage, saveChatSession, loadChatSession, handleQuoteRequestViaChatbot } from '../services/chatbotService';
 import { useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import ReactMarkdown from 'react-markdown';
@@ -196,31 +196,57 @@ const ChatbotWidget: React.FC = () => {
     saveChatSession(sessionId, { messages: updatedMessages });
     
     try {
-      // Générer une réponse avec le contexte de navigation et du panier
-      const result = await generateChatbotResponse(
-        userMessage.content,
-        updatedMessages,
-        { 
-          includeProductInfo: true, 
-          maxProductsToInclude: 3,
-          currentUrl: `${window.location.origin}${location.pathname}`,
-          cartItems: cartItems
-        }
-      );
+      // Vérifier si le message concerne une demande de devis
+      const isQuoteRequest = userMessage.content.toLowerCase().includes('devis') && 
+        (userMessage.content.toLowerCase().includes('envoyer') || 
+         userMessage.content.toLowerCase().includes('générer') || 
+         userMessage.content.toLowerCase().includes('créer'));
       
-      // Ajouter la réponse du chatbot
-      const botMessage: ChatMessage = {
-        id: `msg_${Date.now()}`,
-        role: 'assistant',
-        content: result.response || "Désolé, je n'ai pas pu générer une réponse. Veuillez réessayer.",
-        timestamp: Date.now()
-      };
-      
-      const finalMessages = [...updatedMessages, botMessage];
-      setMessages(finalMessages);
-      
-      // Sauvegarder la session avec la réponse
-      saveChatSession(sessionId, { messages: finalMessages });
+      if (isQuoteRequest) {
+        // Traiter la demande de devis via la fonction spécifique
+        console.log('Détection d\'une demande de devis dans le message:', userMessage.content);
+        const quoteResult = await handleQuoteRequestViaChatbot(userMessage.content);
+        
+        // Ajouter la réponse du chatbot concernant le devis
+        const botMessage: ChatMessage = {
+          id: `msg_${Date.now()}`,
+          role: 'assistant',
+          content: quoteResult.response,
+          timestamp: Date.now()
+        };
+        
+        const finalMessages = [...updatedMessages, botMessage];
+        setMessages(finalMessages);
+        
+        // Sauvegarder la session avec la réponse
+        saveChatSession(sessionId, { messages: finalMessages });
+      } else {
+        // Générer une réponse standard avec le contexte de navigation et du panier
+        const result = await generateChatbotResponse(
+          userMessage.content,
+          updatedMessages,
+          { 
+            includeProductInfo: true, 
+            maxProductsToInclude: 3,
+            currentUrl: `${window.location.origin}${location.pathname}`,
+            cartItems: cartItems
+          }
+        );
+        
+        // Ajouter la réponse du chatbot
+        const botMessage: ChatMessage = {
+          id: `msg_${Date.now()}`,
+          role: 'assistant',
+          content: result.response || "Désolé, je n'ai pas pu générer une réponse. Veuillez réessayer.",
+          timestamp: Date.now()
+        };
+        
+        const finalMessages = [...updatedMessages, botMessage];
+        setMessages(finalMessages);
+        
+        // Sauvegarder la session avec la réponse
+        saveChatSession(sessionId, { messages: finalMessages });
+      }
     } catch (error) {
       console.error('Erreur lors de la génération de la réponse:', error);
       
