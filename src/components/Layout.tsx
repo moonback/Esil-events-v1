@@ -4,6 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import SEO from './SEO';
 import { seoConfig } from '../config/seo';
+import { ChatbotFloating } from './chatbot';
 
 const Layout: React.FC = () => {
   const location = useLocation();
@@ -56,6 +57,7 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
       <Footer />
+      <ChatbotFloating position="bottom-right" initialOpen={false} />
     </div>
   );
 };
