@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, FileText, Download, ClipboardList } from 'lucide-react';
+import { Package, FileText, Download, ClipboardList, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
@@ -108,6 +108,12 @@ const AdminDashboard: React.FC = () => {
       icon: <Download className="w-5 h-5 text-gray-600" />,
       onClick: () => handleExportData(),
       bgHover: 'hover:bg-gray-50'
+    },
+    {
+      title: 'Suivi SEO',
+      icon: <Search className="w-5 h-5 text-teal-600" />,
+      onClick: () => navigate('/admin/keyword-rankings'),
+      bgHover: 'hover:bg-teal-50'
     }
   ];
 
