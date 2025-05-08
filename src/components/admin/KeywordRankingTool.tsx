@@ -6,7 +6,7 @@ import { isGoogleSearchConfigValid } from '../../config/googleSearchApi';
 
 const KeywordRankingTool: React.FC = () => {
   const [keyword, setKeyword] = useState('');
-  const [siteUrl, setSiteUrl] = useState('');
+  const [siteUrl, setSiteUrl] = useState('https://esil-events.fr/');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
   const [rankings, setRankings] = useState<KeywordRanking[]>([]);
