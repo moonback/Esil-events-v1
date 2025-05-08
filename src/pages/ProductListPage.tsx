@@ -20,7 +20,7 @@ const ProductListPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [categoryInfo, setCategoryInfo] = useState<{name: string, description?: string, seo_title?: string, seo_description?: string, seo_keywords?: string}>({name: ''});
 
-  // Use the product filters hook
+  // Use the product filters hook with pagination (12 products per page)
   const {
     priceRange,
     setPriceRange,
@@ -35,8 +35,14 @@ const ProductListPage: React.FC = () => {
     resetFilters,
     filteredProducts,
     isFilterOpen,
-    toggleFilter
-  } = useProductFilters(products, category);
+    toggleFilter,
+    // Pagination properties
+    currentItems,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    itemsPerPage
+  } = useProductFilters(products, category, 12);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -254,6 +260,67 @@ const ProductListPage: React.FC = () => {
                 <p className="text-red-700">{error}</p>
               </div>
             )}
+            
+            {/* Pagination Controls */}
+            {filteredProducts.length > 0 && totalPages > 1 && (
+              <div className="mt-8 flex justify-center">
+                <nav className="flex items-center space-x-2" aria-label="Pagination">
+                  {/* Previous Page Button */}
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className={`px-3 py-2 rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-violet-100'}`}
+                    aria-label="Page précédente"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  
+                  {/* Page Numbers */}
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    // Logic to show pages around current page
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      // If 5 or fewer pages, show all
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      // If near start, show first 5 pages
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      // If near end, show last 5 pages
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      // Otherwise show current page and 2 pages on each side
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`px-4 py-2 rounded-md ${currentPage === pageNum ? 'bg-violet-600 text-white' : 'text-gray-700 hover:bg-violet-100'}`}
+                        aria-current={currentPage === pageNum ? 'page' : undefined}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                  
+                  {/* Next Page Button */}
+                  <button
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className={`px-3 py-2 rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-violet-100'}`}
+                    aria-label="Page suivante"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </nav>
+              </div>
+            )}
 
             {filteredProducts.length === 0 ? (
               <div className="bg-white p-12 rounded-xl shadow-lg text-center border border-gray-100">
@@ -285,7 +352,7 @@ const ProductListPage: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredProducts.map((product) => (
+                {currentItems.map((product) => (
                   <Link
                     key={product.id}
                     to={`/product/${product.slug}`}
@@ -347,6 +414,67 @@ const ProductListPage: React.FC = () => {
                     </div>
                   </Link>
                 ))}
+              </div>
+            )}
+            
+            {/* Pagination Controls */}
+            {filteredProducts.length > 0 && totalPages > 1 && (
+              <div className="mt-8 flex justify-center">
+                <nav className="flex items-center space-x-2" aria-label="Pagination">
+                  {/* Previous Page Button */}
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className={`px-3 py-2 rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-violet-100'}`}
+                    aria-label="Page précédente"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  
+                  {/* Page Numbers */}
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    // Logic to show pages around current page
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      // If 5 or fewer pages, show all
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      // If near start, show first 5 pages
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      // If near end, show last 5 pages
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      // Otherwise show current page and 2 pages on each side
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`px-4 py-2 rounded-md ${currentPage === pageNum ? 'bg-violet-600 text-white' : 'text-gray-700 hover:bg-violet-100'}`}
+                        aria-current={currentPage === pageNum ? 'page' : undefined}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                  
+                  {/* Next Page Button */}
+                  <button
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className={`px-3 py-2 rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-violet-100'}`}
+                    aria-label="Page suivante"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </nav>
               </div>
             )}
           </div>

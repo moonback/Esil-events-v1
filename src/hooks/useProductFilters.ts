@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Product } from '../types/Product';
+import { usePagination } from './usePagination';
 
 interface UseProductFiltersResult {
   priceRange: [number, number];
@@ -16,9 +17,15 @@ interface UseProductFiltersResult {
   filteredProducts: Product[];
   isFilterOpen: boolean;
   toggleFilter: () => void;
+  // Pagination properties
+  currentItems: Product[];
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  totalPages: number;
+  itemsPerPage: number;
 }
 
-export const useProductFilters = (products: Product[], category?: string): UseProductFiltersResult => {
+export const useProductFilters = (products: Product[], category?: string, itemsPerPageParam = 12): UseProductFiltersResult => {
   // Filter states
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [sortBy, setSortBy] = useState<string>('name-asc');
@@ -62,7 +69,7 @@ export const useProductFilters = (products: Product[], category?: string): UsePr
         }
         
         // Filter by selected categories (if on main page)
-        if (!category && selectedCategories.length > 0 && !selectedCategories.includes(product.category)) {
+        if (!category && selectedCategories.length > 0 && !selectedCategories.includes(product.category as string)) {
           return false;
         }
         
@@ -85,6 +92,15 @@ export const useProductFilters = (products: Product[], category?: string): UsePr
       });
   }, [products, priceRange, availability, selectedColors, selectedCategories, sortBy, category]);
 
+  // Apply pagination to filtered products
+  const {
+    currentItems,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    itemsPerPage
+  } = usePagination<Product>(filteredProducts, itemsPerPageParam);
+
   return {
     priceRange,
     setPriceRange,
@@ -99,6 +115,12 @@ export const useProductFilters = (products: Product[], category?: string): UsePr
     resetFilters,
     filteredProducts,
     isFilterOpen,
-    toggleFilter
+    toggleFilter,
+    // Pagination properties
+    currentItems,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    itemsPerPage
   };
 };
