@@ -14,6 +14,7 @@ import EmailConfigPage from '../pages/admin/EmailConfig';
 import AdminSitemap from '../pages/admin/Sitemap';
 import { AdminRealizations } from '../pages/admin/Realizations';
 import KeywordRankings from '../pages/admin/KeywordRankings';
+import AdminNewsletter from '../pages/admin/Newsletter';
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -32,6 +33,7 @@ const AdminRoutes: React.FC = () => {
         <Route path="sitemap" element={<AdminSitemap />} />
         <Route path="realizations" element={<AdminRealizations />} />
         <Route path="keyword-rankings" element={<KeywordRankings />} />
+        <Route path="newsletter" element={<AdminNewsletter />} />
       </Routes>
     </AdminRoute>
   );

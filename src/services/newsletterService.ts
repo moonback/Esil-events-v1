@@ -209,3 +209,64 @@ export const unsubscribeUser = async (email: string): Promise<{ success: boolean
     return { success: false, error: err instanceof Error ? err.message : String(err) };
   }
 };
+
+// Fonction pour envoyer une newsletter à tous les abonnés actifs
+export const sendNewsletterToSubscribers = async (
+  subject: string,
+  htmlContent: string,
+  testEmail?: string
+): Promise<{ success: boolean; error?: any; sentCount?: number }> => {
+  try {
+    // Si un email de test est fourni, envoyer uniquement à cet email
+    if (testEmail) {
+      const result = await sendEmail(testEmail, subject, htmlContent);
+      return { 
+        success: result.success, 
+        error: result.error,
+        sentCount: result.success ? 1 : 0
+      };
+    }
+
+    // Récupérer tous les abonnés actifs
+    const { data: subscribers, error: fetchError } = await getAllSubscribers('active');
+    
+    if (fetchError || !subscribers) {
+      console.error('Erreur lors de la récupération des abonnés:', fetchError);
+      return { success: false, error: fetchError, sentCount: 0 };
+    }
+    
+    if (subscribers.length === 0) {
+      return { success: true, sentCount: 0 };
+    }
+    
+    // Envoyer l'email à chaque abonné
+    let successCount = 0;
+    let errors = [];
+    
+    for (const subscriber of subscribers) {
+      const result = await sendEmail(subscriber.email, subject, htmlContent);
+      
+      if (result.success) {
+        successCount++;
+      } else {
+        errors.push({ email: subscriber.email, error: result.error });
+      }
+    }
+    
+    // Si tous les emails ont été envoyés avec succès
+    if (errors.length === 0) {
+      return { success: true, sentCount: successCount };
+    } else {
+      // Si certains emails ont échoué
+      console.error(`Erreur lors de l'envoi de la newsletter à ${errors.length} abonnés:`, errors);
+      return { 
+        success: successCount > 0, 
+        error: `Échec d'envoi à ${errors.length} abonnés sur ${subscribers.length}`,
+        sentCount: successCount
+      };
+    }
+  } catch (err) {
+    console.error('Erreur lors de l\'envoi de la newsletter:', err);
+    return { success: false, error: err instanceof Error ? err.message : String(err), sentCount: 0 };
+  }
+};

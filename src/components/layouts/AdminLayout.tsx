@@ -13,7 +13,8 @@ import {
   Mail,
   Globe,
   LogOut,
-  Users
+  Users,
+  AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { signOut } from '../../services/authService';
@@ -109,64 +110,20 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   }, []);
 
   const menuItems: MenuItem[] = [
-    {
-      label: 'Tableau de bord',
-      icon: <LayoutDashboard className="w-5 h-5" />,
-      path: '/admin'
-    },
-    {
-      label: 'Produits',
-      icon: <Package className="w-5 h-5" />,
-      path: '/admin/products'
-    },
-    {
-      label: 'Catégories',
-      icon: <Grid className="w-5 h-5" />,
-      path: '/admin/categories'
-    },
-    {
-      label: 'Catégories d\'artistes',
-      icon: <Tag className="w-5 h-5" />,
-      path: '/admin/artist-categories'
-    },
-    {
-      label: 'Artistes',
-      icon: <Music className="w-5 h-5" />,
-      path: '/admin/artists'
-    },
-    {
-      label: 'Réalisations',
-      icon: <FileText className="w-5 h-5" />,
-      path: '/admin/realizations'
-    },
-    {
-      label: 'Annonces',
-      icon: <MessageSquare className="w-5 h-5" />,
-      path: '/admin/announcements'
-    },
-    {
-      label: 'Demandes de devis',
-      icon: <FileText className="w-5 h-5" />,
-      path: '/admin/quote-requests'
-    },
-    {
-      label: 'Configuration Email',
-      icon: <Mail className="w-5 h-5" />,
-      path: '/admin/email-config'
-    },
-    {
-      label: 'Sitemap',
-      icon: <Globe className="w-5 h-5" />,
-      path: '/admin/sitemap'
-    },
-    {
-      label: 'Suivi des Mots-clés',
-      path: '/admin/keyword-rankings',
-      icon: <Globe className="w-5 h-5" />,
-      
-    },
-    
-    
+    { label: 'Tableau de bord', icon: <LayoutDashboard className="w-5 h-5" />, path: '/admin' },
+    { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/admin/products' },
+    { label: 'Catégories', icon: <Tag className="w-5 h-5" />, path: '/admin/categories' },
+    { label: 'Demandes de devis', icon: <MessageSquare className="w-5 h-5" />, path: '/admin/quote-requests' },
+    { label: 'Artistes', icon: <Music className="w-5 h-5" />, path: '/admin/artists' },
+    { label: 'Catégories d\'artistes', icon: <Grid className="w-5 h-5" />, path: '/admin/artist-categories' },
+    { label: 'Réalisations', icon: <FileText className="w-5 h-5" />, path: '/admin/realizations' },
+    { label: 'Annonces', icon: <AlertCircle className="w-5 h-5" />, path: '/admin/announcements' },
+    { label: 'Newsletter', icon: <Mail className="w-5 h-5" />, path: '/admin/newsletter' },
+    // { label: 'Clients', icon: <Users className="w-5 h-5" />, path: '/admin/customers' },
+    // { label: 'Pages', icon: <FileText className="w-5 h-5" />, path: '/admin/pages' },
+    { label: 'Emails', icon: <Mail className="w-5 h-5" />, path: '/admin/email-config' },
+    { label: 'Sitemap', icon: <Globe className="w-5 h-5" />, path: '/admin/sitemap' },
+    { label: 'Mots-clés', icon: <FileText className="w-5 h-5" />, path: '/admin/keyword-rankings' },
   ];
 
   // Fonction pour déterminer si un élément de menu est actif
