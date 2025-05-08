@@ -8,6 +8,7 @@ import {
   unsubscribeUser, 
   sendNewsletterToSubscribers 
 } from '../../services/newsletterService';
+import { generateNewsletterContent, NewsletterContentOptions } from '../../services/newsletterContentService';
 
 const AdminNewsletter: React.FC = () => {
   const [subscribers, setSubscribers] = useState<NewsletterSubscription[]>([]);
@@ -26,7 +27,17 @@ const AdminNewsletter: React.FC = () => {
     testEmail: ''
   });
   const [isSending, setIsSending] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  
+  // État pour les options de génération de contenu
+  const [generationOptions, setGenerationOptions] = useState({
+    theme: '',
+    tone: 'friendly',
+    includeProducts: true,
+    contentLength: 'medium'
+  });
 
   useEffect(() => {
     fetchSubscribers();
@@ -201,6 +212,47 @@ const AdminNewsletter: React.FC = () => {
       testEmail: ''
     });
     setFormErrors({});
+    setIsPreviewMode(false);
+  };
+  
+  const togglePreviewMode = () => {
+    setIsPreviewMode(!isPreviewMode);
+  };
+  
+  // Fonction pour générer du contenu HTML via Gemini
+  const handleGenerateContent = async () => {
+    setIsGenerating(true);
+    try {
+      // Préparer les options pour la génération de contenu
+      const options: NewsletterContentOptions = {
+        theme: generationOptions.theme,
+        tone: generationOptions.tone as 'formal' | 'friendly' | 'promotional',
+        includeProducts: generationOptions.includeProducts,
+        contentLength: generationOptions.contentLength as 'short' | 'medium' | 'long',
+      };
+      
+      // Appeler le service de génération de contenu
+      const result = await generateNewsletterContent(options);
+      
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
+      if (result.content) {
+        // Mettre à jour le champ de contenu avec le HTML généré
+        setNewsletterData(prev => ({
+          ...prev,
+          content: result.content || ''
+        }));
+        
+        showNotification('success', 'Contenu HTML généré avec succès');
+      }
+    } catch (err) {
+      console.error('Erreur lors de la génération du contenu:', err);
+      showNotification('error', `Erreur lors de la génération: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const showNotification = (type: 'success' | 'error', message: string) => {
@@ -447,127 +499,225 @@ const AdminNewsletter: React.FC = () => {
       {/* Modal d'envoi de newsletter */}
       {isNewsletterModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Envoyer une newsletter</h2>
-              <button
-                onClick={handleCloseNewsletterModal}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <div className="mb-4">
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Sujet
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  value={newsletterData.subject}
-                  onChange={(e) => setNewsletterData({...newsletterData, subject: e.target.value})}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent dark:bg-gray-700 dark:text-white dark:border-gray-600 ${formErrors.subject ? 'border-red-500 dark:border-red-500' : 'border-gray-300'}`}
-                  placeholder="Sujet de la newsletter"
-                />
-                {formErrors.subject && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formErrors.subject}</p>
-                )}
-              </div>
-              
-              <div className="mb-4">
-                <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Contenu HTML
-                </label>
-                <textarea
-                  id="content"
-                  value={newsletterData.content}
-                  onChange={(e) => setNewsletterData({...newsletterData, content: e.target.value})}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent dark:bg-gray-700 dark:text-white dark:border-gray-600 ${formErrors.content ? 'border-red-500 dark:border-red-500' : 'border-gray-300'}`}
-                  rows={10}
-                  placeholder="<div>Contenu HTML de votre newsletter...</div>"
-                ></textarea>
-                {formErrors.content && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formErrors.content}</p>
-                )}
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Vous pouvez utiliser du code HTML pour formater votre newsletter.
-                </p>
-              </div>
-              
-              <div className="mb-6">
-                <label htmlFor="testEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email de test (optionnel)
-                </label>
-                <input
-                  type="email"
-                  id="testEmail"
-                  value={newsletterData.testEmail}
-                  onChange={(e) => setNewsletterData({...newsletterData, testEmail: e.target.value})}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent dark:bg-gray-700 dark:text-white dark:border-gray-600 ${formErrors.testEmail ? 'border-red-500 dark:border-red-500' : 'border-gray-300'}`}
-                  placeholder="email@exemple.com"
-                />
-                {formErrors.testEmail && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formErrors.testEmail}</p>
-                )}
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Envoyez d'abord un email de test pour vérifier le contenu avant d'envoyer à tous les abonnés.
-                </p>
-              </div>
-              
-              <div className="flex justify-end space-x-3">
-                <button
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Envoyer une newsletter</h2>
+                <button 
                   onClick={handleCloseNewsletterModal}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  disabled={isSending}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 >
-                  Annuler
+                  <X className="w-6 h-6" />
                 </button>
+              </div>
+              
+              <div className="space-y-6">
+                {/* Onglets Édition/Aperçu */}
+                <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+                  <button
+                    onClick={() => setIsPreviewMode(false)}
+                    className={`py-2 px-4 font-medium text-sm ${!isPreviewMode 
+                      ? 'text-violet-600 border-b-2 border-violet-600 dark:text-violet-400 dark:border-violet-400' 
+                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
+                  >
+                    Édition
+                  </button>
+                  <button
+                    onClick={() => setIsPreviewMode(true)}
+                    className={`py-2 px-4 font-medium text-sm ${isPreviewMode 
+                      ? 'text-violet-600 border-b-2 border-violet-600 dark:text-violet-400 dark:border-violet-400' 
+                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
+                  >
+                    Aperçu
+                  </button>
+                </div>
                 
-                {newsletterData.testEmail && (
+                {!isPreviewMode ? (
+                  /* Mode Édition */
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sujet *</label>
+                      <input
+                        type="text"
+                        value={newsletterData.subject}
+                        onChange={(e) => setNewsletterData({...newsletterData, subject: e.target.value})}
+                        className={`w-full px-4 py-2 border ${formErrors.subject ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-lg focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent dark:bg-gray-700 dark:text-white`}
+                        placeholder="Ex: Nouvelles offres spéciales ESIL Events"
+                      />
+                      {formErrors.subject && <p className="mt-1 text-sm text-red-500">{formErrors.subject}</p>}
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contenu HTML *</label>
+                      <textarea
+                        value={newsletterData.content}
+                        onChange={(e) => setNewsletterData({...newsletterData, content: e.target.value})}
+                        rows={12}
+                        className={`w-full px-4 py-2 border ${formErrors.content ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-lg focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent dark:bg-gray-700 dark:text-white font-mono text-sm`}
+                        placeholder="Entrez le contenu HTML de votre newsletter..."
+                      />
+                      {formErrors.content && <p className="mt-1 text-sm text-red-500">{formErrors.content}</p>}
+                    </div>
+                    
+                    {/* Options de génération de contenu */}
+                    <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Générer du contenu avec l'IA</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Thème</label>
+                          <input
+                            type="text"
+                            value={generationOptions.theme}
+                            onChange={(e) => setGenerationOptions({...generationOptions, theme: e.target.value})}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
+                            placeholder="Ex: Événements d'été, Offres spéciales..."
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Ton</label>
+                          <select
+                            value={generationOptions.tone}
+                            onChange={(e) => setGenerationOptions({...generationOptions, tone: e.target.value as any})}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
+                          >
+                            <option value="friendly">Amical</option>
+                            <option value="formal">Formel</option>
+                            <option value="promotional">Promotionnel</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Longueur</label>
+                          <select
+                            value={generationOptions.contentLength}
+                            onChange={(e) => setGenerationOptions({...generationOptions, contentLength: e.target.value as any})}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
+                          >
+                            <option value="short">Court</option>
+                            <option value="medium">Moyen</option>
+                            <option value="long">Long</option>
+                          </select>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id="includeProducts"
+                            checked={generationOptions.includeProducts}
+                            onChange={(e) => setGenerationOptions({...generationOptions, includeProducts: e.target.checked})}
+                            className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="includeProducts" className="ml-2 block text-sm text-gray-600 dark:text-gray-400">
+                            Inclure des produits/services
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <button
+                        onClick={handleGenerateContent}
+                        disabled={isGenerating}
+                        className="w-full px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isGenerating ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            <span>Génération en cours...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Générer du contenu HTML</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    
+                    {/* Email de test */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email de test (optionnel)</label>
+                      <input
+                        type="email"
+                        value={newsletterData.testEmail}
+                        onChange={(e) => setNewsletterData({...newsletterData, testEmail: e.target.value})}
+                        className={`w-full px-4 py-2 border ${formErrors.testEmail ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-lg focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent dark:bg-gray-700 dark:text-white`}
+                        placeholder="Entrez une adresse email pour tester l'envoi"
+                      />
+                      {formErrors.testEmail && <p className="mt-1 text-sm text-red-500">{formErrors.testEmail}</p>}
+                    </div>
+                  </div>
+                ) : (
+                  /* Mode Aperçu */
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aperçu du sujet</h3>
+                      <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600">
+                        <p className="font-medium">{newsletterData.subject || "(Aucun sujet défini)"}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aperçu du contenu</h3>
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                        <div className="p-1">
+                          {newsletterData.content ? (
+                            <iframe 
+                              srcDoc={newsletterData.content}
+                              title="Aperçu de la newsletter"
+                              className="w-full min-h-[500px] border-0"
+                              sandbox="allow-same-origin"
+                            />
+                          ) : (
+                            <div className="flex items-center justify-center h-[500px] text-gray-500 dark:text-gray-400">
+                              <p>Aucun contenu à afficher</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Actions */}
+                <div className="flex flex-col md:flex-row gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <button
                     onClick={() => handleSendNewsletter(true)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-                    disabled={isSending}
+                    disabled={isSending || !newsletterData.testEmail}
+                    className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isSending ? (
+                    {isSending && newsletterData.testEmail ? (
                       <>
-                        <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
                         <span>Envoi en cours...</span>
                       </>
                     ) : (
                       <>
-                        <Mail className="w-4 h-4" />
+                        <Send className="w-4 h-4" />
                         <span>Envoyer un test</span>
                       </>
                     )}
                   </button>
-                )}
-                
-                <button
-                  onClick={() => handleSendNewsletter(false)}
-                  className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-colors flex items-center space-x-2"
-                  disabled={isSending}
-                >
-                  {isSending ? (
-                    <>
-                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span>Envoi en cours...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      <span>Envoyer à tous les abonnés</span>
-                    </>
-                  )}
-                </button>
+                  
+                  <button
+                    onClick={() => handleSendNewsletter(false)}
+                    disabled={isSending}
+                    className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSending && !newsletterData.testEmail ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Envoi en cours...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Envoyer à tous les abonnés actifs</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
