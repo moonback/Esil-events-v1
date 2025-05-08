@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown, Copy } from 'lucide-react';
+import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown, Copy, BarChart } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import { Product } from '../../types/Product';
 import { getAllProducts, deleteProduct, createProduct, updateProduct, duplicateProduct, regenerateMissingSlugs } from '../../services/productService';
@@ -474,6 +474,18 @@ const AdminProducts: React.FC = () => {
                               title="Dupliquer"
                             >
                               <Copy className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                // Rediriger vers la page de suivi des mots-clés avec les mots-clés du produit
+                                const keywords = product.seo_keywords || '';
+                                const encodedKeywords = encodeURIComponent(keywords);
+                                window.location.href = `/admin/keyword-rankings?keywords=${encodedKeywords}&productName=${encodeURIComponent(product.name)}`;
+                              }}
+                              className="text-teal-600 hover:text-teal-800 mr-3"
+                              title="Recherche de positionnement SEO"
+                            >
+                              <BarChart className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(product.id)}

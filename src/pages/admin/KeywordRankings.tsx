@@ -6,6 +6,7 @@ import KeywordRankingTool from '../../components/admin/KeywordRankingTool';
 import KeywordGeneratorTool from '../../components/admin/KeywordGeneratorTool';
 import { NotificationContainer } from '../../components/admin/AdminNotification';
 import { isGoogleSearchConfigValid } from '../../config/googleSearchApi';
+import { useLocation } from 'react-router-dom';
 
 const KeywordRankings: React.FC = () => {
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -13,11 +14,35 @@ const KeywordRankings: React.FC = () => {
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const keywordInputRef = useRef<HTMLInputElement>(null);
   const apiConfigured = isGoogleSearchConfigValid();
+  const location = useLocation();
+
+  // Récupérer les mots-clés et le nom du produit depuis l'URL
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const keywordsParam = searchParams.get('keywords');
+    const productName = searchParams.get('productName');
+    
+    if (keywordsParam) {
+      setSearchKeyword(keywordsParam);
+      // Afficher une notification pour indiquer que les mots-clés ont été chargés
+      if (productName) {
+        setNotification({
+          type: 'success',
+          message: `Mots-clés chargés pour le produit: ${productName}`
+        });
+        
+        // Effacer la notification après 5 secondes
+        setTimeout(() => {
+          setNotification(null);
+        }, 5000);
+      }
+    }
+  }, [location]);
 
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="pt-20 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
+      <div className="pt-20 px-4 md:px-8 lg:px-12 max-w-10xl mx-auto">
         {/* Header with gradient background */}
         <div className="bg-gradient-to-r from-violet-600 to-indigo-700 rounded-xl p-6 mb-8 shadow-lg">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -155,6 +180,13 @@ const KeywordRankings: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Notification */}
+        {notification && (
+          <div className={`mb-6 p-4 rounded-lg ${notification.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+            {notification.message}
           </div>
         )}
 

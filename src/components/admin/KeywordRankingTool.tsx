@@ -28,6 +28,10 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
   useEffect(() => {
     if (initialKeyword) {
       setKeyword(initialKeyword);
+      // Si un mot-clé initial est fourni, déclencher automatiquement la recherche
+      if (initialKeyword.trim() && siteUrl.trim()) {
+        handleSearch();
+      }
     }
   }, [initialKeyword]);
   
