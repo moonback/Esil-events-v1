@@ -2,7 +2,7 @@ import React, { useState, useEffect, RefObject } from 'react';
 import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw, List, X, Database, Tag, Plus, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getKeywordPosition, saveKeywordRanking, getAllKeywordRankings, deleteKeywordRanking, KeywordRanking, SearchResult } from '../../services/keywordRankingService';
-import { getSavedKeywords, SavedKeyword } from '../../services/savedKeywordsService';
+import { getSavedKeywords, SavedKeyword, deleteSavedKeyword } from '../../services/savedKeywordsService';
 
 interface KeywordRankingToolProps {
   initialKeyword?: string;
@@ -375,6 +375,30 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
     setSuccessMessage(`Mot-clé "${newKeyword}" ajouté à la liste`);
     setTimeout(() => setSuccessMessage(null), 2000);
   };
+  
+  // Fonction pour supprimer un mot-clé sauvegardé
+  const handleDeleteSavedKeyword = async (id: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce mot-clé ?')) {
+      return;
+    }
+
+    try {
+      setError(null);
+      const success = await deleteSavedKeyword(id);
+      
+      if (success) {
+        // Recharger la liste des mots-clés sauvegardés
+        await loadSavedKeywords();
+        setSuccessMessage('Mot-clé supprimé avec succès');
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        setError('Erreur lors de la suppression du mot-clé');
+      }
+    } catch (err) {
+      setError('Erreur lors de la suppression du mot-clé');
+      console.error(err);
+    }
+  };
 
   const getPositionChange = (current: number, previous: number | null | undefined) => {
     if (previous === null || previous === undefined) return null;
@@ -617,6 +641,14 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
                                           <Plus className="w-4 h-4" />
                                         </button>
                                       )}
+                                      <button
+                                        onClick={() => savedKeyword.id ? handleDeleteSavedKeyword(savedKeyword.id) : null}
+                                        className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                                        title="Supprimer ce mot-clé"
+                                        disabled={!savedKeyword.id}
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
                                     </div>
                                   </div>
                                   
