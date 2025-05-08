@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Search, RefreshCw, Save, Copy, CheckCircle, AlertCircle, Info, Plus, Lightbulb, ChevronDown, ChevronUp, Filter, ArrowRight } from 'lucide-react';
+import { Search, RefreshCw, Save, Copy, CheckCircle, AlertCircle, Info, Plus, Lightbulb, ChevronDown, ChevronUp, Filter, ArrowRight, Database, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { generateKeywords, GeneratedKeyword, KeywordGenerationOptions } from '../../services/keywordGenerationService';
+import { saveKeyword } from '../../services/savedKeywordsService';
 
 interface KeywordGeneratorToolProps {
   onAddToSearch?: (keyword: string) => void;
@@ -16,11 +17,13 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
   const [includeMetrics, setIncludeMetrics] = useState(true);
   
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [generatedKeywords, setGeneratedKeywords] = useState<GeneratedKeyword[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [copiedKeyword, setCopiedKeyword] = useState<string | null>(null);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [selectedKeywords, setSelectedKeywords] = useState<Set<number>>(new Set());
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -76,6 +79,45 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
       onAddToSearch(keyword);
       setSuccessMessage(`Mot-clé "${keyword}" ajouté à la recherche`);
       setTimeout(() => setSuccessMessage(null), 2000);
+    }
+  };
+
+  const toggleKeywordSelection = (index: number) => {
+    const newSelectedKeywords = new Set(selectedKeywords);
+    if (newSelectedKeywords.has(index)) {
+      newSelectedKeywords.delete(index);
+    } else {
+      newSelectedKeywords.add(index);
+    }
+    setSelectedKeywords(newSelectedKeywords);
+  };
+
+  const handleSaveSelectedKeywords = async () => {
+    if (selectedKeywords.size === 0) {
+      setError('Veuillez sélectionner au moins un mot-clé à sauvegarder');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      setError(null);
+      
+      const selectedKeywordsArray = Array.from(selectedKeywords);
+      const savedCount = await Promise.all(
+        selectedKeywordsArray.map(index => saveKeyword(generatedKeywords[index], topic))
+      ).then(results => results.filter(id => id !== null).length);
+
+      if (savedCount > 0) {
+        setSuccessMessage(`${savedCount} mot${savedCount > 1 ? 's' : ''}-clé${savedCount > 1 ? 's' : ''} sauvegardé${savedCount > 1 ? 's' : ''} avec succès`);
+        setSelectedKeywords(new Set());
+      } else {
+        setError('Erreur lors de la sauvegarde des mots-clés');
+      }
+    } catch (err) {
+      setError('Erreur lors de la sauvegarde des mots-clés');
+      console.error(err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -329,6 +371,23 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
             </h3>
             
             <div className="flex space-x-2">
+              <button 
+                onClick={handleSaveSelectedKeywords}
+                disabled={selectedKeywords.size === 0 || isSaving}
+                className="px-3 py-1.5 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800/30 text-green-700 dark:text-green-400 rounded-md text-sm font-medium hover:bg-green-200 dark:hover:bg-green-800/30 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-1.5 animate-spin" />
+                    Sauvegarde...
+                  </>
+                ) : (
+                  <>
+                    <Database className="w-4 h-4 mr-1.5" />
+                    Sauvegarder ({selectedKeywords.size})
+                  </>
+                )}
+              </button>
               <button className="px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center">
                 <Save className="w-4 h-4 mr-1.5" />
                 Exporter CSV
@@ -344,6 +403,9 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-800">
+                  <th scope="col" className="px-3 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 w-10">
+                    <span className="sr-only">Sélectionner</span>
+                  </th>
                   <th scope="col" className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Mot-clé
                   </th>
@@ -370,7 +432,15 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {generatedKeywords.map((keyword, index) => (
-                  <tr key={index} className={`${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800/50'} hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-colors`}>
+                  <tr key={index} className={`${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800/50'} ${selectedKeywords.has(index) ? 'bg-violet-50 dark:bg-violet-900/20' : ''} hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-colors`}>
+                    <td className="px-3 py-4 whitespace-nowrap text-center">
+                      <div 
+                        onClick={() => toggleKeywordSelection(index)}
+                        className={`w-5 h-5 rounded border cursor-pointer mx-auto flex items-center justify-center ${selectedKeywords.has(index) ? 'bg-violet-600 border-violet-600 dark:bg-violet-500 dark:border-violet-500' : 'border-gray-300 dark:border-gray-600'}`}
+                      >
+                        {selectedKeywords.has(index) && <Check className="w-3 h-3 text-white" />}
+                      </div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                       {keyword.keyword}
                     </td>
@@ -439,7 +509,8 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
           </div>
           
           <div className="p-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700 text-center text-sm text-gray-500 dark:text-gray-400">
-            Vous pouvez copier un mot-clé ou l'ajouter directement à l'outil de suivi des positions
+            <p>Sélectionnez les mots-clés que vous souhaitez sauvegarder en base de données</p>
+            <p className="mt-1">Vous pouvez aussi copier un mot-clé ou l'ajouter directement à l'outil de suivi des positions</p>
           </div>
         </motion.div>
       )}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, RefObject } from 'react';
-import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw, List, X } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw, List, X, Database, Tag, Plus } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getKeywordPosition, saveKeywordRanking, getAllKeywordRankings, deleteKeywordRanking, KeywordRanking, SearchResult } from '../../services/keywordRankingService';
 import { isGoogleSearchConfigValid } from '../../config/googleSearchApi';
+import { getSavedKeywords, SavedKeyword } from '../../services/savedKeywordsService';
 
 interface KeywordRankingToolProps {
   initialKeyword?: string;
@@ -12,6 +13,9 @@ interface KeywordRankingToolProps {
 const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword = '', keywordInputRef }) => {
   const [keyword, setKeyword] = useState(initialKeyword);
   const [multipleKeywords, setMultipleKeywords] = useState('');
+  const [savedKeywords, setSavedKeywords] = useState<SavedKeyword[]>([]);
+  const [isLoadingSavedKeywords, setIsLoadingSavedKeywords] = useState(false);
+  const [showSavedKeywords, setShowSavedKeywords] = useState(false);
   
   // Mettre à jour le mot-clé lorsque initialKeyword change
   useEffect(() => {
@@ -19,6 +23,24 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
       setKeyword(initialKeyword);
     }
   }, [initialKeyword]);
+  
+  // Charger les mots-clés sauvegardés
+  const loadSavedKeywords = async () => {
+    try {
+      setIsLoadingSavedKeywords(true);
+      const keywords = await getSavedKeywords();
+      setSavedKeywords(keywords);
+    } catch (err) {
+      console.error('Erreur lors du chargement des mots-clés sauvegardés:', err);
+    } finally {
+      setIsLoadingSavedKeywords(false);
+    }
+  };
+  
+  // Charger les mots-clés sauvegardés au chargement du composant
+  useEffect(() => {
+    loadSavedKeywords();
+  }, []);
   const [siteUrl, setSiteUrl] = useState('https://esil-events.fr/');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
@@ -261,6 +283,41 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
       }
     }, 100);
   };
+  
+  // Fonction pour utiliser un mot-clé sauvegardé
+  const handleUseSavedKeyword = (savedKeyword: SavedKeyword) => {
+    setKeyword(savedKeyword.keyword);
+    setNotes(savedKeyword.topic || '');
+    setSearchResult(null);
+    setError(null);
+    setScrollToForm(true);
+    setShowSavedKeywords(false);
+    
+    // Faire défiler jusqu'au formulaire de recherche
+    setTimeout(() => {
+      const formElement = document.getElementById('search-form');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+  
+  // Fonction pour ajouter un mot-clé sauvegardé à la liste des mots-clés multiples
+  const handleAddToMultipleKeywords = (savedKeyword: SavedKeyword) => {
+    const newKeyword = savedKeyword.keyword;
+    const currentKeywords = multipleKeywords.trim();
+    
+    if (currentKeywords) {
+      // Ajouter le mot-clé avec une virgule si la liste n'est pas vide
+      setMultipleKeywords(`${currentKeywords},\n${newKeyword}`);
+    } else {
+      // Sinon, juste ajouter le mot-clé
+      setMultipleKeywords(newKeyword);
+    }
+    
+    setSuccessMessage(`Mot-clé "${newKeyword}" ajouté à la liste`);
+    setTimeout(() => setSuccessMessage(null), 2000);
+  };
 
   const getPositionChange = (current: number, previous: number | null | undefined) => {
     if (previous === null || previous === undefined) return null;
@@ -299,7 +356,105 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
             <List className="w-4 h-4 inline-block mr-1" />
             Recherche multiple
           </button>
+          <button
+            onClick={() => {
+              setShowSavedKeywords(!showSavedKeywords);
+              if (!showSavedKeywords) {
+                loadSavedKeywords();
+              }
+            }}
+            className="ml-auto py-2 px-4 font-medium text-sm text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-300 flex items-center"
+          >
+            <Database className="w-4 h-4 mr-1" />
+            Mots-clés sauvegardés
+          </button>
         </div>
+        
+        {/* Panneau des mots-clés sauvegardés */}
+        <AnimatePresence>
+          {showSavedKeywords && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mb-6 overflow-hidden"
+            >
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden">
+                <div className="p-4 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                  <h3 className="font-medium text-gray-900 dark:text-white flex items-center">
+                    <Tag className="w-4 h-4 mr-2 text-violet-600 dark:text-violet-400" />
+                    Mots-clés sauvegardés
+                  </h3>
+                  <button 
+                    onClick={() => setShowSavedKeywords(false)}
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                {isLoadingSavedKeywords ? (
+                  <div className="p-6 flex justify-center">
+                    <RefreshCw className="w-6 h-6 animate-spin text-violet-600 dark:text-violet-400" />
+                  </div>
+                ) : savedKeywords.length === 0 ? (
+                  <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+                    Aucun mot-clé sauvegardé trouvé
+                  </div>
+                ) : (
+                  <div className="max-h-64 overflow-y-auto">
+                    <div className="p-2 grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+                      {savedKeywords.map((savedKeyword) => (
+                        <div 
+                          key={savedKeyword.id} 
+                          className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-violet-300 dark:hover:border-violet-700 transition-colors"
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="font-medium text-gray-900 dark:text-white truncate">
+                              {savedKeyword.keyword}
+                            </span>
+                            <div className="flex space-x-1">
+                              <button
+                                onClick={() => handleUseSavedKeyword(savedKeyword)}
+                                className="text-violet-600 hover:text-violet-800 dark:text-violet-400 dark:hover:text-violet-300"
+                                title="Utiliser ce mot-clé"
+                              >
+                                <Search className="w-4 h-4" />
+                              </button>
+                              {isBatchMode && (
+                                <button
+                                  onClick={() => handleAddToMultipleKeywords(savedKeyword)}
+                                  className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+                                  title="Ajouter à la liste de mots-clés"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {savedKeyword.type && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300">
+                                {savedKeyword.type}
+                              </span>
+                            )}
+                            {savedKeyword.topic && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 truncate max-w-full">
+                                {savedKeyword.topic}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* URL du site (commun aux deux modes) */}
         <div className="mb-4">
