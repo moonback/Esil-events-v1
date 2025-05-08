@@ -12,7 +12,8 @@ import {
   MessageSquare,
   Mail,
   Globe,
-  LogOut
+  LogOut,
+  Users
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { signOut } from '../../services/authService';
@@ -138,11 +139,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       icon: <FileText className="w-5 h-5" />,
       path: '/admin/realizations'
     },
-    // {
-    //   label: 'Clients',
-    //   icon: <Users className="w-5 h-5" />,
-    //   path: '/admin/customers'
-    // },
     {
       label: 'Annonces',
       icon: <MessageSquare className="w-5 h-5" />,
@@ -163,12 +159,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       icon: <Globe className="w-5 h-5" />,
       path: '/admin/sitemap'
     },
-    // {
-    //   label: 'Suivi des Mots-clés',
-    //   path: '/admin/keyword-tracking',
-    //   icon: <Globe className="w-5 h-5" />,
+    {
+      label: 'Suivi des Mots-clés',
+      path: '/admin/keyword-rankings',
+      icon: <Globe className="w-5 h-5" />,
       
-    // },
+    },
+    
+    
   ];
 
   // Fonction pour déterminer si un élément de menu est actif

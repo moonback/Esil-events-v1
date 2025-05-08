@@ -13,6 +13,7 @@ import QuoteRequestsAdmin from '../pages/admin/QuoteRequests';
 import EmailConfigPage from '../pages/admin/EmailConfig';
 import AdminSitemap from '../pages/admin/Sitemap';
 import { AdminRealizations } from '../pages/admin/Realizations';
+import KeywordRankings from '../pages/admin/KeywordRankings';
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -30,6 +31,7 @@ const AdminRoutes: React.FC = () => {
         <Route path="email-config" element={<EmailConfigPage />} />
         <Route path="sitemap" element={<AdminSitemap />} />
         <Route path="realizations" element={<AdminRealizations />} />
+        <Route path="keyword-rankings" element={<KeywordRankings />} />
       </Routes>
     </AdminRoute>
   );

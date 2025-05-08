@@ -145,6 +145,18 @@ VITE_SUPABASE_ANON_KEY=VOTRE_CLE_ANON_SUPABASE
 # Deepseek API (pour suggestion de réponse IA)
 VITE_DEEPSEEK_API_KEY=VOTRE_CLE_API_DEEPSEEK
 
+# SerpApi (pour le suivi des positions SEO)
+VITE_SERP_API_KEY=VOTRE_CLE_API_SERPAPI
+
+# Utilisation du proxy SerpApi
+Pour contourner les restrictions CORS lors de l'utilisation de l'API SerpApi, un proxy a été implémenté dans le serveur Express. Pour l'utiliser :
+
+1. Assurez-vous d'avoir configuré votre clé API SerpApi dans le fichier .env
+2. Démarrez le serveur Express avec la commande : `npm run server`
+3. Gardez le serveur en cours d'exécution pendant que vous utilisez l'application
+
+Le serveur proxy écoute sur le port 3001 et transmet vos requêtes à SerpApi tout en gérant les problèmes CORS.
+
 # SMTP Configuration (pour envoi d'emails via API backend)
 # Ces variables sont utilisées par le service `emailService.ts` mais l'API backend n'est pas incluse ici.
 # Elles peuvent être utilisées pour configurer une API séparée ou une fonction serverless.
