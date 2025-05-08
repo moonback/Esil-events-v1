@@ -41,7 +41,7 @@ const prepareGeminiRequest = (options: KeywordGenerationOptions) => {
   const {
     topic,
     industry = "événementiel",
-    targetAudience = "organisateurs d'événements",
+    targetAudience = "Loueur matèriel evenenementiel et organisateurs d'événements",
     location = "France",
     count = 20,
     includeMetrics = true
