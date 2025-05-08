@@ -16,18 +16,13 @@ export interface ProductSeoGenerationOptions {
 }
 
 /**
- * Prépare les données pour la génération de contenu SEO spécifique aux produits
+ * Helper pour générer les instructions contextuelles communes
  */
-export const prepareProductSeoPrompt = (
+const buildContextualInstructions = (
   productData: Partial<ProductFormData>,
   categories?: { category?: Category; subCategory?: Subcategory },
   options?: ProductSeoGenerationOptions
 ) => {
-  const systemMessage = {
-    role: "system",
-    content: "Tu es un expert en SEO spécialisé dans l'optimisation de contenu pour les sites de location de matériel événementiel. Tu excelles dans la création de métadonnées SEO pour des produits de location destinés aux événements professionnels et particuliers. Tu as une expertise approfondie dans le domaine de l'événementiel, couvrant tous les aspects : Location de matériel, Installation professionnelle, Régie Son & Lumière, et Animation événementielle. Tu comprends parfaitement les intentions de recherche des organisateurs d'événements et sais comment optimiser le contenu pour maximiser la visibilité dans les moteurs de recherche tout en maintenant un taux de conversion élevé. Tu maîtrises les dernières tendances SEO, les algorithmes de Google, et les meilleures pratiques en matière de référencement local pour le marché français de l'événementiel. Tu sais adapter le ton et le vocabulaire selon le type d'événement (mariage, séminaire d'entreprise, salon professionnel, etc.) et le public cible (particuliers, entreprises, institutions)."
-  };
-
   // Déterminer le contexte de catégorie pour enrichir le prompt
   let categoryContext = '';
   if (categories?.category) {
@@ -39,13 +34,11 @@ export const prepareProductSeoPrompt = (
   }
 
   // Ajuster le message en fonction des options
-  let lengthInstruction = '';
+  let lengthInstruction = 'Génère un contenu équilibré, optimisé pour le référencement et la conversion.';
   if (options?.targetLength === 'short') {
     lengthInstruction = 'Génère un contenu concis et direct, idéal pour les recherches mobiles.';
   } else if (options?.targetLength === 'long') {
     lengthInstruction = 'Génère un contenu détaillé et approfondi, riche en mots-clés secondaires.';
-  } else {
-    lengthInstruction = 'Génère un contenu équilibré, optimisé pour le référencement et la conversion.';
   }
 
   // Ajouter des mots-clés de focus si fournis
@@ -70,6 +63,38 @@ export const prepareProductSeoPrompt = (
   const technicalSpecsText = productData.technicalSpecs ? 
     Object.entries(productData.technicalSpecs).map(([key, value]) => `${key}: ${value}`).join(', ') : 
     'Non spécifiées';
+
+  return {
+    categoryContext,
+    lengthInstruction,
+    keywordsInstruction,
+    audienceInstruction,
+    eventTypeInstruction,
+    technicalSpecsText
+  };
+};
+
+/**
+ * Prépare les données pour la génération de contenu SEO spécifique aux produits
+ */
+export const prepareProductSeoPrompt = (
+  productData: Partial<ProductFormData>,
+  categories?: { category?: Category; subCategory?: Subcategory },
+  options?: ProductSeoGenerationOptions
+) => {
+  const {
+    categoryContext,
+    lengthInstruction,
+    keywordsInstruction,
+    audienceInstruction,
+    eventTypeInstruction,
+    technicalSpecsText
+  } = buildContextualInstructions(productData, categories, options);
+
+  const systemMessage = {
+    role: "system",
+    content: "Tu es un expert en SEO spécialisé dans l'optimisation de contenu pour les sites de location de matériel événementiel. Tu excelles dans la création de métadonnées SEO pour des produits de location destinés aux événements professionnels et particuliers. Tu as une expertise approfondie dans le domaine de l'événementiel, couvrant tous les aspects : Location de matériel, Installation professionnelle, Régie Son & Lumière, et Animation événementielle. Tu comprends parfaitement les intentions de recherche des organisateurs d'événements et sais comment optimiser le contenu pour maximiser la visibilité dans les moteurs de recherche tout en maintenant un taux de conversion élevé. Tu maîtrises les dernières tendances SEO, les algorithmes de Google, et les meilleures pratiques en matière de référencement local pour le marché français de l'événementiel. Tu sais adapter le ton et le vocabulaire selon le type d'événement (mariage, séminaire d'entreprise, salon professionnel, etc.) et le public cible (particuliers, entreprises, institutions)."
+  };
 
   const userMessage = {
     role: "user",
@@ -143,48 +168,14 @@ Fournis le résultat au format JSON structuré avec les clés:
  * Prépare la requête pour l'API Google Gemini
  */
 const prepareGeminiRequest = (productData: Partial<ProductFormData>, categories?: { category?: Category; subCategory?: Subcategory }, options?: ProductSeoGenerationOptions) => {
-  // Déterminer le contexte de catégorie pour enrichir le prompt
-  let categoryContext = '';
-  if (categories?.category) {
-    categoryContext = `Ce produit appartient à la catégorie principale "${categories.category.name}"`;
-    if (categories.subCategory) {
-      categoryContext += ` et à la sous-catégorie "${categories.subCategory.name}"`;
-    }
-    categoryContext += '.';
-  }
-
-  // Ajuster le message en fonction des options
-  let lengthInstruction = '';
-  if (options?.targetLength === 'short') {
-    lengthInstruction = 'Génère un contenu concis et direct, idéal pour les recherches mobiles.';
-  } else if (options?.targetLength === 'long') {
-    lengthInstruction = 'Génère un contenu détaillé et approfondi, riche en mots-clés secondaires.';
-  } else {
-    lengthInstruction = 'Génère un contenu équilibré, optimisé pour le référencement et la conversion.';
-  }
-
-  // Ajouter des mots-clés de focus si fournis
-  let keywordsInstruction = '';
-  if (options?.focusKeywords && options.focusKeywords.length > 0) {
-    keywordsInstruction = `Assure-toi d'inclure ces mots-clés importants: ${options.focusKeywords.join(', ')}. Intègre-les naturellement dans le titre et la description.`;
-  }
-
-  // Ajouter des informations sur le public cible si fournies
-  let audienceInstruction = '';
-  if (options?.targetAudience) {
-    audienceInstruction = `Ce produit cible principalement: ${options.targetAudience}. Adapte le ton et le vocabulaire en conséquence.`;
-  }
-
-  // Ajouter des informations sur le type d'événement si fourni
-  let eventTypeInstruction = '';
-  if (options?.eventType) {
-    eventTypeInstruction = `Ce produit est particulièrement adapté pour les événements de type: ${options.eventType}. Mentionne cet usage spécifique.`;
-  }
-
-  // Informations techniques pour enrichir le contenu
-  const technicalSpecsText = productData.technicalSpecs ? 
-    Object.entries(productData.technicalSpecs).map(([key, value]) => `${key}: ${value}`).join(', ') : 
-    'Non spécifiées';
+  const {
+    categoryContext,
+    lengthInstruction,
+    keywordsInstruction,
+    audienceInstruction,
+    eventTypeInstruction,
+    technicalSpecsText
+  } = buildContextualInstructions(productData, categories, options);
 
   const systemPrompt = "Tu es un expert en SEO spécialisé dans l'optimisation de contenu pour les sites de location de matériel événementiel. Tu excelles dans la création de métadonnées SEO pour des produits de location destinés aux événements professionnels et particuliers. Tu as une expertise approfondie dans le domaine de l'événementiel, couvrant tous les aspects : Location de matériel, Installation professionnelle, Régie Son & Lumière, et Animation événementielle. Tu comprends parfaitement les intentions de recherche des organisateurs d'événements et sais comment optimiser le contenu pour maximiser la visibilité dans les moteurs de recherche tout en maintenant un taux de conversion élevé. Tu maîtrises les dernières tendances SEO, les algorithmes de Google, et les meilleures pratiques en matière de référencement local pour le marché français de l'événementiel. Tu sais adapter le ton et le vocabulaire selon le type d'événement (mariage, séminaire d'entreprise, salon professionnel, etc.) et le public cible (particuliers, entreprises, institutions).";
 
