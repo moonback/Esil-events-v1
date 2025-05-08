@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, X, AlertCircle, Mail, Download, Filter, RefreshCw, Send } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, AlertCircle, Mail, Download, Filter, RefreshCw, Send, Search, ShoppingBag } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { 
@@ -9,6 +9,7 @@ import {
   sendNewsletterToSubscribers 
 } from '../../services/newsletterService';
 import { generateNewsletterContent, NewsletterContentOptions } from '../../services/newsletterContentService';
+import { getAllProducts, Product } from '../../services/productService';
 
 const AdminNewsletter: React.FC = () => {
   const [subscribers, setSubscribers] = useState<NewsletterSubscription[]>([]);
@@ -31,6 +32,14 @@ const AdminNewsletter: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   
+  // État pour les produits
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [productSearchTerm, setProductSearchTerm] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+  const [isProductSelectorOpen, setIsProductSelectorOpen] = useState(false);
+  
   // État pour les options de génération de contenu
   const [generationOptions, setGenerationOptions] = useState({
     theme: '',
@@ -41,7 +50,25 @@ const AdminNewsletter: React.FC = () => {
 
   useEffect(() => {
     fetchSubscribers();
+    fetchProducts();
   }, []);
+  
+  // Effet pour filtrer les produits en fonction du terme de recherche
+  useEffect(() => {
+    if (products.length > 0) {
+      if (productSearchTerm.trim() === '') {
+        setFilteredProducts(products);
+      } else {
+        const term = productSearchTerm.toLowerCase();
+        const filtered = products.filter(product => 
+          product.name.toLowerCase().includes(term) || 
+          product.reference.toLowerCase().includes(term) ||
+          product.category.toString().toLowerCase().includes(term)
+        );
+        setFilteredProducts(filtered);
+      }
+    }
+  }, [productSearchTerm, products]);
 
   useEffect(() => {
     filterSubscribers();
@@ -81,6 +108,53 @@ const AdminNewsletter: React.FC = () => {
     }
     
     setFilteredSubscribers(filtered);
+  };
+  
+  // Fonction pour récupérer les produits
+  const fetchProducts = async () => {
+    setIsLoadingProducts(true);
+    try {
+      const productsData = await getAllProducts();
+      setProducts(productsData);
+      setFilteredProducts(productsData);
+    } catch (err) {
+      console.error('Erreur lors de la récupération des produits:', err);
+      showNotification('error', 'Impossible de charger les produits. Veuillez réessayer plus tard.');
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  };
+  
+  // Fonction pour ajouter un produit à la sélection
+  const addProductToSelection = (product: Product) => {
+    if (!selectedProducts.some(p => p.id === product.id)) {
+      setSelectedProducts([...selectedProducts, product]);
+    }
+  };
+  
+  // Fonction pour retirer un produit de la sélection
+  const removeProductFromSelection = (productId: string) => {
+    setSelectedProducts(selectedProducts.filter(p => p.id !== productId));
+  };
+  
+  // Fonction pour ouvrir/fermer le sélecteur de produits
+  const toggleProductSelector = () => {
+    setIsProductSelectorOpen(!isProductSelectorOpen);
+  };
+  
+  // Fonction pour convertir les produits sélectionnés au format attendu par le service de newsletter
+  const formatSelectedProductsForNewsletter = () => {
+    return selectedProducts.map(product => ({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.priceTTC,
+      imageUrl: product.images && product.images.length > 0 ? 
+        (product.mainImageIndex !== undefined ? 
+          product.images[product.mainImageIndex] : 
+          product.images[0]) : 
+        undefined
+    }));
   };
 
   const handleUnsubscribe = async (email: string) => {
@@ -230,6 +304,11 @@ const AdminNewsletter: React.FC = () => {
         includeProducts: generationOptions.includeProducts,
         contentLength: generationOptions.contentLength as 'short' | 'medium' | 'long',
       };
+      
+      // Ajouter les produits sélectionnés si disponibles
+      if (selectedProducts.length > 0 && generationOptions.includeProducts) {
+        options.selectedProducts = formatSelectedProductsForNewsletter();
+      }
       
       // Appeler le service de génération de contenu
       const result = await generateNewsletterContent(options);
@@ -603,6 +682,7 @@ const AdminNewsletter: React.FC = () => {
                           </select>
                         </div>
                         
+                        <div className="flex flex-col space-y-2">
                         <div className="flex items-center">
                           <input
                             type="checkbox"
@@ -615,7 +695,125 @@ const AdminNewsletter: React.FC = () => {
                             Inclure des produits/services
                           </label>
                         </div>
+                        
+                        {generationOptions.includeProducts && (
+                          <div className="mt-2">
+                            <button
+                              type="button"
+                              onClick={toggleProductSelector}
+                              className="px-3 py-1.5 text-sm bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-200 rounded-lg hover:bg-violet-200 dark:hover:bg-violet-800/40 transition-colors flex items-center space-x-1"
+                            >
+                              <ShoppingBag className="w-3.5 h-3.5" />
+                              <span>{isProductSelectorOpen ? 'Fermer le sélecteur' : 'Sélectionner des produits'}</span>
+                            </button>
+                            
+                            {/* Affichage des produits sélectionnés */}
+                            {selectedProducts.length > 0 && (
+                              <div className="mt-3">
+                                <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Produits sélectionnés ({selectedProducts.length})</h4>
+                                <div className="space-y-2">
+                                  {selectedProducts.map(product => (
+                                    <div key={product.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg">
+                                      <div className="flex items-center space-x-2">
+                                        {product.images && product.images.length > 0 && (
+                                          <img 
+                                            src={product.mainImageIndex !== undefined ? product.images[product.mainImageIndex] : product.images[0]} 
+                                            alt={product.name} 
+                                            className="w-8 h-8 object-cover rounded"
+                                          />
+                                        )}
+                                        <span className="text-xs font-medium truncate max-w-[150px]">{product.name}</span>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={() => removeProductFromSelection(product.id)}
+                                        className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
+                      </div>
+                      
+                      {/* Sélecteur de produits */}
+                      {isProductSelectorOpen && (
+                        <div className="mt-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-sm">
+                          <div className="flex justify-between items-center mb-3">
+                            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Sélectionner des produits</h4>
+                            <button
+                              type="button"
+                              onClick={toggleProductSelector}
+                              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
+                          
+                          <div className="mb-3">
+                            <div className="relative">
+                              <input
+                                type="text"
+                                placeholder="Rechercher un produit..."
+                                value={productSearchTerm}
+                                onChange={(e) => setProductSearchTerm(e.target.value)}
+                                className="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
+                              />
+                              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Search className="w-4 h-4 text-gray-400" />
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="max-h-60 overflow-y-auto">
+                            {isLoadingProducts ? (
+                              <div className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                Chargement des produits...
+                              </div>
+                            ) : filteredProducts.length === 0 ? (
+                              <div className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                Aucun produit trouvé
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-1 gap-2">
+                                {filteredProducts.map(product => (
+                                  <div 
+                                    key={product.id} 
+                                    className={`p-2 rounded-lg border ${
+                                      selectedProducts.some(p => p.id === product.id)
+                                        ? 'border-violet-300 bg-violet-50 dark:border-violet-700 dark:bg-violet-900/20'
+                                        : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50'
+                                    } cursor-pointer transition-colors`}
+                                    onClick={() => addProductToSelection(product)}
+                                  >
+                                    <div className="flex items-center space-x-3">
+                                      {product.images && product.images.length > 0 && (
+                                        <img 
+                                          src={product.mainImageIndex !== undefined ? product.images[product.mainImageIndex] : product.images[0]} 
+                                          alt={product.name} 
+                                          className="w-10 h-10 object-cover rounded"
+                                        />
+                                      )}
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{product.name}</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{product.reference}</p>
+                                      </div>
+                                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                        {product.priceTTC.toFixed(2)}€
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                       
                       <button
                         onClick={handleGenerateContent}

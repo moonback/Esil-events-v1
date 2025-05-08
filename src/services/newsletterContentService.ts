@@ -9,6 +9,13 @@ export interface NewsletterContentOptions {
   theme?: string;
   tone?: 'formal' | 'friendly' | 'promotional';
   includeProducts?: boolean;
+  selectedProducts?: Array<{
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    imageUrl?: string;
+  }>;
   targetAudience?: string;
   contentLength?: 'short' | 'medium' | 'long';
 }
@@ -73,6 +80,22 @@ export const prepareNewsletterContentPrompt = (options?: NewsletterContentOption
     userContent += `AUDIENCE CIBLE:\n${options.targetAudience}\n\n`;
   }
   
+  // Ajouter des informations sur les produits sélectionnés si disponibles
+  if (options?.selectedProducts && options.selectedProducts.length > 0) {
+    userContent += `PRODUITS À INCLURE DANS LA NEWSLETTER:\n`;
+    options.selectedProducts.forEach((product, index) => {
+      userContent += `Produit ${index + 1}:\n`;
+      userContent += `- Nom: ${product.name}\n`;
+      userContent += `- Description: ${product.description}\n`;
+      userContent += `- Prix: ${product.price.toFixed(2)}€\n`;
+      if (product.imageUrl) {
+        userContent += `- Image: ${product.imageUrl}\n`;
+      }
+      userContent += `\n`;
+    });
+    userContent += `\n`;
+  }
+  
   // Ajouter les instructions spécifiques
   userContent += `INSTRUCTIONS SPÉCIFIQUES POUR L'IA :\n`;
   userContent += `1. Crée un contenu HTML complet et prêt à l'emploi pour une newsletter.\n`;
@@ -83,8 +106,18 @@ export const prepareNewsletterContentPrompt = (options?: NewsletterContentOption
   userContent += `6. Ajoute des espaces pour insérer des images (avec commentaires <!-- IMAGE: description -->) aux endroits appropriés.\n`;
   userContent += `7. Inclus des appels à l'action clairs et attractifs.\n`;
   userContent += `8. Assure-toi que le contenu soit engageant et orienté conversion.\n`;
-  userContent += `9. Ajoute un pied de page avec les informations légales et un lien de désabonnement.\n`;
-  userContent += `10. Fournis uniquement le code HTML complet, sans explications supplémentaires.\n`;
+  
+  // Instructions spécifiques pour les produits
+  if (options?.selectedProducts && options.selectedProducts.length > 0) {
+    userContent += `9. Intègre les produits fournis dans une section dédiée de la newsletter avec leur nom, description, prix et image.\n`;
+    userContent += `10. Pour chaque produit, crée un bloc HTML attrayant avec un bouton "Voir le produit" ou "En savoir plus".\n`;
+    userContent += `11. Organise les produits de manière visuellement attrayante, en utilisant une mise en page adaptée au nombre de produits.\n`;
+    userContent += `12. Ajoute un pied de page avec les informations légales et un lien de désabonnement.\n`;
+    userContent += `13. Fournis uniquement le code HTML complet, sans explications supplémentaires.\n`;
+  } else {
+    userContent += `9. Ajoute un pied de page avec les informations légales et un lien de désabonnement.\n`;
+    userContent += `10. Fournis uniquement le code HTML complet, sans explications supplémentaires.\n`;
+  }
   
   const userMessage = {
     role: "user",

@@ -1332,3 +1332,5 @@ export const getProductsBySubSubCategory = async (category: string, subCategory:
     );
   }
 };
+export type { Product };
+
