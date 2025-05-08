@@ -193,7 +193,7 @@ const Header: React.FC = () => {
                         onMouseEnter={() => setShowMegaMenu(true)}
                         onMouseLeave={() => setShowMegaMenu(false)}
                       >
-                        <div className="max-w-7xl mx-auto px-4 py-6">
+                        <div className="max-w-12xl mx-auto px-4 py-6">
                           <MegaMenu onLinkClick={() => setShowMegaMenu(false)} />
                         </div>
                       </div>
@@ -235,15 +235,16 @@ const Header: React.FC = () => {
                 {/* Cart Button with Animation */}
                 <Link 
                   to="/cart" 
-                  className="relative group p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
+                  className="relative group p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30 hover:animate-bounce"
                   aria-label="Panier"
                 >
                   <ShoppingCart className="w-5 h-5 text-gray-700 dark:text-gray-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-all duration-300 transform group-hover:rotate-12" />
                   {items.length > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-md animate-pulse-slow">
+                    <span className="absolute -top-0.5 -right-0.5 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg animate-pulse-fast shadow-md">
                       {items.length}
                     </span>
                   )}
+                  <span className="absolute inset-0 rounded-full bg-primary-200 dark:bg-primary-700 opacity-0 group-hover:opacity-20 transform scale-0 group-hover:scale-100 transition-all duration-300"></span>
                 </Link>
 
                 
