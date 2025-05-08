@@ -167,9 +167,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-lg">{category.name}</span>
-                  <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600 transition-all duration-300 hover:bg-violet-100">
-                    {getCategoryItemsCount(category.id)}
-                  </span>
+                  
                 </div>
               </div>
             ))}
@@ -249,9 +247,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
       <div className="bg-gray-50 p-4 border-t border-gray-100">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
           <p className="text-sm text-gray-600">
-            {categories.length > 0 
-              ? `${categories.length} catégories · ${getTotalItemsCount()} produits au total`
-              : 'Chargement des produits...'}
+            
           </p>
           
           <div className="flex space-x-4">
