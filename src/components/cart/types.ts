@@ -73,6 +73,11 @@ export interface CartSummaryProps {
 // Type pour les props du composant EmptyCart
 export interface EmptyCartProps {
   message?: string;
+  title?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  showDecorations?: boolean;
+  icon?: 'cart' | 'package' | 'home';
 }
 
 // Type pour les props du composant CheckoutForm
