@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, RefreshCw, Save, Copy, CheckCircle, AlertCircle, Info, Plus } from 'lucide-react';
+import { Search, RefreshCw, Save, Copy, CheckCircle, AlertCircle, Info, Plus, Lightbulb, ChevronDown, ChevronUp, Filter, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { generateKeywords, GeneratedKeyword, KeywordGenerationOptions } from '../../services/keywordGenerationService';
 
@@ -107,34 +107,81 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8">
-      <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white flex items-center">
-        <Search className="w-5 h-5 mr-2 text-violet-600 dark:text-violet-400" />
-        Générateur de mots-clés avec IA
-      </h2>
-
-      <div className="mb-8 bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg">
-        <div className="mb-4">
-          <label htmlFor="topic" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Sujet ou thème
-          </label>
-          <input
-            type="text"
-            id="topic"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder="Ex: location de mobilier pour événements d'entreprise"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white"
-          />
+    <div>
+      {/* Header and main input card */}
+      <div className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 rounded-xl p-6 mb-6 border border-violet-100 dark:border-violet-800/30 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+          <div className="flex items-center">
+            <div className="bg-violet-600 dark:bg-violet-500 p-2 rounded-lg shadow-md mr-4">
+              <Lightbulb className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Générateur de mots-clés IA</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Boostez votre SEO avec des mots-clés optimisés pour votre activité
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 md:mt-0">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300">
+              <Sparkles className="w-3 h-3 mr-1" />
+              Propulsé par IA
+            </span>
+          </div>
         </div>
 
-        <div className="mb-4">
-          <button
-            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-            className="text-sm text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-300 flex items-center"
-          >
-            {showAdvancedOptions ? 'Masquer les options avancées' : 'Afficher les options avancées'}
-          </button>
+        <div className="relative">
+          <label htmlFor="topic" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Sujet ou thème principal
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              id="topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="Ex: location de mobilier pour événements d'entreprise"
+              className="w-full pl-4 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white text-base"
+            />
+            <Search className="absolute right-3 top-3 w-5 h-5 text-gray-400" />
+          </div>
+          
+          <div className="flex items-center justify-between mt-3">
+            <button
+              onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+              className="text-sm text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-300 flex items-center font-medium transition-colors"
+            >
+              {showAdvancedOptions ? (
+                <>
+                  <ChevronUp className="w-4 h-4 mr-1" />
+                  Masquer les options avancées
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-4 h-4 mr-1" />
+                  Afficher les options avancées
+                </>
+              )}
+            </button>
+            
+            <button
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg shadow-sm transition-colors flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed font-medium"
+            >
+              {isGenerating ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Génération en cours...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Générer des mots-clés
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         <AnimatePresence>
@@ -144,11 +191,16 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="mb-4 space-y-4 overflow-hidden"
+              className="mt-6 space-y-5 overflow-hidden bg-white dark:bg-gray-800/70 p-5 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center mb-3">
+                <Filter className="w-4 h-4 text-violet-600 dark:text-violet-400 mr-2" />
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Paramètres avancés</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="industry" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label htmlFor="industry" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Secteur d'activité
                   </label>
                   <input
@@ -156,11 +208,11 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
                     id="industry"
                     value={industry}
                     onChange={(e) => setIndustry(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white"
+                    className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label htmlFor="targetAudience" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label htmlFor="targetAudience" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Public cible
                   </label>
                   <input
@@ -168,14 +220,14 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
                     id="targetAudience"
                     value={targetAudience}
                     onChange={(e) => setTargetAudience(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white"
+                    className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Localisation
                   </label>
                   <input
@@ -183,35 +235,44 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
                     id="location"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white"
+                    className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label htmlFor="count" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label htmlFor="count" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Nombre de mots-clés à générer
                   </label>
-                  <input
-                    type="number"
-                    id="count"
-                    min="5"
-                    max="50"
-                    value={count}
-                    onChange={(e) => setCount(parseInt(e.target.value) || 20)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white"
-                  />
+                  <div className="relative">
+                    <input
+                      type="number"
+                      id="count"
+                      min="5"
+                      max="50"
+                      value={count}
+                      onChange={(e) => setCount(parseInt(e.target.value) || 20)}
+                      className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-8 pointer-events-none text-sm text-gray-500 dark:text-gray-400">
+                      mots-clés
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={includeMetrics}
-                    onChange={(e) => setIncludeMetrics(e.target.checked)}
-                    className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
-                  />
-                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                    Inclure des métriques estimées (difficulté, volume, etc.)
+              <div className="bg-violet-50 dark:bg-violet-900/20 p-3 rounded-md">
+                <label className="flex items-center cursor-pointer">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={includeMetrics}
+                      onChange={(e) => setIncludeMetrics(e.target.checked)}
+                      className="sr-only"
+                    />
+                    <div className={`block w-10 h-6 rounded-full transition-colors ${includeMetrics ? 'bg-violet-600' : 'bg-gray-300 dark:bg-gray-600'}`}></div>
+                    <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${includeMetrics ? 'transform translate-x-4' : ''}`}></div>
+                  </div>
+                  <span className="ml-3 text-sm text-gray-700 dark:text-gray-300">
+                    Inclure des métriques estimées (difficulté, volume, pertinence)
                   </span>
                 </label>
               </div>
@@ -219,50 +280,35 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
           )}
         </AnimatePresence>
 
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={handleGenerate}
-            disabled={isGenerating}
-            className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-md transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isGenerating ? (
-              <>
-                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                Génération en cours...
-              </>
-            ) : (
-              <>
-                <Search className="w-4 h-4 mr-2" />
-                Générer des mots-clés
-              </>
-            )}
-          </button>
-        </div>
-
         {/* Message d'erreur */}
-        {error && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mt-4 p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md flex items-start"
-          >
-            <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-            <span>{error}</span>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg border border-red-100 dark:border-red-800/50 flex items-start shadow-sm"
+            >
+              <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0 text-red-500 dark:text-red-400" />
+              <span className="text-sm">{error}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Message de succès */}
-        {successMessage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="mt-4 p-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-md flex items-start"
-          >
-            <CheckCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-            <span>{successMessage}</span>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {successMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg border border-green-100 dark:border-green-800/50 flex items-start shadow-sm"
+            >
+              <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0 text-green-500 dark:text-green-400" />
+              <span className="text-sm">{successMessage}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Résultats des mots-clés générés */}
@@ -270,51 +316,66 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+          className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-md"
         >
-          <div className="p-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 flex justify-between items-center">
-            <h3 className="font-medium text-gray-900 dark:text-white flex items-center">
-              <Info className="w-4 h-4 mr-2 text-violet-600 dark:text-violet-400" />
-              {generatedKeywords.length} mots-clés générés pour "{topic}"
+          <div className="p-5 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+            <h3 className="font-medium text-lg text-gray-900 dark:text-white flex items-center">
+              <div className="bg-violet-100 dark:bg-violet-900/30 p-1.5 rounded-md mr-3">
+                <Search className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+              </div>
+              <span>
+                <span className="font-bold text-violet-700 dark:text-violet-400">{generatedKeywords.length}</span> mots-clés générés pour "<span className="italic">{topic}</span>"
+              </span>
             </h3>
+            
+            <div className="flex space-x-2">
+              <button className="px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center">
+                <Save className="w-4 h-4 mr-1.5" />
+                Exporter CSV
+              </button>
+              <button className="px-3 py-1.5 bg-violet-100 dark:bg-violet-900/30 border border-violet-200 dark:border-violet-800/30 text-violet-700 dark:text-violet-400 rounded-md text-sm font-medium hover:bg-violet-200 dark:hover:bg-violet-800/30 transition-colors flex items-center">
+                <Filter className="w-4 h-4 mr-1.5" />
+                Filtrer
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-800">
+                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Mot-clé
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Type
                   </th>
                   {includeMetrics && (
                     <>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                         Pertinence
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                         Difficulté
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                         Volume
                       </th>
                     </>
                   )}
-                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {generatedKeywords.map((keyword, index) => (
-                  <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <tr key={index} className={`${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800/50'} hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-colors`}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                       {keyword.keyword}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeBadgeColor(keyword.type)}`}>
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getTypeBadgeColor(keyword.type)}`}>
                         {keyword.type}
                       </span>
                     </td>
@@ -322,25 +383,29 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
                       <>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                           <div className="flex items-center">
-                            <div className="w-16 bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 mr-2">
+                            <div className="w-20 bg-gray-200 dark:bg-gray-600 rounded-full h-2 mr-2">
                               <div 
-                                className="bg-violet-600 dark:bg-violet-400 h-2.5 rounded-full" 
+                                className={`h-2 rounded-full ${
+                                  keyword.relevance >= 8 ? 'bg-green-500 dark:bg-green-400' : 
+                                  keyword.relevance >= 5 ? 'bg-violet-500 dark:bg-violet-400' : 
+                                  'bg-amber-500 dark:bg-amber-400'
+                                }`}
                                 style={{ width: `${(keyword.relevance / 10) * 100}%` }}
                               ></div>
                             </div>
-                            <span>{keyword.relevance}/10</span>
+                            <span className="text-xs font-medium">{keyword.relevance}/10</span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                           {keyword.difficulty !== undefined && (
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyBadgeColor(keyword.difficulty)}`}>
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getDifficultyBadgeColor(keyword.difficulty)}`}>
                               {keyword.difficulty}/10
                             </span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                           {keyword.searchVolume && (
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getVolumeBadgeColor(keyword.searchVolume)}`}>
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getVolumeBadgeColor(keyword.searchVolume)}`}>
                               {keyword.searchVolume}
                             </span>
                           )}
@@ -351,18 +416,18 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
                       <div className="flex justify-end space-x-2">
                         <button
                           onClick={() => handleCopyKeyword(keyword.keyword)}
-                          className="text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                          className="text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors bg-gray-100 dark:bg-gray-700 p-1.5 rounded-md hover:bg-violet-100 dark:hover:bg-violet-900/30"
                           title="Copier le mot-clé"
                         >
-                          {copiedKeyword === keyword.keyword ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                          {copiedKeyword === keyword.keyword ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                         </button>
                         {onAddToSearch && (
                           <button
                             onClick={() => handleAddToSearch(keyword.keyword)}
-                            className="text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                            className="text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors bg-gray-100 dark:bg-gray-700 p-1.5 rounded-md hover:bg-violet-100 dark:hover:bg-violet-900/30"
                             title="Ajouter à la recherche"
                           >
-                            <Plus className="w-5 h-5" />
+                            <ArrowRight className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -372,9 +437,37 @@ const KeywordGeneratorTool: React.FC<KeywordGeneratorToolProps> = ({ onAddToSear
               </tbody>
             </table>
           </div>
+          
+          <div className="p-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700 text-center text-sm text-gray-500 dark:text-gray-400">
+            Vous pouvez copier un mot-clé ou l'ajouter directement à l'outil de suivi des positions
+          </div>
         </motion.div>
       )}
     </div>
+  );
+};
+
+// Il faut ajouter ce composant pour que l'icône Sparkles soit disponible
+const Sparkles = (props: any) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+      <path d="M5 3v4" />
+      <path d="M19 17v4" />
+      <path d="M3 5h4" />
+      <path d="M17 19h4" />
+    </svg>
   );
 };
 
