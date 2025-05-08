@@ -42,37 +42,28 @@ const KeywordRankings: React.FC = () => {
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="pt-20 px-4 md:px-8 lg:px-12 max-w-10xl mx-auto">
+      <div className="pt-10 px-4 md:px-8 lg:px-2 max-w-10xl mx-auto">
         {/* Header with gradient background */}
-        <div className="bg-gradient-to-r from-violet-600 to-indigo-700 rounded-xl p-6 mb-8 shadow-lg">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center">
-                <Search className="w-6 h-6 mr-2" />
-                Outils SEO Professionnels
-              </h1>
-              <p className="text-violet-100 mt-2 max-w-2xl">
-                Optimisez votre visibilité en ligne avec nos outils de surveillance de classement et de génération de mots-clés.
-              </p>
-            </div>
-            {/* <div className="mt-4 md:mt-0">
-              <div className="bg-white/20 backdrop-blur-sm rounded-lg py-1 px-1 inline-flex">
-                <button 
-                  onClick={() => {}}
-                  className="text-white text-sm font-medium px-3 py-1.5 rounded-md flex items-center hover:bg-white/10"
-                >
-                  <BarChart className="w-4 h-4 mr-1.5" />
-                  Tableau de bord
-                </button>
-                <button 
-                  onClick={() => {}}
-                  className="text-white text-sm font-medium px-3 py-1.5 rounded-md flex items-center hover:bg-white/10"
-                >
-                  <Settings className="w-4 h-4 mr-1.5" />
-                  Configuration
-                </button>
+        <div className="bg-gradient-to-r from-violet-600 to-indigo-700 rounded-xl p-6 mb-6 shadow-lg relative overflow-hidden">
+          <div className="absolute inset-0 bg-pattern opacity-10"></div>
+          <div className="relative z-10">
+            <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center">
+              <Search className="w-6 h-6 mr-2" />
+              Outils SEO Professionnels
+            </h1>
+            <p className="text-violet-100 mt-2 text-sm md:text-base">
+              Optimisez votre visibilité en ligne avec nos outils de surveillance de classement et de génération de mots-clés.
+            </p>
+            <div className="mt-3 flex gap-3">
+              <div className="flex items-center bg-white/10 rounded px-3 py-1.5 text-sm">
+                <BarChart className="w-4 h-4 text-violet-200 mr-1.5" />
+                <span className="text-violet-100">Analyse en temps réel</span>
               </div>
-            </div> */}
+              <div className="flex items-center bg-white/10 rounded px-3 py-1.5 text-sm">
+                <Settings className="w-4 h-4 text-violet-200 mr-1.5" />
+                <span className="text-violet-100">Outils avancés</span>
+              </div>
+            </div>
           </div>
         </div>
         
