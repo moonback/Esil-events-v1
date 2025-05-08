@@ -1,5 +1,5 @@
-
-# ESIL Events 🚀
+```markdown
+# ESIL Events v1 🚀
 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
@@ -7,8 +7,12 @@
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Supabase](https://img.shields.io/badge/supabase-3fc889?style=for-the-badge&logo=supabase&logoColor=white)
 ![Lucide Icons](https://img.shields.io/badge/Lucide-Icons-orange?style=for-the-badge&logo=lucide)
+![React Router](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer-Motion-black?style=for-the-badge&logo=framer&logoColor=white)
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![Recharts](https://img.shields.io/badge/Recharts-blue?style=for-the-badge&logo=recharts)
 
-Plateforme de location de matériel événementiel et de gestion de devis pour **ESIL Events**, construite avec **React**, **TypeScript**, **Vite**, **Tailwind CSS** et **Supabase**.
+Plateforme complète de **location de matériel événementiel**, **gestion de devis**, **présentation de réalisations**, et **outils SEO avancés** pour **ESIL Events**. Développée avec une stack moderne incluant **React**, **TypeScript**, **Vite**, **Tailwind CSS** et **Supabase**.
 
 ---
 
@@ -29,12 +33,15 @@ Plateforme de location de matériel événementiel et de gestion de devis pour *
   - [Gestion d'état (Panier)](#gestion-detat-panier-)
   - [Authentification](#authentification-)
   - [Accès Admin](#acces-admin-)
-  - [SEO](#seo-)
-  - [Gestion des Catégories/Produits](#gestion-des-catégoriesproduits-)
+  - [Gestion des Produits/Catégories](#gestion-des-produitscatégories-)
   - [Gestion des Artistes](#gestion-des-artistes-)
+  - [Gestion des Réalisations](#gestion-des-réalisations-)
   - [Demandes de devis](#demandes-de-devis-)
-  - [Announcements (Top Bar)](#announcements-top-bar-)
-  - [Génération de Réponse IA](#génération-de-réponse-ia-)
+  - [Génération de contenu IA](#génération-de-contenu-ia-)
+  - [Outils SEO](#outils-seo-)
+  - [Gestion des Annonces](#gestion-des-annonces-)
+  - [Gestion de la Newsletter](#gestion-de-la-newsletter-)
+  - [Gestion du Sitemap](#gestion-du-sitemap-)
 - [Intégration Supabase ☁️](#intégration-supabase-)
 - [Initialisation de la base de données (Seed) 🌱](#initialisation-de-la-base-de-donnees-seed-)
 - [TODO / Améliorations Possibles 🔮](#todo--améliorations-possibles-)
@@ -44,258 +51,366 @@ Plateforme de location de matériel événementiel et de gestion de devis pour *
 
 ## Description 📄
 
-**ESIL Events v1** est une application web permettant aux clients de parcourir un catalogue de matériel événementiel et d'artistes, d'ajouter des produits à une demande de devis et de soumettre cette demande. Une section d'administration protégée permet la gestion des produits, catégories (produits et artistes), artistes, demandes de devis, annonces et autres contenus.
+**ESIL Events v1** est une application web robuste conçue pour répondre aux besoins d'une entreprise de location de matériel événementiel et d'organisation d'événements. Elle offre une interface publique élégante pour la découverte de produits, d'artistes et de réalisations, ainsi qu'une section d'administration complète et sécurisée pour la gestion de l'ensemble du contenu, des devis, des clients, et des outils marketing/SEO.
+
+---
 
 ## Fonctionnalités ✨
 
 ### Partie Publique
--   🛍️ **Catalogue Produits :** Navigation par catégories/sous-catégories via Mega Menu.
--   📄 **Fiches Produits :** Détails complets avec images, description, caractéristiques techniques, prix (HT/TTC).
--   🛒 **Panier Devis :** Ajout d’articles pour générer une demande de devis.
--   📝 **Formulaire Devis :** Collecte complète des informations (client, événement, livraison/retrait, commentaires).
--   🎤 **Catalogue Artistes :** Liste et pages de détail pour les artistes.
--   ℹ️ **Pages Informatites :** À propos, Livraison, Contact, CGV, Politique de confidentialité, Agence événementielle.
--   🔍 **Recherche :** Fonctionnalité de recherche de produits.
--   📢 **Annonces :** Barre d'annonces dynamique en haut de page.
+-   🛍️ **Catalogue Produits :** Navigation intuitive par catégories/sous-catégories via Mega Menu, recherche avancée.
+-   📄 **Fiches Produits :** Détails complets : images multiples, description riche, caractéristiques techniques, couleurs, prix (HT/TTC), disponibilité.
+-   🛒 **Panier Devis :** Ajout d'articles et gestion des quantités pour générer une demande de devis détaillée.
+-   📝 **Formulaire Devis :** Collecte complète des informations client, événement, livraison/retrait, commentaires via un processus de checkout guidé.
+-   🎤 **Catalogue Artistes :** Présentation des artistes par catégorie, avec pages de détail individuelles.
+-   🌟 **Galerie Réalisations :** Mise en avant des projets passés avec photos, descriptions, objectifs et témoignages.
+-   ℹ️ **Pages Informatites :** À propos (avec équipe), Livraison (détail des formules), Contact, CGU, Politique de confidentialité, Agence événementielle.
+-   📢 **Annonces :** Barre d'annonces dynamique et configurable en haut de page.
+-   🎨 **Design Moderne :** Interface utilisateur soignée avec animations (Framer Motion) et micro-interactions.
 
 ### Partie Utilisateur (Protégée)
--   👤 **Profil :** Accès à la page `/profile` (actuellement protégé par `AdminRoute`, à ajuster).
--   📦 **Commandes :** Accès à la page `/orders` (actuellement protégé par `AdminRoute`, à ajuster).
+-   👤 **Profil :** Accès à la page `/profile` (actuellement protégé par `AdminRoute`, potentiellement à adapter).
+-   📦 **Commandes :** Accès à la page `/orders` (actuellement protégé par `AdminRoute`, potentiellement à adapter).
 
 ### Partie Administration
--   🛡️ **Interface Sécurisée :** Accès à `/admin/*` protégé par authentification et rôle admin.
--   📊 **Tableau de Bord :** Statistiques clés (nombre de produits, catégories, devis).
--   🔩 **Gestion Produits :** CRUD complet des produits avec gestion des images, couleurs, spécifications, etc.
--   📚 **Gestion Catégories (Produits) :** CRUD pour Catégories, Sous-catégories, Sous-sous-catégories.
--   🎭 **Gestion Artistes :** CRUD pour les catégories d'artistes et les artistes eux-mêmes.
--   📋 **Gestion Devis :** Visualisation, filtrage, tri et gestion des demandes. Détails complets, mise à jour du statut, suppression.
--   🤖 **Réponse IA :** Suggestion de réponse pour les devis via l'API Deepseek.
--   📣 **Gestion Annonces :** Création, modification, activation/désactivation des annonces de la Top Bar.
--   ⚙️ **Configuration Email :** Paramétrage et test de la configuration SMTP pour l'envoi d'emails.
--   👥 **Gestion Clients :** Fonctionnalité basique (peut être étendue).
--   📄 **Gestion Pages :** Fonctionnalité basique (peut être étendue).
+-   🛡️ **Interface Sécurisée :** Accès à `/admin/*` protégé par authentification Supabase et rôle admin (`AdminRoute`).
+-   📊 **Tableau de Bord :** Vue d'ensemble avec statistiques clés (produits, catégories, devis, etc.) et actions rapides.
+-   🔩 **Gestion Produits :** CRUD complet : gestion images (upload Supabase Storage), couleurs, specs techniques, SEO dédié (titre, desc, keywords), documentation, vidéo, gestion de l'image principale.
+-   📚 **Gestion Catégories (Produits) :** CRUD complet pour la hiérarchie Catégories → Sous-catégories → Sous-sous-catégories, avec gestion de l'ordre et SEO intégré.
+-   🎭 **Gestion Artistes :** CRUD pour les artistes et leurs catégories respectives.
+-   🏆 **Gestion Réalisations :** CRUD pour les projets événementiels (titre, lieu, objectif, mission, images, catégorie, date, témoignage).
+-   📋 **Gestion Devis :** Interface avancée : visualisation liste/détails, filtrage/tri (statut, client, date, etc.), mise à jour du statut, export PDF, impression.
+-   🤖 **Génération Contenu IA (Google Gemini) :**
+    *   **Réponse Devis :** Suggestion de réponses personnalisées pour les demandes de devis.
+    *   **Description Produit :** Génération automatique de descriptions produits optimisées.
+    *   **Contenu SEO (Produits/Catégories) :** Génération de titre, description et mots-clés SEO.
+    *   **Contenu Newsletter :** Génération de contenu HTML pour les campagnes email.
+-   🔍 **Outils SEO :**
+    *   **Générateur Mots-clés :** Outil IA pour trouver des mots-clés pertinents (avec options avancées, sauvegarde BDD).
+    *   **Suivi Positions :** Surveillance du classement Google pour des mots-clés ciblés (via API SerpApi + proxy).
+-   📣 **Gestion Annonces :** CRUD pour les annonces de la Top Bar (message, lien, dates, couleurs, activation).
+-   📧 **Gestion Newsletter :** Visualisation des abonnés, désabonnement, outil d'envoi de newsletter avec éditeur/aperçu et génération de contenu IA.
+-   🗺️ **Gestion Sitemap :** Génération, édition et sauvegarde du fichier `sitemap.xml` (incluant pages statiques et produits).
+-   ⚙️ **Configuration Email :** Paramétrage et test de la configuration SMTP (via API backend non incluse).
+-   👥 **Gestion Clients (Basique) :** Interface pour visualiser les clients (peut être étendue).
+-   📄 **Gestion Pages (Basique) :** Interface pour gérer le contenu de certaines pages (peut être étendue).
+
+---
 
 ## Stack Technique 🛠️
 
--   **Frontend** : React 18+ (avec Hooks) + TypeScript
--   **Build Tool** : Vite
--   **Styling** : Tailwind CSS v3 + `index.css` (polices) + `animations.css` / `admin-animations.css`
--   **UI Icons** : Lucide React
--   **Backend & Database** : Supabase (Authentication, PostgreSQL Database, Storage)
+-   **Frontend** : React 18+ (Hooks) + TypeScript
+-   **Build Tool & Dev Server** : Vite
+-   **Styling** : Tailwind CSS v3 + CSS personnalisé (`index.css`, `animations.css`, `map.css`, etc.)
 -   **Routing** : React Router DOM v6
+-   **UI Components & Icons** : Lucide React
+-   **Animations** : Framer Motion
+-   **Charts** : Recharts (pour historique SEO)
 -   **State Management** : React Context API (`CartContext`, `useAuth`)
--   **SEO** : React Helmet Async
--   **Code Quality** : ESLint (implicite via setup standard), Prettier (implicite)
--   **API Externe** : Deepseek (pour génération de réponse IA)
--   **Emailing** : Nodemailer (via API backend *non fournie dans ce repo*, configurée via `emailService.ts`)
+-   **Backend & Database** : Supabase (Authentication, PostgreSQL Database, Storage)
+-   **SEO Management** : React Helmet Async
+-   **API Externe (IA)** : Google Gemini API (pour génération de contenu)
+-   **API Externe (SEO)** : SerpApi (pour suivi de positions, via proxy Node.js/Express local)
+-   **Emailing** : `emailService.ts` (conçu pour interagir avec une API backend utilisant Nodemailer - *API non fournie*)
+-   **Code Quality** : ESLint, Prettier (via setup standard)
+-   **Utilitaires** : `jsPDF`, `html2canvas` (pour export PDF devis)
+
+---
 
 ## Structure du Projet 📂
 
+```plaintext
+src/
+├── App.tsx                     # Configuration principale des routes React Router v6
+├── components/                 # Composants UI réutilisables
+│   ├── admin/                  # Composants spécifiques à l'interface d'administration
+│   │   ├── quoteRequests/      # Composants pour la gestion des devis (liste, détails, actions, IA...)
+│   │   ├── AdminHeader.tsx     # En-tête de l'admin
+│   │   ├── KeywordGeneratorTool.tsx # Outil de génération de mots-clés
+│   │   ├── KeywordRankingTool.tsx # Outil de suivi de positions SEO
+│   │   ├── ProductFilterPanel.tsx # Panneau de filtres produits (admin)
+│   │   ├── ResponseEditor.tsx  # Éditeur de réponse (devis)
+│   │   └── StatCard.tsx        # Carte statistique pour le dashboard
+│   ├── cart/                   # Composants liés au panier et au processus de devis
+│   ├── layouts/                # Mises en page globales (Public, Admin)
+│   ├── product-list/           # Composants pour l'affichage des listes de produits publiques
+│   ├── realization/            # Composants pour la section Réalisations
+│   ├── AdminRoute.tsx          # HOC pour protéger les routes admin
+│   ├── AdminRoutes.tsx         # Regroupement des routes admin
+│   ├── Footer.tsx              # Pied de page public
+│   ├── Header.tsx              # En-tête public (avec MegaMenu, SearchBar, UserMenu...)
+│   ├── LoginForm.tsx           # Formulaire de connexion
+│   ├── MegaMenu.tsx            # Menu de navigation principal avec catégories
+│   ├── MobileSidebar.tsx       # Menu latéral pour mobile
+│   ├── ProductDescriptionGenerator.tsx # Bouton/logique pour générer description produit via IA
+│   ├── ProductForm.tsx         # Formulaire CRUD pour les produits (admin)
+│   ├── RegisterForm.tsx        # Formulaire d'inscription (crée un admin par défaut)
+│   ├── SearchBar.tsx           # Barre de recherche globale
+│   ├── SearchResults.tsx       # Affichage des résultats de recherche
+│   ├── SEO.tsx                 # Composant pour gérer les balises meta SEO
+│   ├── SeoContentGenerator.tsx # Bouton/logique pour générer contenu SEO via IA
+│   └── TopBar.tsx              # Barre d'annonces en haut de page
+├── config/                     # Fichiers de configuration
+│   ├── googleSearchApi.ts      # Configuration pour l'API SerpApi
+│   └── seo.ts                  # Configuration SEO par défaut
+├── constants/                  # Constantes globales (ex: images par défaut)
+├── context/                    # Contextes React (ex: CartContext)
+├── hooks/                      # Hooks personnalisés (auth, filtres, pagination, actions...)
+├── pages/                      # Composants de page (vues principales)
+│   ├── admin/                  # Pages spécifiques à l'administration (Dashboard, Products, Categories, etc.)
+│   └── (autres)                # Pages publiques (HomePage, ProductPage, CartPage, Contact, etc.)
+├── services/                   # Logique métier et appels API/Supabase
+│   ├── aiResponseService.ts    # Service pour générer réponses devis (Gemini)
+│   ├── announcementService.ts  # CRUD Annonces (Supabase)
+│   ├── artistService.ts        # CRUD Artistes
+│   ├── authService.ts          # Authentification Supabase
+│   ├── categoryService.ts      # CRUD Catégories (hiérarchique)
+│   ├── contactService.ts       # Envoi email formulaire contact (via emailService)
+│   ├── emailService.ts         # Interface pour l'envoi d'emails (nécessite API backend)
+│   ├── keywordGenerationService.ts # Génération mots-clés (Gemini)
+│   ├── keywordRankingService.ts  # Suivi positions (SerpApi) + Sauvegarde BDD
+│   ├── newsletterContentService.ts # Génération contenu newsletter (Gemini)
+│   ├── newsletterService.ts    # Gestion abonnés (Supabase) + Envoi (via emailService)
+│   ├── productDescriptionService.ts # Génération description produit (Gemini)
+│   ├── productSeoService.ts    # Génération SEO produit (Gemini)
+│   ├── productService.ts       # CRUD Produits, upload images
+│   ├── quoteRequestService.ts  # CRUD Demandes de devis
+│   ├── realizationService.ts   # CRUD Réalisations
+│   ├── savedKeywordsService.ts # CRUD Mots-clés sauvegardés (BDD)
+│   ├── seoContentService.ts    # Génération SEO catégories (Gemini)
+│   ├── sitemapService.ts       # Génération/Sauvegarde Sitemap (via API backend)
+│   ├── storageService.ts       # Upload/Delete fichiers Supabase Storage
+│   └── supabaseClient.ts       # Initialisation client Supabase
+├── styles/                     # Fichiers CSS additionnels
+├── types/                      # Définitions TypeScript globales (ex: Product.ts)
+├── utils/                      # Fonctions utilitaires (ex: slugUtils.ts)
+├── index.css                   # Styles globaux Tailwind & polices
+├── main.tsx                    # Point d'entrée de l'application React
+└── vite-env.d.ts               # Types pour Vite
 ```
-src
-├── App.tsx             # Configuration principale des routes
-├── components          # Composants UI réutilisables
-│   ├── admin           # Composants spécifiques à l'admin (Header, ResponseEditor, Forms...)
-│   │   └── quoteRequests # Composants dédiés à la gestion des devis admin
-│   ├── cart            # Composants du panier et du checkout
-│   ├── layouts         # Mises en page (Layout principal, AdminLayout)
-│   └── (autres)        # Composants partagés (Header, Footer, Forms, SEO...)
-├── config              # Configuration (seo.ts)
-├── constants           # Constantes (images.ts)
-├── context             # Contextes React (CartContext)
-├── hooks               # Hooks personnalisés (useAuth, useCheckoutForm, usePagination, etc.)
-├── pages               # Composants de page (vues)
-│   ├── admin           # Pages de la section admin (Dashboard, Products, Categories...)
-│   └── (autres)        # Pages publiques (HomePage, ProductPage, CartPage, ArtistPage...)
-├── services            # Logique métier, appels API/Supabase (auth, product, category, quote, email...)
-├── styles              # Styles CSS additionnels (animations, map...)
-├── types               # Définitions TypeScript (Product.ts, etc.)
-├── index.css           # Styles globaux Tailwind et polices
-├── main.tsx            # Point d'entrée de l'application React
-└── vite-env.d.ts       # Types pour Vite
-```
+
+---
 
 ## Prérequis 📋
 
--   Node.js v18+
--   npm (v9+) ou yarn (v1.22+)
+-   Node.js : v18.x ou supérieur
+-   npm : v9.x ou supérieur (ou Yarn v1.22+)
+
+---
 
 ## Installation ⚙️
 
-```bash
-# 1. Cloner le dépôt
-git clone <URL_DU_DEPOT>
-cd esil-events-v1
+1.  **Cloner le dépôt :**
+    ```bash
+    git clone <URL_DU_DEPOT>
+    cd esil-events-v1
+    ```
 
-# 2. Installer les dépendances
-npm install
-# ou
-yarn install
-```
+2.  **Installer les dépendances :**
+    ```bash
+    npm install
+    # ou
+    yarn install
+    ```
+
+---
 
 ## Configuration de l'environnement 🔑
 
-Créer un fichier `.env` à la racine du projet avec les variables suivantes :
+Créez un fichier `.env` à la racine du projet et ajoutez les variables suivantes :
 
 ```env
 # Supabase Configuration
 VITE_SUPABASE_URL=VOTRE_URL_SUPABASE
 VITE_SUPABASE_ANON_KEY=VOTRE_CLE_ANON_SUPABASE
 
-# Deepseek API (pour suggestion de réponse IA)
-VITE_DEEPSEEK_API_KEY=VOTRE_CLE_API_DEEPSEEK
+# Google Gemini API (pour génération de contenu IA)
+VITE_GOOGLE_GEMINI_API_KEY=VOTRE_CLE_API_GOOGLE_GEMINI
 
 # SerpApi (pour le suivi des positions SEO)
 VITE_SERP_API_KEY=VOTRE_CLE_API_SERPAPI
 
-# Utilisation du proxy SerpApi
-Pour contourner les restrictions CORS lors de l'utilisation de l'API SerpApi, un proxy a été implémenté dans le serveur Express. Pour l'utiliser :
-
-1. Assurez-vous d'avoir configuré votre clé API SerpApi dans le fichier .env
-2. Démarrez le serveur Express avec la commande : `npm run server`
-3. Gardez le serveur en cours d'exécution pendant que vous utilisez l'application
-
-Le serveur proxy écoute sur le port 3001 et transmet vos requêtes à SerpApi tout en gérant les problèmes CORS.
-
-# SMTP Configuration (pour envoi d'emails via API backend)
-# Ces variables sont utilisées par le service `emailService.ts` mais l'API backend n'est pas incluse ici.
-# Elles peuvent être utilisées pour configurer une API séparée ou une fonction serverless.
+# --- Configuration SMTP (pour envoi d'emails via API backend) ---
+# Ces variables sont utilisées par le service `emailService.ts`.
+# L'API backend n'est pas fournie dans ce repo et doit être développée séparément.
+# Si vous mettez en place une API backend, configurez ces variables.
 VITE_SMTP_HOST=votre_serveur_smtp
 VITE_SMTP_PORT=votre_port_smtp
 VITE_SMTP_SECURE=true # ou false
 VITE_SMTP_USER=votre_utilisateur_smtp
 VITE_SMTP_PASS=votre_mot_de_passe_smtp
-VITE_SMTP_FROM=votre_adresse_expediteur
+VITE_SMTP_FROM=votre_adresse_expediteur # Email expéditeur par défaut
 ```
 
-Remplacez les valeurs par vos clés Supabase, Deepseek et vos informations SMTP si vous mettez en place l'envoi d'email.
+Remplacez les placeholders par vos clés et informations réelles.
+
+---
 
 ## Lancement du projet ▶️
 
 ### Développement 💻
 
-```bash
-npm run dev
-# ou
-yarn dev
-```
+1.  **(Optionnel mais recommandé pour le suivi SEO) Démarrer le serveur proxy SerpApi :**
+    *   Assurez-vous que `VITE_SERP_API_KEY` est configurée dans `.env`.
+    *   Ouvrez un terminal séparé à la racine du projet et exécutez :
+        ```bash
+        npm run server
+        ```
+    *   Laissez ce serveur tourner pendant que vous développez. Il écoute sur `http://localhost:3001`.
 
-Le serveur de développement démarrera généralement sur `http://localhost:5173`.
+2.  **Démarrer le serveur de développement Vite :**
+    ```bash
+    npm run dev
+    # ou
+    yarn dev
+    ```
+    L'application sera généralement disponible sur `http://localhost:5173`.
 
 ### Production 🏭
 
-1.  **Build:**
+1.  **Build de l'application :**
     ```bash
     npm run build
     # ou
     yarn build
     ```
-    Ceci crée un répertoire `dist` avec les fichiers optimisés pour la production.
+    Ceci génère le répertoire `dist` optimisé pour la production.
 
-2.  **Preview (local):**
+2.  **Prévisualisation locale (optionnel) :**
     ```bash
     npm run preview
     # ou
     yarn preview
     ```
 
-3.  **Déploiement:** Déployez le contenu du répertoire `dist` sur votre plateforme d'hébergement (Vercel, Netlify, serveur statique, etc.). Assurez-vous que les variables d'environnement sont correctement configurées sur la plateforme.
+3.  **Déploiement :**
+    *   Déployez le contenu du répertoire `dist` sur votre plateforme d'hébergement (Vercel, Netlify, serveur statique...).
+    *   Assurez-vous que les variables d'environnement (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_GOOGLE_GEMINI_API_KEY`, `VITE_SERP_API_KEY`) sont correctement configurées dans les paramètres de votre hébergeur.
+    *   **Important :** Le serveur proxy SerpApi (`npm run server`) n'est conçu que pour le développement local. Pour la production, vous devrez soit déployer ce serveur proxy séparément (sur une plateforme comme Render, Heroku, etc.), soit trouver une autre solution pour gérer les appels SerpApi (ex: fonction serverless).
+
+---
 
 ## Fonctionnalités Clés et Concepts 💡
 
 ### Routing
--   Géré par `react-router-dom` v6 dans `App.tsx`.
--   Utilisation de `<Layout>` pour les routes publiques/utilisateurs et `<AdminLayout>` pour les routes admin.
--   `<AdminRoute>` protège l'accès aux sections nécessitant des droits admin via le hook `useAuth`.
--   `<AdminRoutes>` regroupe les routes spécifiques à l'administration pour une meilleure organisation.
+-   Utilisation de `react-router-dom` v6 configuré dans `App.tsx`.
+-   Layouts distincts : `<Layout>` pour les pages publiques/utilisateur, `<AdminLayout>` pour l'administration.
+-   Protection des routes admin via le composant `<AdminRoute>` qui utilise le hook `useAuth`.
+-   Regroupement des routes admin dans `<AdminRoutes>` pour une meilleure organisation.
 
 ### Gestion d'état (Panier) 🛒
--   `CartContext` (`src/context/CartContext.tsx`) gère l'état du panier (ajout, suppression, mise à jour quantité).
--   Le panier est persisté dans `localStorage` pour maintenir l'état entre les sessions.
+-   `CartContext` (`src/context/CartContext.tsx`) gère l'état du panier.
+-   Utilisation de l'`localStorage` pour la persistance du panier entre les sessions.
 
 ### Authentification 🔐
--   Gérée via `supabase.auth` dans `src/services/authService.ts`.
--   Le hook `useAuth` (`src/hooks/useAuth.ts`) fournit l'état de l'utilisateur (`user`) et son statut admin (`isAdminUser`).
--   `LoginForm.tsx` et `RegisterForm.tsx` gèrent la connexion/inscription. L'inscription crée automatiquement un profil `admin` (peut nécessiter ajustement selon la logique métier).
+-   Gérée par Supabase Auth (`src/services/authService.ts`).
+-   Le hook `useAuth` fournit l'état `user` et `isAdminUser`.
+-   Les composants `LoginForm` et `RegisterForm` gèrent l'accès. L'inscription crée par défaut un profil `admin`.
 
 ### Accès Admin 🛡️
--   Le composant `<AdminRoute>` vérifie si l'utilisateur est admin en utilisant `isAdmin()` du `authService`.
--   **Important :** Des politiques de sécurité au niveau des lignes (RLS) dans Supabase sont **essentielles** pour protéger les données sensibles (produits, commandes, devis, etc.) contre les accès non autorisés, même si l'utilisateur parvient à contourner la protection front-end.
+-   `<AdminRoute>` vérifie le rôle admin via `isAdmin()` du `authService`.
+-   **Sécurité Essentielle :** La mise en place de **Row Level Security (RLS)** dans Supabase est **critique** pour protéger les données sensibles (produits, devis, clients...) contre les accès non autorisés, même si la protection front-end est contournée.
 
-### SEO 🔎
--   Le composant `<SEO>` (`src/components/SEO.tsx`) utilise `react-helmet-async` pour gérer dynamiquement les balises `<head>` (titre, description, mots-clés, balises Open Graph/Twitter).
--   Configuration centralisée dans `src/config/seo.ts`.
-
-### Gestion des Catégories/Produits 📦
--   Le service `categoryService.ts` gère les opérations CRUD pour la hiérarchie complète des catégories (Catégorie -> Sous-catégorie -> Sous-sous-catégorie).
--   Le service `productService.ts` gère le CRUD des produits et l'upload d'images vers Supabase Storage.
--   `<ProductForm>` est un composant clé pour la création/modification, avec gestion dynamique des menus déroulants de catégories basés sur les données de la base de données.
--   `AdminProducts.tsx` affiche la liste des produits avec pagination, recherche, filtres par catégorie et tri.
--   `AdminCategories.tsx` permet la gestion visuelle de la hiérarchie des catégories.
+### Gestion des Produits/Catégories 📦
+-   Services dédiés (`productService.ts`, `categoryService.ts`) pour le CRUD complet.
+-   Gestion hiérarchique des catégories (Catégorie → Sous-catégorie → Sous-sous-catégorie) dans l'admin.
+-   `ProductForm.tsx` permet la création/modification avec upload d'images vers Supabase Storage, gestion des couleurs, specs, SEO, etc.
+-   `AdminProducts.tsx` offre une liste paginée et filtrable des produits.
+-   Génération de slugs automatique et utilitaire de régénération des slugs manquants (`productService.ts`, `utils/slugUtils.ts`).
 
 ### Gestion des Artistes 🎤
--   `artistService.ts` et `artistCategoryService.ts` gèrent les données des artistes et de leurs catégories respectives.
--   Les pages `AdminArtists.tsx` et `AdminArtistCategories.tsx` permettent leur gestion.
--   Les pages publiques `ArtistPage.tsx` (liste) et `ArtistDetailPage.tsx` (détail) affichent les artistes aux visiteurs.
+-   CRUD complet pour les artistes et leurs catégories via les services et pages admin dédiées (`artistService.ts`, `artistCategoryService.ts`, `AdminArtists.tsx`, `AdminArtistCategories.tsx`).
+-   Affichage public sur `ArtistPage.tsx` et `ArtistDetailPage.tsx`.
+
+### Gestion des Réalisations 🌟
+-   CRUD pour les projets événementiels (`realizationService.ts`, `AdminRealizations.tsx`).
+-   Affichage public via une galerie filtrable (`RealisationPage.tsx`) et une modale de détails (`RealizationDetails.tsx`).
 
 ### Demandes de devis 📋
--   **Flux :** Ajout produits au panier -> Finalisation via `<CheckoutForm>` -> Envoi via `quoteRequestService.ts` -> Stockage dans Supabase -> Emails de confirmation/notification via `emailService.ts`.
--   **Admin :** La page `AdminQuoteRequests.tsx` est le centre de gestion :
-    -   Utilise les hooks `useQuoteRequestFilters`, `usePagination`, `useQuoteRequestActions`.
-    -   Affiche la liste des devis, les détails du devis sélectionné.
-    -   Permet de filtrer, trier, mettre à jour le statut, supprimer.
-    -   Intègre `<AIResponseGenerator>` pour suggérer des réponses.
-    -   Permet l'export PDF et l'impression (via `<QuoteRequestActions>` et `ExportUtils.tsx`/`QuoteRequestUtils.tsx`).
+-   Flux utilisateur : Panier → Formulaire de checkout complet (`CheckoutForm.tsx`) → Soumission (`quoteRequestService.ts`).
+-   Stockage dans Supabase et envoi d'emails de confirmation/notification via `emailService.ts` (nécessite API backend).
+-   Interface admin (`AdminQuoteRequests.tsx`) :
+    *   Liste paginée et filtrable (hooks `useQuoteRequestFilters`, `usePagination`).
+    *   Vue détaillée du devis sélectionné (`QuoteRequestDetails.tsx`).
+    *   Actions : mise à jour statut, suppression, export PDF, impression (hook `useQuoteRequestActions`, `QuoteRequestUtils.tsx`).
+    *   Intégration de l'IA pour la suggestion de réponses.
 
-### Announcements (Top Bar) 📢
--   Le composant `<TopBar>` affiche les annonces actives (récupérées depuis localStorage).
--   `localStorageAnnouncementService.ts` fournit les fonctions CRUD pour gérer les annonces stockées localement.
--   La page `AdminAnnouncements.tsx` permet la gestion complète de ces annonces via une interface modale.
+### Génération de contenu IA (Google Gemini) 🤖
+-   **Réponses Devis:** `<AIResponseGenerator>` et `<ResponseEditor>` utilisent `aiResponseService.ts` pour suggérer et éditer des réponses.
+-   **Descriptions Produits:** `<ProductDescriptionGenerator>` utilise `productDescriptionService.ts`.
+-   **Contenu SEO:** `<SeoContentGenerator>` utilise `seoContentService.ts` (pour catégories) et `productSeoService.ts` (pour produits).
+-   **Contenu Newsletter:** Utilisation de `newsletterContentService.ts` dans `AdminNewsletter.tsx`.
 
-### Génération de Réponse IA 🤖
--   Le composant `<AIResponseGenerator>` (`src/components/admin/quoteRequests/`) permet de générer une suggestion de réponse pour un devis sélectionné.
--   Le service `aiResponseService.ts` prépare le prompt et interagit avec l'API Deepseek (nécessite `VITE_DEEPSEEK_API_KEY`).
--   Possibilité d'utiliser un mode "raisonnement avancé" (si l'API le supporte).
+### Outils SEO 🔎
+-   **Gestion SEO par Page/Produit/Catégorie:** Champs dédiés (titre, description, mots-clés) dans les formulaires admin, utilisés par le composant `<SEO>` (`react-helmet-async`) et `seo.ts`.
+-   **Générateur Mots-clés:** (`KeywordGeneratorTool.tsx`, `keywordGenerationService.ts`) Outil IA (Gemini) pour trouver des idées de mots-clés, avec options avancées et sauvegarde (`savedKeywordsService.ts`).
+-   **Suivi Positions:** (`KeywordRankingTool.tsx`, `keywordRankingService.ts`) Surveillance du classement Google via SerpApi (proxy local nécessaire en dev), historique des positions (Recharts), sauvegarde en BDD.
+
+### Gestion des Annonces 📢
+-   `<TopBar>` affiche les annonces actives récupérées depuis Supabase (`announcementService.ts`).
+-   `AdminAnnouncements.tsx` permet le CRUD complet des annonces (message, lien, dates, couleurs, statut actif).
+
+### Gestion de la Newsletter 📧
+-   `AdminNewsletter.tsx` permet de visualiser les abonnés (actifs/désabonnés), d'exporter la liste, et d'envoyer des newsletters.
+-   L'outil d'envoi inclut un éditeur HTML, un aperçu, et la génération de contenu via IA (`newsletterContentService.ts`).
+-   La gestion des abonnés se fait via `newsletterService.ts` (Supabase).
+-   L'envoi réel nécessite l'API backend configurée via `emailService.ts`.
+
+### Gestion du Sitemap 🗺️
+-   `AdminSitemap.tsx` permet de visualiser, ajouter, modifier et supprimer des entrées du sitemap.
+-   Fonctionnalité pour ajouter automatiquement les URLs des produits.
+-   Sauvegarde du fichier `sitemap.xml` via une API backend (`sitemapService.ts`).
+
+---
 
 ## Intégration Supabase ☁️
 
--   **Authentication:** Gestion des utilisateurs, sessions, et rôles (via la table `profiles`).
--   **Database (PostgreSQL):** Tables pour `products`, `categories`, `subcategories`, `subsubcategories`, `artists`, `artist_categories`, `quote_requests`, `profiles`. Les relations sont gérées via les ID (ex: `category_id` dans `subcategories`).
--   **Storage:** Bucket `product-images` pour héberger les images des produits. Les permissions doivent être configurées correctement dans Supabase.
--   **Row Level Security (RLS):** **Crucial** pour la sécurité. À configurer dans Supabase pour s'assurer que :
-    -   Seuls les admins peuvent modifier/supprimer des produits, catégories, artistes, devis, annonces.
-    -   Les utilisateurs ne peuvent voir/modifier que leurs propres données (profil, potentiellement commandes futures).
-    -   L'accès anonyme est limité aux données publiques (produits, catégories publiques, artistes).
--   **Client Supabase:** Instance unique configurée dans `src/services/supabaseClient.ts`.
+-   **Authentication:** Gestion des utilisateurs (email/password), sessions JWT, et rôles (via table `profiles`).
+-   **Database (PostgreSQL):** Utilisation intensive pour stocker produits, catégories (3 niveaux), artistes, catégories d'artistes, réalisations, demandes de devis, abonnés newsletter, mots-clés sauvegardés, classements SEO, annonces, profils utilisateurs. Relations gérées via clés étrangères.
+-   **Storage:** Bucket `product-images` (configurable dans `storageService.ts`) pour héberger les images des produits et réalisations. Les permissions du bucket doivent être configurées pour l'accès public et les uploads authentifiés.
+-   **Row Level Security (RLS):** **ABSOLUMENT CRUCIAL** pour la sécurité des données en production. Configurez des politiques RLS dans Supabase pour :
+    *   Limiter les écritures (INSERT, UPDATE, DELETE) aux utilisateurs authentifiés avec le rôle `admin`.
+    *   Permettre aux utilisateurs authentifiés de lire/modifier leurs propres données (profil, etc.).
+    *   Restreindre l'accès anonyme aux seules données publiques nécessaires (produits, catégories, artistes, réalisations visibles).
+    *   Protéger les données sensibles comme les devis, les informations clients, les configurations.
+-   **Client Supabase:** Instance unique configurée dans `src/services/supabaseClient.ts` utilisant les variables d'environnement `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY`.
+
+---
 
 ## Initialisation de la base de données (Seed) 🌱
 
--   Une fonction `seedDatabase()` est présente dans `src/services/productService.ts`. Elle utilise des données `mockProducts` (commentées dans le code fourni) pour remplir la table `products`.
--   **Attention:** Cette fonction supprime d'abord les produits existants créés par l'utilisateur authentifié avant d'insérer les données de test.
--   Elle n'est pas appelée automatiquement. Pour l'utiliser, il faudrait l'intégrer dans l'interface admin (par exemple, un bouton sur le dashboard) ou l'exécuter via un script séparé, **avec précaution**.
+-   Une fonction `seedDatabase()` (commentée) existe dans `src/services/productService.ts` utilisant des données `mockProducts`.
+-   **Attention :** Cette fonction de test supprime d'abord les produits existants créés par l'utilisateur courant. À utiliser avec *extrême précaution* et uniquement en environnement de développement.
+-   Elle n'est pas appelée automatiquement. Son intégration nécessiterait un bouton admin ou un script dédié.
+
+---
 
 ## TODO / Améliorations Possibles 🔮
 
--   🔒 **Sécurité Supabase RLS :** Implémenter et tester rigoureusement les politiques RLS.
--   👤 **Gestion des Rôles Affinée :** Distinguer clairement 'Utilisateur Connecté' vs 'Admin' si des fonctionnalités spécifiques utilisateur (non-admin) sont ajoutées hors `/profile` et `/orders`. Renommer ou ajouter des routes protégées (`UserRoute`).
--   💾 **Profil Utilisateur :** Implémenter la logique de sauvegarde des modifications du profil dans `ProfilePage.tsx`.
--   🧾 **Commandes Utilisateur :** Connecter `OrdersPage.tsx` à des données réelles (probablement liées aux `quote_requests` approuvées/complétées).
--   🗑️ **Gestion Images Storage :** Ajouter la suppression des images du bucket Supabase lors de la suppression d'un produit ou d'une image individuelle dans le formulaire.
--   ❗ **Gestion des Erreurs UI :** Utiliser un système de notifications/toasts plus robuste pour les erreurs et succès (ex: react-toastify).
--   ✔️ **Validation Formulaires :** Intégrer une librairie comme `Zod` ou `React Hook Form` pour une validation plus poussée et des messages d'erreur spécifiques.
--   ⚡ **Optimisations :**
-    -   **Code Splitting :** Utiliser `React.lazy` pour charger les pages/composants lourds (notamment admin) à la demande.
-    -   **Images :** Optimiser la taille et le format des images (ex: WebP). Utiliser des placeholders de chargement.
-    -   **Requêtes :** Optimiser les requêtes Supabase, utiliser la mise en cache si pertinent.
--   🧪 **Tests :** Ajouter des tests unitaires (Vitest) et d'intégration (React Testing Library) pour assurer la fiabilité.
+-   🔒 **Sécurité Supabase RLS :** **Priorité absolue.** Implémenter et tester rigoureusement les politiques RLS pour toutes les tables sensibles.
+-   👤 **Gestion des Rôles Utilisateur :** Différencier 'Utilisateur connecté' de 'Admin' si des fonctionnalités spécifiques non-admin sont ajoutées (ex: modifier son propre profil/commandes). Créer/utiliser une `<UserRoute>` si nécessaire.
+-   💾 **Profil Utilisateur :** Implémenter la logique de sauvegarde des modifications du profil dans `ProfilePage.tsx` (appel API Supabase).
+-   🧾 **Commandes Utilisateur :** Connecter `OrdersPage.tsx` aux données réelles (probablement liées aux `quote_requests` avec statut `approved` ou `completed`).
+-   🗑️ **Gestion Stockage Supabase :** Implémenter la suppression des fichiers dans Supabase Storage lors de la suppression d'un produit, d'une réalisation, ou d'une image individuelle via les formulaires admin.
+-   ❗ **Notifications UI :** Remplacer les `alert()` et `console.log` par un système de notifications/toasts plus robuste et centralisé (ex: utiliser `AdminNotification.tsx` de manière globale ou intégrer `react-toastify`).
+-   ✔️ **Validation Formulaires :** Intégrer une librairie comme `Zod` avec `React Hook Form` pour une validation des formulaires plus robuste, centralisée et avec de meilleurs messages d'erreur.
+-   ⚡ **Optimisations Performance :**
+    *   **Code Splitting:** Utiliser `React.lazy` pour charger les pages/composants lourds (surtout admin) à la demande.
+    *   **Images:** Optimiser la taille/format des images (WebP), utiliser des images responsives (`srcset`), placeholders de chargement.
+    *   **Requêtes Supabase:** Optimiser les requêtes (sélectionner uniquement les colonnes nécessaires), utiliser la mise en cache si pertinent, indexer les colonnes fréquemment filtrées/triées.
+-   🧪 **Tests :** Ajouter des tests unitaires (Vitest), d'intégration (React Testing Library), et potentiellement E2E (Cypress/Playwright).
 -   ✨ **Admin UI/UX :**
-    -   **Réordonnancement :** Implémenter le drag-and-drop pour réordonner les catégories/produits.
-    -   **Éditeur Riche :** Utiliser un éditeur WYSIWYG pour les descriptions de produits/pages.
-    -   **Feedback Visuel :** Améliorer le feedback lors des opérations (chargement, succès, erreur).
--   🌐 **Internationalisation (i18n) :** Préparer l'application pour plusieurs langues si nécessaire.
--   📧 **Backend Email :** Le service `emailService.ts` suppose une API backend (ex: Express) pour envoyer les emails via Nodemailer. Ce backend n'est pas inclus et doit être développé séparément si l'envoi direct depuis le client n'est pas souhaité/possible.
+    *   **Réordonnancement:** Implémenter le drag-and-drop pour réorganiser les catégories/produits/images.
+    *   **Éditeur Riche (WYSIWYG):** Utiliser un éditeur comme TipTap ou TinyMCE pour les descriptions (produits, pages, réalisations, newsletter).
+    *   **Feedback Visuel:** Améliorer le retour visuel pendant les opérations longues (sauvegarde, génération IA, etc.).
+-   🌐 **Internationalisation (i18n) :** Préparer l'application pour le support multilingue si nécessaire (ex: `i18next`).
+-   ⚙️ **API Backend (Email, Sitemap, Proxy) :** Développer et déployer l'API backend nécessaire pour l'envoi d'emails, la sauvegarde du sitemap, et potentiellement pour gérer les appels SerpApi en production de manière sécurisée.
+-   📈 **Dashboard Admin :** Enrichir le tableau de bord avec des graphiques (ex: évolution des devis, produits populaires) et des statistiques plus pertinentes.
+-   🔄 **Gestion des Slugs :** Affiner la gestion des slugs uniques, potentiellement gérer les redirections en cas de changement de slug.
+
+---
 
 ## Licence 📜
 
-Ce projet est sous licence [MIT](./LICENSE) (ou spécifier une autre licence si applicable).
+Ce projet est sous licence [MIT](./LICENSE) (Ajouter un fichier LICENSE si ce n'est pas déjà fait).
 ```
