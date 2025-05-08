@@ -33,18 +33,16 @@ const KeywordRankings: React.FC = () => {
             <div className="flex items-start">
               <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-medium text-yellow-800 dark:text-yellow-300">Configuration de l'API Google Search requise</h3>
+                <h3 className="font-medium text-yellow-800 dark:text-yellow-300">Configuration de l'API SerpApi requise</h3>
                 <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-400">
-                  Pour obtenir des résultats réels (et non simulés), vous devez configurer l'API Google Custom Search. Suivez ces étapes :
+                  Pour obtenir des résultats réels (et non simulés), vous devez configurer l'API SerpApi. Suivez ces étapes :
                 </p>
                 <ol className="mt-2 text-sm text-yellow-700 dark:text-yellow-400 list-decimal list-inside space-y-1">
-                  <li>Créez un projet sur <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-yellow-800 dark:text-yellow-300 underline inline-flex items-center">Google Cloud Console <ExternalLink className="w-3 h-3 ml-1" /></a></li>
-                  <li>Activez l'API Custom Search et obtenez une clé API</li>
-                  <li>Créez un moteur de recherche personnalisé sur <a href="https://programmablesearchengine.google.com/" target="_blank" rel="noopener noreferrer" className="text-yellow-800 dark:text-yellow-300 underline inline-flex items-center">Programmable Search Engine <ExternalLink className="w-3 h-3 ml-1" /></a></li>
-                  <li>Ajoutez les variables suivantes dans votre fichier .env :
+                  <li>Créez un compte sur <a href="https://serpapi.com/" target="_blank" rel="noopener noreferrer" className="text-yellow-800 dark:text-yellow-300 underline inline-flex items-center">SerpApi <ExternalLink className="w-3 h-3 ml-1" /></a></li>
+                  <li>Obtenez votre clé API depuis votre tableau de bord</li>
+                  <li>Ajoutez la variable suivante dans votre fichier .env :
                     <pre className="mt-1 p-2 bg-yellow-100 dark:bg-yellow-900 rounded text-xs font-mono">
-                      GOOGLE_SEARCH_API_KEY=votre_clé_api_google
-                      GOOGLE_SEARCH_ENGINE_ID=votre_id_moteur_recherche
+                      VITE_SERP_API_KEY=votre_clé_api_serpapi
                     </pre>
                   </li>
                 </ol>

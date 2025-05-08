@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient';
-import { GOOGLE_SEARCH_CONFIG, isGoogleSearchConfigValid } from '../config/googleSearchApi';
+import { SERP_API_CONFIG, isGoogleSearchConfigValid } from '../config/googleSearchApi';
 
 export interface KeywordRanking {
   id?: string;
@@ -25,7 +25,7 @@ export interface SearchResult {
 }
 
 /**
- * Recherche la position d'un mot-clé dans les résultats de Google en utilisant l'API Google Custom Search
+ * Recherche la position d'un mot-clé dans les résultats de Google en utilisant SerpApi
  * @param keyword Le mot-clé à rechercher
  * @param siteUrl L'URL du site pour lequel vérifier le classement
  * @returns Un objet SearchResult contenant la position et des informations supplémentaires
@@ -33,24 +33,22 @@ export interface SearchResult {
 export const getKeywordPosition = async (keyword: string, siteUrl: string): Promise<SearchResult> => {
   try {
     // Logs pour déboguer la configuration
-    console.log('Configuration Google Search API:', {
-      API_KEY: GOOGLE_SEARCH_CONFIG.API_KEY ? '✓ Définie' : '✗ Non définie',
-      SEARCH_ENGINE_ID: GOOGLE_SEARCH_CONFIG.SEARCH_ENGINE_ID ? '✓ Défini' : '✗ Non défini',
-      BASE_URL: GOOGLE_SEARCH_CONFIG.BASE_URL,
-      MAX_RESULTS: GOOGLE_SEARCH_CONFIG.MAX_RESULTS
+    console.log('Configuration SerpApi:', {
+      API_KEY: SERP_API_CONFIG.API_KEY ? '✓ Définie' : '✗ Non définie',
+      BASE_URL: SERP_API_CONFIG.BASE_URL,
+      MAX_RESULTS: SERP_API_CONFIG.MAX_RESULTS
     });
     
     // Vérifier si la configuration de l'API est valide
     if (!isGoogleSearchConfigValid()) {
-      console.warn('Configuration de l\'API Google Search incomplète. Impossible de vérifier la position du mot-clé.');
+      console.warn('Configuration de l\'API SerpApi incomplète. Impossible de vérifier la position du mot-clé.');
       console.log('Détails de validation:', {
-        'API_KEY présente': !!GOOGLE_SEARCH_CONFIG.API_KEY,
-        'SEARCH_ENGINE_ID présent': !!GOOGLE_SEARCH_CONFIG.SEARCH_ENGINE_ID
+        'API_KEY présente': !!SERP_API_CONFIG.API_KEY
       });
       return {
         position: 0,
         isRealResult: false,
-        errorMessage: 'Configuration de l\'API Google Search incomplète. Impossible de vérifier la position du mot-clé.'
+        errorMessage: 'Configuration de l\'API SerpApi incomplète. Impossible de vérifier la position du mot-clé.'
       };
     }
 
@@ -59,65 +57,87 @@ export const getKeywordPosition = async (keyword: string, siteUrl: string): Prom
     const domain = domainMatch ? domainMatch[1] : siteUrl;
     console.log('Recherche pour le domaine:', domain, 'extrait de l\'URL:', siteUrl);
 
-    // Construire l'URL de l'API avec les paramètres
-    const searchUrl = new URL(GOOGLE_SEARCH_CONFIG.BASE_URL);
-    searchUrl.searchParams.append('key', GOOGLE_SEARCH_CONFIG.API_KEY);
-    searchUrl.searchParams.append('cx', GOOGLE_SEARCH_CONFIG.SEARCH_ENGINE_ID);
-    searchUrl.searchParams.append('q', keyword);
-    searchUrl.searchParams.append('num', GOOGLE_SEARCH_CONFIG.MAX_RESULTS.toString());
+    // Construire l'URL du proxy local pour contourner les problèmes CORS
+    // Au lieu d'appeler directement SerpApi, nous passons par notre serveur Express
+    const proxyUrl = new URL('http://localhost:3001/api/serpapi/search');
+    
+    // Ajouter les paramètres de recherche
+    proxyUrl.searchParams.append('api_key', SERP_API_CONFIG.API_KEY);
+    proxyUrl.searchParams.append('q', keyword);
+    proxyUrl.searchParams.append('num', SERP_API_CONFIG.MAX_RESULTS.toString());
+    
+    // Ajouter les paramètres par défaut
+    Object.entries(SERP_API_CONFIG.DEFAULT_PARAMS).forEach(([key, value]) => {
+      proxyUrl.searchParams.append(key, value.toString());
+    });
     
     // Log de l'URL construite (sans la clé API pour des raisons de sécurité)
-    const searchUrlForLog = new URL(searchUrl.toString());
-    searchUrlForLog.searchParams.delete('key');
-    console.log('URL de recherche Google (sans clé API):', searchUrlForLog.toString());
+    const proxyUrlForLog = new URL(proxyUrl.toString());
+    proxyUrlForLog.searchParams.delete('api_key');
+    console.log('URL du proxy SerpApi (sans clé API):', proxyUrlForLog.toString());
     console.log('Paramètres de recherche:', {
       q: keyword,
-      cx: GOOGLE_SEARCH_CONFIG.SEARCH_ENGINE_ID ? GOOGLE_SEARCH_CONFIG.SEARCH_ENGINE_ID.substring(0, 4) + '...' : 'Non défini',
-      num: GOOGLE_SEARCH_CONFIG.MAX_RESULTS
+      num: SERP_API_CONFIG.MAX_RESULTS
     });
 
-    // Effectuer la requête à l'API
-    console.log('Envoi de la requête à l\'API Google Search...');
-    const response = await fetch(searchUrl.toString());
+    // Effectuer la requête via notre proxy local pour éviter les problèmes CORS
+    console.log('Envoi de la requête via le proxy SerpApi...');
+    const response = await fetch(proxyUrl.toString(), {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+      // Timeout de 30 secondes pour éviter les attentes infinies
+      signal: AbortSignal.timeout(30000)
+    }).catch(error => {
+      console.error('Erreur de connexion au proxy SerpApi:', error);
+      // Analyser l'erreur pour fournir un message plus précis
+      if (error.message && error.message.includes('Failed to fetch')) {
+        throw new Error(`Erreur de connexion: Impossible de contacter le serveur proxy. Assurez-vous que le serveur Express est en cours d'exécution sur le port 3001.`);
+      }
+      throw error;
+    });
+    
+    // Vérifier si la réponse existe (pour gérer le cas où fetch échoue sans lancer d'erreur)
+    if (!response) {
+      throw new Error('Aucune réponse reçue du proxy SerpApi');
+    }
+    
     console.log('Statut de la réponse:', response.status, response.statusText);
     
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Erreur API Google Search:', errorData);
+      console.error('Erreur API SerpApi via proxy:', errorData);
       console.error('Détails de l\'erreur:', {
-        code: errorData.error?.code,
-        message: errorData.error?.message,
-        status: errorData.error?.status,
-        details: errorData.error?.details
+        error: errorData.error
       });
-      throw new Error(`Erreur API Google Search: ${response.status} ${response.statusText}`);
+      throw new Error(`Erreur API SerpApi via proxy: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
     
     // Log des informations de la réponse pour débogage
-    console.log('Réponse de l\'API Google Search:', {
-      searchInformation: data.searchInformation,
-      itemCount: data.items?.length || 0,
-      query: data.queries?.request?.[0]
+    console.log('Réponse de l\'API SerpApi:', {
+      searchMetadata: data.search_metadata,
+      organicResultsCount: data.organic_results?.length || 0
     });
     
     // Vérifier si des résultats ont été trouvés
-    if (!data.items || data.items.length === 0) {
+    if (!data.organic_results || data.organic_results.length === 0) {
       console.log(`Aucun résultat trouvé pour le mot-clé "${keyword}"`);
       return {
         position: 0,
         isRealResult: true,
-        totalResults: '0',
-        searchTime: 0
+        totalResults: data.search_information?.total_results || '0',
+        searchTime: data.search_metadata?.total_time_taken || 0
       }; // No results found
     }
 
     // Rechercher la position du site dans les résultats
     let position = 0;
-    console.log(`Recherche du domaine "${domain}" dans ${data.items.length} résultats...`);
-    for (let i = 0; i < data.items.length; i++) {
-      const item = data.items[i];
+    console.log(`Recherche du domaine "${domain}" dans ${data.organic_results.length} résultats...`);
+    for (let i = 0; i < data.organic_results.length; i++) {
+      const item = data.organic_results[i];
       console.log(`Résultat #${i+1}:`, {
         link: item.link,
         title: item.title,
@@ -131,27 +151,58 @@ export const getKeywordPosition = async (keyword: string, siteUrl: string): Prom
     }
 
     // Si le site n'a pas été trouvé dans les premiers résultats
-    if (position === 0 && data.searchInformation && data.searchInformation.totalResults > 0) {
+    if (position === 0 && data.search_information && data.search_information.total_results > 0) {
       // On retourne une position au-delà des résultats actuels
-      position = GOOGLE_SEARCH_CONFIG.MAX_RESULTS + 1;
+      position = SERP_API_CONFIG.MAX_RESULTS + 1;
     }
 
     const result = {
       position,
       isRealResult: true,
-      totalResults: data.searchInformation?.totalResults,
-      searchTime: data.searchInformation?.searchTime
+      totalResults: data.search_information?.total_results || data.search_information?.total,
+      searchTime: data.search_metadata?.total_time_taken
     };
     
-    console.log(`✅ Résultat RÉEL: position ${position} pour le mot-clé "${keyword}" (sur ${data.searchInformation?.totalResults || '?'} résultats)`);
+    console.log(`✅ Résultat RÉEL: position ${position} pour le mot-clé "${keyword}" (sur ${result.totalResults || '?'} résultats)`);
     return result;
   } catch (error) {
     console.error('Erreur lors de la recherche de position du mot-clé:', error);
     console.warn('Impossible de vérifier la position du mot-clé suite à une erreur API');
+    
+    // Analyser le type d'erreur pour fournir un message plus précis
+    let errorMessage = 'Erreur lors de la recherche. Impossible de vérifier la position du mot-clé.';
+    
+    if (error instanceof Error) {
+      // Erreurs de serveur proxy
+      if (error.message.includes('Impossible de contacter le serveur proxy')) {
+        errorMessage = `Erreur de connexion au serveur proxy: Assurez-vous que le serveur Express est démarré (npm run server). Si le problème persiste, vérifiez que le port 3001 est disponible.`;
+      }
+      // Erreurs réseau
+      else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        errorMessage = `Erreur de connexion réseau: Impossible de contacter le serveur proxy ou l'API SerpApi. Vérifiez votre connexion Internet et que le serveur Express est bien démarré.`;
+      }
+      // Erreurs CORS (ne devrait plus se produire avec le proxy, mais gardé par précaution)
+      else if (error.message.includes('CORS')) {
+        errorMessage = `Erreur CORS: Utilisez le serveur proxy pour contourner cette limitation. Assurez-vous que le serveur Express est démarré avec 'npm run server'.`;
+      }
+      // Erreurs de timeout
+      else if (error.message.includes('timeout') || error.message.includes('timed out')) {
+        errorMessage = `Délai d'attente dépassé: Le serveur proxy ou l'API SerpApi n'a pas répondu dans le temps imparti. Réessayez plus tard.`;
+      }
+      // Erreurs d'API
+      else if (error.message.includes('API SerpApi via proxy')) {
+        errorMessage = `Erreur de l'API SerpApi: ${error.message}. Vérifiez que votre clé API est valide et que vous n'avez pas dépassé votre quota.`;
+      }
+      // Autres erreurs avec message
+      else {
+        errorMessage = `Erreur lors de la recherche: ${error.message}`;
+      }
+    }
+    
     return {
       position: 0,
       isRealResult: false,
-      errorMessage: error instanceof Error ? `Erreur lors de la recherche: ${error.message}` : 'Erreur lors de la recherche. Impossible de vérifier la position du mot-clé.'
+      errorMessage: errorMessage
     };
   }
 };

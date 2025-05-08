@@ -234,6 +234,64 @@ app.post('/api/admin/sitemap', async (req, res) => {
   }
 });
 
+// Endpoint proxy pour SerpApi pour contourner les problèmes CORS
+app.get('/api/serpapi/search', async (req, res) => {
+  console.log('Requête reçue sur le proxy SerpApi');
+  try {
+    // Récupérer les paramètres de la requête
+    const params = req.query;
+    
+    // Vérifier si la clé API est présente
+    if (!params.api_key) {
+      return res.status(400).json({ 
+        error: 'Clé API SerpApi manquante', 
+        message: 'La clé API SerpApi est requise pour effectuer une recherche' 
+      });
+    }
+    
+    // Construire l'URL de l'API SerpApi
+    const searchUrl = new URL('https://serpapi.com/search');
+    
+    // Ajouter tous les paramètres à l'URL
+    Object.entries(params).forEach(([key, value]) => {
+      searchUrl.searchParams.append(key, value.toString());
+    });
+    
+    console.log('Envoi de la requête à SerpApi...');
+    // Masquer la clé API dans les logs
+    const searchUrlForLog = new URL(searchUrl.toString());
+    searchUrlForLog.searchParams.delete('api_key');
+    console.log('URL de recherche (sans clé API):', searchUrlForLog.toString());
+    
+    // Effectuer la requête à l'API SerpApi
+    const response = await fetch(searchUrl.toString(), {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      },
+      timeout: 30000 // 30 secondes de timeout
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Erreur API SerpApi:', errorData);
+      return res.status(response.status).json(errorData);
+    }
+    
+    // Récupérer les données et les renvoyer au client
+    const data = await response.json();
+    console.log('Réponse de SerpApi reçue avec succès');
+    res.json(data);
+  } catch (error) {
+    console.error('Erreur lors de la requête proxy SerpApi:', error);
+    res.status(500).json({ 
+      error: 'Erreur lors de la requête proxy', 
+      message: error.message,
+      details: error.toString()
+    });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
