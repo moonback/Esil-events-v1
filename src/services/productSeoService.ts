@@ -147,7 +147,7 @@ EXIGENCES ADDITIONNELLES:
 • Intègre naturellement les mots-clés de conversion
 • Mets en avant notre expertise régionale et nationale
 • Souligne notre positionnement premium et exclusif
-• Respecte les bonnes pratiques SEO 2024
+• Respecte les bonnes pratiques SEO 2025
 
 FORMAT DE RÉPONSE:
 Fournis le résultat au format JSON structuré avec les clés:
