@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Search, AlertCircle, ExternalLink, Sparkles } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
@@ -10,6 +10,7 @@ import { isGoogleSearchConfigValid } from '../../config/googleSearchApi';
 const KeywordRankings: React.FC = () => {
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [activeTab, setActiveTab] = useState<'ranking' | 'generator'>('ranking');
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
   const keywordInputRef = useRef<HTMLInputElement>(null);
   const apiConfigured = isGoogleSearchConfigValid();
 
@@ -84,23 +85,26 @@ const KeywordRankings: React.FC = () => {
         )}
 
         {activeTab === 'ranking' && (
-          <KeywordRankingTool />
+          <KeywordRankingTool 
+            initialKeyword={searchKeyword}
+            keywordInputRef={keywordInputRef}
+          />
         )}
         
         {activeTab === 'generator' && (
           <KeywordGeneratorTool 
             onAddToSearch={(keyword) => {
+              // Définir le mot-clé à rechercher
+              setSearchKeyword(keyword);
+              
               // Passer à l'onglet de suivi des positions
               setActiveTab('ranking');
               
               // Attendre que le DOM soit mis à jour avec l'onglet de suivi
               setTimeout(() => {
-                // Trouver l'input de mot-clé dans le composant KeywordRankingTool
-                const keywordInput = document.getElementById('keyword');
-                if (keywordInput && keywordInput instanceof HTMLInputElement) {
-                  keywordInput.value = keyword;
-                  keywordInput.dispatchEvent(new Event('input', { bubbles: true }));
-                  keywordInput.focus();
+                // Utiliser la référence pour accéder à l'input
+                if (keywordInputRef.current) {
+                  keywordInputRef.current.focus();
                 }
               }, 100);
             }}

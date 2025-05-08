@@ -1,12 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, RefObject } from 'react';
 import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw, List, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getKeywordPosition, saveKeywordRanking, getAllKeywordRankings, deleteKeywordRanking, KeywordRanking, SearchResult } from '../../services/keywordRankingService';
 import { isGoogleSearchConfigValid } from '../../config/googleSearchApi';
 
-const KeywordRankingTool: React.FC = () => {
-  const [keyword, setKeyword] = useState('');
+interface KeywordRankingToolProps {
+  initialKeyword?: string;
+  keywordInputRef?: RefObject<HTMLInputElement>;
+}
+
+const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword = '', keywordInputRef }) => {
+  const [keyword, setKeyword] = useState(initialKeyword);
   const [multipleKeywords, setMultipleKeywords] = useState('');
+  
+  // Mettre à jour le mot-clé lorsque initialKeyword change
+  useEffect(() => {
+    if (initialKeyword) {
+      setKeyword(initialKeyword);
+    }
+  }, [initialKeyword]);
   const [siteUrl, setSiteUrl] = useState('https://esil-events.fr/');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
@@ -313,6 +325,7 @@ const KeywordRankingTool: React.FC = () => {
             <input
               type="text"
               id="keyword"
+              ref={keywordInputRef}
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="Entrez un mot-clé à rechercher"
