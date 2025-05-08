@@ -492,7 +492,7 @@ return (
                 </div>
                 {similarProducts.length > 4 && (
                   <Link 
-                    to={`/product/${product.category}`}
+                    to={`/products/${product.category}`}
                     className="text-violet-600 hover:text-violet-800 font-medium flex items-center transition-colors hover:scale-105 transform duration-200 bg-violet-50 hover:bg-violet-100 px-4 py-2 rounded-lg"
                   >
                     Voir plus <ChevronRight className="w-4 h-4 ml-1" />
