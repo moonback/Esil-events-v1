@@ -73,7 +73,7 @@ export const prepareProductSeoPrompt = (
 
   const userMessage = {
     role: "user",
-    content: `Génère du contenu SEO optimisé pour ce produit de location événementielle :
+    content: `Génère du contenu SEO hautement optimisé et performant pour ce produit de location événementielle premium :
 
 INFORMATIONS PRODUIT:
 • Nom: ${productData.name || 'Non spécifié'}
@@ -87,28 +87,50 @@ INFORMATIONS PRODUIT:
 • Spécifications techniques: ${technicalSpecsText}
 ${categoryContext}
 
-CONTEXTE MARKETING:
-• ESIL-events est spécialisé dans la création d'événements de A à Z incluant location de mobilier, installation, régie son & lumière, et animation.
-• Nos produits sont premium et destinés à créer des événements inoubliables.
-• Notre expertise s'étend sur toute la France, avec une présence forte en région PARISIENNE.
-• Nous servons une clientèle exigeante composée de professionnels de l'événementiel et de particuliers.
+CONTEXTE MARKETING & POSITIONNEMENT:
+• ESIL-events est le leader incontesté dans la création d'événements haut de gamme en France, offrant une solution complète et intégrée : location de mobilier design, systèmes de sonorisation professionnelle, éclairage architectural, jeux d'arcade et équipements vidéo premium, installation experte, régie technique son & lumière de pointe, et services d'animation sur-mesure.
+• Notre collection exclusive de produits et équipements premium est méticuleusement sélectionnée et entretenue pour créer des expériences événementielles exceptionnelles, innovantes et inoubliables.
+• Notre réseau logistique couvre l'ensemble de la France, avec une expertise particulière en région parisienne et Île-de-France.
+• Notre clientèle exclusive comprend des professionnels de l'événementiel renommés et des particuliers exigeants en quête d'excellence.
 • ${audienceInstruction}
 • ${eventTypeInstruction}
 
-INSTRUCTIONS SPÉCIFIQUES:
-1. Génère un titre SEO optimisé (60-70 caractères maximum) qui soit accrocheur et contienne les mots-clés principaux.
-2. Génère une méta-description SEO (150-160 caractères maximum) qui soit informative, persuasive et incite à l'action.
-3. Génère une liste de 5-10 mots-clés pertinents séparés par des virgules, incluant:
-   - Des mots-clés liés au produit lui-même
-   - Des mots-clés liés à l'usage événementiel
-   - Des termes de recherche géographiques (Région parisienne, Île-de-France, Livraison France entière)
-   - Des termes liés à la location/prestation et au service national
+DIRECTIVES SEO SPÉCIFIQUES:
+1. Crée un titre SEO percutant (60-70 caractères) intégrant:
+   - Les mots-clés principaux en début de titre
+   - Une proposition de valeur unique
+   - Un élément déclencheur d'action
+
+2. Développe une méta-description SEO optimale (150-160 caractères) incluant:
+   - Une accroche émotionnelle forte
+   - Les bénéfices clés du produit
+   - Un appel à l'action convaincant
+   - Les éléments différenciateurs (qualité premium, service personnalisé)
+
+3. Génère une liste stratégique de 8-10 mots-clés comprenant:
+   - Des termes spécifiques au produit et ses caractéristiques premium
+   - Des mots-clés liés aux événements haut de gamme
+   - Des variations géographiques ciblées (Paris, Île-de-France, France)
+   - Des termes de recherche liés à la location et au service national
+   - Des long-tail keywords pertinents
+
 4. ${lengthInstruction}
 5. ${keywordsInstruction}
-6. Assure-toi que le contenu soit optimisé pour le référencement tout en restant naturel et persuasif.
-7. Inclus des termes liés à la qualité premium et à l'exclusivité.
-8. Mentionne notre expertise régionale et notre service personnalisé.
-9. Fournis le résultat au format JSON avec les clés suivantes: "seo_title", "seo_description", "seo_keywords".
+
+EXIGENCES ADDITIONNELLES:
+• Optimise le contenu pour les derniers algorithmes Google (E-E-A-T)
+• Intègre naturellement les mots-clés de conversion
+• Mets en avant notre expertise régionale et nationale
+• Souligne notre positionnement premium et exclusif
+• Respecte les bonnes pratiques SEO 2024
+
+FORMAT DE RÉPONSE:
+Fournis le résultat au format JSON structuré avec les clés:
+{
+  "seo_title": "Titre optimisé",
+  "seo_description": "Description persuasive",
+  "seo_keywords": "liste, de, mots-clés, pertinents"
+}
 `
   };
 
