@@ -135,7 +135,7 @@ const HomePage: React.FC = () => {
             Votre événement de A à Z : Location, Installation, Régie Son & Lumière, Animation
           </motion.p>
           <motion.div 
-            className="flex flex-col sm:flex-row gap-4"
+            className="flex flex-col sm:flex-row gap-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
@@ -143,31 +143,31 @@ const HomePage: React.FC = () => {
             <motion.div 
               whileHover={{ scale: 1.05, y: -5 }} 
               whileTap={{ scale: 0.95 }}
-              className="relative"
+              className="relative group"
             >
               <Link 
                 to="/agence-evenementielle" 
-                className="btn-primary inline-flex items-center gap-2 group"
+                className="btn-primary inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold shadow-lg group-hover:shadow-xl transition-all duration-300"
               >
                 Notre Agence événementielle
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
               </Link>
-              <div className="absolute inset-0 bg-violet-400 opacity-20 blur-lg rounded-full transform scale-150 -z-10" />
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-purple-500 opacity-20 blur-xl rounded-full transform scale-150 -z-10 group-hover:opacity-30 transition-opacity duration-300" />
             </motion.div>
 
             <motion.div 
               whileHover={{ scale: 1.05, y: -5 }} 
               whileTap={{ scale: 0.95 }}
-              className="relative"
+              className="relative group"
             >
               <Link 
                 to="/products/" 
-                className="btn-secondary inline-flex items-center gap-2 group"
+                className="btn-secondary inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold shadow-lg group-hover:shadow-xl transition-all duration-300"
               >
                 Nos produits à la location
-                <Package className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                <Package className="w-5 h-5 transition-transform group-hover:translate-x-2" />
               </Link>
-              <div className="absolute inset-0 bg-indigo-400 opacity-20 blur-lg rounded-full transform scale-150 -z-10" />
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-blue-500 opacity-20 blur-xl rounded-full transform scale-150 -z-10 group-hover:opacity-30 transition-opacity duration-300" />
             </motion.div>
           </motion.div>
         </div>
