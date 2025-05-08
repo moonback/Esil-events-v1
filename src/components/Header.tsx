@@ -276,15 +276,7 @@ const Header: React.FC = () => {
                             </Link>
                           )}
                         </div>
-                        {/* <div className="py-1 border-t border-gray-200/60 dark:border-gray-700/60">
-                          <button 
-                            onClick={handleSignOut} 
-                            className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
-                          >
-                            <LogOut className="w-4 h-4 mr-2" />
-                            Déconnexion
-                          </button>
-                        </div> */}
+                        
                       </div>
                     )}
                   </div>
