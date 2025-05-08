@@ -1,8 +1,7 @@
 import React, { useState, useEffect, RefObject } from 'react';
-import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw, List, X, Database, Tag, Plus } from 'lucide-react';
+import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw, List, X, Database, Tag, Plus, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getKeywordPosition, saveKeywordRanking, getAllKeywordRankings, deleteKeywordRanking, KeywordRanking, SearchResult } from '../../services/keywordRankingService';
-import { isGoogleSearchConfigValid } from '../../config/googleSearchApi';
 import { getSavedKeywords, SavedKeyword } from '../../services/savedKeywordsService';
 
 interface KeywordRankingToolProps {
@@ -14,8 +13,16 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
   const [keyword, setKeyword] = useState(initialKeyword);
   const [multipleKeywords, setMultipleKeywords] = useState('');
   const [savedKeywords, setSavedKeywords] = useState<SavedKeyword[]>([]);
+  const [filteredKeywords, setFilteredKeywords] = useState<SavedKeyword[]>([]);
   const [isLoadingSavedKeywords, setIsLoadingSavedKeywords] = useState(false);
   const [showSavedKeywords, setShowSavedKeywords] = useState(false);
+  const [keywordSearch, setKeywordSearch] = useState('');
+  const [selectedType, setSelectedType] = useState<string>('');
+  const [selectedTopic, setSelectedTopic] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [keywordsPerPage] = useState(12);
+  const [availableTypes, setAvailableTypes] = useState<string[]>([]);
+  const [availableTopics, setAvailableTopics] = useState<string[]>([]);
   
   // Mettre à jour le mot-clé lorsque initialKeyword change
   useEffect(() => {
@@ -24,12 +31,27 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
     }
   }, [initialKeyword]);
   
-  // Charger les mots-clés sauvegardés
+  // Charger les mots-clés sauvegardés avec filtrage et pagination
   const loadSavedKeywords = async () => {
     try {
       setIsLoadingSavedKeywords(true);
-      const keywords = await getSavedKeywords();
+      const filterOptions = {
+        search: keywordSearch,
+        type: selectedType,
+        topic: selectedTopic
+      };
+      const keywords = await getSavedKeywords(filterOptions);
       setSavedKeywords(keywords);
+      
+      // Extraire les types et sujets uniques pour les filtres
+      const types = Array.from(new Set(keywords.map(k => k.type).filter(Boolean)));
+      const topics = Array.from(new Set(keywords.map(k => k.topic).filter(Boolean)));
+      
+      setAvailableTypes(types);
+      setAvailableTopics(topics);
+      
+      // Appliquer la pagination
+      applyFiltersAndPagination(keywords);
     } catch (err) {
       console.error('Erreur lors du chargement des mots-clés sauvegardés:', err);
     } finally {
@@ -37,10 +59,45 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
     }
   };
   
+  // Fonction pour appliquer les filtres et la pagination
+  const applyFiltersAndPagination = (keywords: SavedKeyword[]) => {
+    let filtered = [...keywords];
+    
+    // Appliquer les filtres
+    if (keywordSearch) {
+      filtered = filtered.filter(k => 
+        k.keyword.toLowerCase().includes(keywordSearch.toLowerCase())
+      );
+    }
+    
+    if (selectedType) {
+      filtered = filtered.filter(k => k.type === selectedType);
+    }
+    
+    if (selectedTopic) {
+      filtered = filtered.filter(k => k.topic === selectedTopic);
+    }
+    
+    // Mettre à jour les mots-clés filtrés
+    setFilteredKeywords(filtered);
+    
+    // Réinitialiser la page si nécessaire
+    if (filtered.length > 0 && Math.ceil(filtered.length / keywordsPerPage) < currentPage) {
+      setCurrentPage(1);
+    }
+  };
+  
   // Charger les mots-clés sauvegardés au chargement du composant
   useEffect(() => {
     loadSavedKeywords();
   }, []);
+  
+  // Appliquer les filtres et la pagination lorsque les critères changent
+  useEffect(() => {
+    if (savedKeywords.length > 0) {
+      applyFiltersAndPagination(savedKeywords);
+    }
+  }, [keywordSearch, selectedType, selectedTopic, currentPage, keywordsPerPage]);
   const [siteUrl, setSiteUrl] = useState('https://esil-events.fr/');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
@@ -367,6 +424,11 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
           >
             <Database className="w-4 h-4 mr-1" />
             Mots-clés sauvegardés
+            {savedKeywords.length > 0 && (
+              <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-semibold text-white bg-violet-600 dark:bg-violet-500 rounded-full">
+                {savedKeywords.length > 99 ? '99+' : savedKeywords.length}
+              </span>
+            )}
           </button>
         </div>
         
@@ -382,73 +444,225 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
             >
               <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden">
                 <div className="p-4 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                  <h3 className="font-medium text-gray-900 dark:text-white flex items-center">
-                    <Tag className="w-4 h-4 mr-2 text-violet-600 dark:text-violet-400" />
-                    Mots-clés sauvegardés
-                  </h3>
-                  <button 
-                    onClick={() => setShowSavedKeywords(false)}
-                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  <div>
+                    <h3 className="font-medium text-gray-900 dark:text-white flex items-center">
+                      <Tag className="w-4 h-4 mr-2 text-violet-600 dark:text-violet-400" />
+                      Mots-clés sauvegardés
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {filteredKeywords.length} sur {savedKeywords.length} mots-clés affichés
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button 
+                      onClick={() => loadSavedKeywords()}
+                      className="text-violet-600 hover:text-violet-800 dark:text-violet-400 dark:hover:text-violet-300"
+                      title="Rafraîchir les mots-clés"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => setShowSavedKeywords(false)}
+                      className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
                 
                 {isLoadingSavedKeywords ? (
                   <div className="p-6 flex justify-center">
                     <RefreshCw className="w-6 h-6 animate-spin text-violet-600 dark:text-violet-400" />
                   </div>
-                ) : savedKeywords.length === 0 ? (
-                  <div className="p-6 text-center text-gray-500 dark:text-gray-400">
-                    Aucun mot-clé sauvegardé trouvé
-                  </div>
                 ) : (
-                  <div className="max-h-64 overflow-y-auto">
-                    <div className="p-2 grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                      {savedKeywords.map((savedKeyword) => (
-                        <div 
-                          key={savedKeyword.id} 
-                          className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-violet-300 dark:hover:border-violet-700 transition-colors"
-                        >
-                          <div className="flex justify-between items-start mb-2">
-                            <span className="font-medium text-gray-900 dark:text-white truncate">
-                              {savedKeyword.keyword}
+                  <div className="p-4">
+                    {/* Statistiques des mots-clés */}
+                    {savedKeywords.length > 0 && (
+                      <div className="mb-4 p-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="flex items-center">
+                            <Database className="w-4 h-4 text-violet-600 dark:text-violet-400 mr-2" />
+                            <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
+                              {savedKeywords.length} mot{savedKeywords.length > 1 ? 's' : ''}-clé{savedKeywords.length > 1 ? 's' : ''} au total
                             </span>
-                            <div className="flex space-x-1">
-                              <button
-                                onClick={() => handleUseSavedKeyword(savedKeyword)}
-                                className="text-violet-600 hover:text-violet-800 dark:text-violet-400 dark:hover:text-violet-300"
-                                title="Utiliser ce mot-clé"
-                              >
-                                <Search className="w-4 h-4" />
-                              </button>
-                              {isBatchMode && (
-                                <button
-                                  onClick={() => handleAddToMultipleKeywords(savedKeyword)}
-                                  className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
-                                  title="Ajouter à la liste de mots-clés"
-                                >
-                                  <Plus className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
                           </div>
-                          
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {savedKeyword.type && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300">
-                                {savedKeyword.type}
+                          <div className="flex flex-wrap gap-2">
+                            {availableTypes.slice(0, 3).map(type => (
+                              <span key={type} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300">
+                                {type}: {savedKeywords.filter(k => k.type === type).length}
                               </span>
-                            )}
-                            {savedKeyword.topic && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 truncate max-w-full">
-                                {savedKeyword.topic}
+                            ))}
+                            {availableTypes.length > 3 && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                                +{availableTypes.length - 3} types
                               </span>
                             )}
                           </div>
                         </div>
-                      ))}
+                      </div>
+                    )}
+                    
+                    {/* Barre de recherche et filtres */}
+                    <div className="mb-4 space-y-3">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Rechercher un mot-clé..."
+                          value={keywordSearch}
+                          onChange={(e) => setKeywordSearch(e.target.value)}
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-700 dark:text-white"
+                        />
+                        <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400 dark:text-gray-500" />
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        {/* Filtre par type */}
+                        <div className="relative inline-block">
+                          <select
+                            value={selectedType}
+                            onChange={(e) => setSelectedType(e.target.value)}
+                            className="appearance-none pl-3 pr-8 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-700 dark:text-white"
+                          >
+                            <option value="">Tous les types</option>
+                            {availableTypes.map((type) => (
+                              <option key={type} value={type}>{type}</option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                            <ChevronDown className="w-4 h-4 text-gray-500" />
+                          </div>
+                        </div>
+                        
+                        {/* Filtre par sujet */}
+                        <div className="relative inline-block">
+                          <select
+                            value={selectedTopic}
+                            onChange={(e) => setSelectedTopic(e.target.value)}
+                            className="appearance-none pl-3 pr-8 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-700 dark:text-white"
+                          >
+                            <option value="">Tous les sujets</option>
+                            {availableTopics.map((topic) => (
+                              <option key={topic} value={topic}>{topic}</option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                            <ChevronDown className="w-4 h-4 text-gray-500" />
+                          </div>
+                        </div>
+                        
+                        {/* Bouton de réinitialisation des filtres */}
+                        {(keywordSearch || selectedType || selectedTopic) && (
+                          <button
+                            onClick={() => {
+                              setKeywordSearch('');
+                              setSelectedType('');
+                              setSelectedTopic('');
+                              setCurrentPage(1);
+                            }}
+                            className="inline-flex items-center px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5 mr-1" />
+                            Réinitialiser
+                          </button>
+                        )}
+                      </div>
                     </div>
+                    
+                    {/* Affichage des mots-clés avec pagination */}
+                    {filteredKeywords.length === 0 ? (
+                      <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+                        Aucun mot-clé sauvegardé trouvé
+                      </div>
+                    ) : (
+                      /* Message d'information si beaucoup de mots-clés */
+                      savedKeywords.length > 30 && (
+                        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                          <div className="flex">
+                            <Info className="w-5 h-5 text-blue-500 dark:text-blue-400 mr-2 flex-shrink-0" />
+                            <div className="text-sm text-blue-700 dark:text-blue-300">
+                              <p className="font-medium">Grand nombre de mots-clés détecté</p>
+                              <p className="mt-1">Utilisez les filtres ci-dessus pour affiner votre recherche et trouver plus facilement les mots-clés qui vous intéressent.</p>
+                            </div>
+                          </div>
+                        </div>
+                      ),
+                      <>
+                        <div className="max-h-96 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+                          <div className="p-2 grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                            {filteredKeywords
+                              .slice((currentPage - 1) * keywordsPerPage, currentPage * keywordsPerPage)
+                              .map((savedKeyword) => (
+                                <div 
+                                  key={savedKeyword.id} 
+                                  className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-violet-300 dark:hover:border-violet-700 transition-colors"
+                                >
+                                  <div className="flex justify-between items-start mb-2">
+                                    <span className="font-medium text-gray-900 dark:text-white truncate">
+                                      {savedKeyword.keyword}
+                                    </span>
+                                    <div className="flex space-x-1">
+                                      <button
+                                        onClick={() => handleUseSavedKeyword(savedKeyword)}
+                                        className="text-violet-600 hover:text-violet-800 dark:text-violet-400 dark:hover:text-violet-300"
+                                        title="Utiliser ce mot-clé"
+                                      >
+                                        <Search className="w-4 h-4" />
+                                      </button>
+                                      {isBatchMode && (
+                                        <button
+                                          onClick={() => handleAddToMultipleKeywords(savedKeyword)}
+                                          className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+                                          title="Ajouter à la liste de mots-clés"
+                                        >
+                                          <Plus className="w-4 h-4" />
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex flex-wrap gap-1 mt-2">
+                                    {savedKeyword.type && (
+                                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300">
+                                        {savedKeyword.type}
+                                      </span>
+                                    )}
+                                    {savedKeyword.topic && (
+                                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 truncate max-w-full">
+                                        {savedKeyword.topic}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                        
+                        {/* Pagination */}
+                        {filteredKeywords.length > keywordsPerPage && (
+                          <div className="flex justify-between items-center mt-4">
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              Affichage de {Math.min(filteredKeywords.length, (currentPage - 1) * keywordsPerPage + 1)} à {Math.min(filteredKeywords.length, currentPage * keywordsPerPage)} sur {filteredKeywords.length} mots-clés
+                            </div>
+                            <div className="flex space-x-1">
+                              <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className={`px-3 py-1 rounded-md text-sm ${currentPage === 1 ? 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'}`}
+                              >
+                                Précédent
+                              </button>
+                              <button
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredKeywords.length / keywordsPerPage)))}
+                                disabled={currentPage >= Math.ceil(filteredKeywords.length / keywordsPerPage)}
+                                className={`px-3 py-1 rounded-md text-sm ${currentPage >= Math.ceil(filteredKeywords.length / keywordsPerPage) ? 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'}`}
+                              >
+                                Suivant
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 )}
               </div>

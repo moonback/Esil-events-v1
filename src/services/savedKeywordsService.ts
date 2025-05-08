@@ -58,22 +58,58 @@ export const saveKeyword = async (keyword: GeneratedKeyword, topic: string): Pro
 };
 
 /**
- * Récupère tous les mots-clés sauvegardés
- * @returns La liste des mots-clés sauvegardés
+ * Interface pour les options de filtrage des mots-clés
  */
-export const getSavedKeywords = async (): Promise<SavedKeyword[]> => {
+export interface KeywordFilterOptions {
+  search?: string;
+  type?: string;
+  topic?: string;
+  page?: number;
+  perPage?: number;
+}
+
+/**
+ * Récupère tous les mots-clés sauvegardés avec options de filtrage et pagination
+ * @param options Options de filtrage et pagination
+ * @returns La liste des mots-clés sauvegardés filtrés
+ */
+export const getSavedKeywords = async (options?: KeywordFilterOptions): Promise<SavedKeyword[]> => {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('saved_keywords')
       .select('*')
       .order('created_at', { ascending: false });
+
+    // Appliquer les filtres si fournis
+    if (options?.search) {
+      query = query.ilike('keyword', `%${options.search}%`);
+    }
+
+    if (options?.type) {
+      query = query.eq('type', options.type);
+    }
+
+    if (options?.topic) {
+      query = query.eq('topic', options.topic);
+    }
+
+    // Exécuter la requête
+    const { data, error } = await query;
 
     if (error) {
       console.error('Erreur lors de la récupération des mots-clés sauvegardés:', error);
       return [];
     }
 
-    return data || [];
+    // Appliquer la pagination côté client si nécessaire
+    let result = data || [];
+    if (options?.page && options?.perPage) {
+      const startIndex = (options.page - 1) * options.perPage;
+      const endIndex = startIndex + options.perPage;
+      result = result.slice(startIndex, endIndex);
+    }
+
+    return result;
   } catch (err) {
     console.error('Erreur lors de la récupération des mots-clés sauvegardés:', err);
     return [];
