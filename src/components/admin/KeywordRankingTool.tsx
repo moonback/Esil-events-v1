@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info } from 'lucide-react';
+import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getKeywordPosition, saveKeywordRanking, getAllKeywordRankings, deleteKeywordRanking, KeywordRanking, SearchResult } from '../../services/keywordRankingService';
 import { isGoogleSearchConfigValid } from '../../config/googleSearchApi';
@@ -14,6 +14,7 @@ const KeywordRankingTool: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [scrollToForm, setScrollToForm] = useState(false);
 
   // Charger les classements existants au chargement du composant
   useEffect(() => {
@@ -43,6 +44,9 @@ const KeywordRankingTool: React.FC = () => {
       setError('Veuillez saisir l\'URL de votre site');
       return;
     }
+    
+    // Réinitialiser le flag de défilement
+    setScrollToForm(false);
 
     try {
       setError(null);
@@ -110,6 +114,24 @@ const KeywordRankingTool: React.FC = () => {
       console.error(err);
     }
   };
+  
+  // Fonction pour relancer une recherche à partir d'un classement existant
+  const handleRelaunchSearch = (ranking: KeywordRanking) => {
+    setKeyword(ranking.keyword);
+    setSiteUrl(ranking.url);
+    setNotes(ranking.notes || '');
+    setSearchResult(null);
+    setError(null);
+    setScrollToForm(true);
+    
+    // Faire défiler jusqu'au formulaire de recherche
+    setTimeout(() => {
+      const formElement = document.getElementById('search-form');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
 
   const getPositionChange = (current: number, previous: number | null | undefined) => {
     if (previous === null || previous === undefined) return null;
@@ -131,7 +153,7 @@ const KeywordRankingTool: React.FC = () => {
       </h2>
 
       {/* Formulaire de recherche */}
-      <div className="mb-8 bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg">
+      <div id="search-form" className={`mb-8 bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg ${scrollToForm ? 'ring-2 ring-violet-500 dark:ring-violet-400' : ''}`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label htmlFor="keyword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -328,12 +350,22 @@ const KeywordRankingTool: React.FC = () => {
                         {ranking.notes || '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleDelete(ranking.id!)}
-                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex justify-end space-x-3">
+                          <button
+                            onClick={() => handleRelaunchSearch(ranking)}
+                            title="Relancer cette recherche"
+                            className="text-violet-600 hover:text-violet-900 dark:text-violet-400 dark:hover:text-violet-300"
+                          >
+                            <RotateCw className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(ranking.id!)}
+                            title="Supprimer ce classement"
+                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
