@@ -78,7 +78,6 @@ Structure attendue :
 
 Points clés à respecter :
 - Ton professionnel mais chaleureux
-- Vocabulaire premium et élégant
 - Mise en valeur de l'expertise ESIL-events
 - Focus sur l'expérience client
 - Intégration naturelle des mots-clés SEO`;
@@ -120,10 +119,10 @@ INSTRUCTIONS SPÉCIFIQUES POUR L'IA :
       }
     ],
     generationConfig: {
-      temperature: 0.8, // Slightly increased for more creative variations
-      maxOutputTokens: 1000, // Increased to ensure full description generation
-      topP: 0.95, // Slightly increased for more diverse outputs
-      topK: 40 // Added for better response quality
+      temperature: 0.8, // Contrôle la créativité du modèle (0 = conservateur, 1 = très créatif)
+      maxOutputTokens: 1500, // Définit la longueur maximale de la réponse en nombre de tokens
+      topP: 0.95, // Contrôle la diversité des réponses (plus proche de 1 = plus de variété)
+      topK: 40 // Limite le nombre de tokens possibles pour chaque prédiction
     }
   };
 };
