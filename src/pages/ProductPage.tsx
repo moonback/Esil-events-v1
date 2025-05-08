@@ -507,11 +507,13 @@ return (
                     key={similarProduct.id}
                     className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full group"
                   >
-                    <div className="aspect-[4/3] relative overflow-hidden">
+                    <div className="aspect-[4/3] relative overflow-hidden bg-gray-50">
                       <img 
-                        src={similarProduct.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
+                        src={similarProduct.mainImageIndex !== undefined && similarProduct.images?.[similarProduct.mainImageIndex] 
+                          ? similarProduct.images[similarProduct.mainImageIndex] 
+                          : similarProduct.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
                         alt={similarProduct.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 p-2"
                         onError={(e) => {
                           e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
                         }}

@@ -197,15 +197,24 @@ const ProductListPage: React.FC = () => {
       
       <div className="mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <nav className="mb-6 mt-5 pt-20">
-          <ol className="flex flex-wrap text-sm">
+        <nav className="mb-6 mt-5 pt-20" aria-label="Breadcrumb">
+          <ol className="flex flex-wrap items-center text-sm">
             {getBreadcrumb().map((item, index, array) => (
               <li key={item.path} className="flex items-center">
-                {index > 0 && <span className="mx-2 text-gray-400">/</span>}
+                {index > 0 && (
+                  <svg className="mx-2 h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
                 {index === array.length - 1 ? (
-                  <span className="font-medium text-gray-800">{item.name}</span>
+                  <span className="font-medium text-gray-800" aria-current="page">
+                    {item.name}
+                  </span>
                 ) : (
-                  <Link to={item.path} className="text-blue-600 hover:underline">
+                  <Link 
+                    to={item.path} 
+                    className="text-violet-600 hover:text-violet-800 transition-colors duration-200"
+                  >
                     {item.name}
                   </Link>
                 )}
@@ -292,7 +301,7 @@ const ProductListPage: React.FC = () => {
             
             {/* Pagination Controls */}
             {filteredProducts.length > 0 && totalPages > 1 && (
-              <div className="mt-8 flex justify-center">
+              <div className="mt-0 flex justify-center">
                 <nav className="flex items-center space-x-2" aria-label="Pagination">
                   {/* Previous Page Button */}
                   <button
