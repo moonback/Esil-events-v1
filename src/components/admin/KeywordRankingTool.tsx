@@ -73,7 +73,7 @@ const KeywordRankingTool: React.FC = () => {
         position: searchResult.position,
         lastChecked: new Date().toISOString(),
         url: siteUrl,
-        notes: searchResult.isRealResult ? notes : `${notes ? notes + ' ' : ''}[Résultat simulé]`
+        notes: notes
       });
 
       // Réinitialiser les champs
@@ -210,24 +210,28 @@ const KeywordRankingTool: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`mt-4 p-4 ${searchResult.isRealResult ? 'bg-gray-100 dark:bg-gray-700' : 'bg-yellow-50 dark:bg-yellow-900/30'} rounded-md`}
+            className={`mt-4 p-4 ${searchResult.isRealResult ? 'bg-gray-100 dark:bg-gray-700' : 'bg-red-50 dark:bg-red-900/30'} rounded-md`}
           >
             <div className="flex items-start">
               {!searchResult.isRealResult && (
-                <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2 flex-shrink-0 mt-1" />
+                <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2 flex-shrink-0 mt-1" />
               )}
               <div>
-                <div className="flex items-center mb-1">
-                  <p className="text-gray-800 dark:text-gray-200">
-                    Position pour <span className="font-semibold">"{keyword}"</span> : 
-                    <span className="font-bold text-lg ml-2">{searchResult.position}</span>
-                  </p>
-                  {!searchResult.isRealResult && (
-                    <span className="ml-2 text-xs px-2 py-1 bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 rounded-full">
-                      Résultat simulé
-                    </span>
-                  )}
-                </div>
+                {searchResult.position > 0 ? (
+                  <div className="flex items-center mb-1">
+                    <p className="text-gray-800 dark:text-gray-200">
+                      Position pour <span className="font-semibold">"{keyword}"</span> : 
+                      <span className="font-bold text-lg ml-2">{searchResult.position}</span>
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center mb-1">
+                    <p className="text-gray-800 dark:text-gray-200">
+                      <span className="font-semibold">"{keyword}"</span> : 
+                      <span className="font-bold text-lg ml-2 text-red-600 dark:text-red-400">Non trouvé</span>
+                    </p>
+                  </div>
+                )}
                 
                 {searchResult.isRealResult && searchResult.totalResults !== undefined && (
                   <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -238,7 +242,7 @@ const KeywordRankingTool: React.FC = () => {
                 )}
                 
                 {searchResult.errorMessage && (
-                  <p className="text-sm text-yellow-600 dark:text-yellow-400 mt-1">
+                  <p className="text-sm text-red-600 dark:text-red-400 mt-1">
                     {searchResult.errorMessage}
                   </p>
                 )}

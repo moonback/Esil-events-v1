@@ -42,17 +42,15 @@ export const getKeywordPosition = async (keyword: string, siteUrl: string): Prom
     
     // Vérifier si la configuration de l'API est valide
     if (!isGoogleSearchConfigValid()) {
-      console.warn('Configuration de l\'API Google Search incomplète. Utilisation du mode simulation.');
+      console.warn('Configuration de l\'API Google Search incomplète. Impossible de vérifier la position du mot-clé.');
       console.log('Détails de validation:', {
         'API_KEY présente': !!GOOGLE_SEARCH_CONFIG.API_KEY,
         'SEARCH_ENGINE_ID présent': !!GOOGLE_SEARCH_CONFIG.SEARCH_ENGINE_ID
       });
-      // Fallback en mode simulation si l'API n'est pas configurée
-      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
       return {
-        position: Math.floor(Math.random() * 100) + 1,
+        position: 0,
         isRealResult: false,
-        errorMessage: 'Configuration de l\'API Google Search incomplète. Résultat simulé.'
+        errorMessage: 'Configuration de l\'API Google Search incomplète. Impossible de vérifier la position du mot-clé.'
       };
     }
 
@@ -149,15 +147,11 @@ export const getKeywordPosition = async (keyword: string, siteUrl: string): Prom
     return result;
   } catch (error) {
     console.error('Erreur lors de la recherche de position du mot-clé:', error);
-    // En cas d'erreur, on revient au mode simulation
-    console.warn('Fallback en mode simulation suite à une erreur API');
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
-    const simulatedPosition = Math.floor(Math.random() * 100) + 1;
-    console.log(`⚠️ Résultat SIMULÉ: position ${simulatedPosition} pour le mot-clé "${keyword}"`);
+    console.warn('Impossible de vérifier la position du mot-clé suite à une erreur API');
     return {
-      position: simulatedPosition,
+      position: 0,
       isRealResult: false,
-      errorMessage: error instanceof Error ? error.message : 'Erreur lors de la recherche. Résultat simulé.'
+      errorMessage: error instanceof Error ? `Erreur lors de la recherche: ${error.message}` : 'Erreur lors de la recherche. Impossible de vérifier la position du mot-clé.'
     };
   }
 };
@@ -179,6 +173,12 @@ export const searchKeywordPosition = async (keyword: string, siteUrl: string): P
  */
 export const saveKeywordRanking = async (keywordRanking: KeywordRanking): Promise<KeywordRanking> => {
   try {
+    // Préparer les notes avec indication si le mot-clé n'a pas été trouvé
+    let notesWithStatus = keywordRanking.notes || '';
+    if (keywordRanking.position === 0) {
+      notesWithStatus = `${notesWithStatus ? notesWithStatus + ' ' : ''}[Mot-clé non trouvé]`;
+    }
+
     // Vérifier si un enregistrement existe déjà pour ce mot-clé et cette URL
     const { data: existingRankings } = await supabase
       .from('keyword_rankings')
@@ -196,7 +196,7 @@ export const saveKeywordRanking = async (keywordRanking: KeywordRanking): Promis
           previousPosition: existingRanking.position,
           position: keywordRanking.position,
           lastChecked: new Date().toISOString().split('T')[0], // Format YYYY-MM-DD
-          notes: keywordRanking.notes || existingRanking.notes
+          notes: notesWithStatus
         })
         .eq('id', existingRanking.id)
         .select();
@@ -214,7 +214,7 @@ export const saveKeywordRanking = async (keywordRanking: KeywordRanking): Promis
             previousPosition: null,
             lastChecked: new Date().toISOString().split('T')[0], // Format YYYY-MM-DD
             url: keywordRanking.url,
-            notes: keywordRanking.notes || ''
+            notes: notesWithStatus
           }
         ])
         .select();
