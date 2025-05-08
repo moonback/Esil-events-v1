@@ -36,6 +36,9 @@ const ProductListPage: React.FC = () => {
     filteredProducts,
     isFilterOpen,
     toggleFilter,
+    // Display mode properties
+    displayMode,
+    toggleDisplayMode,
     // Pagination properties
     currentItems,
     currentPage,
@@ -261,6 +264,32 @@ const ProductListPage: React.FC = () => {
               </div>
             )}
             
+            {/* Display Mode Toggle */}
+            <div className="flex justify-end mb-4">
+              <div className="inline-flex rounded-md shadow-sm" role="group">
+                <button
+                  type="button"
+                  onClick={toggleDisplayMode}
+                  className={`px-4 py-2 text-sm font-medium rounded-l-lg border ${displayMode === 'grid' ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                  aria-label="Affichage en grille"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleDisplayMode}
+                  className={`px-4 py-2 text-sm font-medium rounded-r-lg border ${displayMode === 'list' ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                  aria-label="Affichage en liste"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
             {/* Pagination Controls */}
             {filteredProducts.length > 0 && totalPages > 1 && (
               <div className="mt-8 flex justify-center">
@@ -351,70 +380,140 @@ const ProductListPage: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {currentItems.map((product) => (
-                  <Link
-                    key={product.id}
-                    to={`/product/${product.slug}`}
-                    className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full transform hover:-translate-y-1"
-                  >
-                    <div className="relative">
-                      {/* Badge for availability status */}
-                      {product.isAvailable !== undefined && (
-                        <span className={`absolute top-2 right-2 z-10 px-2 py-1 text-xs font-medium rounded-full ${
-                          product.isAvailable 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {product.isAvailable ? 'Disponible' : 'Indisponible'}
-                        </span>
-                      )}
-                      
-                      {/* Product image with hover effect */}
-                      <div className="aspect-w-1 aspect-h-1 w-full h-52 overflow-hidden bg-gray-50 flex items-center justify-center p-4">
-                        <img
-                          src={product.images && product.images.length > 0 
-                            ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
-                              ? product.images[product.mainImageIndex] 
-                              : product.images[0])
-                            : DEFAULT_PRODUCT_IMAGE}
-                          alt={product.name}
-                          className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                        />
+              displayMode === 'grid' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {currentItems.map((product) => (
+                    <Link
+                      key={product.id}
+                      to={`/product/${product.slug}`}
+                      className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full transform hover:-translate-y-1"
+                    >
+                      <div className="relative">
+                        {/* Badge for availability status */}
+                        {product.isAvailable !== undefined && (
+                          <span className={`absolute top-2 right-2 z-10 px-2 py-1 text-xs font-medium rounded-full ${
+                            product.isAvailable 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {product.isAvailable ? 'Disponible' : 'Indisponible'}
+                          </span>
+                        )}
+                        
+                        {/* Product image with hover effect */}
+                        <div className="aspect-w-1 aspect-h-1 w-full h-52 overflow-hidden bg-gray-50 flex items-center justify-center p-4">
+                          <img
+                            src={product.images && product.images.length > 0 
+                              ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
+                                ? product.images[product.mainImageIndex] 
+                                : product.images[0])
+                              : DEFAULT_PRODUCT_IMAGE}
+                            alt={product.name}
+                            className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="p-6 flex-grow flex flex-col bg-white rounded-b-lg">
-                      <h3 className="text-base font-semibold text-gray-900 group-hover:text-violet-700 transition-colors line-clamp-2 mb-2">
-                        {product.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-3 font-medium">
-                        Réf: {product.reference}
-                      </p>
-                      <div className="mt-auto pt-4 border-t border-gray-100">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xl font-bold text-violet-600">
-                            {product.priceTTC.toFixed(2)}€
+                      
+                      <div className="p-6 flex-grow flex flex-col bg-white rounded-b-lg">
+                        <h3 className="text-base font-semibold text-gray-900 group-hover:text-violet-700 transition-colors line-clamp-2 mb-2">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-3 font-medium">
+                          Réf: {product.reference}
+                        </p>
+                        <div className="mt-auto pt-4 border-t border-gray-100">
+                          <div className="flex items-center justify-between">
+                            <p className="text-xl font-bold text-violet-600">
+                              {product.priceTTC.toFixed(2)}€
+                            </p>
+                            <span className="text-sm text-gray-500 font-medium">
+                              TTC / jour
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* View product button that appears on hover */}
+                      <div className="bg-gray-50 px-4 py-3 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span className="text-sm font-medium text-violet-600 flex items-center justify-center">
+                          Voir le produit
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          </svg>
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col space-y-4">
+                  {currentItems.map((product) => (
+                    <Link
+                      key={product.id}
+                      to={`/product/${product.slug}`}
+                      className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-row transform hover:-translate-y-1"
+                    >
+                      <div className="relative w-1/4 min-w-[150px]">
+                        {/* Badge for availability status */}
+                        {product.isAvailable !== undefined && (
+                          <span className={`absolute top-2 right-2 z-10 px-2 py-1 text-xs font-medium rounded-full ${
+                            product.isAvailable 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {product.isAvailable ? 'Disponible' : 'Indisponible'}
+                          </span>
+                        )}
+                        
+                        {/* Product image */}
+                        <div className="h-full overflow-hidden bg-gray-50 flex items-center justify-center p-4">
+                          <img
+                            src={product.images && product.images.length > 0 
+                              ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
+                                ? product.images[product.mainImageIndex] 
+                                : product.images[0])
+                              : DEFAULT_PRODUCT_IMAGE}
+                            alt={product.name}
+                            className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 group-hover:text-violet-700 transition-colors mb-2">
+                            {product.name}
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-3 font-medium">
+                            Réf: {product.reference}
                           </p>
-                          <span className="text-sm text-gray-500 font-medium">
-                            TTC / jour
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                            {product.description || 'Aucune description disponible'}
+                          </p>
+                        </div>
+                        
+                        <div className="flex items-center justify-between mt-4">
+                          <div>
+                            <p className="text-xl font-bold text-violet-600">
+                              {product.priceTTC.toFixed(2)}€
+                            </p>
+                            <span className="text-sm text-gray-500 font-medium">
+                              TTC / jour
+                            </span>
+                          </div>
+                          
+                          <span className="text-sm font-medium text-violet-600 flex items-center">
+                            Voir le produit
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
                           </span>
                         </div>
                       </div>
-                    </div>
-                    
-                    {/* View product button that appears on hover */}
-                    <div className="bg-gray-50 px-4 py-3 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="text-sm font-medium text-violet-600 flex items-center justify-center">
-                        Voir le produit
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+                    </Link>
+                  ))}
+                </div>
+              )
             )}
             
             {/* Pagination Controls */}

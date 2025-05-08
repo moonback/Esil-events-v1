@@ -17,6 +17,9 @@ interface UseProductFiltersResult {
   filteredProducts: Product[];
   isFilterOpen: boolean;
   toggleFilter: () => void;
+  // Display mode properties
+  displayMode: 'grid' | 'list';
+  toggleDisplayMode: () => void;
   // Pagination properties
   currentItems: Product[];
   currentPage: number;
@@ -33,9 +36,14 @@ export const useProductFilters = (products: Product[], category?: string, itemsP
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [availability, setAvailability] = useState<'all' | 'available' | 'unavailable'>('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [displayMode, setDisplayMode] = useState<'grid' | 'list'>('grid');
 
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
+  };
+
+  const toggleDisplayMode = () => {
+    setDisplayMode(prevMode => prevMode === 'grid' ? 'list' : 'grid');
   };
 
   const resetFilters = () => {
@@ -116,6 +124,9 @@ export const useProductFilters = (products: Product[], category?: string, itemsP
     filteredProducts,
     isFilterOpen,
     toggleFilter,
+    // Display mode properties
+    displayMode,
+    toggleDisplayMode,
     // Pagination properties
     currentItems,
     currentPage,
