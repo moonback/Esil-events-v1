@@ -463,13 +463,13 @@ const HomePage: React.FC = () => {
       </motion.section>
       {/* Photo Gallery Section */}
       <motion.section 
-        className="relative overflow-hidden py-12"
+        className="relative overflow-hidden py-2"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
         variants={fadeIn}
       >
-        <div className="container-custom">
+        <div className="">
           <div className="grid grid-cols-6 gap-0">
             <motion.div 
               className="overflow-hidden"
