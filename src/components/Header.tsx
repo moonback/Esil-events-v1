@@ -90,7 +90,7 @@ const Header: React.FC = () => {
                 <img 
                   src="images/logo.png" 
                   alt="ESIL Events Logo" 
-                  className="md:hidden h-12 w-12 mt-[35px] transition-all duration-300 transform group-hover:scale-105 hover:rotate-3 filter drop-shadow-lg"
+                  className="md:hidden h-12 w-12 mt-[55px] transition-all duration-300 transform group-hover:scale-105 hover:rotate-3 filter drop-shadow-lg"
                 />
               </Link>
             </div>
