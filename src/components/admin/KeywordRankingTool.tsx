@@ -1,8 +1,9 @@
 import React, { useState, useEffect, RefObject } from 'react';
-import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw, List, X, Database, Tag, Plus, ChevronDown } from 'lucide-react';
+import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw, List, X, Database, Tag, Plus, ChevronDown, BarChart, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getKeywordPosition, saveKeywordRanking, getAllKeywordRankings, deleteKeywordRanking, KeywordRanking, SearchResult } from '../../services/keywordRankingService';
+import { getKeywordPosition, saveKeywordRanking, getAllKeywordRankings, deleteKeywordRanking, KeywordRanking, SearchResult, getKeywordPositionHistory } from '../../services/keywordRankingService';
 import { getSavedKeywords, SavedKeyword, deleteSavedKeyword } from '../../services/savedKeywordsService';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface KeywordRankingToolProps {
   initialKeyword?: string;
@@ -23,6 +24,11 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
   const [keywordsPerPage] = useState(12);
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
   const [availableTopics, setAvailableTopics] = useState<string[]>([]);
+  
+  // États pour le graphique d'historique des positions
+  const [showPositionHistory, setShowPositionHistory] = useState(false);
+  const [selectedKeywordHistory, setSelectedKeywordHistory] = useState<KeywordRanking[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   
   // Mettre à jour le mot-clé lorsque initialKeyword change
   useEffect(() => {
@@ -324,6 +330,27 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
     } catch (err) {
       setError('Erreur lors de la suppression');
       console.error(err);
+    }
+  };
+  
+  // Fonction pour charger l'historique des positions d'un mot-clé
+  const loadKeywordHistory = async (keyword: string, url: string) => {
+    try {
+      setIsLoadingHistory(true);
+      setError(null);
+      setShowPositionHistory(true);
+      
+      const history = await getKeywordPositionHistory(keyword, url, 30);
+      setSelectedKeywordHistory(history);
+      
+      if (history.length === 0) {
+        setError(`Aucun historique trouvé pour le mot-clé "${keyword}".`);
+      }
+    } catch (err) {
+      setError('Erreur lors du chargement de l\'historique des positions');
+      console.error(err);
+    } finally {
+      setIsLoadingHistory(false);
     }
   };
   
@@ -950,6 +977,94 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
       </div>
 
       {/* Tableau des classements */}
+      {/* Graphique d'historique des positions */}
+      <AnimatePresence>
+        {showPositionHistory && selectedKeywordHistory.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mt-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden"
+          >
+            <div className="p-4 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <div>
+                <h3 className="font-medium text-gray-900 dark:text-white flex items-center">
+                  <TrendingUp className="w-4 h-4 mr-2 text-violet-600 dark:text-violet-400" />
+                  Historique des positions: <span className="ml-1 font-bold text-violet-700 dark:text-violet-400">{selectedKeywordHistory[0]?.keyword}</span>
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {selectedKeywordHistory.length} enregistrements trouvés
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowPositionHistory(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="p-4">
+              {isLoadingHistory ? (
+                <div className="flex justify-center items-center h-64">
+                  <RefreshCw className="w-8 h-8 text-violet-600 dark:text-violet-400 animate-spin" />
+                </div>
+              ) : (
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={selectedKeywordHistory.map(item => ({
+                        date: new Date(item.lastChecked).toLocaleDateString('fr-FR'),
+                        position: item.position === 0 ? null : item.position,
+                        // Inverser les positions pour une meilleure visualisation (plus haut = meilleur)
+                        positionInverse: item.position === 0 ? null : (100 - item.position)
+                      }))}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
+                      <XAxis 
+                        dataKey="date" 
+                        stroke="#6b7280"
+                        tick={{ fill: '#6b7280' }}
+                      />
+                      <YAxis 
+                        stroke="#6b7280"
+                        tick={{ fill: '#6b7280' }}
+                        domain={[0, 'dataMax + 5']}
+                        reversed
+                        label={{ value: 'Position', angle: -90, position: 'insideLeft', fill: '#6b7280' }}
+                      />
+                      <Tooltip 
+                        formatter={(value: any) => [value === null ? 'Non classé' : value, 'Position']}
+                        labelFormatter={(label) => `Date: ${label}`}
+                        contentStyle={{ backgroundColor: '#f9fafb', borderColor: '#e5e7eb' }}
+                      />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="position" 
+                        name="Position" 
+                        stroke="#8b5cf6" 
+                        strokeWidth={2}
+                        activeDot={{ r: 8 }}
+                        connectNulls
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                  <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-md">
+                    <div className="flex items-center">
+                      <Info className="w-4 h-4 mr-2 text-violet-600 dark:text-violet-400" />
+                      <span>Les positions non classées (au-delà de la 100ème position) n'apparaissent pas sur le graphique.</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div>
         <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Historique des positions</h3>
         
@@ -1009,6 +1124,13 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
                             className="text-violet-600 hover:text-violet-900 dark:text-violet-400 dark:hover:text-violet-300"
                           >
                             <RotateCw className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => loadKeywordHistory(ranking.keyword, ranking.url)}
+                            className="text-violet-600 hover:text-violet-900 dark:text-violet-400 dark:hover:text-violet-300"
+                            title="Voir l'historique des positions"
+                          >
+                            <BarChart className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(ranking.id!)}

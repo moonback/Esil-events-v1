@@ -317,3 +317,36 @@ export const deleteKeywordRanking = async (id: string): Promise<boolean> => {
     throw error;
   }
 };
+
+/**
+ * Récupère l'historique des positions d'un mot-clé spécifique
+ * @param keyword Le mot-clé dont on veut récupérer l'historique
+ * @param url L'URL du site (optionnel)
+ * @param limit Nombre maximum d'enregistrements à récupérer (défaut: 30)
+ * @returns La liste des classements historiques pour ce mot-clé
+ */
+export const getKeywordPositionHistory = async (keyword: string, url?: string, limit: number = 30): Promise<KeywordRanking[]> => {
+  try {
+    let query = supabase
+      .from('keyword_rankings')
+      .select('*')
+      .eq('keyword', keyword)
+      .order('lastChecked', { ascending: true });
+    
+    // Filtrer par URL si spécifiée
+    if (url) {
+      query = query.eq('url', url);
+    }
+    
+    // Limiter le nombre de résultats
+    query = query.limit(limit);
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data as KeywordRanking[];
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'historique des positions:', error);
+    throw error;
+  }
+};
