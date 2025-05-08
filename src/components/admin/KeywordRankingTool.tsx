@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw } from 'lucide-react';
+import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw, List, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getKeywordPosition, saveKeywordRanking, getAllKeywordRankings, deleteKeywordRanking, KeywordRanking, SearchResult } from '../../services/keywordRankingService';
 import { isGoogleSearchConfigValid } from '../../config/googleSearchApi';
 
 const KeywordRankingTool: React.FC = () => {
   const [keyword, setKeyword] = useState('');
+  const [multipleKeywords, setMultipleKeywords] = useState('');
   const [siteUrl, setSiteUrl] = useState('https://esil-events.fr/');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
+  const [batchResults, setBatchResults] = useState<{keyword: string, result: SearchResult}[]>([]);
+  const [batchProgress, setBatchProgress] = useState(0);
+  const [isBatchMode, setIsBatchMode] = useState(false);
   const [rankings, setRankings] = useState<KeywordRanking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +51,8 @@ const KeywordRankingTool: React.FC = () => {
     
     // Réinitialiser le flag de défilement
     setScrollToForm(false);
+    setBatchResults([]);
+    setIsBatchMode(false);
 
     try {
       setError(null);
@@ -61,6 +67,69 @@ const KeywordRankingTool: React.FC = () => {
       console.error(err);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  // Fonction pour traiter plusieurs mots-clés
+  const handleBatchSearch = async () => {
+    if (!multipleKeywords.trim()) {
+      setError('Veuillez saisir au moins un mot-clé');
+      return;
+    }
+
+    if (!siteUrl.trim()) {
+      setError('Veuillez saisir l\'URL de votre site');
+      return;
+    }
+
+    // Réinitialiser les états
+    setScrollToForm(false);
+    setSearchResult(null);
+    setBatchResults([]);
+    setIsBatchMode(true);
+    setError(null);
+
+    try {
+      setIsSearching(true);
+      
+      // Diviser les mots-clés (par virgule ou saut de ligne)
+      const keywords = multipleKeywords
+        .split(/[,\n]/) // Diviser par virgule ou saut de ligne
+        .map(k => k.trim()) // Supprimer les espaces
+        .filter(k => k.length > 0); // Supprimer les entrées vides
+      
+      const results = [];
+      setBatchProgress(0);
+      
+      // Traiter chaque mot-clé séquentiellement
+      for (let i = 0; i < keywords.length; i++) {
+        const currentKeyword = keywords[i];
+        try {
+          const result = await getKeywordPosition(currentKeyword, siteUrl);
+          results.push({ keyword: currentKeyword, result });
+        } catch (err) {
+          console.error(`Erreur pour le mot-clé "${currentKeyword}":`, err);
+          results.push({ 
+            keyword: currentKeyword, 
+            result: { 
+              position: -1, 
+              isRealResult: false, 
+              errorMessage: 'Erreur lors de la recherche' 
+            } 
+          });
+        }
+        
+        // Mettre à jour la progression
+        setBatchProgress(Math.round(((i + 1) / keywords.length) * 100));
+      }
+      
+      setBatchResults(results);
+    } catch (err) {
+      setError('Erreur lors du traitement des mots-clés');
+      console.error(err);
+    } finally {
+      setIsSearching(false);
+      setBatchProgress(100);
     }
   };
 
@@ -95,6 +164,54 @@ const KeywordRankingTool: React.FC = () => {
     } catch (err) {
       setError('Erreur lors de la sauvegarde');
       console.error(err);
+    }
+  };
+
+  // Fonction pour sauvegarder tous les résultats du lot
+  const handleSaveBatch = async () => {
+    if (batchResults.length === 0) {
+      setError('Aucun résultat à sauvegarder');
+      return;
+    }
+
+    try {
+      setError(null);
+      setIsLoading(true);
+      
+      let savedCount = 0;
+      
+      // Sauvegarder chaque résultat
+      for (const item of batchResults) {
+        if (item.result.position > 0) { // Ne sauvegarder que les résultats valides
+          await saveKeywordRanking({
+            keyword: item.keyword,
+            position: item.result.position,
+            lastChecked: new Date().toISOString(),
+            url: siteUrl,
+            notes: notes
+          });
+          savedCount++;
+        }
+      }
+
+      // Réinitialiser les champs
+      setMultipleKeywords('');
+      setSiteUrl('');
+      setNotes('');
+      setBatchResults([]);
+      setIsBatchMode(false);
+
+      // Afficher un message de succès
+      setSuccessMessage(`${savedCount} position(s) sauvegardée(s) avec succès`);
+      setTimeout(() => setSuccessMessage(null), 3000);
+
+      // Recharger les classements
+      await loadRankings();
+    } catch (err) {
+      setError('Erreur lors de la sauvegarde des positions');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -154,8 +271,42 @@ const KeywordRankingTool: React.FC = () => {
 
       {/* Formulaire de recherche */}
       <div id="search-form" className={`mb-8 bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg ${scrollToForm ? 'ring-2 ring-violet-500 dark:ring-violet-400' : ''}`}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
+        {/* Onglets pour choisir entre recherche simple et multiple */}
+        <div className="flex mb-4 border-b border-gray-200 dark:border-gray-700">
+          <button
+            onClick={() => setIsBatchMode(false)}
+            className={`py-2 px-4 font-medium text-sm ${!isBatchMode ? 'text-violet-600 border-b-2 border-violet-600 dark:text-violet-400 dark:border-violet-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+          >
+            <Search className="w-4 h-4 inline-block mr-1" />
+            Recherche simple
+          </button>
+          <button
+            onClick={() => setIsBatchMode(true)}
+            className={`py-2 px-4 font-medium text-sm ${isBatchMode ? 'text-violet-600 border-b-2 border-violet-600 dark:text-violet-400 dark:border-violet-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+          >
+            <List className="w-4 h-4 inline-block mr-1" />
+            Recherche multiple
+          </button>
+        </div>
+
+        {/* URL du site (commun aux deux modes) */}
+        <div className="mb-4">
+          <label htmlFor="siteUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            URL du site
+          </label>
+          <input
+            type="text"
+            id="siteUrl"
+            value={siteUrl}
+            onChange={(e) => setSiteUrl(e.target.value)}
+            placeholder="https://votre-site.com"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white"
+          />
+        </div>
+
+        {/* Champ de recherche simple ou multiple selon le mode */}
+        {!isBatchMode ? (
+          <div className="mb-4">
             <label htmlFor="keyword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Mot-clé
             </label>
@@ -168,20 +319,21 @@ const KeywordRankingTool: React.FC = () => {
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white"
             />
           </div>
-          <div>
-            <label htmlFor="siteUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              URL du site
+        ) : (
+          <div className="mb-4">
+            <label htmlFor="multipleKeywords" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Mots-clés (un par ligne ou séparés par des virgules)
             </label>
-            <input
-              type="text"
-              id="siteUrl"
-              value={siteUrl}
-              onChange={(e) => setSiteUrl(e.target.value)}
-              placeholder="https://votre-site.com"
+            <textarea
+              id="multipleKeywords"
+              value={multipleKeywords}
+              onChange={(e) => setMultipleKeywords(e.target.value)}
+              placeholder="Entrez vos mots-clés ici\nExemple: location jeux, animation entreprise, etc."
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:text-white"
+              rows={4}
             />
           </div>
-        </div>
+        )}
 
         <div className="mb-4">
           <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -198,23 +350,43 @@ const KeywordRankingTool: React.FC = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={handleSearch}
-            disabled={isSearching}
-            className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-md transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSearching ? (
-              <>
-                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                Recherche en cours...
-              </>
-            ) : (
-              <>
-                <Search className="w-4 h-4 mr-2" />
-                Rechercher la position
-              </>
-            )}
-          </button>
+          {!isBatchMode ? (
+            <button
+              onClick={handleSearch}
+              disabled={isSearching}
+              className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-md transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSearching ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Recherche en cours...
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4 mr-2" />
+                  Rechercher la position
+                </>
+              )}
+            </button>
+          ) : (
+            <button
+              onClick={handleBatchSearch}
+              disabled={isSearching}
+              className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-md transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSearching ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Recherche en cours... {batchProgress}%
+                </>
+              ) : (
+                <>
+                  <List className="w-4 h-4 mr-2" />
+                  Rechercher les positions
+                </>
+              )}
+            </button>
+          )}
 
           {searchResult !== null && (
             <button
@@ -225,10 +397,20 @@ const KeywordRankingTool: React.FC = () => {
               Sauvegarder la position
             </button>
           )}
+
+          {batchResults.length > 0 && (
+            <button
+              onClick={handleSaveBatch}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center justify-center"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Sauvegarder toutes les positions
+            </button>
+          )}
         </div>
 
-        {/* Affichage du résultat de recherche */}
-        {searchResult !== null && (
+        {/* Affichage du résultat de recherche (mode simple) */}
+        {!isBatchMode && searchResult !== null && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -269,6 +451,58 @@ const KeywordRankingTool: React.FC = () => {
                   </p>
                 )}
               </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Affichage des résultats en lot (mode multiple) */}
+        {isBatchMode && batchResults.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden"
+          >
+            <div className="p-3 bg-gray-200 dark:bg-gray-600 border-b border-gray-300 dark:border-gray-500">
+              <h4 className="font-medium text-gray-800 dark:text-white flex items-center">
+                <List className="w-4 h-4 mr-2" />
+                Résultats pour {batchResults.length} mot(s)-clé(s)
+              </h4>
+            </div>
+            <div className="max-h-96 overflow-y-auto">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mot-clé</th>
+                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Position</th>
+                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Statut</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  {batchResults.map((item, index) => (
+                    <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{item.keyword}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                        {item.result.position > 0 && item.result.position <= 100 ? (
+                          <span className="font-semibold">{item.result.position}</span>
+                        ) : (
+                          <span className="text-red-500 dark:text-red-400">Non trouvé</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                        {item.result.isRealResult ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                            Résultat réel
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+                            Simulation
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </motion.div>
         )}
