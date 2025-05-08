@@ -217,7 +217,7 @@ const KeywordRankingTool: React.FC = () => {
                 <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2 flex-shrink-0 mt-1" />
               )}
               <div>
-                {searchResult.position > 0 ? (
+                {searchResult.position > 0 && searchResult.position <= 100 ? (
                   <div className="flex items-center mb-1">
                     <p className="text-gray-800 dark:text-gray-200">
                       Position pour <span className="font-semibold">"{keyword}"</span> : 
@@ -228,7 +228,7 @@ const KeywordRankingTool: React.FC = () => {
                   <div className="flex items-center mb-1">
                     <p className="text-gray-800 dark:text-gray-200">
                       <span className="font-semibold">"{keyword}"</span> : 
-                      <span className="font-bold text-lg ml-2 text-red-600 dark:text-red-400">Non trouvé</span>
+                      <span className="font-bold text-lg ml-2 text-red-600 dark:text-red-400">{searchResult.position > 100 ? "Mot clé non trouvé" : "Non trouvé"}</span>
                     </p>
                   </div>
                 )}
@@ -310,7 +310,7 @@ const KeywordRankingTool: React.FC = () => {
                           {ranking.url.replace(/^https?:\/\//, '').replace(/^www\./, '')}
                         </a>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{ranking.position}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{ranking.position > 100 ? '0' : ranking.position}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex items-center">
                           {renderPositionChange(positionChange)}
