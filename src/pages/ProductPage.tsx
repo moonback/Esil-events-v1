@@ -16,6 +16,7 @@ const ProductPage: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
+  const [sortMethod, setSortMethod] = useState<'relevance' | 'price' | 'newest'>('relevance');
   const [showToast, setShowToast] = useState(false);
   const [zoomOpen, setZoomOpen] = useState(false);
   const { addToCart } = useCart();
@@ -54,24 +55,34 @@ const ProductPage: React.FC = () => {
     fetchProduct();
   }, [id]);
   
-  // Effet séparé pour charger les produits similaires
-  useEffect(() => {
-    const fetchSimilarProducts = async () => {
-      if (!product) return;
-      
-      setLoadingSimilar(true);
-      try {
-        const similar = await getSimilarProducts(product, 8);
-        setSimilarProducts(similar);
-        console.log('Similar products loaded:', similar.length);
-      } catch (error) {
-        console.error('Error fetching similar products:', error);
-      } finally {
-        setLoadingSimilar(false);
-      }
-    };
+  // Fonction pour charger les produits similaires avec différentes méthodes de tri
+  const fetchSimilarProducts = async (sortByMethod: 'relevance' | 'price' | 'newest' = sortMethod) => {
+    if (!product) return;
+    
+    setSortMethod(sortByMethod);
+    setLoadingSimilar(true);
+    try {
+      // Utilisation des options améliorées pour les produits similaires
+      const similar = await getSimilarProducts(product, 8, {
+        prioritizeCategory: true,
+        excludeCurrentProduct: true,
+        includeAttributes: ['colors', 'technicalSpecs', 'price'],
+        sortBy: sortByMethod
+      });
+      setSimilarProducts(similar);
+      console.log(`Similar products loaded (sorted by ${sortByMethod}):`, similar.length);
+    } catch (error) {
+      console.error('Error fetching similar products:', error);
+    } finally {
+      setLoadingSimilar(false);
+    }
+  };
 
-    fetchSimilarProducts();
+  // Effet pour charger les produits similaires quand le produit change
+  useEffect(() => {
+    if (product) {
+      fetchSimilarProducts();
+    }
   }, [product]);
 
   const handlePrevImage = () => {
@@ -500,53 +511,109 @@ return (
                 )}
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                {similarProducts.map((similarProduct) => (
-                  <Link 
-                    to={`/product/${similarProduct.id}`} 
-                    key={similarProduct.id}
-                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full group"
-                  >
-                    <div className="aspect-[4/3] relative overflow-hidden bg-gray-50">
-                      <img 
-                        src={similarProduct.mainImageIndex !== undefined && similarProduct.images?.[similarProduct.mainImageIndex] 
-                          ? similarProduct.images[similarProduct.mainImageIndex] 
-                          : similarProduct.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
-                        alt={similarProduct.name}
-                        className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 p-2"
-                        onError={(e) => {
-                          e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
-                        }}
-                      />
-                      <div className="absolute top-0 left-0 w-full p-3 flex justify-between items-start">
-                        {similarProduct.category && (
-                          <span className="bg-violet-600 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md feedback-message-enter">
-                            {typeof similarProduct.category === 'string' 
-                              ? similarProduct.category.charAt(0).toUpperCase() + similarProduct.category.slice(1)
-                              : similarProduct.category[0]}
-                          </span>
-                        )}
-                        {!similarProduct.isAvailable && (
-                          <span className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
-                            Indisponible
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="p-5 flex flex-col flex-grow">
-                      <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-violet-600 transition-colors">
-                        {similarProduct.name}
-                      </h3>
-                      
-                      {similarProduct.subCategory && (
-                        <div className="mt-1 mb-2 text-xs text-gray-500 flex items-center">
-                          <Tag className="w-3 h-3 mr-1 text-violet-400" />
-                          {typeof similarProduct.subCategory === 'string' 
-                            ? similarProduct.subCategory.charAt(0).toUpperCase() + similarProduct.subCategory.slice(1)
-                            : similarProduct.subCategory[0]}
-                          {similarProduct.subSubCategory && ` › ${similarProduct.subSubCategory}`}
+              {/* Filtres pour les produits similaires */}
+              <div className="mb-6 flex flex-wrap gap-2">
+                <button 
+                  onClick={() => fetchSimilarProducts('relevance')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${sortMethod === 'relevance' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  Pertinence
+                </button>
+                <button 
+                  onClick={() => fetchSimilarProducts('price')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${sortMethod === 'price' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  Prix croissant
+                </button>
+                <button 
+                  onClick={() => fetchSimilarProducts('newest')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${sortMethod === 'newest' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  Nouveautés
+                </button>
+              </div>
+              
+              {/* Carrousel de produits similaires avec animations */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 transition-all duration-500">
+                {similarProducts.map((similarProduct, index) => {
+                  // Déterminer les points communs avec le produit principal
+                  const sameCategory = similarProduct.category === product.category;
+                  const sameSubCategory = similarProduct.subCategory === product.subCategory;
+                  const sameSubSubCategory = similarProduct.subSubCategory === product.subSubCategory;
+                  
+                  // Vérifier si les produits ont des couleurs en commun
+                  const commonColors = product.colors && similarProduct.colors ? 
+                    product.colors.filter(color => similarProduct.colors?.includes(color)) : [];
+                  
+                  // Calculer la différence de prix en pourcentage
+                  const priceDiff = product.priceTTC > 0 ? 
+                    Math.round((similarProduct.priceTTC - product.priceTTC) / product.priceTTC * 100) : 0;
+                  
+                  return (
+                    <Link 
+                      to={`/product/${similarProduct.id}`} 
+                      key={similarProduct.id}
+                      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full group"
+                    >
+                      <div className="aspect-[4/3] relative overflow-hidden bg-gray-50">
+                        <img 
+                          src={similarProduct.mainImageIndex !== undefined && similarProduct.images?.[similarProduct.mainImageIndex] 
+                            ? similarProduct.images[similarProduct.mainImageIndex] 
+                            : similarProduct.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
+                          alt={similarProduct.name}
+                          className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 p-2"
+                          onError={(e) => {
+                            e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
+                          }}
+                        />
+                        <div className="absolute top-0 left-0 w-full p-3 flex justify-between items-start">
+                          {similarProduct.category && (
+                            <span className={`text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md feedback-message-enter ${sameCategory ? 'bg-violet-600' : 'bg-gray-600'}`}>
+                              {typeof similarProduct.category === 'string' 
+                                ? similarProduct.category.charAt(0).toUpperCase() + similarProduct.category.slice(1)
+                                : similarProduct.category[0]}
+                            </span>
+                          )}
+                          {!similarProduct.isAvailable && (
+                            <span className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
+                              Indisponible
+                            </span>
+                          )}
+                          {similarProduct.stock > 0 && similarProduct.stock <= 5 && (
+                            <span className="bg-amber-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
+                              Stock limité
+                            </span>
+                          )}
                         </div>
-                      )}
+                      </div>
+                      <div className="p-5 flex flex-col flex-grow">
+                        <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-violet-600 transition-colors">
+                          {similarProduct.name}
+                        </h3>
+                        
+                        {/* Badges pour les caractéristiques communes */}
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {/* {sameSubCategory && (
+                            <span className="bg-violet-100 text-violet-800 text-xs px-2 py-0.5 rounded-md">
+                              Même sous-catégorie
+                            </span>
+                          )} */}
+                          {commonColors.length > 0 && (
+                            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-md">
+                              {commonColors.length} couleur{commonColors.length > 1 ? 's' : ''} commune{commonColors.length > 1 ? 's' : ''}
+                            </span>
+                          )}
+                        </div>
+                        
+                        {similarProduct.subCategory && (
+                          <div className="mt-1 mb-2 text-xs text-gray-500 flex items-center">
+                            <Tag className="w-3 h-3 mr-1 text-violet-400" />
+                            {typeof similarProduct.subCategory === 'string' 
+                              ? similarProduct.subCategory.charAt(0).toUpperCase() + similarProduct.subCategory.slice(1)
+                              : similarProduct.subCategory[0]}
+                            {similarProduct.subSubCategory && ` › ${similarProduct.subSubCategory}`}
+                          </div>
+                        )}
                       
                       <div className="mt-auto pt-3 border-t border-gray-100">
                         <div className="flex justify-between items-center">
@@ -571,7 +638,8 @@ return (
                       </div>
                     </div>
                   </Link>
-                ))}
+                  );
+                })}
               </div>
               
               {loadingSimilar && (

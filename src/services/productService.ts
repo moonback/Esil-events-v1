@@ -407,7 +407,12 @@ export const getProductBySlug = async (slug: string): Promise<Product | null> =>
 };
 
 // Fetch similar products based on multiple criteria with relevance scoring
-export const getSimilarProducts = async (product: Product, limit: number = 4): Promise<Product[]> => {
+export const getSimilarProducts = async (product: Product, limit: number = 4, options: {
+  prioritizeCategory?: boolean; // Donner plus d'importance à la catégorie
+  excludeCurrentProduct?: boolean; // Exclure le produit actuel
+  includeAttributes?: string[]; // Attributs spécifiques à prendre en compte (colors, technicalSpecs, price)
+  sortBy?: 'relevance' | 'price' | 'newest'; // Méthode de tri
+} = {}): Promise<Product[]> => {
   try {
     console.log('Fetching similar products for:', product.id);
     
@@ -432,14 +437,26 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
     
     // If no explicit related products or they couldn't be fetched, use enhanced similarity algorithm
     
+    // Set default options
+    const {
+      prioritizeCategory = true,
+      excludeCurrentProduct = true,
+      includeAttributes = ['colors', 'technicalSpecs', 'price'],
+      sortBy = 'relevance'
+    } = options;
+    
     // Fetch a larger pool of potential similar products for better recommendations
     // First try to get products from the same subcategory and subSubCategory if available
     let query = supabase
       .from('products')
       .select('*')
       .eq('category', product.category)
-      .neq('id', product.id) // Exclude the current product
       .eq('is_available', true); // Only include available products
+      
+    // Exclude current product if option is enabled
+    if (excludeCurrentProduct) {
+      query = query.neq('id', product.id);
+    }
     
     // Add subcategory filter if available
     if (product.subCategory) {
@@ -528,33 +545,36 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
       let score = 0;
       
       // Base score for being in the same category
-      score += 10;
+      const categoryScore = prioritizeCategory ? 15 : 10;
+      score += categoryScore;
       
       // Additional score for same subcategory
       if (similarProduct.subCategory === product.subCategory) {
-        score += 25; // Increased from 20
+        score += prioritizeCategory ? 30 : 25; // Increased weight if prioritizing category
       }
       
       // Additional score for same sub-subcategory
       if (similarProduct.subSubCategory && similarProduct.subSubCategory === product.subSubCategory) {
-        score += 35; // Increased from 30
+        score += prioritizeCategory ? 40 : 35; // Increased weight if prioritizing category
       }
       
       // Price similarity (closer prices get higher scores) - Enhanced algorithm
-      const priceDifference = Math.abs(similarProduct.priceTTC - product.priceTTC);
-      const priceRatio = priceDifference / product.priceTTC;
-      if (priceRatio < 0.05) { // Within 5% price range
-        score += 20; // New tier for very close prices
-      } else if (priceRatio < 0.1) { // Within 10% price range
-        score += 15;
-      } else if (priceRatio < 0.3) { // Within 30% price range
-        score += 10;
-      } else if (priceRatio < 0.5) { // Within 50% price range
-        score += 5;
+      if (includeAttributes.includes('price')) {
+        const priceDifference = Math.abs(similarProduct.priceTTC - product.priceTTC);
+        const priceRatio = priceDifference / product.priceTTC;
+        if (priceRatio < 0.05) { // Within 5% price range
+          score += 25; // Increased from 20 for very close prices
+        } else if (priceRatio < 0.1) { // Within 10% price range
+          score += 20; // Increased from 15
+        } else if (priceRatio < 0.3) { // Within 30% price range
+          score += 12; // Increased from 10
+        } else if (priceRatio < 0.5) { // Within 50% price range
+          score += 6; // Increased from 5
+        }
       }
       
       // Similar technical specs (if available) - Enhanced algorithm
-      if (product.technicalSpecs && similarProduct.technicalSpecs) {
+      if (includeAttributes.includes('technicalSpecs') && product.technicalSpecs && similarProduct.technicalSpecs) {
         const productSpecsKeys = Object.keys(product.technicalSpecs);
         const similarSpecsKeys = Object.keys(similarProduct.technicalSpecs);
         
@@ -563,7 +583,7 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
         if (matchingKeys.length > 0) {
           // Calculate percentage of matching specs for more accurate scoring
           const matchPercentage = matchingKeys.length / productSpecsKeys.length;
-          score += 5 + Math.round(matchPercentage * 20); // Base + up to 20 points based on match percentage
+          score += 8 + Math.round(matchPercentage * 25); // Increased from 5 + 20 for better spec matching
           
           // Bonus for matching values, not just keys
           let valueMatchCount = 0;
@@ -574,42 +594,75 @@ export const getSimilarProducts = async (product: Product, limit: number = 4): P
           });
           
           if (valueMatchCount > 0) {
-            score += valueMatchCount * 3; // 3 points per exact value match
+            score += valueMatchCount * 4; // Increased from 3 points per exact value match
           }
         }
       }
       
       // Similar colors (if available) - Enhanced algorithm
-      if (product.colors && product.colors.length > 0 && 
+      if (includeAttributes.includes('colors') && product.colors && product.colors.length > 0 && 
           similarProduct.colors && similarProduct.colors.length > 0) {
         const matchingColors = product.colors.filter(color => 
           similarProduct.colors?.includes(color));
         if (matchingColors.length > 0) {
           // Calculate percentage of matching colors
           const colorMatchPercentage = matchingColors.length / product.colors.length;
-          score += 5 + Math.round(colorMatchPercentage * 15); // Base + up to 15 points based on match percentage
+          score += 8 + Math.round(colorMatchPercentage * 20); // Increased from 5 + 15 for better color matching
         }
       }
       
       // Stock availability bonus
       if (similarProduct.stock > 5) {
-        score += 5; // Bonus for well-stocked items
+        score += 8; // Increased from 5 for well-stocked items
+      } else if (similarProduct.stock > 0) {
+        score += 4; // New tier for items with limited stock
       }
       
       // Recency bonus - newer products get a slight boost
       const productAge = new Date().getTime() - new Date(similarProduct.createdAt).getTime();
       const isRecentProduct = productAge < (90 * 24 * 60 * 60 * 1000); // Less than 90 days old
       if (isRecentProduct) {
-        score += 5; // Bonus for newer products
+        score += 8; // Increased from 5 for newer products
       }
+      
+      // Add a small random factor to break ties (between 0-2 points)
+      score += Math.random() * 2;
       
       return { ...similarProduct, relevanceScore: score };
     });
     
-    // Sort by relevance score (highest first) and limit to requested number
-    const sortedProducts = scoredProducts
-      .sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
-      .slice(0, limit);
+    // Sort products based on the selected sort method
+    let sortedProducts;
+    
+    switch (sortBy) {
+      case 'price':
+        sortedProducts = scoredProducts
+          .sort((a, b) => a.priceTTC - b.priceTTC)
+          .slice(0, limit);
+        break;
+      case 'newest':
+        sortedProducts = scoredProducts
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, limit);
+        break;
+      case 'relevance':
+      default:
+        sortedProducts = scoredProducts
+          .sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
+          .slice(0, limit);
+        break;
+    }
+    
+    // Add a debug log to show the relevance scores
+    if (sortBy === 'relevance') {
+      console.log('Relevance scores:', sortedProducts.map(p => ({ 
+        id: p.id, 
+        name: p.name, 
+        score: p.relevanceScore,
+        category: p.category,
+        subCategory: p.subCategory
+      })));
+    }
     
     console.log('Similar products fetched and sorted by relevance:', sortedProducts.length);
     return sortedProducts;
