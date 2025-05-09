@@ -32,19 +32,33 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Update localStorage whenever cart items change
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+    // Nous ne déclenchons plus l'événement ici pour éviter les doubles notifications
+    // car nous le déclenchons déjà dans la fonction addToCart
   }, [items]);
 
   const addToCart = (newItem: CartItem) => {
+    // Mettre à jour l'état des items du panier
     setItems(currentItems => {
+      let newItems;
       const existingItem = currentItems.find(item => item.id === newItem.id);
       if (existingItem) {
-        return currentItems.map(item =>
+        newItems = currentItems.map(item =>
           item.id === newItem.id
             ? { ...item, quantity: item.quantity + newItem.quantity }
             : item
         );
+      } else {
+        newItems = [...currentItems, newItem];
       }
-      return [...currentItems, newItem];
+      
+      // Mettre à jour le localStorage immédiatement
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newItems));
+      
+      // Déclencher un événement personnalisé pour notifier les autres composants
+      const cartUpdateEvent = new CustomEvent('cart-updated', { detail: newItems });
+      window.dispatchEvent(cartUpdateEvent);
+      
+      return newItems;
     });
   };
 

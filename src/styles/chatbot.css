@@ -1,0 +1,130 @@
+/* Styles pour le widget de chatbot */
+
+/* Animation de pulsation subtile pour le bouton du chatbot */
+@keyframes pulse-subtle {
+  0% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s infinite;
+}
+
+/* Animation pour l'apparition du chatbot */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Animation pour le bouton d'envoi */
+@keyframes pulse-once {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-pulse-once {
+  animation: pulse-once 0.3s ease-in-out;
+}
+
+/* Styles pour le contenu Markdown */
+.markdown-content {
+  line-height: 1.5;
+}
+
+.markdown-content p {
+  margin-bottom: 0.75rem;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-left: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.markdown-content a {
+  color: #4f46e5;
+  text-decoration: underline;
+}
+
+.markdown-content code {
+  font-family: monospace;
+  background-color: #f3f4f6;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.markdown-content pre {
+  background-color: #f3f4f6;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+/* Styles pour les suggestions de questions */
+.suggestion-button {
+  transition: all 0.2s ease;
+}
+
+.suggestion-button:hover {
+  transform: translateY(-2px);
+}
+
+/* Styles pour les suggestions de produits */
+.product-suggestion-item {
+  transition: all 0.2s ease;
+}
+
+.product-suggestion-item:hover {
+  background-color: rgba(99, 102, 241, 0.1);
+}
+
+.product-suggestion-image {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.product-suggestion-dropdown {
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

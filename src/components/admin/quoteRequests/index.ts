@@ -8,3 +8,4 @@ export * from './FilterSearchBar';
 export * from './FeedbackMessage';
 export * from './Pagination';
 export { default as FilterPanel } from './FilterPanel';
+export { default as QuoteEmailGenerator } from './QuoteEmailGenerator';

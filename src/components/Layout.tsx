@@ -2,6 +2,8 @@ import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
+import TopBar from './TopBar';
+import ChatbotWidget from './ChatbotWidget';
 import SEO from './SEO';
 import { seoConfig } from '../config/seo';
 
@@ -56,6 +58,8 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
       <Footer />
+      {/* Intégration du chatbot */}
+      <ChatbotWidget />
     </div>
   );
 };

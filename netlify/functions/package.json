@@ -1,0 +1,9 @@
+{
+  "name": "esil-events-chatbot-functions",
+  "version": "1.0.0",
+  "description": "Fonctions serverless pour le chatbot ESIL Events",
+  "main": "index.js",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0"
+  }
+}

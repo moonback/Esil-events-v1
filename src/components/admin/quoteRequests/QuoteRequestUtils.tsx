@@ -29,11 +29,12 @@ export const formatDate = (dateString?: string): string => {
  */
 export const getStatusColor = (status?: string): string => {
   switch (status) {
-    case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-    case 'approved': return 'bg-green-100 text-green-800 border-green-300';
-    case 'rejected': return 'bg-red-100 text-red-800 border-red-300';
-    case 'completed': return 'bg-blue-100 text-blue-800 border-blue-300';
-    default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'approved': return 'bg-green-100 text-green-800 border-green-200';
+    case 'rejected': return 'bg-red-100 text-red-800 border-red-200';
+    case 'completed': return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'quote_sent': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+    default: return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 };
 
@@ -46,6 +47,7 @@ export const getStatusLabel = (status?: string): string => {
     case 'approved': return 'Approuvé';
     case 'rejected': return 'Rejeté';
     case 'completed': return 'Terminé';
+    case 'quote_sent': return 'Devis envoyé';
     default: return 'Nouveau';
   }
 };
