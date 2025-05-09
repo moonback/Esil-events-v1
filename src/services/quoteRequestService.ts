@@ -1,8 +1,10 @@
 import { supabase } from './supabaseClient';
 import { FormData } from '../components/cart/types';
 import { sendQuoteRequestConfirmation, sendAdminNotification } from './emailService';
+import { analyzeNewQuoteRequest } from './quoteRequestAnalysisService';
 
 export interface QuoteRequest {
+  ai_analysis: any;
   id?: string;
   first_name: string;
   last_name: string;
@@ -58,6 +60,7 @@ export interface QuoteRequest {
  */
 const mapFormDataToQuoteRequest = (formData: FormData, cartItems: any[]): QuoteRequest => {
   return {
+    ai_analysis: null, // Initialisation avec null pour respecter l'interface QuoteRequest
     first_name: formData.firstName,
     last_name: formData.lastName,
     company: formData.customerType === 'professional' ? formData.company : 'Particulier',
@@ -102,7 +105,7 @@ const mapFormDataToQuoteRequest = (formData: FormData, cartItems: any[]): QuoteR
     // Comments and terms
     comments: formData.comments,
     terms_accepted: formData.termsAccepted ?? true, // Default value as per DB schema
-    
+   
     // Items information
     items: cartItems.map(item => ({
       id: item.id,
@@ -119,44 +122,59 @@ const mapFormDataToQuoteRequest = (formData: FormData, cartItems: any[]): QuoteR
  */
 export const createQuoteRequest = async (formData: FormData, cartItems: any[]): Promise<{ data: any; error: any }> => {
   const quoteRequestData = mapFormDataToQuoteRequest(formData, cartItems);
-
+  
   try {
-    // Directly insert the quote request without checking for a session or signing in anonymously
+    // Insérer la demande dans la base de données
     const { data, error } = await supabase
       .from('quote_requests')
       .insert([quoteRequestData])
       .select();
-
+    
     if (error) {
-      console.error('Erreur lors de l\'insertion de la demande de devis:', error);
-    } else {
-      console.log('Demande de devis insérée avec succès');
+      console.error('Erreur lors de la création de la demande de devis:', error);
+      return { data: null, error };
+    }
+    
+    // Envoyer un email de confirmation au client
+    if (data && data.length > 0) {
+      const confirmationResult = await sendQuoteRequestConfirmation(data[0]);
+      if (!confirmationResult.success) {
+        console.error('Erreur lors de l\'envoi de l\'email de confirmation:', confirmationResult.error);
+      }
       
-      // Envoyer un email de confirmation au client
-      if (data && data.length > 0) {
-        try {
-          // Envoi d'email de confirmation au client
-          const confirmationResult = await sendQuoteRequestConfirmation(data[0]);
-          if (!confirmationResult.success) {
-            console.error('Erreur lors de l\'envoi de l\'email de confirmation:', confirmationResult.error);
-          }
+      // Envoyer une notification à l'administrateur
+      const notificationResult = await sendAdminNotification(data[0]);
+      if (!notificationResult.success) {
+        console.error('Erreur lors de l\'envoi de la notification admin:', notificationResult.error);
+      }
+      
+      // Analyser automatiquement la demande avec l'IA
+      try {
+        const analysis = await analyzeNewQuoteRequest(data[0]);
+        if (analysis) {
+          // Mettre à jour la demande avec l'analyse IA
+          const { error: updateError } = await supabase
+            .from('quote_requests')
+            .update({ ai_analysis: analysis })
+            .eq('id', data[0].id);
           
-          // Envoi d'une notification à l'administrateur
-          const notificationResult = await sendAdminNotification(data[0]);
-          if (!notificationResult.success) {
-            console.error('Erreur lors de l\'envoi de la notification admin:', notificationResult.error);
+          if (updateError) {
+            console.error('Erreur lors de la mise à jour de l\'analyse IA:', updateError);
+          } else {
+            // Ajouter l'analyse à l'objet de données retourné
+            data[0].ai_analysis = analysis;
           }
-        } catch (emailError) {
-          console.error('Exception lors de l\'envoi des emails:', emailError);
-          // Ne pas bloquer le processus si l'envoi d'email échoue
         }
+      } catch (analysisError) {
+        console.error('Erreur lors de l\'analyse IA de la demande:', analysisError);
+        // Ne pas bloquer le processus si l'analyse échoue
       }
     }
-
-    return { data, error };
-  } catch (err) {
-    console.error('Exception non gérée lors de la création de la demande de devis:', err);
-    return { data: null, error: err };
+    
+    return { data, error: null };
+  } catch (error) {
+    console.error('Erreur lors de la création de la demande de devis:', error);
+    return { data: null, error };
   }
 };
 

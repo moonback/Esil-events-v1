@@ -1,8 +1,10 @@
-import React from 'react';
-import { Users, Calendar, Package, Truck, MapPin, Clock, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import { Users, Calendar, Package, Truck, MapPin, Clock, FileText, Brain } from 'lucide-react';
 import { QuoteRequest } from '../../../services/quoteRequestService';
 import { QuoteRequestActions } from './QuoteRequestActions';
 import { formatDate, getStatusColor, getStatusLabel, getDeliveryTypeLabel, getTimeSlotLabel, getAccessLabel } from './QuoteRequestUtils';
+import { QuoteRequestAnalysisComponent } from './QuoteRequestAnalysis';
+import { analyzeQuoteRequest } from '../../../services/quoteRequestAnalysisService';
 
 interface QuoteRequestDetailsProps {
   selectedRequest: QuoteRequest;
@@ -23,6 +25,31 @@ const QuoteRequestDetails: React.FC<QuoteRequestDetailsProps> = ({
   generatingResponse,
   loading
 }) => {
+  const [analyzingRequest, setAnalyzingRequest] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | undefined>();
+  
+  // Fonction pour analyser manuellement une demande si elle n'a pas déjà été analysée
+  const handleAnalyzeRequest = async () => {
+    if (!selectedRequest || analyzingRequest) return;
+    
+    setAnalyzingRequest(true);
+    setAnalysisError(undefined);
+    
+    try {
+      const { analysis, error } = await analyzeQuoteRequest(selectedRequest);
+      
+      if (error) {
+        setAnalysisError(error);
+      } else if (analysis) {
+        // Mettre à jour l'objet selectedRequest localement
+        selectedRequest.ai_analysis = analysis;
+      }
+    } catch (error) {
+      setAnalysisError(error instanceof Error ? error.message : 'Erreur inconnue');
+    } finally {
+      setAnalyzingRequest(false);
+    }
+  };
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 transition-all max-h-[calc(100vh-8rem)] overflow-y-auto">
       {/* Details Header - Improved with more prominent status */}
@@ -73,7 +100,24 @@ const QuoteRequestDetails: React.FC<QuoteRequestDetailsProps> = ({
       </div>
 
       {/* Details Content - Reorganized for better scanning */}
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6">      
+        {/* AI Analysis Section */}
+        {!selectedRequest.ai_analysis && !analyzingRequest && (
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={handleAnalyzeRequest}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 border border-indigo-200 text-sm font-medium transition-all"
+            >
+              <Brain className="h-4 w-4" /> Analyser avec l'IA
+            </button>
+          </div>
+        )}
+        
+        <QuoteRequestAnalysisComponent 
+          analysis={selectedRequest.ai_analysis} 
+          loading={analyzingRequest}
+          error={analysisError}
+        />
         {/* Two-column layout for key information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Client Info */}

@@ -3,6 +3,7 @@ export * from './QuoteRequestList';
 export * from './QuoteRequestDetails';
 export * from './QuoteRequestActions';
 export * from './QuoteRequestUtils';
+export * from './QuoteRequestAnalysis';
 export * from './AIResponseGenerator';
 export * from './FilterSearchBar';
 export * from './FeedbackMessage';
