@@ -127,12 +127,12 @@ const HomePage: React.FC = () => {
             ESIL <span className="text-violet-300">Créateur d'Événements</span> Inoubliables
           </motion.h1>
           <motion.p 
-            className="text-xl md:text-2xl text-white mb-8 max-w-3xl"
+            className="text-xl md:text-2xl text-white mb-10 max-w-5xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            Votre événement de A à Z : Location, Installation, Régie Son & Lumière, Animation
+            Votre événement de A à Z : Location, Installation, Régie Son & Lumière, Animation ...
           </motion.p>
           <motion.div 
             className="flex flex-col sm:flex-row gap-6"
@@ -147,7 +147,7 @@ const HomePage: React.FC = () => {
             >
               <Link 
                 to="/agence-evenementielle" 
-                className="btn-primary inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold shadow-lg group-hover:shadow-xl transition-all duration-300"
+                className="bg-black hover:bg-violet-600 text-white inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold rounded-full shadow-lg group-hover:shadow-xl transition-all duration-300"
               >
                 Notre Agence événementielle
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
@@ -162,7 +162,7 @@ const HomePage: React.FC = () => {
             >
               <Link 
                 to="/products/" 
-                className="btn-secondary inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold shadow-lg group-hover:shadow-xl transition-all duration-300"
+                className="bg-violet-600 hover:bg-black text-white inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold rounded-full shadow-lg group-hover:shadow-xl transition-all duration-300"
               >
                 Nos produits à la location
                 <Package className="w-5 h-5 transition-transform group-hover:translate-x-2" />
