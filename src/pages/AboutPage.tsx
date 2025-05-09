@@ -332,14 +332,14 @@ const AboutPage = () => {
                   <p className="text-gray-600 dark:text-gray-300">
                     {service.additionalInfo}
                   </p>
-                  <div className="mt-6">
+                  {/* <div className="mt-6">
                     <a href="#" className={`inline-flex items-center text-${service.color}-600 font-medium`}>
                       En savoir plus
                       <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                       </svg>
                     </a>
-                  </div>
+                  </div> */}
                 </div>
               </motion.div>
             ))}
