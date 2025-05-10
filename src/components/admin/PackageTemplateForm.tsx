@@ -7,6 +7,128 @@ import { getAllProducts } from '../../services/productService';
 import { getAllArtists } from '../../services/artistService';
 import { useNotification } from './AdminNotification';
 import { generateSlug } from '../../utils/slugUtils';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+// Validation schema
+const packageTemplateSchema = z.object({
+  name: z.string().min(1, 'Le nom est requis'),
+  description: z.string(),
+  slug: z.string().min(1, 'Le slug est requis'),
+  target_event_type: z.string().optional(),
+  base_price: z.number().optional(),
+  is_active: z.boolean(),
+  image_url: z.string().optional(),
+  order_index: z.number(),
+});
+
+// Sub-components
+const PackageHeader = ({ isEditing, onBack }: { isEditing: boolean; onBack: () => void }) => (
+  <div className="flex items-center justify-between mb-6">
+    <div>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        {isEditing ? 'Modifier le modèle de package' : 'Nouveau modèle de package'}
+      </h1>
+      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        {isEditing
+          ? 'Modifiez les détails et les éléments du modèle de package'
+          : 'Créez un nouveau modèle de package pré-configuré pour vos clients'}
+      </p>
+    </div>
+    <button
+      onClick={onBack}
+      className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white"
+    >
+      <ArrowLeft className="-ml-1 mr-2 h-5 w-5" />
+      Retour
+    </button>
+  </div>
+);
+
+const PackageItemList = ({ items, onRemove, onItemChange, products, artists }: {
+  items: PackageTemplateItemFormData[];
+  onRemove: (index: number) => void;
+  onItemChange: (index: number, field: keyof PackageTemplateItemFormData, value: any) => void;
+  products: any[];
+  artists: any[];
+}) => (
+  <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 md:rounded-lg">
+    <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
+      <thead className="bg-gray-50 dark:bg-gray-700">
+        <tr>
+          <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6">Élément</th>
+          <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Quantité</th>
+          <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Optionnel</th>
+          <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Ajustable</th>
+          <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Remise (%)</th>
+          <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
+            <span className="sr-only">Actions</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-200 dark:divide-gray-600 bg-white dark:bg-gray-800">
+        {items.map((item, index) => {
+          const itemDetails = item.item_type === 'product'
+            ? products.find(p => p.id === item.item_id)
+            : artists.find(a => a.id === item.item_id);
+
+          return (
+            <tr key={index}>
+              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">
+                {itemDetails ? itemDetails.name : `${item.item_type} #${item.item_id}`}
+              </td>
+              <td className="whitespace-nowrap px-3 py-4 text-sm">
+                <input
+                  type="number"
+                  min="1"
+                  value={item.default_quantity}
+                  onChange={(e) => onItemChange(index, 'default_quantity', e.target.value)}
+                  className="shadow-sm focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-20 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                />
+              </td>
+              <td className="whitespace-nowrap px-3 py-4 text-sm">
+                <input
+                  type="checkbox"
+                  checked={item.is_optional}
+                  onChange={(e) => onItemChange(index, 'is_optional', e.target.checked)}
+                  className="h-4 w-4 text-black focus:ring-black dark:text-white dark:focus:ring-white border-gray-300 dark:border-gray-600 rounded"
+                />
+              </td>
+              <td className="whitespace-nowrap px-3 py-4 text-sm">
+                <input
+                  type="checkbox"
+                  checked={item.is_quantity_adjustable}
+                  onChange={(e) => onItemChange(index, 'is_quantity_adjustable', e.target.checked)}
+                  className="h-4 w-4 text-black focus:ring-black dark:text-white dark:focus:ring-white border-gray-300 dark:border-gray-600 rounded"
+                />
+              </td>
+              <td className="whitespace-nowrap px-3 py-4 text-sm">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={item.discount_percentage || 0}
+                  onChange={(e) => onItemChange(index, 'discount_percentage', e.target.value)}
+                  className="shadow-sm focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-20 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                />
+              </td>
+              <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                <button
+                  type="button"
+                  onClick={() => onRemove(index)}
+                  className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+);
 
 interface PackageTemplateFormProps {
   initialData?: PackageTemplateFormData;
@@ -22,32 +144,43 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   
-  const [formData, setFormData] = useState<PackageTemplateFormData>(initialData || {
-    name: '',
-    description: '',
-    slug: '',
-    target_event_type: '',
-    base_price: undefined,
-    is_active: true,
-    image_url: '',
-    order_index: 0,
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<z.infer<typeof packageTemplateSchema>>({
+    resolver: zodResolver(packageTemplateSchema),
+    defaultValues: initialData || {
+      name: '',
+      description: '',
+      slug: '',
+      target_event_type: undefined,
+      base_price: undefined,
+      is_active: true,
+      image_url: undefined,
+      order_index: 0,
+    }
   });
-  
+
   const [items, setItems] = useState<PackageTemplateItemFormData[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [artists, setArtists] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [itemType, setItemType] = useState<'product' | 'service' | 'artist'>('product');
   const [selectedItemId, setSelectedItemId] = useState<string>('');
-  
+
+  // Watch name field for slug generation
+  const name = watch('name');
+  useEffect(() => {
+    if (!isEditing && name) {
+      setValue('slug', generateSlug(name));
+    }
+  }, [name, isEditing, setValue]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Charger les produits et artistes pour les sélecteurs
-        const productsData = await getAllProducts();
+        const [productsData, artistsData] = await Promise.all([
+          getAllProducts(),
+          getAllArtists()
+        ]);
         setProducts(productsData);
-        
-        const artistsData = await getAllArtists();
         setArtists(artistsData);
       } catch (error) {
         console.error('Erreur lors du chargement des données:', error);
@@ -57,40 +190,7 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
     
     fetchData();
   }, []);
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    
-    // Gérer les valeurs numériques
-    if (type === 'number') {
-      setFormData({
-        ...formData,
-        [name]: value === '' ? undefined : parseFloat(value),
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
-    
-    // Générer automatiquement le slug à partir du nom
-    if (name === 'name' && !isEditing) {
-      setFormData(prev => ({
-        ...prev,
-        slug: generateSlug(value),
-      }));
-    }
-  };
-  
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: checked,
-    });
-  };
-  
+
   const handleAddItem = () => {
     if (!selectedItemId) {
       showNotification('Veuillez sélectionner un élément à ajouter', 'error');
@@ -112,55 +212,49 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
     setItems([...items, newItem]);
     setSelectedItemId('');
   };
-  
+
   const handleRemoveItem = (index: number) => {
-    const newItems = [...items];
-    newItems.splice(index, 1);
-    setItems(newItems);
+    setItems(items.filter((_, i) => i !== index));
   };
-  
+
   const handleItemChange = (index: number, field: keyof PackageTemplateItemFormData, value: any) => {
-    const newItems = [...items];
-    newItems[index] = {
-      ...newItems[index],
-      [field]: field === 'default_quantity' || field === 'min_quantity' || field === 'max_quantity' || field === 'discount_percentage'
-        ? parseFloat(value)
-        : value,
-    };
-    setItems(newItems);
+    setItems(items.map((item, i) => 
+      i === index 
+        ? { 
+            ...item, 
+            [field]: field === 'default_quantity' || field === 'min_quantity' || field === 'max_quantity' || field === 'discount_percentage'
+              ? parseFloat(value)
+              : value 
+          }
+        : item
+    ));
   };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+
+  const onSubmit = async (data: PackageTemplateFormData) => {
     setLoading(true);
     
     try {
       let templateResult;
       
       if (isEditing && templateId) {
-        // Mettre à jour le modèle existant
-        templateResult = await updatePackageTemplate(templateId, formData);
+        templateResult = await updatePackageTemplate(templateId, data);
         showNotification('Modèle de package mis à jour avec succès', 'success');
       } else {
-        // Créer un nouveau modèle
-        templateResult = await createPackageTemplate(formData);
+        templateResult = await createPackageTemplate(data);
         showNotification('Modèle de package créé avec succès', 'success');
       }
       
-      // Ajouter les éléments au modèle
       if (templateResult) {
         const templateId = templateResult.id;
         
-        // Ajouter chaque élément
-        for (const item of items) {
-          await addPackageTemplateItem({
+        await Promise.all(items.map(item => 
+          addPackageTemplateItem({
             ...item,
             package_template_id: templateId,
-          });
-        }
+          })
+        ));
       }
       
-      // Rediriger vers la liste des modèles
       navigate('/admin/package-templates');
     } catch (error) {
       console.error('Erreur lors de l\'enregistrement du modèle de package:', error);
@@ -169,50 +263,39 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {isEditing ? 'Modifier le modèle de package' : 'Nouveau modèle de package'}
-            </h1>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-              {isEditing
-                ? 'Modifiez les détails et les éléments du modèle de package'
-                : 'Créez un nouveau modèle de package pré-configuré pour vos clients'}
-            </p>
-          </div>
-          <button
-            onClick={() => navigate('/admin/package-templates')}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white"
-          >
-            <ArrowLeft className="-ml-1 mr-2 h-5 w-5" />
-            Retour
-          </button>
-        </div>
+        <PackageHeader isEditing={isEditing} onBack={() => navigate('/admin/package-templates')} />
         
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           {/* Informations générales */}
           <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
             <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Informations générales</h2>
             <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
               <div className="sm:col-span-3">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Nom du modèle *
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    name="name"
-                    id="name"
-                    required
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="shadow-sm focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                  />
-                </div>
+                <Controller
+                  name="name"
+                  control={control}
+                  render={({ field }: { field: any }) => (
+                    <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Nom du modèle *
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          {...field}
+                          type="text"
+                          className="shadow-sm focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                        />
+                        {errors.name && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name.message}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                />
               </div>
               
               <div className="sm:col-span-3">
@@ -225,8 +308,8 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
                     name="slug"
                     id="slug"
                     required
-                    value={formData.slug}
-                    onChange={handleChange}
+                    value={watch('slug')}
+                    onChange={(e) => setValue('slug', e.target.value)}
                     className="shadow-sm focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
                   />
                 </div>
@@ -241,8 +324,8 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
                     id="description"
                     name="description"
                     rows={3}
-                    value={formData.description}
-                    onChange={handleChange}
+                    value={watch('description')}
+                    onChange={(e) => setValue('description', e.target.value)}
                     className="shadow-sm focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
                   />
                 </div>
@@ -256,8 +339,8 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
                   <select
                     id="target_event_type"
                     name="target_event_type"
-                    value={formData.target_event_type || ''}
-                    onChange={handleChange}
+                    value={watch('target_event_type') || ''}
+                    onChange={(e) => setValue('target_event_type', e.target.value)}
                     className="shadow-sm focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
                   >
                     <option value="">Sélectionnez un type</option>
@@ -282,8 +365,8 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
                     id="base_price"
                     step="0.01"
                     min="0"
-                    value={formData.base_price || ''}
-                    onChange={handleChange}
+                    value={watch('base_price') || ''}
+                    onChange={(e) => setValue('base_price', e.target.value === '' ? undefined : parseFloat(e.target.value))}
                     className="shadow-sm focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
                   />
                 </div>
@@ -298,8 +381,8 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
                     type="text"
                     name="image_url"
                     id="image_url"
-                    value={formData.image_url || ''}
-                    onChange={handleChange}
+                    value={watch('image_url') || ''}
+                    onChange={(e) => setValue('image_url', e.target.value)}
                     className="shadow-sm focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
                   />
                 </div>
@@ -311,12 +394,11 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
                 </label>
                 <div className="mt-1">
                   <input
-                    type="number"
-                    name="order_index"
                     id="order_index"
+                    type="number"
                     min="0"
-                    value={formData.order_index}
-                    onChange={handleChange}
+                    value={watch('order_index') ?? 0}
+                    onChange={(e) => setValue('order_index', e.target.value === '' ? 0 : parseInt(e.target.value))}
                     className="shadow-sm focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
                   />
                 </div>
@@ -328,8 +410,8 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
                     id="is_active"
                     name="is_active"
                     type="checkbox"
-                    checked={formData.is_active}
-                    onChange={handleCheckboxChange}
+                    checked={watch('is_active')}
+                    onChange={(e) => setValue('is_active', e.target.checked)}
                     className="h-4 w-4 text-black focus:ring-black dark:text-white dark:focus:ring-white border-gray-300 dark:border-gray-600 rounded"
                   />
                   <label htmlFor="is_active" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
@@ -388,7 +470,6 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
                           {artist.name} - {artist.category}
                         </option>
                       ))}
-                      {/* Ajouter d'autres types d'éléments au besoin */}
                     </select>
                   </div>
                 </div>
@@ -406,7 +487,7 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
               </div>
             </div>
             
-            {/* Liste des éléments */}
+            {/* Items list */}
             {items.length === 0 ? (
               <div className="text-center py-6 bg-gray-50 dark:bg-gray-700 rounded-md">
                 <Package className="mx-auto h-12 w-12 text-gray-400" />
@@ -416,85 +497,13 @@ const PackageTemplateForm: React.FC<PackageTemplateFormProps> = ({
                 </p>
               </div>
             ) : (
-              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 md:rounded-lg">
-                <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6">Élément</th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Quantité</th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Optionnel</th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Ajustable</th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Remise (%)</th>
-                      <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                        <span className="sr-only">Actions</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-600 bg-white dark:bg-gray-800">
-                    {items.map((item, index) => {
-                      // Trouver les détails de l'élément
-                      let itemDetails;
-                      if (item.item_type === 'product') {
-                        itemDetails = products.find(p => p.id === item.item_id);
-                      } else if (item.item_type === 'artist') {
-                        itemDetails = artists.find(a => a.id === item.item_id);
-                      }
-                      
-                      return (
-                        <tr key={index}>
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">
-                            {itemDetails ? itemDetails.name : `${item.item_type} #${item.item_id}`}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm">
-                            <input
-                              type="number"
-                              min="1"
-                              value={item.default_quantity}
-                              onChange={(e) => handleItemChange(index, 'default_quantity', e.target.value)}
-                              className="shadow-sm focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-20 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                            />
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={item.is_optional}
-                              onChange={(e) => handleItemChange(index, 'is_optional', e.target.checked)}
-                              className="h-4 w-4 text-black focus:ring-black dark:text-white dark:focus:ring-white border-gray-300 dark:border-gray-600 rounded"
-                            />
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={item.is_quantity_adjustable}
-                              onChange={(e) => handleItemChange(index, 'is_quantity_adjustable', e.target.checked)}
-                              className="h-4 w-4 text-black focus:ring-black dark:text-white dark:focus:ring-white border-gray-300 dark:border-gray-600 rounded"
-                            />
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm">
-                            <input
-                              type="number"
-                              min="0"
-                              max="100"
-                              value={item.discount_percentage || 0}
-                              onChange={(e) => handleItemChange(index, 'discount_percentage', e.target.value)}
-                              className="shadow-sm focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-20 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                            />
-                          </td>
-                          <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveItem(index)}
-                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                            >
-                              <Trash2 className="h-5 w-5" />
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <PackageItemList
+                items={items}
+                onRemove={handleRemoveItem}
+                onItemChange={handleItemChange}
+                products={products}
+                artists={artists}
+              />
             )}
           </div>
           
