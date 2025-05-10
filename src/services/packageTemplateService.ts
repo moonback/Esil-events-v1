@@ -98,11 +98,44 @@ export const getPackageTemplateBySlug = async (slug: string): Promise<PackageTem
 };
 
 // Créer un nouveau modèle de package
+// Fonction pour vérifier si un slug existe déjà dans la table package_templates
+const checkSlugExists = async (slug: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .from('package_templates')
+      .select('slug')
+      .eq('slug', slug)
+      .maybeSingle();
+    
+    if (error) throw error;
+    return !!data; // Retourne true si le slug existe, false sinon
+  } catch (error) {
+    console.error('Error checking slug existence:', error);
+    return false; // En cas d'erreur, on suppose que le slug n'existe pas
+  }
+};
+
+// Fonction pour générer un slug unique en vérifiant dans la base de données
+const generateUniqueDbSlug = async (baseName: string): Promise<string> => {
+  let slug = generateSlug(baseName);
+  let counter = 1;
+  let slugExists = await checkSlugExists(slug);
+  
+  // Tant que le slug existe, on en génère un nouveau avec un compteur
+  while (slugExists) {
+    slug = `${generateSlug(baseName)}-${counter}`;
+    counter++;
+    slugExists = await checkSlugExists(slug);
+  }
+  
+  return slug;
+};
+
 export const createPackageTemplate = async (templateData: PackageTemplateFormData): Promise<PackageTemplate> => {
   try {
     // Générer un slug unique si non fourni
     if (!templateData.slug) {
-      templateData.slug = await (templateData.name, 'package_templates', 'slug');
+      templateData.slug = await generateUniqueDbSlug(templateData.name);
     }
 
     const { data, error } = await supabase
