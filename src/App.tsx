@@ -24,6 +24,8 @@ import ArtistPage from './pages/ArtistPage';
 import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import CguPage from './pages/CguPage';
+import PackageTemplatesPage from './pages/PackageTemplatesPage';
+import PackageDetailPage from './pages/PackageDetailPage';
 
 // Admin pages
 import RealisationPage from './pages/RealisationPage';
@@ -58,6 +60,8 @@ const App: React.FC = () => {
             <Route path="/agence-evenementielle" element={<EventsPage />} />
             <Route path="/cgu" element={<CguPage />} />
             <Route path='/realisations' element={<RealisationPage />} />
+            <Route path="/packages" element={<PackageTemplatesPage />} />
+            <Route path="/package/:slug" element={<PackageDetailPage />} />
 
           </Route>
 

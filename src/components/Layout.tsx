@@ -5,7 +5,11 @@ import Footer from './Footer';
 import SEO from './SEO';
 import { seoConfig } from '../config/seo';
 
-const Layout: React.FC = () => {
+interface LayoutProps {
+  children?: React.ReactNode;
+}
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   
   // Fonction pour obtenir le titre de la page en fonction de l'URL
@@ -53,7 +57,7 @@ const Layout: React.FC = () => {
       />
       <Header />
       <main className="flex-grow">
-        <Outlet />
+        {children || <Outlet />}
       </main>
       <Footer />
     </div>

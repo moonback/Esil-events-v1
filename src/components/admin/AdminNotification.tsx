@@ -99,44 +99,64 @@ const AdminNotification: React.FC<AdminNotificationProps> = ({ notification, onC
 
 // Notification Container Component
 export const NotificationContainer: React.FC = () => {
+  // This component is now just a placeholder for backward compatibility
+  // The actual notifications are rendered by the NotificationProvider
+  return null;
+};
+
+// Create a notification context to manage notifications across the application
+const NotificationContext = React.createContext<{
+  showNotification: (message: string, type: NotificationType, title?: string, duration?: number) => void;
+}>({ 
+  showNotification: () => {} 
+});
+
+// Create a provider component
+export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  // Example function to add a notification
-  const addNotification = (notification: Omit<Notification, 'id'>) => {
+  const showNotification = (message: string, type: NotificationType = 'info', title?: string, duration?: number) => {
     const id = Math.random().toString(36).substring(2, 9);
-    setNotifications(prev => [...prev, { ...notification, id }]);
-  };
-
-  const removeNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
-  };
-
-  // Example usage
-  useEffect(() => {
-    // This is just for demonstration
-    const demoNotification = {
-      type: 'info' as NotificationType,
-      message: 'Bienvenue dans votre tableau de bord administrateur',
-      title: 'Bonjour',
+    const newNotification: Notification = {
+      id,
+      type,
+      message,
+      title,
       autoClose: true,
-      duration: 5000
+      duration: duration || 5000
     };
-
-    // Uncomment to see a demo notification
-    // addNotification(demoNotification);
-  }, []);
+    
+    setNotifications(prev => [...prev, newNotification]);
+    
+    // Auto remove notification after duration
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(notification => notification.id !== id));
+    }, newNotification.duration);
+  };
 
   return (
-    <div className="fixed top-20 right-4 z-50 w-80 space-y-2">
-      {notifications.map(notification => (
-        <AdminNotification 
-          key={notification.id} 
-          notification={notification} 
-          onClose={removeNotification} 
-        />
-      ))}
-    </div>
+    <NotificationContext.Provider value={{ showNotification }}>
+      {children}
+      <div className="fixed top-20 right-4 z-50 w-80 space-y-2">
+        {notifications.map(notification => (
+          <AdminNotification 
+            key={notification.id} 
+            notification={notification} 
+            onClose={(id) => setNotifications(prev => prev.filter(n => n.id !== id))} 
+          />
+        ))}
+      </div>
+    </NotificationContext.Provider>
   );
+};
+
+// Create a custom hook to use the notification context
+export const useNotification = () => {
+  const context = React.useContext(NotificationContext);
+  if (!context) {
+    throw new Error('useNotification must be used within a NotificationProvider');
+  }
+  return context;
 };
 
 export default AdminNotification;
