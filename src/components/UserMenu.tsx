@@ -32,6 +32,13 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, isAdmin, onSignOut }) => {
           Mon profil
         </Link>
         <Link
+          to="/packages"
+          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          <Package className="w-4 h-4 mr-3" />
+          Packages
+        </Link>
+        <Link
           to="/account/orders"
           className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
         >

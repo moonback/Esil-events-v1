@@ -130,6 +130,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const menuItems: MenuItem[] = [
     { label: 'Tableau de bord', icon: <LayoutDashboard className="w-5 h-5" />, path: '/admin' },
     { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/admin/products' },
+    { label: 'Packages', icon: <Package className="w-5 h-5" />, path: '/admin/package-templates' },
     { label: 'Catégories', icon: <Tag className="w-5 h-5" />, path: '/admin/categories' },
     { label: 'Demandes de devis', icon: <MessageSquare className="w-5 h-5" />, path: '/admin/quote-requests' },
     { label: 'Artistes', icon: <Music className="w-5 h-5" />, path: '/admin/artists' },
