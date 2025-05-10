@@ -16,6 +16,7 @@ import AboutPage from './pages/AboutPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import { CartProvider } from './context/CartContext';
+import { NotificationProvider } from './components/AdminNotification';
 import AdminRoute from './components/AdminRoute';
 import AdminRoutes from './components/AdminRoutes';
 import LoginForm from './components/LoginForm';
@@ -35,51 +36,53 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <CartProvider>
-        <Routes>
-          {/* Routes publiques avec Layout principal */}
-          <Route element={<Layout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/products" element={<ProductListPage />} />
-            <Route path="/products/:category" element={<ProductListPage />} />
-            <Route path="/products/:category/:subcategory" element={<ProductListPage />} />
-            <Route path="/products/:category/:subcategory/:subsubcategory" element={<ProductListPage />} />
+      <NotificationProvider>
+        <CartProvider>
+          <Routes>
+            {/* Routes publiques avec Layout principal */}
+            <Route element={<Layout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/products" element={<ProductListPage />} />
+              <Route path="/products/:category" element={<ProductListPage />} />
+              <Route path="/products/:category/:subcategory" element={<ProductListPage />} />
+              <Route path="/products/:category/:subcategory/:subsubcategory" element={<ProductListPage />} />
 
-            <Route path="/product/:id" element={<ProductPage />} />
-            <Route path="/product/:slug" element={<ProductPage />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/delivery" element={<DeliveryPage />} />
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/register" element={<RegisterForm />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/legal" element={<TermsPage />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="/artists" element={<ArtistPage />} />
-            <Route path="/artist/:id" element={<ArtistDetailPage />} />
-            <Route path="/agence-evenementielle" element={<EventsPage />} />
-            <Route path="/cgu" element={<CguPage />} />
-            <Route path='/realisations' element={<RealisationPage />} />
-            <Route path="/packages" element={<PackageTemplatesPage />} />
-            <Route path="/package/:slug" element={<PackageDetailPage />} />
+              <Route path="/product/:id" element={<ProductPage />} />
+              <Route path="/product/:slug" element={<ProductPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/delivery" element={<DeliveryPage />} />
+              <Route path="/login" element={<LoginForm />} />
+              <Route path="/register" element={<RegisterForm />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/legal" element={<TermsPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/artists" element={<ArtistPage />} />
+              <Route path="/artist/:id" element={<ArtistDetailPage />} />
+              <Route path="/agence-evenementielle" element={<EventsPage />} />
+              <Route path="/cgu" element={<CguPage />} />
+              <Route path='/realisations' element={<RealisationPage />} />
+              <Route path="/packages" element={<PackageTemplatesPage />} />
+              <Route path="/package/:slug" element={<PackageDetailPage />} />
 
-          </Route>
+            </Route>
 
-          {/* Routes utilisateur avec Layout principal */}
-          <Route element={<Layout />}>
-            <Route path="/profile" element={<AdminRoute><ProfilePage /></AdminRoute>} />
-            <Route path="/orders" element={<AdminRoute><OrdersPage /></AdminRoute>} />
-          </Route>
-    
-          {/* Routes admin avec AdminLayout */}
-          {/* Route admin avec le composant AdminRoutes */}
-          <Route path="/admin/*" element={<AdminRoutes />} />
-          
+            {/* Routes utilisateur avec Layout principal */}
+            <Route element={<Layout />}>
+              <Route path="/profile" element={<AdminRoute><ProfilePage /></AdminRoute>} />
+              <Route path="/orders" element={<AdminRoute><OrdersPage /></AdminRoute>} />
+            </Route>
+      
+            {/* Routes admin avec AdminLayout */}
+            {/* Route admin avec le composant AdminRoutes */}
+            <Route path="/admin/*" element={<AdminRoutes />} />
+            
 
-          {/* Page 404 */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </CartProvider>
+            {/* Page 404 */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </CartProvider>
+      </NotificationProvider>
     </BrowserRouter>
   );
 };
