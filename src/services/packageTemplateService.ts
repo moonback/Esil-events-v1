@@ -133,18 +133,52 @@ const generateUniqueDbSlug = async (baseName: string): Promise<string> => {
 
 export const createPackageTemplate = async (templateData: PackageTemplateFormData): Promise<PackageTemplate> => {
   try {
+    // Vérifier que l'utilisateur est authentifié
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !sessionData.session) {
+      throw new Error('Vous devez être connecté pour créer un modèle de package');
+    }
+    
+    // Vérifier si l'utilisateur a le rôle admin
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', sessionData.session.user.id)
+      .single();
+    
+    if (profileError || !profileData) {
+      console.error('Error fetching user profile:', profileError);
+      throw new Error('Impossible de vérifier vos droits d\'administrateur');
+    }
+    
+    if (profileData.role !== 'admin') {
+      throw new Error('Vous devez avoir les droits d\'administrateur pour créer un modèle de package');
+    }
+
     // Générer un slug unique si non fourni
     if (!templateData.slug) {
       templateData.slug = await generateUniqueDbSlug(templateData.name);
     }
 
+    // Assurez-vous que les champs numériques sont correctement typés
+    const dataToInsert = {
+      ...templateData,
+      base_price: templateData.base_price !== undefined ? Number(templateData.base_price) : null,
+      order_index: Number(templateData.order_index || 0)
+    };
+
     const { data, error } = await supabase
       .from('package_templates')
-      .insert([templateData])
+      .insert([dataToInsert])
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42501') {
+        throw new Error('Vous n\'avez pas les permissions nécessaires pour créer un modèle de package. Vérifiez que vous êtes bien connecté avec un compte administrateur.');
+      }
+      throw error;
+    }
     if (!data) throw new Error('Failed to create package template');
 
     return {
@@ -161,6 +195,28 @@ export const createPackageTemplate = async (templateData: PackageTemplateFormDat
 // Mettre à jour un modèle de package
 export const updatePackageTemplate = async (id: string, templateData: Partial<PackageTemplateFormData>): Promise<PackageTemplate> => {
   try {
+    // Vérifier que l'utilisateur est authentifié
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !sessionData.session) {
+      throw new Error('Vous devez être connecté pour modifier un modèle de package');
+    }
+    
+    // Vérifier si l'utilisateur a le rôle admin
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', sessionData.session.user.id)
+      .single();
+    
+    if (profileError || !profileData) {
+      console.error('Error fetching user profile:', profileError);
+      throw new Error('Impossible de vérifier vos droits d\'administrateur');
+    }
+    
+    if (profileData.role !== 'admin') {
+      throw new Error('Vous devez avoir les droits d\'administrateur pour modifier un modèle de package');
+    }
+    
     const { data, error } = await supabase
       .from('package_templates')
       .update({
@@ -171,7 +227,12 @@ export const updatePackageTemplate = async (id: string, templateData: Partial<Pa
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42501') {
+        throw new Error('Vous n\'avez pas les permissions nécessaires pour modifier ce modèle de package. Vérifiez que vous êtes bien connecté avec un compte administrateur.');
+      }
+      throw error;
+    }
     if (!data) throw new Error(`Package template with ID ${id} not found`);
 
     return {
@@ -188,12 +249,39 @@ export const updatePackageTemplate = async (id: string, templateData: Partial<Pa
 // Supprimer un modèle de package
 export const deletePackageTemplate = async (id: string): Promise<void> => {
   try {
+    // Vérifier que l'utilisateur est authentifié
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !sessionData.session) {
+      throw new Error('Vous devez être connecté pour supprimer un modèle de package');
+    }
+    
+    // Vérifier si l'utilisateur a le rôle admin
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', sessionData.session.user.id)
+      .single();
+    
+    if (profileError || !profileData) {
+      console.error('Error fetching user profile:', profileError);
+      throw new Error('Impossible de vérifier vos droits d\'administrateur');
+    }
+    
+    if (profileData.role !== 'admin') {
+      throw new Error('Vous devez avoir les droits d\'administrateur pour supprimer un modèle de package');
+    }
+    
     const { error } = await supabase
       .from('package_templates')
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42501') {
+        throw new Error('Vous n\'avez pas les permissions nécessaires pour supprimer ce modèle de package. Vérifiez que vous êtes bien connecté avec un compte administrateur.');
+      }
+      throw error;
+    }
   } catch (error) {
     console.error(`Error deleting package template with ID ${id}:`, error);
     throw error;
@@ -203,13 +291,40 @@ export const deletePackageTemplate = async (id: string): Promise<void> => {
 // Ajouter un élément à un modèle de package
 export const addPackageTemplateItem = async (itemData: PackageTemplateItemFormData): Promise<PackageTemplateItem> => {
   try {
+    // Vérifier que l'utilisateur est authentifié
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !sessionData.session) {
+      throw new Error('Vous devez être connecté pour ajouter un élément à un modèle de package');
+    }
+    
+    // Vérifier si l'utilisateur a le rôle admin
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', sessionData.session.user.id)
+      .single();
+    
+    if (profileError || !profileData) {
+      console.error('Error fetching user profile:', profileError);
+      throw new Error('Impossible de vérifier vos droits d\'administrateur');
+    }
+    
+    if (profileData.role !== 'admin') {
+      throw new Error('Vous devez avoir les droits d\'administrateur pour ajouter un élément à un modèle de package');
+    }
+    
     const { data, error } = await supabase
       .from('package_template_items')
       .insert([itemData])
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42501') {
+        throw new Error('Vous n\'avez pas les permissions nécessaires pour ajouter un élément à ce modèle de package. Vérifiez que vous êtes bien connecté avec un compte administrateur.');
+      }
+      throw error;
+    }
     if (!data) throw new Error('Failed to add package template item');
 
     return data;
@@ -222,6 +337,28 @@ export const addPackageTemplateItem = async (itemData: PackageTemplateItemFormDa
 // Mettre à jour un élément d'un modèle de package
 export const updatePackageTemplateItem = async (id: string, itemData: Partial<PackageTemplateItemFormData>): Promise<PackageTemplateItem> => {
   try {
+    // Vérifier que l'utilisateur est authentifié
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !sessionData.session) {
+      throw new Error('Vous devez être connecté pour modifier un élément d\'un modèle de package');
+    }
+    
+    // Vérifier si l'utilisateur a le rôle admin
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', sessionData.session.user.id)
+      .single();
+    
+    if (profileError || !profileData) {
+      console.error('Error fetching user profile:', profileError);
+      throw new Error('Impossible de vérifier vos droits d\'administrateur');
+    }
+    
+    if (profileData.role !== 'admin') {
+      throw new Error('Vous devez avoir les droits d\'administrateur pour modifier un élément d\'un modèle de package');
+    }
+    
     const { data, error } = await supabase
       .from('package_template_items')
       .update(itemData)
@@ -229,7 +366,12 @@ export const updatePackageTemplateItem = async (id: string, itemData: Partial<Pa
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42501') {
+        throw new Error('Vous n\'avez pas les permissions nécessaires pour modifier cet élément. Vérifiez que vous êtes bien connecté avec un compte administrateur.');
+      }
+      throw error;
+    }
     if (!data) throw new Error(`Package template item with ID ${id} not found`);
 
     return data;
@@ -242,12 +384,39 @@ export const updatePackageTemplateItem = async (id: string, itemData: Partial<Pa
 // Supprimer un élément d'un modèle de package
 export const deletePackageTemplateItem = async (id: string): Promise<void> => {
   try {
+    // Vérifier que l'utilisateur est authentifié
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !sessionData.session) {
+      throw new Error('Vous devez être connecté pour supprimer un élément d\'un modèle de package');
+    }
+    
+    // Vérifier si l'utilisateur a le rôle admin
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', sessionData.session.user.id)
+      .single();
+    
+    if (profileError || !profileData) {
+      console.error('Error fetching user profile:', profileError);
+      throw new Error('Impossible de vérifier vos droits d\'administrateur');
+    }
+    
+    if (profileData.role !== 'admin') {
+      throw new Error('Vous devez avoir les droits d\'administrateur pour supprimer un élément d\'un modèle de package');
+    }
+    
     const { error } = await supabase
       .from('package_template_items')
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42501') {
+        throw new Error('Vous n\'avez pas les permissions nécessaires pour supprimer cet élément. Vérifiez que vous êtes bien connecté avec un compte administrateur.');
+      }
+      throw error;
+    }
   } catch (error) {
     console.error(`Error deleting package template item with ID ${id}:`, error);
     throw error;

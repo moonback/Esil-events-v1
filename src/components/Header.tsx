@@ -204,6 +204,9 @@ const Header: React.FC = () => {
                       </div>
                     )}
                   </div>
+                  <Link to="/packages" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
+                    Pack
+                  </Link>
                   <Link to="/artists" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     Artistes
                   </Link>
