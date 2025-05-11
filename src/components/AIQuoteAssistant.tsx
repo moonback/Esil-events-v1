@@ -79,6 +79,16 @@ export const AIQuoteAssistant: React.FC = () => {
   const [additionalTips, setAdditionalTips] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const resetChat = () => {
+    setMessages([]);
+    setCurrentStep(0);
+    setAnswers({});
+    setSuggestions([]);
+    setAdditionalTips('');
+    // Start conversation with first question
+    addBotMessage(conversationFlow[0].question);
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -359,6 +369,15 @@ export const AIQuoteAssistant: React.FC = () => {
             <div className="p-4 bg-blue-500 text-white rounded-t-lg flex justify-between items-center">
               <h3 className="font-semibold">Assistant Devis ESIL Events</h3>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={resetChat}
+                  className="text-white hover:text-gray-200"
+                  title="Réinitialiser la conversation"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
                 <button
                   onClick={() => setIsMaximized(!isMaximized)}
                   className="text-white hover:text-gray-200"
