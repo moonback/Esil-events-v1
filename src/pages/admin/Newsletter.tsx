@@ -6,7 +6,8 @@ import {
   NewsletterSubscription, 
   getAllSubscribers, 
   unsubscribeUser, 
-  sendNewsletterToSubscribers 
+  sendNewsletterToSubscribers,
+  updateSubscriberPreferences
 } from '../../services/newsletterService';
 import { generateNewsletterContent, NewsletterContentOptions } from '../../services/newsletterContentService';
 import { getAllProducts, Product } from '../../services/productService';
@@ -47,6 +48,31 @@ const AdminNewsletter: React.FC = () => {
     includeProducts: true,
     contentLength: 'medium'
   });
+
+  // Ajouter les nouveaux états pour les préférences
+  const [subscriberPreferences, setSubscriberPreferences] = useState<{
+    categories: string[];
+    frequency: 'daily' | 'weekly' | 'monthly';
+  }>({
+    categories: [],
+    frequency: 'weekly'
+  });
+
+  // Ajouter les options de catégories
+  const availableCategories = [
+    'Événements',
+    'Offres spéciales',
+    'Actualités',
+    'Produits',
+    'Services'
+  ];
+
+  // Ajouter les options de fréquence
+  const frequencyOptions = [
+    { value: 'daily', label: 'Quotidien' },
+    { value: 'weekly', label: 'Hebdomadaire' },
+    { value: 'monthly', label: 'Mensuel' }
+  ];
 
   useEffect(() => {
     fetchSubscribers();
@@ -259,7 +285,13 @@ const AdminNewsletter: React.FC = () => {
       const result = await sendNewsletterToSubscribers(
         newsletterData.subject,
         newsletterData.content,
-        isTest ? newsletterData.testEmail : undefined
+        isTest ? newsletterData.testEmail : undefined,
+        {
+          categories: subscriberPreferences.categories,
+          frequency: subscriberPreferences.frequency,
+          batchSize: 50,
+          delayBetweenBatches: 1000
+        }
       );
       
       if (!result.success) throw new Error(result.error);
@@ -339,6 +371,21 @@ const AdminNewsletter: React.FC = () => {
     setTimeout(() => {
       setNotification(null);
     }, 5000);
+  };
+
+  // Ajouter la fonction pour mettre à jour les préférences
+  const handleUpdatePreferences = async (email: string) => {
+    try {
+      const result = await updateSubscriberPreferences(email, {
+        categories: subscriberPreferences.categories || [],
+        frequency: subscriberPreferences.frequency || 'weekly'
+      });
+      if (!result.success) throw new Error(result.error);
+      showNotification('success', 'Préférences mises à jour avec succès');
+    } catch (err) {
+      console.error('Erreur lors de la mise à jour des préférences:', err);
+      showNotification('error', `Erreur lors de la mise à jour: ${err instanceof Error ? err.message : String(err)}`);
+    }
   };
 
   return (
@@ -503,7 +550,13 @@ const AdminNewsletter: React.FC = () => {
                     Statut
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Préférences
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Date d'inscription
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Dernier envoi
                   </th>
                   <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Actions
@@ -513,13 +566,13 @@ const AdminNewsletter: React.FC = () => {
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                    <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                       Chargement...
                     </td>
                   </tr>
                 ) : filteredSubscribers.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                    <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                       Aucun abonné trouvé
                     </td>
                   </tr>
@@ -539,6 +592,28 @@ const AdminNewsletter: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {subscriber.preferences ? (
+                          <div className="space-y-1">
+                            {subscriber.preferences.categories && subscriber.preferences.categories.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {subscriber.preferences.categories.map(category => (
+                                  <span key={category} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-200">
+                                    {category}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            {subscriber.preferences.frequency && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
+                                {frequencyOptions.find(opt => opt.value === subscriber.preferences?.frequency)?.label}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 dark:text-gray-500">Aucune préférence</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         {subscriber.created_at 
                           ? new Date(subscriber.created_at).toLocaleDateString('fr-FR', {
                               day: '2-digit',
@@ -549,22 +624,49 @@ const AdminNewsletter: React.FC = () => {
                             })
                           : 'N/A'}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {subscriber.last_sent_at 
+                          ? new Date(subscriber.last_sent_at).toLocaleDateString('fr-FR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                          : 'Jamais'}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        {subscriber.status === 'active' ? (
-                          <button
-                            onClick={() => handleUnsubscribe(subscriber.email)}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mr-3"
-                          >
-                            Désabonner
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleReactivate(subscriber.email)}
-                            className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3"
-                          >
-                            Réactiver
-                          </button>
-                        )}
+                        <div className="flex items-center justify-end space-x-2">
+                          {subscriber.status === 'active' ? (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setSubscriberPreferences({
+                                    categories: subscriber.preferences?.categories || [],
+                                    frequency: subscriber.preferences?.frequency || 'weekly'
+                                  });
+                                  handleUpdatePreferences(subscriber.email);
+                                }}
+                                className="text-violet-600 hover:text-violet-900 dark:text-violet-400 dark:hover:text-violet-300"
+                              >
+                                Préférences
+                              </button>
+                              <button
+                                onClick={() => handleUnsubscribe(subscriber.email)}
+                                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                              >
+                                Désabonner
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => handleReactivate(subscriber.email)}
+                              className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                            >
+                              Réactiver
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
