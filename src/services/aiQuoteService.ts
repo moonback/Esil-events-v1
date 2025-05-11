@@ -40,36 +40,99 @@ export const generateQuoteSuggestions = async (request: QuoteRequest): Promise<A
       .eq('is_available', true);
 
     // Enhanced category mapping with subcategories and specific needs
-    const eventTypeToCategory: Record<string, { categories: string[], subcategories: string[], essentialItems: string[] }> = {
+    const eventTypeToCategory: Record<string, { 
+      categories: string[], 
+      subcategories: string[], 
+      essentialItems: string[],
+      priorityItems: string[],
+      recommendedPackages: { name: string, items: string[] }[]
+    }> = {
       'Séminaire': {
         categories: ['Mobilier', 'Sonorisation', 'Éclairage', 'Écrans'],
         subcategories: ['Tables', 'Chaises', 'Projecteurs', 'Enceintes', 'Microphones'],
-        essentialItems: ['Tables de conférence', 'Chaises de bureau', 'Système de sonorisation', 'Écran de projection']
+        essentialItems: ['Tables de conférence', 'Chaises de bureau', 'Système de sonorisation', 'Écran de projection'],
+        priorityItems: ['Tables de conférence', 'Chaises de bureau', 'Système de sonorisation', 'Écran de projection', 'Microphones sans fil'],
+        recommendedPackages: [
+          {
+            name: 'Package Séminaire Standard',
+            items: ['Tables de conférence', 'Chaises de bureau', 'Système de sonorisation basique', 'Écran de projection']
+          },
+          {
+            name: 'Package Séminaire Premium',
+            items: ['Tables de conférence premium', 'Chaises de bureau ergonomiques', 'Système de sonorisation professionnel', 'Écran de projection HD', 'Microphones sans fil']
+          }
+        ]
       },
       'Soirée d\'entreprise': {
         categories: ['Mobilier', 'Sonorisation', 'Éclairage', 'Décoration'],
         subcategories: ['Tables hautes', 'Chaises de bar', 'Éclairage d\'ambiance', 'Enceintes DJ'],
-        essentialItems: ['Tables de cocktail', 'Éclairage LED', 'Système de sonorisation', 'Décoration thématique']
+        essentialItems: ['Tables de cocktail', 'Éclairage LED', 'Système de sonorisation', 'Décoration thématique'],
+        priorityItems: ['Tables de cocktail', 'Éclairage LED', 'Système de sonorisation DJ', 'Décoration thématique', 'Bar mobile'],
+        recommendedPackages: [
+          {
+            name: 'Package Soirée Standard',
+            items: ['Tables de cocktail', 'Éclairage LED basique', 'Système de sonorisation DJ', 'Décoration thématique']
+          },
+          {
+            name: 'Package Soirée Premium',
+            items: ['Tables de cocktail premium', 'Éclairage LED professionnel', 'Système de sonorisation DJ haut de gamme', 'Décoration thématique luxe', 'Bar mobile']
+          }
+        ]
       },
       'Mariage': {
         categories: ['Mobilier', 'Décoration', 'Éclairage', 'Sonorisation'],
         subcategories: ['Tables rondes', 'Chaises de réception', 'Éclairage romantique', 'Enceintes de salon'],
-        essentialItems: ['Tables de réception', 'Chaises de mariage', 'Éclairage d\'ambiance', 'Système de sonorisation']
+        essentialItems: ['Tables de réception', 'Chaises de mariage', 'Éclairage d\'ambiance', 'Système de sonorisation'],
+        priorityItems: ['Tables de réception', 'Chaises de mariage', 'Éclairage romantique', 'Système de sonorisation salon', 'Décoration florale'],
+        recommendedPackages: [
+          {
+            name: 'Package Mariage Standard',
+            items: ['Tables de réception', 'Chaises de mariage', 'Éclairage d\'ambiance', 'Système de sonorisation salon']
+          },
+          {
+            name: 'Package Mariage Premium',
+            items: ['Tables de réception premium', 'Chaises de mariage luxe', 'Éclairage romantique professionnel', 'Système de sonorisation haut de gamme', 'Décoration florale']
+          }
+        ]
       },
       'Anniversaire': {
         categories: ['Mobilier', 'Décoration', 'Éclairage', 'Jeux'],
         subcategories: ['Tables pliantes', 'Chaises pliantes', 'Éclairage festif', 'Jeux d\'animation'],
-        essentialItems: ['Tables de buffet', 'Chaises pliantes', 'Éclairage festif', 'Jeux d\'animation']
+        essentialItems: ['Tables de buffet', 'Chaises pliantes', 'Éclairage festif', 'Jeux d\'animation'],
+        priorityItems: ['Tables de buffet', 'Chaises pliantes', 'Éclairage festif', 'Jeux d\'animation', 'Décoration thématique'],
+        recommendedPackages: [
+          {
+            name: 'Package Anniversaire Standard',
+            items: ['Tables de buffet', 'Chaises pliantes', 'Éclairage festif', 'Jeux d\'animation basiques']
+          },
+          {
+            name: 'Package Anniversaire Premium',
+            items: ['Tables de buffet premium', 'Chaises pliantes confortables', 'Éclairage festif professionnel', 'Jeux d\'animation premium', 'Décoration thématique']
+          }
+        ]
       },
       'Festival': {
         categories: ['Sonorisation', 'Éclairage', 'Écrans', 'Mobilier'],
         subcategories: ['Enceintes de scène', 'Projecteurs', 'Écrans LED', 'Mobilier scénique'],
-        essentialItems: ['Système de sonorisation professionnel', 'Éclairage de scène', 'Écrans LED', 'Mobilier scénique']
+        essentialItems: ['Système de sonorisation professionnel', 'Éclairage de scène', 'Écrans LED', 'Mobilier scénique'],
+        priorityItems: ['Système de sonorisation professionnel', 'Éclairage de scène', 'Écrans LED', 'Mobilier scénique', 'Structure de scène'],
+        recommendedPackages: [
+          {
+            name: 'Package Festival Standard',
+            items: ['Système de sonorisation professionnel', 'Éclairage de scène basique', 'Écrans LED', 'Mobilier scénique']
+          },
+          {
+            name: 'Package Festival Premium',
+            items: ['Système de sonorisation haut de gamme', 'Éclairage de scène professionnel', 'Écrans LED HD', 'Mobilier scénique premium', 'Structure de scène']
+          }
+        ]
       },
       'Autre': {
         categories: [],
         subcategories: [],
-        essentialItems: []
+        essentialItems: [],
+        priorityItems: [],
+        recommendedPackages: []
       }
     };
 
@@ -94,16 +157,34 @@ export const generateQuoteSuggestions = async (request: QuoteRequest): Promise<A
       console.log('Budget filter applied:', request.budget, '€ (range:', minPrice, '-', maxPrice, '€)');
     }
 
-    // Add guest count consideration
+    // Add guest count consideration with more granular ranges
     if (request.guest_count) {
-      // Adjust query based on guest count
-      if (request.guest_count > 100) {
-        query = query.gte('min_capacity', 100);
+      if (request.guest_count > 200) {
+        query = query.gte('capacity', 200);
+      } else if (request.guest_count > 100) {
+        query = query.gte('capacity', 100);
       } else if (request.guest_count > 50) {
-        query = query.gte('min_capacity', 50);
+        query = query.gte('capacity', 50);
       } else if (request.guest_count > 20) {
-        query = query.gte('min_capacity', 20);
+        query = query.gte('capacity', 20);
+      } else {
+        query = query.gte('capacity', 10);
       }
+    }
+
+    // Add style-based filtering
+    const styleToKeywords: Record<string, string[]> = {
+      'Chic': ['premium', 'luxe', 'élégant', 'sophistiqué'],
+      'Moderne': ['contemporain', 'design', 'minimaliste', 'innovant'],
+      'Rustique': ['naturel', 'bois', 'vintage', 'authentique'],
+      'Festif': ['coloré', 'animé', 'dynamique', 'festif'],
+      'Corporate': ['professionnel', 'business', 'formel', 'corporate'],
+      'Ludique': ['fun', 'jeu', 'interactif', 'ludique']
+    };
+
+    const styleKeywords = styleToKeywords[request.style] || [];
+    if (styleKeywords.length > 0) {
+      query = query.or(styleKeywords.map(keyword => `description.ilike.%${keyword}%`).join(','));
     }
 
     // Log the final query
@@ -112,7 +193,23 @@ export const generateQuoteSuggestions = async (request: QuoteRequest): Promise<A
 
     if (error) {
       console.error('Supabase query error:', error);
-      throw new Error(`Failed to fetch products from database: ${error.message}`);
+      console.log('Trying simpler query...');
+      const { data: simpleProducts, error: simpleError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_available', true)
+        .order('created_at', { ascending: false });
+
+      if (simpleError) {
+        console.error('Simple query error:', simpleError);
+        throw new Error(`Failed to fetch products from database: ${simpleError.message}`);
+      }
+
+      if (!simpleProducts || simpleProducts.length === 0) {
+        throw new Error('No products available in the database');
+      }
+
+      products = simpleProducts;
     }
 
     if (!products || products.length === 0) {
@@ -152,10 +249,15 @@ export const generateQuoteSuggestions = async (request: QuoteRequest): Promise<A
       technical_specs: product.technical_specs,
       colors: product.colors,
       stock: product.stock,
-      min_capacity: product.min_capacity,
-      max_capacity: product.max_capacity,
+      capacity: product.capacity,
       is_essential: eventConfig.essentialItems.some(item => 
         product.name.toLowerCase().includes(item.toLowerCase())
+      ),
+      is_priority: eventConfig.priorityItems.some(item =>
+        product.name.toLowerCase().includes(item.toLowerCase())
+      ),
+      matches_style: styleKeywords.some(keyword =>
+        product.description.toLowerCase().includes(keyword.toLowerCase())
       )
     }));
 
@@ -178,21 +280,28 @@ ${request.specific_needs ? `- Besoins spécifiques : ${request.specific_needs}` 
 Éléments essentiels pour ce type d'événement :
 ${eventConfig.essentialItems.map(item => `- ${item}`).join('\n')}
 
+Packages recommandés pour ce type d'événement :
+${eventConfig.recommendedPackages.map(pkg => `
+- ${pkg.name}:
+  ${pkg.items.map(item => `  * ${item}`).join('\n')}
+`).join('\n')}
+
 Voici notre catalogue de produits disponibles, filtré pour correspondre au mieux à votre événement :
 ${JSON.stringify(formattedProducts, null, 2)}
 
 Instructions pour les suggestions :
-1. Priorité aux éléments essentiels marqués comme "is_essential: true"
-2. Pour un événement de ${request.guest_count} personnes :
+1. Priorité aux éléments marqués comme "is_priority: true"
+2. Ensuite, privilégier les éléments marqués comme "is_essential: true"
+3. Pour un événement de ${request.guest_count} personnes :
    - Vérifier que les capacités min/max des produits correspondent
    - Suggérer des quantités appropriées
-3. Privilégier les produits qui correspondent au style "${request.style}"
-4. ${request.budget ? `Respecter le budget de ${request.budget}€ avec une répartition intelligente :
+4. Privilégier les produits marqués comme "matches_style: true" pour le style "${request.style}"
+5. ${request.budget ? `Respecter le budget de ${request.budget}€ avec une répartition intelligente :
    - 40% pour les éléments essentiels
    - 30% pour les éléments de confort
    - 30% pour les éléments décoratifs` : 'Proposer des options à différents prix'}
-5. Créer des packages cohérents qui fonctionnent bien ensemble
-6. Inclure des produits essentiels pour ce type d'événement
+6. Créer des packages cohérents qui fonctionnent bien ensemble
+7. Inclure des produits essentiels pour ce type d'événement
 
 En te basant sur ces informations et notre catalogue, propose :
 - 2 packages essentiels (contenant les éléments critiques)
@@ -224,6 +333,7 @@ Assure-toi que :
 4. Tous les champs requis sont présents
 5. Les suggestions sont adaptées à la taille de l'événement
 6. Les packages sont cohérents et complémentaires
+7. Les suggestions respectent le style et le budget demandés
 `;
 
     const result = await model.generateContent(prompt);
