@@ -1,5 +1,5 @@
 import React, { useState, useEffect, RefObject } from 'react';
-import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw, List, X, Database, Tag, Plus, ChevronDown, BarChart, TrendingUp } from 'lucide-react';
+import { Search, Save, Trash2, RefreshCw, ArrowUp, ArrowDown, Minus, AlertCircle, Info, RotateCw, List, X, Database, Tag, Plus, ChevronDown, BarChart, TrendingUp, Calendar, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getKeywordPosition, saveKeywordRanking, getAllKeywordRankings, deleteKeywordRanking, KeywordRanking, SearchResult, getKeywordPositionHistory } from '../../services/keywordRankingService';
 import { getSavedKeywords, SavedKeyword, deleteSavedKeyword } from '../../services/savedKeywordsService';
@@ -30,13 +30,24 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
   const [selectedKeywordHistory, setSelectedKeywordHistory] = useState<KeywordRanking[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   
+  // Ajouter les nouveaux états pour les filtres
+  const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
+  const [positionFilter, setPositionFilter] = useState<{ min: number | null; max: number | null }>({ min: null, max: null });
+  const [trendFilter, setTrendFilter] = useState<'up' | 'down' | 'stable' | 'all'>('all');
+  
   // Mettre à jour le mot-clé lorsque initialKeyword change
   useEffect(() => {
     if (initialKeyword) {
-      setKeyword(initialKeyword);
-      // Si un mot-clé initial est fourni, déclencher automatiquement la recherche
-      if (initialKeyword.trim() && siteUrl.trim()) {
-        handleSearch();
+      // Si le mot-clé contient des virgules ou des sauts de ligne, on active le mode batch
+      if (initialKeyword.includes(',') || initialKeyword.includes('\n')) {
+        setIsBatchMode(true);
+        setMultipleKeywords(initialKeyword);
+      } else {
+        setKeyword(initialKeyword);
+        // Si un mot-clé initial est fourni, déclencher automatiquement la recherche
+        if (initialKeyword.trim() && siteUrl.trim()) {
+          handleSearch();
+        }
       }
     }
   }, [initialKeyword]);
@@ -454,13 +465,13 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
       <div id="search-form" className={`mb-8 bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg ${scrollToForm ? 'ring-2 ring-violet-500 dark:ring-violet-400' : ''}`}>
         {/* Onglets pour choisir entre recherche simple et multiple */}
         <div className="flex mb-4 border-b border-gray-200 dark:border-gray-700">
-          <button
+          {/* <button
             onClick={() => setIsBatchMode(false)}
             className={`py-2 px-4 font-medium text-sm ${!isBatchMode ? 'text-violet-600 border-b-2 border-violet-600 dark:text-violet-400 dark:border-violet-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
           >
             <Search className="w-4 h-4 inline-block mr-1" />
             Recherche simple
-          </button>
+          </button> */}
           <button
             onClick={() => setIsBatchMode(true)}
             className={`py-2 px-4 font-medium text-sm ${isBatchMode ? 'text-violet-600 border-b-2 border-violet-600 dark:text-violet-400 dark:border-violet-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
@@ -987,79 +998,198 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
             transition={{ duration: 0.3 }}
             className="mt-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden"
           >
-            <div className="p-4 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <div>
-                <h3 className="font-medium text-gray-900 dark:text-white flex items-center">
-                  <TrendingUp className="w-4 h-4 mr-2 text-violet-600 dark:text-violet-400" />
-                  Historique des positions: <span className="ml-1 font-bold text-violet-700 dark:text-violet-400">{selectedKeywordHistory[0]?.keyword}</span>
-                </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {selectedKeywordHistory.length} enregistrements trouvés
-                </p>
-              </div>
-              <button 
-                onClick={() => setShowPositionHistory(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            
-            <div className="p-4">
-              {isLoadingHistory ? (
-                <div className="flex justify-center items-center h-64">
-                  <RefreshCw className="w-8 h-8 text-violet-600 dark:text-violet-400 animate-spin" />
+            <div className="p-4 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <h3 className="font-medium text-gray-900 dark:text-white flex items-center">
+                    <TrendingUp className="w-4 h-4 mr-2 text-violet-600 dark:text-violet-400" />
+                    Historique des positions: <span className="ml-1 font-bold text-violet-700 dark:text-violet-400">{selectedKeywordHistory[0]?.keyword}</span>
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {selectedKeywordHistory.length} enregistrements trouvés
+                  </p>
                 </div>
-              ) : (
-                <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      data={selectedKeywordHistory.map(item => ({
-                        date: new Date(item.lastChecked).toLocaleDateString('fr-FR'),
-                        position: item.position === 0 ? null : item.position,
-                        // Inverser les positions pour une meilleure visualisation (plus haut = meilleur)
-                        positionInverse: item.position === 0 ? null : (100 - item.position)
-                      }))}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
-                      <XAxis 
-                        dataKey="date" 
-                        stroke="#6b7280"
-                        tick={{ fill: '#6b7280' }}
-                      />
-                      <YAxis 
-                        stroke="#6b7280"
-                        tick={{ fill: '#6b7280' }}
-                        domain={[0, 'dataMax + 5']}
-                        reversed
-                        label={{ value: 'Position', angle: -90, position: 'insideLeft', fill: '#6b7280' }}
-                      />
-                      <Tooltip 
-                        formatter={(value: any) => [value === null ? 'Non classé' : value, 'Position']}
-                        labelFormatter={(label) => `Date: ${label}`}
-                        contentStyle={{ backgroundColor: '#f9fafb', borderColor: '#e5e7eb' }}
-                      />
-                      <Legend />
-                      <Line 
-                        type="monotone" 
-                        dataKey="position" 
-                        name="Position" 
-                        stroke="#8b5cf6" 
-                        strokeWidth={2}
-                        activeDot={{ r: 8 }}
-                        connectNulls
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                  <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-md">
-                    <div className="flex items-center">
-                      <Info className="w-4 h-4 mr-2 text-violet-600 dark:text-violet-400" />
-                      <span>Les positions non classées (au-delà de la 100ème position) n'apparaissent pas sur le graphique.</span>
-                    </div>
+                <button 
+                  onClick={() => setShowPositionHistory(false)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Filtres avancés */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                {/* Filtre par date */}
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                    <Calendar className="w-4 h-4 mr-2 text-violet-600" />
+                    Période
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="date"
+                      value={dateRange.start ? dateRange.start.toISOString().split('T')[0] : ''}
+                      onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value ? new Date(e.target.value) : null }))}
+                      className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-violet-500 focus:ring-violet-500 dark:bg-gray-700 dark:text-white text-sm"
+                    />
+                    <input
+                      type="date"
+                      value={dateRange.end ? dateRange.end.toISOString().split('T')[0] : ''}
+                      onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value ? new Date(e.target.value) : null }))}
+                      className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-violet-500 focus:ring-violet-500 dark:bg-gray-700 dark:text-white text-sm"
+                    />
                   </div>
                 </div>
-              )}
+
+                {/* Filtre par position */}
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                    <Filter className="w-4 h-4 mr-2 text-violet-600" />
+                    Position
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={positionFilter.min || ''}
+                      onChange={(e) => setPositionFilter(prev => ({ ...prev, min: e.target.value ? parseInt(e.target.value) : null }))}
+                      className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-violet-500 focus:ring-violet-500 dark:bg-gray-700 dark:text-white text-sm"
+                      min="1"
+                      max="100"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={positionFilter.max || ''}
+                      onChange={(e) => setPositionFilter(prev => ({ ...prev, max: e.target.value ? parseInt(e.target.value) : null }))}
+                      className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-violet-500 focus:ring-violet-500 dark:bg-gray-700 dark:text-white text-sm"
+                      min="1"
+                      max="100"
+                    />
+                  </div>
+                </div>
+
+                {/* Filtre par tendance */}
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                    <TrendingUp className="w-4 h-4 mr-2 text-violet-600" />
+                    Tendance
+                  </label>
+                  <select
+                    value={trendFilter}
+                    onChange={(e) => setTrendFilter(e.target.value as 'up' | 'down' | 'stable' | 'all')}
+                    className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-violet-500 focus:ring-violet-500 dark:bg-gray-700 dark:text-white text-sm"
+                  >
+                    <option value="all">Toutes les tendances</option>
+                    <option value="up" className="flex items-center">
+                      <ArrowUp className="w-4 h-4 mr-2 text-green-500" /> En progression
+                    </option>
+                    <option value="down" className="flex items-center">
+                      <ArrowDown className="w-4 h-4 mr-2 text-red-500" /> En baisse
+                    </option>
+                    <option value="stable" className="flex items-center">
+                      <Minus className="w-4 h-4 mr-2 text-gray-500" /> Stable
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Bouton de réinitialisation des filtres */}
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={() => {
+                    setDateRange({ start: null, end: null });
+                    setPositionFilter({ min: null, max: null });
+                    setTrendFilter('all');
+                  }}
+                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500"
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Réinitialiser les filtres
+                </button>
+              </div>
+
+              {/* Tableau des résultats filtrés */}
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Position</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tendance</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Variation</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                    {selectedKeywordHistory
+                      .filter(record => {
+                        // Filtre par date
+                        if (dateRange.start && new Date(record.lastChecked) < dateRange.start) return false;
+                        if (dateRange.end && new Date(record.lastChecked) > dateRange.end) return false;
+                        
+                        // Filtre par position
+                        if (positionFilter.min && record.position > positionFilter.min) return false;
+                        if (positionFilter.max && record.position < positionFilter.max) return false;
+                        
+                        // Filtre par tendance
+                        if (trendFilter !== 'all') {
+                          const variation = record.previousPosition ? record.previousPosition - record.position : 0;
+                          if (trendFilter === 'up' && variation <= 0) return false;
+                          if (trendFilter === 'down' && variation >= 0) return false;
+                          if (trendFilter === 'stable' && variation !== 0) return false;
+                        }
+                        
+                        return true;
+                      })
+                      .map((record, index) => {
+                        const variation = record.previousPosition ? record.previousPosition - record.position : 0;
+                        const trendIcon = variation > 0 ? (
+                          <ArrowUp className="w-4 h-4 text-green-500" />
+                        ) : variation < 0 ? (
+                          <ArrowDown className="w-4 h-4 text-red-500" />
+                        ) : (
+                          <Minus className="w-4 h-4 text-gray-500" />
+                        );
+                        
+                        return (
+                          <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                              {new Date(record.lastChecked).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                              {record.position}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <div className="flex items-center">
+                                {trendIcon}
+                                <span className={`ml-2 ${
+                                  variation > 0 ? 'text-green-600 dark:text-green-400' :
+                                  variation < 0 ? 'text-red-600 dark:text-red-400' :
+                                  'text-gray-600 dark:text-gray-400'
+                                }`}>
+                                  {variation > 0 ? 'En progression' :
+                                   variation < 0 ? 'En baisse' :
+                                   'Stable'}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <span className={`${
+                                variation > 0 ? 'text-green-600 dark:text-green-400' :
+                                variation < 0 ? 'text-red-600 dark:text-red-400' :
+                                'text-gray-600 dark:text-gray-400'
+                              }`}>
+                                {variation > 0 ? `+${variation}` :
+                                 variation < 0 ? variation :
+                                 '0'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </motion.div>
         )}

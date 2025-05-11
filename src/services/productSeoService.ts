@@ -132,12 +132,13 @@ DIRECTIVES SEO SPÉCIFIQUES:
    - Un appel à l'action convaincant
    - Les éléments différenciateurs (qualité premium, service personnalisé)
 
-3. Génère une liste stratégique de 8-10 mots-clés comprenant:
-   - Des termes spécifiques au produit et ses caractéristiques premium
-   - Des mots-clés liés aux événements haut de gamme
-   - Des variations géographiques ciblées (Paris, Île-de-France, France)
-   - Des termes de recherche liés à la location et au service national
-   - Des long-tail keywords pertinents
+3. Génère une liste stratégique de 8-10 phrases de recherche SERP comprenant:
+   - Des requêtes complètes que les utilisateurs pourraient taper dans Google
+   - Des questions courantes sur le produit et son utilisation
+   - Des recherches avec des intentions d'achat claires
+   - Des variations géographiques (ex: "location [produit] Paris", "prix [produit] Île-de-France")
+   - Des recherches longues et spécifiques (ex: "comment choisir [produit] pour événement")
+   - Des recherches avec des modificateurs (ex: "meilleur", "professionnel", "premium")
 
 4. ${lengthInstruction}
 5. ${keywordsInstruction}
@@ -204,17 +205,25 @@ CONTEXTE MARKETING:
 INSTRUCTIONS SPÉCIFIQUES:
 1. Génère un titre SEO optimisé (60-70 caractères maximum) qui soit accrocheur et contienne les mots-clés principaux.
 2. Génère une méta-description SEO (150-160 caractères maximum) qui soit informative, persuasive et incite à l'action.
-3. Génère une liste de 5-10 mots-clés pertinents séparés par des virgules, incluant:
-   - Des mots-clés liés au produit lui-même
-   - Des mots-clés liés à l'usage événementiel
-   - Des termes de recherche géographiques (Région parisienne, Île-de-France, Livraison France entière)
-   - Des termes liés à la location/prestation et au service national
-4. ${lengthInstruction}
-5. ${keywordsInstruction}
-6. Assure-toi que le contenu soit optimisé pour le référencement tout en restant naturel et persuasif.
-7. Inclus des termes liés à la qualité premium et à l'exclusivité.
-8. Mentionne notre expertise régionale et notre service personnalisé.
-9. Fournis le résultat au format JSON avec les clés suivantes: "seo_title", "seo_description", "seo_keywords".`;
+3. Génère une liste de 5-10 phrases de recherche SERP pertinentes, incluant:
+   - Des requêtes complètes que les utilisateurs recherchent réellement
+   - Des questions fréquentes sur l'utilisation du produit
+   - Des recherches avec des intentions d'achat (ex: "prix location [produit]", "tarif [produit] événement")
+   - Des variations géographiques (ex: "location [produit] région parisienne", "service [produit] France entière")
+   - Des recherches longues et spécifiques sur l'utilisation en événementiel
+   - Des recherches incluant des modificateurs de qualité (ex: "professionnel", "haut de gamme", "premium")
+
+IMPORTANT - FORMAT DE RÉPONSE:
+Tu DOIS répondre avec un objet JSON valide contenant exactement ces trois clés:
+{
+  "seo_title": "Titre SEO optimisé",
+  "seo_description": "Description SEO optimisée",
+  "seo_keywords": "phrase de recherche 1, phrase de recherche 2, phrase de recherche 3"
+}
+
+Les mots-clés (seo_keywords) DOIVENT être une seule chaîne de caractères avec les phrases séparées par des virgules.
+Ne mets PAS de guillemets autour des phrases individuelles dans seo_keywords.
+Exemple de format correct pour seo_keywords: "location mobilier événement Paris, prix location mobilier premium, service location mobilier professionnel"`;
 
   return {
     contents: [
@@ -303,10 +312,14 @@ export const generateProductSeo = async (
 
     // Préparer la requête pour Gemini
     const requestBody = prepareGeminiRequest(productData, categories, options);
+    console.log('Requête Gemini:', JSON.stringify(requestBody, null, 2));
 
     // Appeler l'API Gemini
     const data = await makeGeminiApiRequest(requestBody, geminiApiKey);
+    console.log('Réponse brute Gemini:', data);
+
     let generatedContent = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    console.log('Contenu généré:', generatedContent);
 
     if (!generatedContent) {
       throw new Error("La réponse de l'API est vide ou mal structurée.");
@@ -318,12 +331,38 @@ export const generateProductSeo = async (
       // Essayer de trouver un objet JSON dans la réponse
       const jsonMatch = generatedContent.match(/\{[\s\S]*\}/);
       const jsonString = jsonMatch ? jsonMatch[0] : generatedContent;
+      console.log('JSON extrait:', jsonString);
+      
       parsedContent = JSON.parse(jsonString);
+      console.log('Contenu parsé:', parsedContent);
+
+      // S'assurer que seo_keywords est une chaîne de caractères
+      if (parsedContent.seo_keywords) {
+        console.log('Type de seo_keywords avant conversion:', typeof parsedContent.seo_keywords);
+        // Si c'est un tableau, le convertir en chaîne
+        if (Array.isArray(parsedContent.seo_keywords)) {
+          parsedContent.seo_keywords = parsedContent.seo_keywords.join(', ');
+        }
+        // Si ce n'est pas une chaîne, essayer de la convertir
+        else if (typeof parsedContent.seo_keywords !== 'string') {
+          parsedContent.seo_keywords = String(parsedContent.seo_keywords);
+        }
+        console.log('seo_keywords après conversion:', parsedContent.seo_keywords);
+      } else {
+        console.log('seo_keywords est manquant dans la réponse');
+      }
     } catch (parseError) {
+      console.error('Erreur lors du parsing JSON:', parseError);
       // Si le contenu n'est pas un JSON valide, essayer d'extraire manuellement
       const titleMatch = generatedContent.match(/"seo_title"\s*:\s*"([^"]+)"/i);
       const descriptionMatch = generatedContent.match(/"seo_description"\s*:\s*"([^"]+)"/i);
       const keywordsMatch = generatedContent.match(/"seo_keywords"\s*:\s*"([^"]+)"/i);
+      
+      console.log('Extraction manuelle - matches:', {
+        title: titleMatch?.[1],
+        description: descriptionMatch?.[1],
+        keywords: keywordsMatch?.[1]
+      });
       
       parsedContent = {
         seo_title: titleMatch ? titleMatch[1] : '',
@@ -332,13 +371,15 @@ export const generateProductSeo = async (
       };
     }
 
-    return { 
+    const result = { 
       seoContent: {
         seo_title: parsedContent.seo_title || '',
         seo_description: parsedContent.seo_description || '',
         seo_keywords: parsedContent.seo_keywords || ''
       } 
     };
+    console.log('Résultat final:', result);
+    return result;
   } catch (err: any) {
     console.error('Erreur détaillée lors de la génération du contenu SEO pour le produit:', err);
     return { error: `Erreur lors de la génération du contenu SEO: ${err.message}` };
