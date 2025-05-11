@@ -5,25 +5,44 @@ export interface NewsletterSubscription {
   email: string;
   status?: string;
   created_at?: Date;
+  last_sent_at?: Date;
+  preferences?: {
+    categories?: string[];
+    frequency?: 'daily' | 'weekly' | 'monthly';
+  };
 }
 
 // Fonction pour sauvegarder un abonné dans la base de données
-export const saveSubscriber = async (email: string): Promise<{ success: boolean; error?: any }> => {
+export const saveSubscriber = async (email: string, preferences?: NewsletterSubscription['preferences']): Promise<{ success: boolean; error?: any }> => {
   try {
     // Vérifier si l'email existe déjà
     const { data: existingSubscriber, error: checkError } = await supabase
       .from('newsletter_subscribers')
-      .select('id, email, status')
+      .select('id, email, status, preferences')
       .eq('email', email)
       .single();
 
-    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = not found
+    if (checkError && checkError.code !== 'PGRST116') {
       console.error('Erreur lors de la vérification de l\'email:', checkError);
       return { success: false, error: checkError };
     }
 
-    // Si l'abonné existe déjà et est actif, on ne fait rien
+    // Si l'abonné existe déjà et est actif, on met à jour ses préférences si fournies
     if (existingSubscriber && existingSubscriber.status === 'active') {
+      if (preferences) {
+        const { error: updateError } = await supabase
+          .from('newsletter_subscribers')
+          .update({ 
+            preferences: { ...existingSubscriber.preferences, ...preferences },
+            updated_at: new Date()
+          })
+          .eq('id', existingSubscriber.id);
+
+        if (updateError) {
+          console.error('Erreur lors de la mise à jour des préférences:', updateError);
+          return { success: false, error: updateError };
+        }
+      }
       return { success: true };
     }
 
@@ -31,7 +50,11 @@ export const saveSubscriber = async (email: string): Promise<{ success: boolean;
     if (existingSubscriber && existingSubscriber.status === 'unsubscribed') {
       const { error: updateError } = await supabase
         .from('newsletter_subscribers')
-        .update({ status: 'active', updated_at: new Date() })
+        .update({ 
+          status: 'active', 
+          updated_at: new Date(),
+          preferences: preferences || existingSubscriber.preferences
+        })
         .eq('id', existingSubscriber.id);
 
       if (updateError) {
@@ -45,7 +68,12 @@ export const saveSubscriber = async (email: string): Promise<{ success: boolean;
     // Sinon, on crée un nouvel abonné
     const { error: insertError } = await supabase
       .from('newsletter_subscribers')
-      .insert([{ email, status: 'active' }]);
+      .insert([{ 
+        email, 
+        status: 'active',
+        preferences,
+        created_at: new Date()
+      }]);
 
     if (insertError) {
       console.error('Erreur lors de l\'enregistrement de l\'abonné:', insertError);
@@ -59,14 +87,42 @@ export const saveSubscriber = async (email: string): Promise<{ success: boolean;
   }
 };
 
+// Fonction pour mettre à jour les préférences d'un abonné
+export const updateSubscriberPreferences = async (
+  email: string, 
+  preferences: NewsletterSubscription['preferences']
+): Promise<{ success: boolean; error?: any }> => {
+  try {
+    const { error } = await supabase
+      .from('newsletter_subscribers')
+      .update({ 
+        preferences,
+        updated_at: new Date()
+      })
+      .eq('email', email);
+
+    if (error) {
+      console.error('Erreur lors de la mise à jour des préférences:', error);
+      return { success: false, error };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Erreur lors de la mise à jour des préférences:', err);
+    return { success: false, error: err instanceof Error ? err.message : String(err) };
+  }
+};
+
 // Fonction pour envoyer un email de confirmation d'inscription à la newsletter
-export const subscribeToNewsletter = async (email: string): Promise<{ success: boolean; error?: any }> => {
+export const subscribeToNewsletter = async (
+  email: string,
+  preferences?: NewsletterSubscription['preferences']
+): Promise<{ success: boolean; error?: any }> => {
   try {
     // Sauvegarder l'abonné dans la base de données
-    const saveResult = await saveSubscriber(email);
+    const saveResult = await saveSubscriber(email, preferences);
     
     if (!saveResult.success) {
-      // S'assurer que l'erreur est une chaîne de caractères
       return { 
         success: false, 
         error: typeof saveResult.error === 'object' && saveResult.error !== null
@@ -91,6 +147,14 @@ export const subscribeToNewsletter = async (email: string): Promise<{ success: b
           
           <p><strong>Email :</strong> ${email}</p>
           
+          ${preferences ? `
+            <h3>Préférences :</h3>
+            <ul>
+              ${preferences.categories ? `<li>Catégories : ${preferences.categories.join(', ')}</li>` : ''}
+              ${preferences.frequency ? `<li>Fréquence : ${preferences.frequency}</li>` : ''}
+            </ul>
+          ` : ''}
+          
           <p style="margin-top: 30px;">Cette inscription a été effectuée depuis le formulaire du site web.</p>
         </div>
         
@@ -112,6 +176,16 @@ export const subscribeToNewsletter = async (email: string): Promise<{ success: b
           <h2>Merci pour votre inscription !</h2>
           
           <p>Votre inscription à notre newsletter a bien été prise en compte.</p>
+          
+          ${preferences ? `
+            <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin-top: 0;">Vos préférences :</h3>
+              <ul style="margin: 0; padding-left: 20px;">
+                ${preferences.categories ? `<li>Catégories : ${preferences.categories.join(', ')}</li>` : ''}
+                ${preferences.frequency ? `<li>Fréquence : ${preferences.frequency}</li>` : ''}
+              </ul>
+            </div>
+          ` : ''}
           
           <p>Vous recevrez désormais nos actualités et offres exclusives directement dans votre boîte mail.</p>
           
@@ -195,7 +269,11 @@ export const unsubscribeUser = async (email: string): Promise<{ success: boolean
   try {
     const { error } = await supabase
       .from('newsletter_subscribers')
-      .update({ status: 'unsubscribed', updated_at: new Date() })
+      .update({ 
+        status: 'unsubscribed', 
+        updated_at: new Date(),
+        unsubscribed_at: new Date()
+      })
       .eq('email', email);
     
     if (error) {
@@ -210,11 +288,21 @@ export const unsubscribeUser = async (email: string): Promise<{ success: boolean
   }
 };
 
-// Fonction pour envoyer une newsletter à tous les abonnés actifs
+interface EmailError {
+  email: string;
+  error: any;
+}
+
 export const sendNewsletterToSubscribers = async (
   subject: string,
   htmlContent: string,
-  testEmail?: string
+  testEmail?: string,
+  options?: {
+    categories?: string[];
+    frequency?: 'daily' | 'weekly' | 'monthly';
+    batchSize?: number;
+    delayBetweenBatches?: number;
+  }
 ): Promise<{ success: boolean; error?: any; sentCount?: number }> => {
   try {
     // Si un email de test est fourni, envoyer uniquement à cet email
@@ -227,8 +315,23 @@ export const sendNewsletterToSubscribers = async (
       };
     }
 
-    // Récupérer tous les abonnés actifs
-    const { data: subscribers, error: fetchError } = await getAllSubscribers('active');
+    // Construire la requête pour récupérer les abonnés actifs
+    let query = supabase
+      .from('newsletter_subscribers')
+      .select('*')
+      .eq('status', 'active');
+
+    // Filtrer par catégories si spécifiées
+    if (options?.categories && options.categories.length > 0) {
+      query = query.contains('preferences->categories', options.categories);
+    }
+
+    // Filtrer par fréquence si spécifiée
+    if (options?.frequency) {
+      query = query.eq('preferences->frequency', options.frequency);
+    }
+
+    const { data: subscribers, error: fetchError } = await query;
     
     if (fetchError || !subscribers) {
       console.error('Erreur lors de la récupération des abonnés:', fetchError);
@@ -238,18 +341,45 @@ export const sendNewsletterToSubscribers = async (
     if (subscribers.length === 0) {
       return { success: true, sentCount: 0 };
     }
-    
-    // Envoyer l'email à chaque abonné
+
+    // Envoyer les emails par lots pour éviter de surcharger le serveur
+    const batchSize = options?.batchSize || 50;
+    const delayBetweenBatches = options?.delayBetweenBatches || 1000;
     let successCount = 0;
-    let errors = [];
+    let errors: EmailError[] = [];
     
-    for (const subscriber of subscribers) {
-      const result = await sendEmail(subscriber.email, subject, htmlContent);
+    for (let i = 0; i < subscribers.length; i += batchSize) {
+      const batch = subscribers.slice(i, i + batchSize);
       
-      if (result.success) {
-        successCount++;
-      } else {
-        errors.push({ email: subscriber.email, error: result.error });
+      // Envoyer les emails du lot en parallèle
+      const batchResults = await Promise.all(
+        batch.map(async (subscriber) => {
+          const result = await sendEmail(subscriber.email, subject, htmlContent);
+          
+          if (result.success) {
+            // Mettre à jour la date du dernier envoi
+            await supabase
+              .from('newsletter_subscribers')
+              .update({ last_sent_at: new Date() })
+              .eq('email', subscriber.email);
+          }
+          
+          return { email: subscriber.email, success: result.success, error: result.error };
+        })
+      );
+      
+      // Compter les succès et les erreurs
+      batchResults.forEach(result => {
+        if (result.success) {
+          successCount++;
+        } else {
+          errors.push({ email: result.email, error: result.error });
+        }
+      });
+      
+      // Attendre avant d'envoyer le prochain lot
+      if (i + batchSize < subscribers.length) {
+        await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
       }
     }
     

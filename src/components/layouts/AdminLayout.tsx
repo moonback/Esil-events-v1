@@ -87,28 +87,28 @@ const Logo: React.FC<{collapsed: boolean}> = memo(({ collapsed }) => (
   </Link>
 ));
 
-// UserWelcome component with enhanced styling
-const UserWelcome: React.FC<{user: any, collapsed: boolean}> = memo(({ user, collapsed }) => (
-  <div className="mb-6 px-3">
-    <div className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/10 dark:to-indigo-900/10 rounded-xl p-4 shadow-sm border border-violet-100/50 dark:border-violet-800/20 transition-all duration-300 hover:shadow-md hover:border-violet-200 dark:hover:border-violet-700/30">
-      <div className="flex items-center space-x-3">
-        <div className="p-2.5 bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-800/20 dark:to-indigo-800/20 rounded-xl shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-violet-600 dark:text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        </div>
-        {!collapsed && (
-          <div>
-            <p className="text-xs font-medium text-violet-800 dark:text-violet-300">Bienvenue</p>
-            <p className="text-sm font-semibold text-violet-900 dark:text-violet-200 truncate">
-              {user?.email?.split('@')[0] || 'Admin'}
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-));
+// // UserWelcome component with enhanced styling
+// const UserWelcome: React.FC<{user: any, collapsed: boolean}> = memo(({ user, collapsed }) => (
+//   <div className="mb-6 px-3">
+//     <div className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/10 dark:to-indigo-900/10 rounded-xl p-4 shadow-sm border border-violet-100/50 dark:border-violet-800/20 transition-all duration-300 hover:shadow-md hover:border-violet-200 dark:hover:border-violet-700/30">
+//       <div className="flex items-center space-x-3">
+//         <div className="p-2.5 bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-800/20 dark:to-indigo-800/20 rounded-xl shadow-sm">
+//           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-violet-600 dark:text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+//             <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+//           </svg>
+//         </div>
+//         {!collapsed && (
+//           <div>
+//             <p className="text-xs font-medium text-violet-800 dark:text-violet-300">Bienvenue</p>
+//             <p className="text-sm font-semibold text-violet-900 dark:text-violet-200 truncate">
+//               {user?.email?.split('@')[0] || 'Admin'}
+//             </p>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   </div>
+// ));
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const location = useLocation();
@@ -187,7 +187,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
           {/* Navigation - Enhanced with better spacing and scrollbar styling */}
           <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-            <UserWelcome user={user} collapsed={collapsed} />
+            {/* <UserWelcome user={user} collapsed={collapsed} /> */}
             
             <div className="space-y-1.5">
               {menuItems.map((item) => (
