@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, ShoppingCart, Star, Clock, Tag, Truck, Check, ZoomIn, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../hooks/useAuth';
 import { getProductById, getSimilarProducts } from '../services/productService';
 import { Product } from '../types/Product';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
@@ -20,6 +21,7 @@ const ProductPage: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [zoomOpen, setZoomOpen] = useState(false);
   const { addToCart } = useCart();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -357,11 +359,15 @@ return (
                 hover:from-violet-700 hover:to-violet-800 transition-all duration-300 
                 flex items-center justify-center space-x-3 text-base md:text-lg font-semibold
                 shadow-lg hover:shadow-xl transform hover:-translate-y-1 
-                active:transform active:translate-y-0 active:shadow-md"
+                active:transform active:translate-y-0 active:shadow-md
+                relative overflow-hidden group"
                 aria-label="Ajouter au devis"
               >
-                <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 animate-bounce" />
-                <span>Ajouter au devis</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative flex items-center space-x-3">
+                  <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 animate-bounce" />
+                  <span>Ajouter au devis</span>
+                </div>
               </button>
 
               {/* Description */}
@@ -408,7 +414,7 @@ return (
                         href={product.technicalDocUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center p-3 md:p-4 bg-violet-50 text-violet-700 rounded-lg hover:bg-violet-100 transition-colors shadow-sm hover:shadow-md"
+                        className="flex items-center justify-center p-3 md:p-4 bg-violet-50 text-violet-700 rounded-lg hover:bg-violet-100 transition-colors shadow-sm hover:shadow-md transform hover:scale-105 duration-300"
                       >
                         <FileText className="w-5 h-5 md:w-6 md:h-6 mr-2" />
                         <span className="font-medium">Documentation Technique</span>
@@ -419,7 +425,7 @@ return (
                         href={product.videoUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center p-3 md:p-4 bg-violet-50 text-violet-700 rounded-lg hover:bg-violet-100 transition-colors shadow-sm hover:shadow-md"
+                        className="flex items-center justify-center p-3 md:p-4 bg-violet-50 text-violet-700 rounded-lg hover:bg-violet-100 transition-colors shadow-sm hover:shadow-md transform hover:scale-105 duration-300"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 md:w-6 md:h-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -430,14 +436,66 @@ return (
                   </div>
                 </div>
               )}
+
+              {/* SEO Keywords Section - Only visible for authenticated users */}
+              {user && (product.seo_keywords || product.seo_title || product.seo_description) && (
+                <div className="bg-gradient-to-br from-violet-50 to-white rounded-xl shadow-lg p-4 md:p-6 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="flex items-center justify-between mb-3 md:mb-4">
+                    <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2 text-violet-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/>
+                        <path d="M7 7h.01"/>
+                      </svg>
+                      <span>Informations SEO</span>
+                    </h2>
+                    <span className="text-xs px-2 py-1 bg-violet-100 text-violet-800 rounded-full font-medium">
+                      Accès restreint
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {product.seo_title && (
+                      <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 border border-violet-100">
+                        <h3 className="text-sm font-medium text-violet-600 mb-1">Titre SEO</h3>
+                        <p className="text-gray-700">{product.seo_title}</p>
+                      </div>
+                    )}
+                    
+                    {product.seo_description && (
+                      <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 border border-violet-100">
+                        <h3 className="text-sm font-medium text-violet-600 mb-1">Description SEO</h3>
+                        <p className="text-gray-700">{product.seo_description}</p>
+                      </div>
+                    )}
+                    
+                    {product.seo_keywords && (
+                      <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 border border-violet-100">
+                        <h3 className="text-sm font-medium text-violet-600 mb-2">Mots-clés SEO</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {product.seo_keywords.split(',').map((keyword, index) => (
+                            <span 
+                              key={index}
+                              className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-violet-100 text-violet-800 hover:bg-violet-200 transition-colors duration-200 cursor-default"
+                            >
+                              {keyword.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           {/* Toast Notification */}
           {showToast && (
-              <div className="fixed bottom-6 right-6 bg-violet-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up z-50">
+            <div className="fixed bottom-6 right-6 bg-gradient-to-r from-violet-600 to-violet-700 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up z-50 transform hover:scale-105 transition-transform duration-300">
+              <div className="bg-white/20 p-2 rounded-full">
                 <Check className="w-5 h-5" />
-                <span className="font-medium">Produit ajouté au devis avec succès !</span>
               </div>
+              <span className="font-medium">Produit ajouté au devis avec succès !</span>
+            </div>
           )}
           
           {/* Image Zoom Modal */}
