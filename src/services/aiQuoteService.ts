@@ -29,7 +29,7 @@ const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_GEMINI_API_KEY 
 
 export const generateQuoteSuggestions = async (request: QuoteRequest): Promise<AIResponse> => {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     // Construct the prompt
     const prompt = `
