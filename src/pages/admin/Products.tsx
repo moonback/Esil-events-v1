@@ -314,222 +314,204 @@ const AdminProducts: React.FC = () => {
               </button>
             </div>
 
-            {/* Products Table - Made responsive */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
-              <div className="overflow-x-auto">
-                <div className="min-w-full">
-                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-900/50">
-                      <tr>
-                        <th 
-                          className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                          onClick={() => handleSort('name')}
+            {/* Vue en cards des produits */}
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {currentItems.map((product) => (
+                  <div 
+                    key={product.id} 
+                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 overflow-hidden group relative"
+                  >
+                    {/* Image du produit avec overlay */}
+                    <div className="relative aspect-square overflow-hidden">
+                      {product.images && product.images.length > 0 ? (
+                        <>
+                          <img
+                            src={product.mainImageIndex !== undefined && 
+                                 product.mainImageIndex >= 0 && 
+                                 product.mainImageIndex < product.images.length 
+                                 ? product.images[product.mainImageIndex] 
+                                 : product.images[0]}
+                            alt={product.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        </>
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
+                          <svg className="w-16 h-16 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )}
+                      
+                      {/* Badges de statut et stock */}
+                      <div className="absolute top-3 right-3 flex flex-col gap-2">
+                        <span
+                          className={`px-3 py-1.5 text-xs font-medium rounded-full shadow-lg backdrop-blur-sm ${
+                            product.isAvailable
+                              ? 'bg-green-100/90 dark:bg-green-900/50 text-green-800 dark:text-green-400'
+                              : 'bg-red-100/90 dark:bg-red-900/50 text-red-800 dark:text-red-400'
+                          }`}
                         >
-                          <div className="flex items-center">
-                            Produit
-                            {sortField === 'name' && (
-                              <ArrowUpDown className="ml-1 h-3 w-3" />
-                            )}
-                          </div>
-                        </th>
-                        <th 
-                          className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
-                          onClick={() => handleSort('category')}
-                        >
-                          <div className="flex items-center">
-                            Catégorie
-                            {sortField === 'category' && (
-                              <ArrowUpDown className="ml-1 h-3 w-3" />
-                            )}
-                          </div>
-                        </th>
-                        
-                        <th 
-                          className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
-                          onClick={() => handleSort('price')}
-                        >
-                          <div className="flex items-center">
-                            Prix
-                            {sortField === 'price' && (
-                              <ArrowUpDown className="ml-1 h-3 w-3" />
-                            )}
-                          </div>
-                        </th>
-                        <th 
-                          className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
-                          onClick={() => handleSort('stock')}
-                        >
-                          <div className="flex items-center">
-                            Stock
-                            {sortField === 'stock' && (
-                              <ArrowUpDown className="ml-1 h-3 w-3" />
-                            )}
-                          </div>
-                        </th>
-                        <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Statut
-                        </th>
-                        <th className="px-3 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                      {currentItems.map((product) => (
-                        <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
-                          <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="hidden lg:block">
-                                {product.images && product.images.length > 0 ? (
-                                  <ProductImage
-                                    src={product.mainImageIndex !== undefined && product.mainImageIndex >= 0 && product.mainImageIndex < product.images.length ? product.images[product.mainImageIndex] : product.images[0]}
-                                    alt={product.name}
-                                  />
-                                ) : (
-                                  <div className="h-10 w-10 rounded-md bg-gray-200 flex items-center justify-center">
-                                    <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="ml-0 lg:ml-3">
-                                <div className="font-medium text-gray-900">{product.name}</div>
-                                <div className="text-sm text-gray-500">{product.reference}</div>
-                                {product.slug && (
-                                  <div className="text-xs text-blue-500 mt-0.5">
-                                    <span className="font-medium">URL:</span> /product/{product.slug}
-                                  </div>
-                                )}
-                                <div className="lg:hidden text-xs text-gray-400 mt-1">
-                                  {product.category} • {product.stock} en stock
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{product.category}</div>
-                            <div className="text-sm text-gray-500">{product.subCategory}</div>
-                            {product.subSubCategory && (
-                              <div className="text-sm text-gray-400">{product.subSubCategory}</div>
-                            )}
-                          </td>
-                          
-                          <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{product.priceHT} €</div>
-                            <div className="text-xs text-gray-500">{product.priceTTC} € TTC</div>
-                          </td>
-                          <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <span className={`text-sm ${product.stock < 5 ? 'text-amber-600 font-medium' : 'text-gray-500'}`}>
-                                {product.stock}
-                              </span>
-                              {product.stock < 5 && (
-                                <span className="ml-2 px-2 py-0.5 text-xs bg-amber-100 text-amber-800 rounded-full">
-                                  Faible
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                product.isAvailable
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
-                              }`}
-                            >
-                              {product.isAvailable ? 'Disponible' : 'Indisponible'}
+                          {product.isAvailable ? 'Disponible' : 'Indisponible'}
+                        </span>
+                        {product.stock < 5 && (
+                          <span className="px-3 py-1.5 text-xs font-medium rounded-full shadow-lg backdrop-blur-sm bg-amber-100/90 dark:bg-amber-900/50 text-amber-800 dark:text-amber-400">
+                            Stock faible
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Indicateur de stock */}
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg p-2 shadow-lg">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">Stock</span>
+                            <span className={`text-sm font-bold ${product.stock < 5 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-900 dark:text-white'}`}>
+                              {product.stock} unités
                             </span>
-                          </td>
-                          <td className="px-3 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button
-                              onClick={() => setQuickViewProduct(product)}
-                              className="text-indigo-600 hover:text-indigo-900 mr-3"
-                              title="Aperçu rapide"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setEditingProduct(product);
-                                setShowForm(true);
-                              }}
-                              className="text-gray-600 hover:text-gray-900 mr-3"
-                              title="Modifier"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={async () => {
-                                try {
-                                  setError('');
-                                  const newProductId = await duplicateProduct(product.id);
-                                  await loadProducts();
-                                } catch (err: any) {
-                                  setError(err.message || 'Erreur lors de la duplication du produit');
-                                  console.error(err);
-                                }
-                              }}
-                              className="text-blue-600 hover:text-blue-800 mr-3"
-                              title="Dupliquer"
-                            >
-                              <Copy className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                // Rediriger vers la page de suivi des mots-clés avec les mots-clés du produit
-                                const keywords = product.seo_keywords || '';
-                                const encodedKeywords = encodeURIComponent(keywords);
-                                window.location.href = `/admin/keyword-rankings?keywords=${encodedKeywords}&productName=${encodeURIComponent(product.name)}`;
-                              }}
-                              className="text-teal-600 hover:text-teal-800 mr-3"
-                              title="Recherche de positionnement SEO"
-                            >
-                              <BarChart className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(product.id)}
-                              className="text-red-600 hover:text-red-800 transition-colors duration-200"
-                              title="Supprimer"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                          </div>
+                          <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mt-1.5 overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                product.stock < 5 
+                                  ? 'bg-amber-500' 
+                                  : product.stock < 10 
+                                    ? 'bg-yellow-500' 
+                                    : 'bg-green-500'
+                              }`}
+                              style={{ width: `${Math.min(100, (product.stock / 20) * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Informations du produit */}
+                    <div className="p-5">
+                      <div className="mb-3">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {product.reference}
+                        </p>
+                      </div>
+
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-xl font-bold text-gray-900 dark:text-white">
+                              {product.priceHT} €
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {product.priceTTC} € TTC
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <div className="flex flex-wrap gap-1.5">
+                          <span className="px-2.5 py-1 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full">
+                            {product.category}
+                          </span>
+                          {product.subCategory && (
+                            <span className="px-2.5 py-1 text-xs font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full">
+                              {product.subCategory}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <div className="flex space-x-1">
+                          <button
+                            onClick={() => setQuickViewProduct(product)}
+                            className="p-2 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-all duration-200"
+                            title="Aperçu rapide"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingProduct(product);
+                              setShowForm(true);
+                            }}
+                            className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-all duration-200"
+                            title="Modifier"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={async () => {
+                              try {
+                                setError('');
+                                const newProductId = await duplicateProduct(product.id);
+                                await loadProducts();
+                              } catch (err: any) {
+                                setError(err.message || 'Erreur lors de la duplication du produit');
+                                console.error(err);
+                              }
+                            }}
+                            className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200"
+                            title="Dupliquer"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="flex space-x-1">
+                          <button
+                            onClick={() => {
+                              const keywords = product.seo_keywords || '';
+                              const encodedKeywords = encodeURIComponent(keywords);
+                              window.location.href = `/admin/keyword-rankings?keywords=${encodedKeywords}&productName=${encodeURIComponent(product.name)}`;
+                            }}
+                            className="p-2 text-gray-600 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/30 rounded-lg transition-all duration-200"
+                            title="Recherche de positionnement SEO"
+                          >
+                            <BarChart className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(product.id)}
+                            className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all duration-200"
+                            title="Supprimer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
 
-              {/* Pagination - Made responsive */}
+              {/* Pagination */}
               {filteredProducts.length > 0 && totalPages > 1 && (
-                <div className="bg-white dark:bg-gray-800 px-3 lg:px-6 py-3 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                    <div className="w-full lg:w-auto">
-                      <p className="text-sm text-gray-700 dark:text-gray-300 text-center lg:text-left">
-                        <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span>
-                        {' - '}
-                        <span className="font-medium">
-                          {Math.min(currentPage * itemsPerPage, filteredProducts.length)}
-                        </span>
-                        {' sur '}
-                        <span className="font-medium">{filteredProducts.length}</span>
-                        {' produits'}
-                      </p>
+                <div className="mt-8">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      Affichage de <span className="font-semibold text-gray-900 dark:text-white">{(currentPage - 1) * itemsPerPage + 1}</span> à{' '}
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {Math.min(currentPage * itemsPerPage, filteredProducts.length)}
+                      </span>{' '}
+                      sur <span className="font-semibold text-gray-900 dark:text-white">{filteredProducts.length}</span> produits
                     </div>
-                    <div className="flex justify-center w-full lg:w-auto">
-                      <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                        <button
-                          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                          disabled={currentPage === 1}
-                          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                          <span className="sr-only">Précédent</span>
-                          &larr;
-                        </button>
-                        
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                        className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+
+                      <div className="flex items-center gap-1">
                         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                           let pageNum;
                           if (totalPages <= 5) {
@@ -541,39 +523,40 @@ const AdminProducts: React.FC = () => {
                           } else {
                             pageNum = currentPage - 2 + i;
                           }
-                          
+
                           return (
                             <button
                               key={pageNum}
                               onClick={() => setCurrentPage(pageNum)}
-                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${
+                              className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-200 ${
                                 currentPage === pageNum
-                                  ? 'z-10 bg-black dark:bg-white border-black dark:border-white text-white dark:text-black'
-                                  : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                  ? 'bg-indigo-600 text-white shadow-md'
+                                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                               }`}
                             >
                               {pageNum}
                             </button>
                           );
                         })}
-                        
-                        <button
-                          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                          disabled={currentPage === totalPages}
-                          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                          <span className="sr-only">Suivant</span>
-                          &rarr;
-                        </button>
-                      </nav>
+                      </div>
+
+                      <button
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                        className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 </div>
               )}
-              
-              {/* Aucun résultat */}
+
+              {/* Message aucun résultat */}
               {filteredProducts.length === 0 && (
-                <div className="bg-white dark:bg-gray-800 p-8 text-center rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <div className="mt-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
                   <div className="text-gray-500 dark:text-gray-400">
                     <svg className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -582,7 +565,7 @@ const AdminProducts: React.FC = () => {
                     <p className="text-gray-500 dark:text-gray-400 mb-4">Essayez de modifier vos filtres ou d'effectuer une autre recherche.</p>
                     <button 
                       onClick={resetFilters}
-                      className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition-colors"
+                      className="px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
                     >
                       Réinitialiser les filtres
                     </button>
@@ -591,7 +574,6 @@ const AdminProducts: React.FC = () => {
               )}
             </div>
           </>
-           
         )}
       </div>
 
