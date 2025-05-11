@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, ShoppingCart, Star, Clock, Tag, Truck, Check, ZoomIn, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, ShoppingCart, Star, Clock, Tag, Truck, Check, ZoomIn, X, BarChart, TrendingUp, TrendingDown } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 import { getProductById, getSimilarProducts } from '../services/productService';
+import { supabase } from '../services/supabaseClient';
 import { Product } from '../types/Product';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 import SEO from '../components/SEO';
+
+interface KeywordRanking {
+  keyword: string;
+  position: number;
+  previousPosition: number | null;
+  lastChecked: string;
+}
 
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +30,8 @@ const ProductPage: React.FC = () => {
   const [zoomOpen, setZoomOpen] = useState(false);
   const { addToCart } = useCart();
   const { user } = useAuth();
+  const [keywordRankings, setKeywordRankings] = useState<Record<string, KeywordRanking>>({});
+  const [loadingRankings, setLoadingRankings] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -117,6 +127,50 @@ const ProductPage: React.FC = () => {
       setShowToast(false);
     }, 3000);
   };
+
+  // Fonction pour récupérer les positions des mots-clés
+  const fetchKeywordRankings = async (keywords: string[]) => {
+    if (!keywords.length) return;
+    
+    setLoadingRankings(true);
+    try {
+      const { data, error } = await supabase
+        .from('keyword_rankings')
+        .select('*')
+        .in('keyword', keywords)
+        .order('lastChecked', { ascending: false });
+
+      if (error) throw error;
+
+      // Organiser les données par mot-clé
+      const rankingsByKeyword: Record<string, KeywordRanking> = {};
+      data.forEach((ranking: any) => {
+        if (!rankingsByKeyword[ranking.keyword] || 
+            new Date(ranking.lastChecked) > new Date(rankingsByKeyword[ranking.keyword].lastChecked)) {
+          rankingsByKeyword[ranking.keyword] = {
+            keyword: ranking.keyword,
+            position: ranking.position,
+            previousPosition: ranking.previousPosition,
+            lastChecked: ranking.lastChecked
+          };
+        }
+      });
+
+      setKeywordRankings(rankingsByKeyword);
+    } catch (error) {
+      console.error('Error fetching keyword rankings:', error);
+    } finally {
+      setLoadingRankings(false);
+    }
+  };
+
+  // Effet pour charger les positions des mots-clés quand le produit change
+  useEffect(() => {
+    if (product?.seo_keywords) {
+      const keywords = product.seo_keywords.split(',').map(k => k.trim());
+      fetchKeywordRankings(keywords);
+    }
+  }, [product?.seo_keywords]);
 
   if (loading) {
     return (
@@ -470,16 +524,76 @@ return (
                     
                     {product.seo_keywords && (
                       <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 border border-violet-100">
-                        <h3 className="text-sm font-medium text-violet-600 mb-2">Mots-clés SEO</h3>
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="text-sm font-medium text-violet-600">Mots-clés SEO</h3>
+                          {loadingRankings && (
+                            <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-violet-600"></div>
+                          )}
+                        </div>
                         <div className="flex flex-wrap gap-2">
-                          {product.seo_keywords.split(',').map((keyword, index) => (
-                            <span 
-                              key={index}
-                              className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-violet-100 text-violet-800 hover:bg-violet-200 transition-colors duration-200 cursor-default"
-                            >
-                              {keyword.trim()}
-                            </span>
-                          ))}
+                          {product.seo_keywords.split(',').map((keyword, index) => {
+                            const trimmedKeyword = keyword.trim();
+                            const ranking = keywordRankings[trimmedKeyword];
+                            const hasRanking = ranking && ranking.position > 0;
+                            const positionChange = ranking?.previousPosition ? ranking.previousPosition - ranking.position : 0;
+                            
+                            return (
+                              <div 
+                                key={index}
+                                className="group relative"
+                              >
+                                <span 
+                                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                                    ${hasRanking ? 'bg-violet-100' : 'bg-gray-100'} 
+                                    ${hasRanking ? 'text-violet-800' : 'text-gray-600'} 
+                                    hover:bg-violet-200 transition-colors duration-200 cursor-default`}
+                                >
+                                  {trimmedKeyword}
+                                  {hasRanking && (
+                                    <span className="ml-2 flex items-center space-x-1">
+                                      <span className="text-xs font-medium">#{ranking.position}</span>
+                                      {positionChange !== 0 && (
+                                        positionChange > 0 ? (
+                                          <TrendingUp className="w-3 h-3 text-green-500" />
+                                        ) : (
+                                          <TrendingDown className="w-3 h-3 text-red-500" />
+                                        )
+                                      )}
+                                    </span>
+                                  )}
+                                </span>
+                                
+                                {/* Tooltip avec les détails du positionnement */}
+                                {hasRanking && (
+                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                    <div className="flex items-center space-x-2">
+                                      <BarChart className="w-3 h-3" />
+                                      <span>Position: #{ranking.position}</span>
+                                    </div>
+                                    {ranking.previousPosition && (
+                                      <div className="mt-1 flex items-center space-x-2">
+                                        {positionChange > 0 ? (
+                                          <TrendingUp className="w-3 h-3 text-green-500" />
+                                        ) : positionChange < 0 ? (
+                                          <TrendingDown className="w-3 h-3 text-red-500" />
+                                        ) : null}
+                                        <span>
+                                          {positionChange > 0 
+                                            ? `+${positionChange} positions` 
+                                            : positionChange < 0 
+                                              ? `${positionChange} positions` 
+                                              : 'Position stable'}
+                                        </span>
+                                      </div>
+                                    )}
+                                    <div className="mt-1 text-gray-400">
+                                      Dernière vérification: {new Date(ranking.lastChecked).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
