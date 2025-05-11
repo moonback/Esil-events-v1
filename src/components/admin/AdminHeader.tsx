@@ -192,9 +192,13 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
             </div> */}
 
             {/* Settings */}
-            {/* <button className="hidden md:block p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-              <Settings className="w-5 h-5" />
-            </button> */}
+            <button 
+              onClick={() => window.location.href = '/'}
+              className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              <Home className="w-5 h-5" />
+              <span className="text-sm font-medium">Voir le site</span>
+            </button>
 
             {/* User Menu */}
             <div className="relative" ref={userMenuRef}>
