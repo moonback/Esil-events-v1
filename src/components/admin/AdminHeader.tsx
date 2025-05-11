@@ -58,11 +58,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
     }
   };
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(notification => ({ ...notification, read: true })));
-  };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <div className="mb-6">
@@ -97,7 +93,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
           </div>
 
           {/* Search Bar - Hidden on mobile unless search is open */}
-          <div className={`${isSearchOpen ? 'flex absolute top-0 left-0 right-0 p-4 bg-white dark:bg-gray-800 h-16 z-40' : 'hidden md:flex'} flex-1 max-w-xl mx-auto`}>
+          {/* <div className={`${isSearchOpen ? 'flex absolute top-0 left-0 right-0 p-4 bg-white dark:bg-gray-800 h-16 z-40' : 'hidden md:flex'} flex-1 max-w-xl mx-auto`}>
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -114,7 +110,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
                 </button>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-1 md:space-x-3">
