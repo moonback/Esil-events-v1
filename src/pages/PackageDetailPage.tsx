@@ -291,7 +291,7 @@ const PackageDetailPage: React.FC = () => {
         >
           <button
             onClick={() => navigate('/packages')}
-            className="inline-flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
+            className="inline-flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-all duration-300 transform hover:scale-105"
           >
             <ArrowLeft className="mr-2 h-5 w-5" />
             Retour aux packages
@@ -302,21 +302,29 @@ const PackageDetailPage: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden mb-8"
+          className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden mb-8 border border-gray-200 dark:border-gray-700"
         >
           <div className="md:flex">
             {/* Image du package */}
-            <div className="md:flex-shrink-0 md:w-1/3">
+            <div className="md:flex-shrink-0 md:w-1/3 relative group">
               {state.template.image_url ? (
                 <img
-                  className="h-64 w-full object-cover md:h-full"
+                  className="h-64 w-full object-cover md:h-full transition-transform duration-500 group-hover:scale-105"
                   src={state.template.image_url}
                   alt={state.template.name}
                   loading="lazy"
                 />
               ) : (
-                <div className="h-64 w-full md:h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                  <Package className="h-16 w-16 text-gray-400" />
+                <div className="h-64 w-full md:h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <Package className="h-16 w-16 text-white opacity-75" />
+                </div>
+              )}
+              {state.template.target_event_type && (
+                <div className="absolute top-4 right-4">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/90 dark:bg-gray-800/90 text-indigo-600 dark:text-indigo-400 shadow-lg">
+                    <Calendar className="-ml-0.5 mr-2 h-4 w-4" />
+                    {state.template.target_event_type}
+                  </span>
                 </div>
               )}
             </div>
@@ -325,17 +333,9 @@ const PackageDetailPage: React.FC = () => {
             <div className="p-8 md:w-2/3">
               <div className="flex flex-col h-full justify-between">
                 <div>
-                  <div className="flex items-center justify-between">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                      {state.template.name}
-                    </h1>
-                    {state.template.target_event_type && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                        <Calendar className="-ml-0.5 mr-2 h-4 w-4" />
-                        {state.template.target_event_type}
-                      </span>
-                    )}
-                  </div>
+                  <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+                    {state.template.name}
+                  </h1>
 
                   <p className="mt-4 text-gray-600 dark:text-gray-400">
                     {state.template.description || 'Aucune description disponible.'}
@@ -344,13 +344,13 @@ const PackageDetailPage: React.FC = () => {
 
                 <div className="mt-6">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                      <DollarSign className="h-6 w-6 mr-1" />
+                    <div className="flex items-center text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+                      <DollarSign className="h-8 w-8 mr-2" />
                       {state.totalPrice.toFixed(2)} €
                     </div>
                     <button
                       onClick={handleAddToCart}
-                      className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                      className="inline-flex items-center px-8 py-4 border border-transparent rounded-xl shadow-lg text-base font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-105"
                     >
                       <ShoppingCart className="-ml-1 mr-2 h-5 w-5" />
                       Ajouter au panier
@@ -367,10 +367,10 @@ const PackageDetailPage: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden"
+          className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700"
         >
-          <div className="p-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+          <div className="p-8">
+            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 mb-8">
               Personnalisez votre package
             </h2>
 
@@ -393,8 +393,8 @@ const PackageDetailPage: React.FC = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ delay: index * 0.1 }}
-                      className={`border rounded-lg p-4 ${
-                        !item.is_included ? 'bg-gray-50 dark:bg-gray-700/50 opacity-75' : 'bg-white dark:bg-gray-800'
+                      className={`border rounded-xl p-6 transition-all duration-300 ${
+                        !item.is_included ? 'bg-gray-50 dark:bg-gray-700/50 opacity-75' : 'bg-white dark:bg-gray-800 hover:shadow-lg'
                       }`}
                     >
                       <div className="flex items-start justify-between">
@@ -403,24 +403,24 @@ const PackageDetailPage: React.FC = () => {
                             <div className="pt-1">
                               <button
                                 onClick={() => handleToggleItem(item.id)}
-                                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
+                                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110 ${
                                   item.is_included
-                                    ? 'bg-indigo-600 text-white'
+                                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
                                     : 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400'
                                 }`}
                               >
-                                {item.is_included ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                                {item.is_included ? <Check className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
                               </button>
                             </div>
                           )}
                           <div>
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                               {item.name}
                             </h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
                               {item.item_type === 'product' ? 'Produit' : item.item_type === 'artist' ? 'Artiste' : 'Service'}
                               {item.discount_percentage > 0 && (
-                                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                                   -{item.discount_percentage}%
                                 </span>
                               )}
@@ -428,7 +428,7 @@ const PackageDetailPage: React.FC = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-lg font-medium text-gray-900 dark:text-white">
+                          <div className="text-xl font-semibold text-gray-900 dark:text-white">
                             {itemTotalPrice.toFixed(2)} €
                           </div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -445,17 +445,17 @@ const PackageDetailPage: React.FC = () => {
                             <button
                               onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                               disabled={item.quantity <= minQuantity}
-                              className="w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                              className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-110"
                             >
-                              <Minus className="h-4 w-4" />
+                              <Minus className="h-5 w-5" />
                             </button>
-                            <span className="mx-3 w-8 text-center">{item.quantity}</span>
+                            <span className="mx-4 w-8 text-center text-lg font-medium">{item.quantity}</span>
                             <button
                               onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                               disabled={item.quantity >= maxQuantity}
-                              className="w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                              className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-110"
                             >
-                              <Plus className="h-4 w-4" />
+                              <Plus className="h-5 w-5" />
                             </button>
                           </div>
                           {(minQuantity > 1 || maxQuantity < 100) && (
@@ -473,23 +473,23 @@ const PackageDetailPage: React.FC = () => {
           </div>
 
           {/* Résumé et total */}
-          <div className="bg-gray-50 dark:bg-gray-700 p-6 border-t border-gray-200 dark:border-gray-600">
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-8 border-t border-gray-200 dark:border-gray-600">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Total estimé</h3>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Total estimé</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {state.customizedItems.filter(item => item.is_included).length} éléments inclus
                 </p>
               </div>
-              <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+              <div className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
                 {state.totalPrice.toFixed(2)} €
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-8">
               <button
                 onClick={handleAddToCart}
-                className="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                className="w-full inline-flex justify-center items-center px-8 py-4 border border-transparent rounded-xl shadow-lg text-base font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-105"
               >
                 <ShoppingCart className="-ml-1 mr-2 h-5 w-5" />
                 Ajouter au panier

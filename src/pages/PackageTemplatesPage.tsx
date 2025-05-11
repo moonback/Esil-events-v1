@@ -6,6 +6,7 @@ import SEO from '../components/SEO';
 import { getAllPackageTemplates } from '../services/packageTemplateService';
 import { PackageTemplate } from '../types/PackageTemplate';
 import { useNotification } from '../components/AdminNotification';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type SortField = 'name' | 'base_price' | 'order_index';
 type SortDirection = 'asc' | 'desc';
@@ -124,27 +125,39 @@ const PackageTemplatesPage: React.FC = () => {
       />
 
       <div className="max-w-7xl pt-40 mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
+        {/* Hero Section avec animation */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
           <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
-            <span className="block">Packages Événementiels</span>
-            <span className="block text-indigo-600 dark:text-indigo-400">Pré-configurés</span>
+            <span className="block bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+              Packages Événementiels
+            </span>
+            <span className="block text-indigo-600 dark:text-indigo-400 mt-2">Pré-configurés</span>
           </h1>
           <p className="mt-3 max-w-md mx-auto text-base text-gray-500 dark:text-gray-400 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
             Sélectionnez un package pré-configuré et personnalisez-le selon vos besoins pour obtenir une estimation de prix en temps réel.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Filtres et Tri */}
-        <div className="mb-8 space-y-4">
+        {/* Filtres et Tri avec animation */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="mb-8 space-y-4"
+        >
           {/* Filtres par type d'événement */}
           {eventTypes.length > 0 && (
             <div className="flex flex-wrap justify-center gap-2">
               <button
                 onClick={() => setSelectedEventType('')}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
                   !selectedEventType 
-                    ? 'bg-indigo-600 text-white' 
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' 
                     : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
                 }`}
               >
@@ -154,9 +167,9 @@ const PackageTemplatesPage: React.FC = () => {
                 <button
                   key={type as string}
                   onClick={() => setSelectedEventType(type as string)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
                     selectedEventType === type 
-                      ? 'bg-indigo-600 text-white' 
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' 
                       : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}
                 >
@@ -170,20 +183,20 @@ const PackageTemplatesPage: React.FC = () => {
           <div className="flex justify-end space-x-4">
             <button
               onClick={() => handleSort('name')}
-              className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 shadow-md"
             >
               Nom
-              <ArrowUpDown className="ml-1 h-4 w-4" />
+              <ArrowUpDown className="ml-2 h-4 w-4" />
             </button>
             <button
               onClick={() => handleSort('base_price')}
-              className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 shadow-md"
             >
               Prix
-              <ArrowUpDown className="ml-1 h-4 w-4" />
+              <ArrowUpDown className="ml-2 h-4 w-4" />
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Affichage du chargement */}
         {loading && <LoadingSkeleton />}
@@ -224,109 +237,121 @@ const PackageTemplatesPage: React.FC = () => {
           </div>
         )}
 
-        {/* Liste des packages */}
+        {/* Liste des packages avec animation */}
         {!loading && !error && filteredAndSortedTemplates.length > 0 && (
-          <>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {paginatedTemplates.map((template) => (
-                <div
+          <AnimatePresence>
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {paginatedTemplates.map((template, index) => (
+                <motion.div
                   key={template.id}
-                  className="bg-white dark:bg-gray-800 overflow-hidden shadow-md rounded-lg transition-all hover:shadow-lg border border-gray-200 dark:border-gray-700 transform hover:-translate-y-1"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white dark:bg-gray-800 overflow-hidden shadow-xl rounded-xl transition-all duration-300 hover:shadow-2xl border border-gray-200 dark:border-gray-700 transform hover:-translate-y-2"
                 >
                   {/* Image du package */}
-                  <div className="h-48 w-full overflow-hidden">
+                  <div className="h-56 w-full overflow-hidden relative group">
                     {template.image_url ? (
                       <img
                         src={template.image_url}
                         alt={template.name}
-                        className="w-full h-full object-cover transition-transform hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                        <Package className="h-12 w-12 text-gray-400" />
+                      <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <Package className="h-16 w-16 text-white opacity-75" />
+                      </div>
+                    )}
+                    {template.target_event_type && (
+                      <div className="absolute top-4 right-4">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/90 dark:bg-gray-800/90 text-indigo-600 dark:text-indigo-400 shadow-lg">
+                          <Calendar className="-ml-0.5 mr-1.5 h-4 w-4" />
+                          {template.target_event_type}
+                        </span>
                       </div>
                     )}
                   </div>
 
                   {/* Contenu du package */}
                   <div className="p-6">
-                    <div className="flex justify-between items-start">
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                        {template.name}
-                      </h3>
-                      {template.target_event_type && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                          <Calendar className="-ml-0.5 mr-1.5 h-3 w-3" />
-                          {template.target_event_type}
-                        </span>
-                      )}
-                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      {template.name}
+                    </h3>
 
-                    <p className="mt-2 text-gray-600 dark:text-gray-400 line-clamp-3">
+                    <p className="text-gray-600 dark:text-gray-400 line-clamp-3 mb-4">
                       {template.description || 'Aucune description disponible.'}
                     </p>
 
                     {template.base_price && (
-                      <div className="mt-4 flex items-center text-gray-900 dark:text-white">
+                      <div className="flex items-center text-gray-900 dark:text-white mb-6">
                         <DollarSign className="h-5 w-5 text-indigo-500" />
-                        <span className="text-xl font-bold">
+                        <span className="text-2xl font-bold ml-1">
                           À partir de {template.base_price.toFixed(2)} €
                         </span>
                       </div>
                     )}
 
-                    <div className="mt-6">
-                      <Link
-                        to={`/package/${template.slug}`}
-                        className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-                      >
-                        Personnaliser
-                        <ChevronRight className="ml-2 -mr-1 h-4 w-4" />
-                      </Link>
-                    </div>
+                    <Link
+                      to={`/package/${template.slug}`}
+                      className="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-105"
+                    >
+                      Personnaliser
+                      <ChevronRight className="ml-2 -mr-1 h-4 w-4" />
+                    </Link>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-8 flex justify-center space-x-2">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                  className="px-3 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                >
-                  Précédent
-                </button>
-                {[...Array(totalPages)].map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentPage(index + 1)}
-                    className={`px-3 py-1 rounded-md text-sm font-medium ${
-                      currentPage === index + 1
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
-                    } transition-colors`}
-                  >
-                    {index + 1}
-                  </button>
-                ))}
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
-                  className="px-3 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                >
-                  Suivant
-                </button>
-              </div>
-            )}
-          </>
+          </AnimatePresence>
         )}
 
-        {/* Section d'appel à l'action */}
-        <div className="mt-16 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-8 text-center">
+        {/* Pagination avec animation */}
+        {totalPages > 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-12 flex justify-center space-x-2"
+          >
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 shadow-md"
+            >
+              Précédent
+            </button>
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-md ${
+                  currentPage === index + 1
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 shadow-md"
+            >
+              Suivant
+            </button>
+          </motion.div>
+        )}
+
+        {/* Section d'appel à l'action avec animation */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="mt-16 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-8 text-center shadow-xl"
+        >
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             Besoin d'un package sur mesure ?
           </h2>
@@ -336,12 +361,12 @@ const PackageTemplatesPage: React.FC = () => {
           <div className="mt-6">
             <Link
               to="/contact"
-              className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+              className="inline-flex items-center px-8 py-4 border border-transparent rounded-lg shadow-lg text-base font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-105"
             >
               Demander un devis
             </Link>
           </div>
-        </div>
+        </motion.div>
       </div>
     </Layout>
   );
