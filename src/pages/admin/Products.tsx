@@ -353,14 +353,14 @@ const AdminProducts: React.FC = () => {
             <div className="space-y-8">
               {viewMode === 'cards' ? (
                 // Vue en cards avec design amélioré
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
                   {currentItems.map((product) => (
                     <div 
                       key={product.id} 
-                      className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden group relative backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95"
+                      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group relative"
                     >
                       {/* Image du produit avec overlay amélioré */}
-                      <div className="relative aspect-square overflow-hidden">
+                      <div className="relative aspect-[4/3] overflow-hidden">
                         {product.images && product.images.length > 0 ? (
                           <>
                             <img
@@ -370,46 +370,46 @@ const AdminProducts: React.FC = () => {
                                    ? product.images[product.mainImageIndex] 
                                    : product.images[0]}
                               alt={product.name}
-                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter group-hover:brightness-110"
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                           </>
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-                            <svg className="w-20 h-20 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                           </div>
                         )}
                         
                         {/* Badges de statut et stock améliorés */}
-                        <div className="absolute top-4 right-4 flex flex-col gap-2">
+                        <div className="absolute top-2 right-2 flex flex-col gap-1">
                           <span
-                            className={`px-4 py-2 text-sm font-semibold rounded-full shadow-xl backdrop-blur-md ${
+                            className={`px-2 py-1 text-xs font-medium rounded-full shadow-sm backdrop-blur-sm ${
                               product.isAvailable
-                                ? 'bg-green-100/95 dark:bg-green-900/60 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800'
-                                : 'bg-red-100/95 dark:bg-red-900/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800'
+                                ? 'bg-green-100/90 dark:bg-green-900/60 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800'
+                                : 'bg-red-100/90 dark:bg-red-900/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800'
                             }`}
                           >
                             {product.isAvailable ? 'Disponible' : 'Indisponible'}
                           </span>
-                          {product.stock < 5 && (
-                            <span className="px-4 py-2 text-sm font-semibold rounded-full shadow-xl backdrop-blur-md bg-amber-100/95 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                          {/* {product.stock < 5 && (
+                            <span className="px-2 py-1 text-xs font-medium rounded-full shadow-sm backdrop-blur-sm bg-amber-100/90 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                               Stock faible
                             </span>
-                          )}
+                          )} */}
                         </div>
 
-                        {/* Indicateur de stock amélioré */}
-                        <div className="absolute bottom-4 left-4 right-4">
-                          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl p-3 shadow-xl border border-gray-100 dark:border-gray-700">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-semibold text-gray-900 dark:text-white">Stock</span>
-                              <span className={`text-sm font-bold ${product.stock < 5 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-900 dark:text-white'}`}>
+                        {/* Indicateur de stock amélioré
+                        <div className="absolute bottom-2 left-2 right-2">
+                          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg p-2 shadow-sm border border-gray-100 dark:border-gray-700">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs font-medium text-gray-900 dark:text-white">Stock</span>
+                              <span className={`text-xs font-semibold ${product.stock < 5 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-900 dark:text-white'}`}>
                                 {product.stock} unités
                               </span>
                             </div>
-                            <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                               <div 
                                 className={`h-full rounded-full transition-all duration-500 ${
                                   product.stock < 5 
@@ -422,40 +422,60 @@ const AdminProducts: React.FC = () => {
                               />
                             </div>
                           </div>
-                        </div>
+                        </div> */}
                       </div>
 
                       {/* Informations du produit améliorées */}
-                      <div className="p-6">
-                        <div className="mb-4">
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                      <div className="p-3">
+                        <div className="mb-2">
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                             {product.name}
                           </h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                             {product.reference}
                           </p>
                         </div>
 
-                        <div className="mb-5">
+                        <div className="mb-2">
                           <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                {product.priceHT} €
-                              </p>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {product.priceTTC} € TTC
-                              </p>
+                            <div className="space-y-1">
+                              <div className="flex items-baseline gap-1">
+                                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                                  {product.priceHT}
+                                </p>
+                                <span className="text-sm text-gray-500 dark:text-gray-400">€ HT</span>
+                              </div>
+                              <div className="flex items-baseline gap-1">
+                                <p className="text-base font-medium text-purple-600 dark:text-purple-400">
+                                  {product.priceTTC}
+                                </p>
+                                <span className="text-xs text-purple-500 dark:text-purple-400">€ TTC</span>
+                              </div>
                             </div>
+                            {/* {product.stock !== undefined && (
+                              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+                                <span className={`w-2 h-2 rounded-full ${
+                                  product.stock < 5 
+                                    ? 'bg-amber-500' 
+                                    : product.stock < 10 
+                                      ? 'bg-yellow-500'
+                                      : 'bg-green-500'
+                                }`} />
+                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                                  {product.stock} en stock
+                                </span>
+                              </div>
+                            )} */}
                           </div>
                         </div>
 
-                        <div className="mb-5">
-                          <div className="flex flex-wrap gap-2">
-                            <span className="px-3 py-1.5 text-sm font-medium bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full border border-indigo-100 dark:border-indigo-800">
+                        <div className="mb-2">
+                          <div className="flex flex-wrap gap-1">
+                            <span className="px-2 py-0.5 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full border border-indigo-100 dark:border-indigo-800">
                               {product.category}
                             </span>
                             {product.subCategory && (
-                              <span className="px-3 py-1.5 text-sm font-medium bg-purple-50 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 rounded-full border border-purple-100 dark:border-purple-800">
+                              <span className="px-2 py-0.5 text-xs font-medium bg-purple-50 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 rounded-full border border-purple-100 dark:border-purple-800">
                                 {product.subCategory}
                               </span>
                             )}
@@ -463,24 +483,24 @@ const AdminProducts: React.FC = () => {
                         </div>
 
                         {/* Actions améliorées */}
-                        <div className="flex items-center justify-between pt-5 border-t border-gray-100 dark:border-gray-700">
-                          <div className="flex space-x-2">
+                        <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
+                          <div className="flex space-x-1">
                             <button
                               onClick={() => setQuickViewProduct(product)}
-                              className="p-2.5 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 rounded-xl transition-all duration-300 hover:scale-110"
+                              className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 rounded-lg transition-all duration-200"
                               title="Aperçu rapide"
                             >
-                              <Eye className="w-5 h-5" />
+                              <Eye className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => {
                                 setEditingProduct(product);
                                 setShowForm(true);
                               }}
-                              className="p-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-all duration-300 hover:scale-110"
+                              className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-all duration-200"
                               title="Modifier"
                             >
-                              <Edit className="w-5 h-5" />
+                              <Edit className="w-4 h-4" />
                             </button>
                             <button
                               onClick={async () => {
@@ -493,27 +513,27 @@ const AdminProducts: React.FC = () => {
                                   console.error(err);
                                 }
                               }}
-                              className="p-2.5 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-xl transition-all duration-300 hover:scale-110"
+                              className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-lg transition-all duration-200"
                               title="Dupliquer"
                             >
-                              <Copy className="w-5 h-5" />
+                              <Copy className="w-4 h-4" />
                             </button>
                           </div>
-                          <div className="flex space-x-2">
+                          <div className="flex space-x-1">
                             <button
                               onClick={() => {
                                 const keywords = product.seo_keywords || '';
                                 const encodedKeywords = encodeURIComponent(keywords);
                                 window.location.href = `/admin/keyword-rankings?keywords=${encodedKeywords}&productName=${encodeURIComponent(product.name)}`;
                               }}
-                              className="p-2 text-gray-600 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/30 rounded-lg transition-all duration-200"
+                              className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/30 rounded-lg transition-all duration-200"
                               title="Recherche de positionnement SEO"
                             >
                               <BarChart className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(product.id)}
-                              className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all duration-200"
+                              className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all duration-200"
                               title="Supprimer"
                             >
                               <Trash2 className="w-4 h-4" />
