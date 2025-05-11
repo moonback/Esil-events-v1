@@ -141,6 +141,85 @@ const AdminProducts: React.FC = () => {
     <AdminLayout>
       <AdminHeader />
       <div className="space-y-6 mt-12">
+        {/* Boutons d'action et sélecteur de vue */}
+        <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
+              <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <button
+                  onClick={() => setViewMode('cards')}
+                  className={`p-2 rounded-lg transition-all duration-200 ${
+                    viewMode === 'cards'
+                      ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+                  title="Vue en cards"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`p-2 rounded-lg transition-all duration-200 ${
+                    viewMode === 'table'
+                      ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+                  title="Vue en tableau"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-4">
+                <button
+                  onClick={async () => {
+                    try {
+                      setError('');
+                      const result = await regenerateMissingSlugs();
+                      
+                      const successMessage = document.createElement('div');
+                      successMessage.className = `fixed bottom-4 right-4 ${
+                        result.success 
+                          ? 'bg-green-100 dark:bg-green-900/30 border-green-500 text-green-700 dark:text-green-400' 
+                          : 'bg-red-100 dark:bg-red-900/30 border-red-500 text-red-700 dark:text-red-400'
+                      } border-l-4 p-4 rounded-lg shadow-lg z-50 animate-fade-in`;
+                      successMessage.innerHTML = result.message;
+                      document.body.appendChild(successMessage);
+                      
+                      setTimeout(() => {
+                        if (document.body.contains(successMessage)) {
+                          document.body.removeChild(successMessage);
+                        }
+                      }, 3000);
+                      
+                      await loadProducts();
+                    } catch (err: any) {
+                      setError(`Erreur lors de la régénération des slugs: ${err.message || 'Erreur inconnue'}`);
+                      console.error('Erreur de régénération des slugs:', err);
+                    }
+                  }}
+                  className="group relative px-5 py-2.5 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 dark:from-blue-600 dark:via-blue-700 dark:to-cyan-600 text-white rounded-xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] dark:hover:shadow-[0_0_20px_rgba(37,99,235,0.5)] flex items-center justify-center space-x-2 font-medium"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Tag className="w-4 h-4 relative z-10 transform group-hover:scale-110 transition-transform duration-300" />
+                  <span className="relative z-10">Régénérer les slugs</span>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setEditingProduct(null);
+                    setShowForm(true);
+                  }}
+                  className="group relative px-5 py-2.5 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 dark:from-violet-600 dark:via-purple-600 dark:to-fuchsia-600 text-white rounded-xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] dark:hover:shadow-[0_0_20px_rgba(147,51,234,0.5)] flex items-center justify-center space-x-2 font-medium"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-400/20 to-fuchsia-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Plus className="w-4 h-4 relative z-10 transform group-hover:scale-110 transition-transform duration-300" />
+                  <span className="relative z-10">Nouveau produit</span>
+                </button>
+              </div>
+            </div>
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
@@ -268,95 +347,19 @@ const AdminProducts: React.FC = () => {
               toggleFilter={toggleFilter}
             />
             
-            {/* Boutons d'action et sélecteur de vue */}
-            <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
-              <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <button
-                  onClick={() => setViewMode('cards')}
-                  className={`p-2 rounded-lg transition-all duration-200 ${
-                    viewMode === 'cards'
-                      ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                  }`}
-                  title="Vue en cards"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setViewMode('table')}
-                  className={`p-2 rounded-lg transition-all duration-200 ${
-                    viewMode === 'table'
-                      ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                  }`}
-                  title="Vue en tableau"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="flex flex-wrap gap-4">
-                <button
-                  onClick={async () => {
-                    try {
-                      setError('');
-                      const result = await regenerateMissingSlugs();
-                      
-                      const successMessage = document.createElement('div');
-                      successMessage.className = `fixed bottom-4 right-4 ${
-                        result.success 
-                          ? 'bg-green-100 dark:bg-green-900/30 border-green-500 text-green-700 dark:text-green-400' 
-                          : 'bg-red-100 dark:bg-red-900/30 border-red-500 text-red-700 dark:text-red-400'
-                      } border-l-4 p-4 rounded-lg shadow-lg z-50 animate-fade-in`;
-                      successMessage.innerHTML = result.message;
-                      document.body.appendChild(successMessage);
-                      
-                      setTimeout(() => {
-                        if (document.body.contains(successMessage)) {
-                          document.body.removeChild(successMessage);
-                        }
-                      }, 3000);
-                      
-                      await loadProducts();
-                    } catch (err: any) {
-                      setError(`Erreur lors de la régénération des slugs: ${err.message || 'Erreur inconnue'}`);
-                      console.error('Erreur de régénération des slugs:', err);
-                    }
-                  }}
-                  className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-700 dark:to-cyan-700 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 dark:hover:from-blue-800 dark:hover:to-cyan-800 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 font-medium"
-                >
-                  <Tag className="w-4 h-4" />
-                  <span>Régénérer les slugs</span>
-                </button>
-                
-                <button
-                  onClick={() => {
-                    setEditingProduct(null);
-                    setShowForm(true);
-                  }}
-                  className="px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 dark:from-violet-700 dark:to-purple-700 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 dark:hover:from-violet-800 dark:hover:to-purple-800 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 font-medium"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Nouveau produit</span>
-                </button>
-              </div>
-            </div>
+            
 
             {/* Contenu principal avec vue conditionnelle */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               {viewMode === 'cards' ? (
-                // Vue en cards
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                // Vue en cards avec design amélioré
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                   {currentItems.map((product) => (
                     <div 
                       key={product.id} 
-                      className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 overflow-hidden group relative"
+                      className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden group relative backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95"
                     >
-                      {/* Image du produit avec overlay */}
+                      {/* Image du produit avec overlay amélioré */}
                       <div className="relative aspect-square overflow-hidden">
                         {product.images && product.images.length > 0 ? (
                           <>
@@ -367,53 +370,53 @@ const AdminProducts: React.FC = () => {
                                    ? product.images[product.mainImageIndex] 
                                    : product.images[0]}
                               alt={product.name}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter group-hover:brightness-110"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                           </>
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-                            <svg className="w-16 h-16 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-20 h-20 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                           </div>
                         )}
                         
-                        {/* Badges de statut et stock */}
-                        <div className="absolute top-3 right-3 flex flex-col gap-2">
+                        {/* Badges de statut et stock améliorés */}
+                        <div className="absolute top-4 right-4 flex flex-col gap-2">
                           <span
-                            className={`px-3 py-1.5 text-xs font-medium rounded-full shadow-lg backdrop-blur-sm ${
+                            className={`px-4 py-2 text-sm font-semibold rounded-full shadow-xl backdrop-blur-md ${
                               product.isAvailable
-                                ? 'bg-green-100/90 dark:bg-green-900/50 text-green-800 dark:text-green-400'
-                                : 'bg-red-100/90 dark:bg-red-900/50 text-red-800 dark:text-red-400'
+                                ? 'bg-green-100/95 dark:bg-green-900/60 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800'
+                                : 'bg-red-100/95 dark:bg-red-900/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800'
                             }`}
                           >
                             {product.isAvailable ? 'Disponible' : 'Indisponible'}
                           </span>
                           {product.stock < 5 && (
-                            <span className="px-3 py-1.5 text-xs font-medium rounded-full shadow-lg backdrop-blur-sm bg-amber-100/90 dark:bg-amber-900/50 text-amber-800 dark:text-amber-400">
+                            <span className="px-4 py-2 text-sm font-semibold rounded-full shadow-xl backdrop-blur-md bg-amber-100/95 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                               Stock faible
                             </span>
                           )}
                         </div>
 
-                        {/* Indicateur de stock */}
-                        <div className="absolute bottom-3 left-3 right-3">
-                          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg p-2 shadow-lg">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-gray-900 dark:text-white">Stock</span>
+                        {/* Indicateur de stock amélioré */}
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl p-3 shadow-xl border border-gray-100 dark:border-gray-700">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-semibold text-gray-900 dark:text-white">Stock</span>
                               <span className={`text-sm font-bold ${product.stock < 5 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-900 dark:text-white'}`}>
                                 {product.stock} unités
                               </span>
                             </div>
-                            <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mt-1.5 overflow-hidden">
+                            <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                               <div 
-                                className={`h-full rounded-full transition-all duration-300 ${
+                                className={`h-full rounded-full transition-all duration-500 ${
                                   product.stock < 5 
-                                    ? 'bg-amber-500' 
+                                    ? 'bg-gradient-to-r from-amber-500 to-amber-600' 
                                     : product.stock < 10 
-                                      ? 'bg-yellow-500' 
-                                      : 'bg-green-500'
+                                      ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' 
+                                      : 'bg-gradient-to-r from-green-500 to-green-600'
                                 }`}
                                 style={{ width: `${Math.min(100, (product.stock / 20) * 100)}%` }}
                               />
@@ -422,21 +425,21 @@ const AdminProducts: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Informations du produit */}
-                      <div className="p-5">
-                        <div className="mb-3">
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                      {/* Informations du produit améliorées */}
+                      <div className="p-6">
+                        <div className="mb-4">
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                             {product.name}
                           </h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                             {product.reference}
                           </p>
                         </div>
 
-                        <div className="mb-4">
+                        <div className="mb-5">
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="text-xl font-bold text-gray-900 dark:text-white">
+                              <p className="text-2xl font-bold text-gray-900 dark:text-white">
                                 {product.priceHT} €
                               </p>
                               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -446,38 +449,38 @@ const AdminProducts: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="mb-4">
-                          <div className="flex flex-wrap gap-1.5">
-                            <span className="px-2.5 py-1 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full">
+                        <div className="mb-5">
+                          <div className="flex flex-wrap gap-2">
+                            <span className="px-3 py-1.5 text-sm font-medium bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full border border-indigo-100 dark:border-indigo-800">
                               {product.category}
                             </span>
                             {product.subCategory && (
-                              <span className="px-2.5 py-1 text-xs font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full">
+                              <span className="px-3 py-1.5 text-sm font-medium bg-purple-50 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 rounded-full border border-purple-100 dark:border-purple-800">
                                 {product.subCategory}
                               </span>
                             )}
                           </div>
                         </div>
 
-                        {/* Actions */}
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
-                          <div className="flex space-x-1">
+                        {/* Actions améliorées */}
+                        <div className="flex items-center justify-between pt-5 border-t border-gray-100 dark:border-gray-700">
+                          <div className="flex space-x-2">
                             <button
                               onClick={() => setQuickViewProduct(product)}
-                              className="p-2 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-all duration-200"
+                              className="p-2.5 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 rounded-xl transition-all duration-300 hover:scale-110"
                               title="Aperçu rapide"
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-5 h-5" />
                             </button>
                             <button
                               onClick={() => {
                                 setEditingProduct(product);
                                 setShowForm(true);
                               }}
-                              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-all duration-200"
+                              className="p-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-all duration-300 hover:scale-110"
                               title="Modifier"
                             >
-                              <Edit className="w-4 h-4" />
+                              <Edit className="w-5 h-5" />
                             </button>
                             <button
                               onClick={async () => {
@@ -490,13 +493,13 @@ const AdminProducts: React.FC = () => {
                                   console.error(err);
                                 }
                               }}
-                              className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200"
+                              className="p-2.5 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-xl transition-all duration-300 hover:scale-110"
                               title="Dupliquer"
                             >
-                              <Copy className="w-4 h-4" />
+                              <Copy className="w-5 h-5" />
                             </button>
                           </div>
-                          <div className="flex space-x-1">
+                          <div className="flex space-x-2">
                             <button
                               onClick={() => {
                                 const keywords = product.seo_keywords || '';
