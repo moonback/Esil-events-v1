@@ -142,50 +142,50 @@ const AdminProducts: React.FC = () => {
       <div className="space-y-6 mt-12">
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-indigo-50 text-indigo-600 mr-4">
+              <div className="p-3 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 mr-4">
                 <Package className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Total Produits</p>
-                <p className="text-2xl font-semibold">{totalProducts}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Produits</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{totalProducts}</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-emerald-50 text-emerald-600 mr-4">
+              <div className="p-3 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 mr-4">
                 <Layers className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Stock Total</p>
-                <p className="text-2xl font-semibold">{totalStock}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Stock Total</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{totalStock}</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-amber-50 text-amber-600 mr-4">
+              <div className="p-3 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 mr-4">
                 <Tag className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Stock Faible</p>
-                <p className="text-2xl font-semibold">{lowStockProducts}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Stock Faible</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{lowStockProducts}</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-red-50 text-red-600 mr-4">
+              <div className="p-3 rounded-full bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 mr-4">
                 <ShoppingCart className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Indisponibles</p>
-                <p className="text-2xl font-semibold">{unavailableProducts}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Indisponibles</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{unavailableProducts}</p>
               </div>
             </div>
           </div>
@@ -268,36 +268,37 @@ const AdminProducts: React.FC = () => {
             />
             
             {/* Boutons d'action */}
-            <div className="flex justify-end mb-6 space-x-4">
+            <div className="flex flex-wrap justify-end mb-6 gap-4">
               <button
                 onClick={async () => {
                   try {
                     setError('');
                     const result = await regenerateMissingSlugs();
                     
-                    // Afficher un message de succès temporaire
                     const successMessage = document.createElement('div');
-                    successMessage.className = `fixed bottom-4 right-4 ${result.success ? 'bg-green-100 border-green-500 text-green-700' : 'bg-red-100 border-red-500 text-red-700'} border-l-4 p-4 rounded shadow-md z-50 animate-fade-in`;
+                    successMessage.className = `fixed bottom-4 right-4 ${
+                      result.success 
+                        ? 'bg-green-100 dark:bg-green-900/30 border-green-500 text-green-700 dark:text-green-400' 
+                        : 'bg-red-100 dark:bg-red-900/30 border-red-500 text-red-700 dark:text-red-400'
+                    } border-l-4 p-4 rounded-lg shadow-lg z-50 animate-fade-in`;
                     successMessage.innerHTML = result.message;
                     document.body.appendChild(successMessage);
                     
-                    // Supprimer le message après 3 secondes
                     setTimeout(() => {
                       if (document.body.contains(successMessage)) {
                         document.body.removeChild(successMessage);
                       }
                     }, 3000);
                     
-                    // Recharger la liste des produits pour s'assurer que tout est à jour
                     await loadProducts();
                   } catch (err: any) {
                     setError(`Erreur lors de la régénération des slugs: ${err.message || 'Erreur inconnue'}`);
                     console.error('Erreur de régénération des slugs:', err);
                   }
                 }}
-                className="px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 md:space-x-3 font-medium"
+                className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-700 dark:to-cyan-700 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 dark:hover:from-blue-800 dark:hover:to-cyan-800 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 font-medium"
               >
-                <Tag className="w-4 h-4 mr-2" />
+                <Tag className="w-4 h-4" />
                 <span>Régénérer les slugs</span>
               </button>
               
@@ -306,22 +307,22 @@ const AdminProducts: React.FC = () => {
                   setEditingProduct(null);
                   setShowForm(true);
                 }}
-                className="px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 md:space-x-3 font-medium"
-                >
-                <Plus className="w-4 h-4 mr-2" />
+                className="px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 dark:from-violet-700 dark:to-purple-700 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 dark:hover:from-violet-800 dark:hover:to-purple-800 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 font-medium"
+              >
+                <Plus className="w-4 h-4" />
                 <span>Nouveau produit</span>
               </button>
             </div>
 
             {/* Products Table - Made responsive */}
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
               <div className="overflow-x-auto">
                 <div className="min-w-full">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-900/50">
                       <tr>
                         <th 
-                          className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                          className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                           onClick={() => handleSort('name')}
                         >
                           <div className="flex items-center">
@@ -332,7 +333,7 @@ const AdminProducts: React.FC = () => {
                           </div>
                         </th>
                         <th 
-                          className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                          className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
                           onClick={() => handleSort('category')}
                         >
                           <div className="flex items-center">
@@ -344,7 +345,7 @@ const AdminProducts: React.FC = () => {
                         </th>
                         
                         <th 
-                          className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                          className="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
                           onClick={() => handleSort('price')}
                         >
                           <div className="flex items-center">
@@ -355,7 +356,7 @@ const AdminProducts: React.FC = () => {
                           </div>
                         </th>
                         <th 
-                          className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                          className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
                           onClick={() => handleSort('stock')}
                         >
                           <div className="flex items-center">
@@ -365,17 +366,17 @@ const AdminProducts: React.FC = () => {
                             )}
                           </div>
                         </th>
-                        <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Statut
                         </th>
-                        <th className="px-3 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {currentItems.map((product) => (
-                        <tr key={product.id} className="hover:bg-gray-50 transition-colors duration-150">
+                        <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
                           <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className="hidden lg:block">
@@ -504,10 +505,10 @@ const AdminProducts: React.FC = () => {
 
               {/* Pagination - Made responsive */}
               {filteredProducts.length > 0 && totalPages > 1 && (
-                <div className="bg-white px-3 lg:px-6 py-3 border-t border-gray-200">
+                <div className="bg-white dark:bg-gray-800 px-3 lg:px-6 py-3 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
                     <div className="w-full lg:w-auto">
-                      <p className="text-sm text-gray-700 text-center lg:text-left">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 text-center lg:text-left">
                         <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span>
                         {' - '}
                         <span className="font-medium">
@@ -520,31 +521,24 @@ const AdminProducts: React.FC = () => {
                     </div>
                     <div className="flex justify-center w-full lg:w-auto">
                       <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                        {/* Bouton Précédent */}
                         <button
                           onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                           disabled={currentPage === 1}
-                          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                           <span className="sr-only">Précédent</span>
                           &larr;
                         </button>
                         
-                        {/* Pages */}
                         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                          // Logique pour afficher les pages autour de la page courante
                           let pageNum;
                           if (totalPages <= 5) {
-                            // Moins de 5 pages, on les affiche toutes
                             pageNum = i + 1;
                           } else if (currentPage <= 3) {
-                            // Près du début
                             pageNum = i + 1;
                           } else if (currentPage >= totalPages - 2) {
-                            // Près de la fin
                             pageNum = totalPages - 4 + i;
                           } else {
-                            // Au milieu
                             pageNum = currentPage - 2 + i;
                           }
                           
@@ -552,9 +546,10 @@ const AdminProducts: React.FC = () => {
                             <button
                               key={pageNum}
                               onClick={() => setCurrentPage(pageNum)}
-                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${currentPage === pageNum
-                                ? 'z-10 bg-black border-black text-white'
-                                : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${
+                                currentPage === pageNum
+                                  ? 'z-10 bg-black dark:bg-white border-black dark:border-white text-white dark:text-black'
+                                  : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                               }`}
                             >
                               {pageNum}
@@ -562,33 +557,32 @@ const AdminProducts: React.FC = () => {
                           );
                         })}
                         
-                        {/* Bouton Suivant */}
-                          <button
-                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                            disabled={currentPage === totalPages}
-                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <span className="sr-only">Suivant</span>
-                            &rarr;
-                          </button>
-                        </nav>
-                      </div>
+                        <button
+                          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                          disabled={currentPage === totalPages}
+                          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <span className="sr-only">Suivant</span>
+                          &rarr;
+                        </button>
+                      </nav>
                     </div>
+                  </div>
                 </div>
               )}
               
               {/* Aucun résultat */}
               {filteredProducts.length === 0 && (
-                <div className="bg-white p-8 text-center rounded-lg shadow-sm">
-                  <div className="text-gray-500 mb-2">
-                    <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-white dark:bg-gray-800 p-8 text-center rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                  <div className="text-gray-500 dark:text-gray-400">
+                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <h3 className="text-lg font-medium">Aucun produit ne correspond à vos critères</h3>
-                    <p className="mt-1">Essayez de modifier vos filtres ou d'effectuer une autre recherche.</p>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Aucun produit ne correspond à vos critères</h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">Essayez de modifier vos filtres ou d'effectuer une autre recherche.</p>
                     <button 
                       onClick={resetFilters}
-                      className="mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md transition-colors"
+                      className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition-colors"
                     >
                       Réinitialiser les filtres
                     </button>
