@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { generateQuoteSuggestions } from '../services/aiQuoteService';
+import { useCart } from '../context/CartContext';
+import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 
 interface Message {
   id: string;
@@ -69,6 +71,7 @@ const conversationFlow: ConversationStep[] = [
 ];
 
 export const AIQuoteAssistant: React.FC = () => {
+  const { addToCart } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -168,6 +171,21 @@ export const AIQuoteAssistant: React.FC = () => {
     }
   };
 
+  const handleAddToCart = (suggestion: ProductSuggestion) => {
+    const cartItem = {
+      id: suggestion.id,
+      name: suggestion.name,
+      image: DEFAULT_PRODUCT_IMAGE,
+      priceTTC: suggestion.type === 'product' 
+        ? suggestion.estimated_price_per_unit! 
+        : suggestion.estimated_total_price!,
+      quantity: 1
+    };
+
+    addToCart(cartItem);
+    addBotMessage(`J'ai ajouté "${suggestion.name}" à votre devis.`);
+  };
+
   const renderSuggestions = () => {
     if (suggestions.length === 0) return null;
 
@@ -230,9 +248,7 @@ export const AIQuoteAssistant: React.FC = () => {
                       )}
                     </div>
                     <button
-                      onClick={() => {
-                        addBotMessage(`J'ai ajouté "${suggestion.name}" à votre devis.`);
-                      }}
+                      onClick={() => handleAddToCart(suggestion)}
                       className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-2"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -39,28 +39,71 @@ export const generateQuoteSuggestions = async (request: QuoteRequest): Promise<A
       .select('*')
       .eq('is_available', true);
 
-    // Add category filtering based on event type
-    const eventTypeToCategory: Record<string, string[]> = {
-      'Séminaire': ['Mobilier', 'Sonorisation', 'Éclairage', 'Écrans'],
-      'Soirée d\'entreprise': ['Mobilier', 'Sonorisation', 'Éclairage', 'Décoration'],
-      'Mariage': ['Mobilier', 'Décoration', 'Éclairage', 'Sonorisation'],
-      'Anniversaire': ['Mobilier', 'Décoration', 'Éclairage', 'Jeux'],
-      'Festival': ['Sonorisation', 'Éclairage', 'Écrans', 'Mobilier'],
-      'Autre': []
+    // Enhanced category mapping with subcategories and specific needs
+    const eventTypeToCategory: Record<string, { categories: string[], subcategories: string[], essentialItems: string[] }> = {
+      'Séminaire': {
+        categories: ['Mobilier', 'Sonorisation', 'Éclairage', 'Écrans'],
+        subcategories: ['Tables', 'Chaises', 'Projecteurs', 'Enceintes', 'Microphones'],
+        essentialItems: ['Tables de conférence', 'Chaises de bureau', 'Système de sonorisation', 'Écran de projection']
+      },
+      'Soirée d\'entreprise': {
+        categories: ['Mobilier', 'Sonorisation', 'Éclairage', 'Décoration'],
+        subcategories: ['Tables hautes', 'Chaises de bar', 'Éclairage d\'ambiance', 'Enceintes DJ'],
+        essentialItems: ['Tables de cocktail', 'Éclairage LED', 'Système de sonorisation', 'Décoration thématique']
+      },
+      'Mariage': {
+        categories: ['Mobilier', 'Décoration', 'Éclairage', 'Sonorisation'],
+        subcategories: ['Tables rondes', 'Chaises de réception', 'Éclairage romantique', 'Enceintes de salon'],
+        essentialItems: ['Tables de réception', 'Chaises de mariage', 'Éclairage d\'ambiance', 'Système de sonorisation']
+      },
+      'Anniversaire': {
+        categories: ['Mobilier', 'Décoration', 'Éclairage', 'Jeux'],
+        subcategories: ['Tables pliantes', 'Chaises pliantes', 'Éclairage festif', 'Jeux d\'animation'],
+        essentialItems: ['Tables de buffet', 'Chaises pliantes', 'Éclairage festif', 'Jeux d\'animation']
+      },
+      'Festival': {
+        categories: ['Sonorisation', 'Éclairage', 'Écrans', 'Mobilier'],
+        subcategories: ['Enceintes de scène', 'Projecteurs', 'Écrans LED', 'Mobilier scénique'],
+        essentialItems: ['Système de sonorisation professionnel', 'Éclairage de scène', 'Écrans LED', 'Mobilier scénique']
+      },
+      'Autre': {
+        categories: [],
+        subcategories: [],
+        essentialItems: []
+      }
     };
 
-    const relevantCategories = eventTypeToCategory[request.event_type] || [];
-    console.log('Relevant categories for event type:', request.event_type, ':', relevantCategories);
+    const eventConfig = eventTypeToCategory[request.event_type] || eventTypeToCategory['Autre'];
+    console.log('Event configuration:', eventConfig);
 
-    if (relevantCategories.length > 0) {
-      query = query.in('category', relevantCategories);
+    // Build the query with multiple conditions
+    if (eventConfig.categories.length > 0) {
+      query = query.in('category', eventConfig.categories);
     }
 
-    // Add budget filtering if specified
+    if (eventConfig.subcategories.length > 0) {
+      query = query.in('sub_category', eventConfig.subcategories);
+    }
+
+    // Add budget filtering with smart allocation
     if (request.budget) {
       const maxPrice = request.budget * 1.2; // Allow 20% margin
-      query = query.lte('price_ttc', maxPrice);
-      console.log('Budget filter applied:', request.budget, '€ (max:', maxPrice, '€)');
+      const minPrice = request.budget * 0.3; // Minimum 30% of budget for essential items
+      query = query.lte('price_ttc', maxPrice)
+                  .gte('price_ttc', minPrice);
+      console.log('Budget filter applied:', request.budget, '€ (range:', minPrice, '-', maxPrice, '€)');
+    }
+
+    // Add guest count consideration
+    if (request.guest_count) {
+      // Adjust query based on guest count
+      if (request.guest_count > 100) {
+        query = query.gte('min_capacity', 100);
+      } else if (request.guest_count > 50) {
+        query = query.gte('min_capacity', 50);
+      } else if (request.guest_count > 20) {
+        query = query.gte('min_capacity', 20);
+      }
     }
 
     // Log the final query
@@ -75,7 +118,7 @@ export const generateQuoteSuggestions = async (request: QuoteRequest): Promise<A
     if (!products || products.length === 0) {
       console.log('No products found with current filters, trying without category filter...');
       
-      // Try again without category filter
+      // Try again with broader filters
       const { data: allProducts, error: allProductsError } = await supabase
         .from('products')
         .select('*')
@@ -98,7 +141,7 @@ export const generateQuoteSuggestions = async (request: QuoteRequest): Promise<A
       console.log('Found', products.length, 'products with category filter');
     }
 
-    // Convert products to the format expected by the AI with more context
+    // Convert products to the format expected by the AI with enhanced context
     const formattedProducts = products.map(product => ({
       id: product.id,
       name: product.name,
@@ -108,7 +151,12 @@ export const generateQuoteSuggestions = async (request: QuoteRequest): Promise<A
       price_ttc: product.price_ttc,
       technical_specs: product.technical_specs,
       colors: product.colors,
-      stock: product.stock
+      stock: product.stock,
+      min_capacity: product.min_capacity,
+      max_capacity: product.max_capacity,
+      is_essential: eventConfig.essentialItems.some(item => 
+        product.name.toLowerCase().includes(item.toLowerCase())
+      )
     }));
 
     console.log('Formatted products for AI:', formattedProducts.length);
@@ -127,17 +175,31 @@ ${request.budget ? `- Budget : ${request.budget}€` : ''}
 - Style souhaité : ${request.style}
 ${request.specific_needs ? `- Besoins spécifiques : ${request.specific_needs}` : ''}
 
+Éléments essentiels pour ce type d'événement :
+${eventConfig.essentialItems.map(item => `- ${item}`).join('\n')}
+
 Voici notre catalogue de produits disponibles, filtré pour correspondre au mieux à votre événement :
 ${JSON.stringify(formattedProducts, null, 2)}
 
 Instructions pour les suggestions :
-1. Pour un événement de ${request.guest_count} personnes, assurez-vous de suggérer des quantités appropriées
-2. Privilégiez les produits qui correspondent au style "${request.style}"
-3. ${request.budget ? `Respectez le budget de ${request.budget}€` : 'Proposez des options à différents prix'}
-4. Créez des packages cohérents qui fonctionnent bien ensemble
-5. Incluez des produits essentiels pour ce type d'événement
+1. Priorité aux éléments essentiels marqués comme "is_essential: true"
+2. Pour un événement de ${request.guest_count} personnes :
+   - Vérifier que les capacités min/max des produits correspondent
+   - Suggérer des quantités appropriées
+3. Privilégier les produits qui correspondent au style "${request.style}"
+4. ${request.budget ? `Respecter le budget de ${request.budget}€ avec une répartition intelligente :
+   - 40% pour les éléments essentiels
+   - 30% pour les éléments de confort
+   - 30% pour les éléments décoratifs` : 'Proposer des options à différents prix'}
+5. Créer des packages cohérents qui fonctionnent bien ensemble
+6. Inclure des produits essentiels pour ce type d'événement
 
-En te basant sur ces informations et notre catalogue, propose 3 packages pertinents et jusqu'à 5 produits individuels complémentaires. Pour chaque suggestion, explique en une phrase pourquoi elle convient à l'événement de l'utilisateur.
+En te basant sur ces informations et notre catalogue, propose :
+- 2 packages essentiels (contenant les éléments critiques)
+- 1 package optionnel (pour améliorer l'expérience)
+- 3-5 produits individuels complémentaires
+
+Pour chaque suggestion, explique en une phrase pourquoi elle convient à l'événement de l'utilisateur.
 
 Présente tes suggestions au format JSON suivant :
 {
@@ -161,6 +223,7 @@ Assure-toi que :
 3. La réponse est un JSON valide
 4. Tous les champs requis sont présents
 5. Les suggestions sont adaptées à la taille de l'événement
+6. Les packages sont cohérents et complémentaires
 `;
 
     const result = await model.generateContent(prompt);
