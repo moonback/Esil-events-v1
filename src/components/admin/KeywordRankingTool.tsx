@@ -33,10 +33,16 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
   // Mettre à jour le mot-clé lorsque initialKeyword change
   useEffect(() => {
     if (initialKeyword) {
-      setKeyword(initialKeyword);
-      // Si un mot-clé initial est fourni, déclencher automatiquement la recherche
-      if (initialKeyword.trim() && siteUrl.trim()) {
-        handleSearch();
+      // Si le mot-clé contient des virgules ou des sauts de ligne, on active le mode batch
+      if (initialKeyword.includes(',') || initialKeyword.includes('\n')) {
+        setIsBatchMode(true);
+        setMultipleKeywords(initialKeyword);
+      } else {
+        setKeyword(initialKeyword);
+        // Si un mot-clé initial est fourni, déclencher automatiquement la recherche
+        if (initialKeyword.trim() && siteUrl.trim()) {
+          handleSearch();
+        }
       }
     }
   }, [initialKeyword]);
