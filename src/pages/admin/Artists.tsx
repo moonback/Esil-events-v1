@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Users, Music, Calendar, Star } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import {
@@ -18,16 +18,14 @@ const AdminArtists: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingArtist, setEditingArtist] = useState<Artist | null>(null);
-  // Initialize form state with empty strings for all fields to ensure inputs are controlled
-  // Update the initial form state to use one of the default categories
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [formData, setFormData] = useState({
     name: '',
-    category: 'Chanteurs', // Default category
+    category: 'Chanteurs',
     image_url: '',
     description: ''
   });
   const [categories, setCategories] = useState<ArtistCategory[]>([]);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,6 +47,7 @@ const AdminArtists: React.FC = () => {
 
     fetchData();
   }, []);
+
   const handleAddArtist = () => {
     setFormData({
       name: '',
@@ -116,22 +115,64 @@ const AdminArtists: React.FC = () => {
     artist.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Calculer les statistiques
+  const totalArtists = artists.length;
+  const categoriesCount = new Set(artists.map(artist => artist.category)).size;
+  const featuredArtists = artists.filter(artist => artist.featured).length;
+
   return (
     <AdminLayout>
       <AdminHeader />
       <div className="space-y-6 mt-12">
-        {/* Header Section - Improved responsive layout */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Gestion des Artistes
-          </h1>
-          <button
-            onClick={handleAddArtist}
-            className="px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 md:space-x-3 font-medium"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Ajouter un artiste
-          </button>
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 mr-4">
+                <Users className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Artistes</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{totalArtists}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 mr-4">
+                <Music className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Catégories</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{categoriesCount}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 mr-4">
+                <Star className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Artistes Vedettes</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{featuredArtists}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 mr-4">
+                <Calendar className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Événements à venir</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">0</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {error && (
@@ -158,7 +199,6 @@ const AdminArtists: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Form fields with improved styling */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -189,14 +229,12 @@ const AdminArtists: React.FC = () => {
                     className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
                     <option value="" disabled>Sélectionnez une catégorie</option>
-                    {/* Default categories */}
                     <option value="Chanteurs">Chanteurs</option>
                     <option value="Danseurs">Danseurs</option>
                     <option value="DJ">DJ</option>
                     <option value="Spectacles">Spectacles</option>
                     <option value="Animateurs">Animateurs</option>
                     
-                    {/* Dynamic categories from database (excluding default ones to avoid duplicates) */}
                     {categories
                       .filter(category => !['Chanteurs', 'Danseurs', 'DJ', 'Spectacles', 'Animateurs'].includes(category.name))
                       .map(category => (
@@ -277,86 +315,189 @@ const AdminArtists: React.FC = () => {
           </div>
         ) : (
           <>
-            {/* Search bar with improved styling */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Rechercher un artiste..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                />
+            {/* Header with search and view toggle */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+              <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <button
+                  onClick={() => setViewMode('cards')}
+                  className={`p-2 rounded-lg transition-all duration-200 ${
+                    viewMode === 'cards'
+                      ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+                  title="Vue en cards"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`p-2 rounded-lg transition-all duration-200 ${
+                    viewMode === 'table'
+                      ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+                  title="Vue en tableau"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-4">
+                <div className="relative flex-1 min-w-[200px]">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Rechercher un artiste..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                <button
+                  onClick={handleAddArtist}
+                  className="px-4 md:px-6 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 font-medium"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Nouvel artiste</span>
+                </button>
               </div>
             </div>
 
-            {/* Responsive table */}
+            {/* Content with conditional view */}
             {loading ? (
               <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-violet-600 border-t-transparent"></div>
               </div>
             ) : filteredArtists.length > 0 ? (
-              <div className="overflow-x-auto">
-                <div className="inline-block min-w-full align-middle">
-                  <div className="overflow-hidden border border-gray-200 dark:border-gray-700 sm:rounded-lg">
+              viewMode === 'cards' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredArtists.map((artist) => (
+                    <div 
+                      key={artist.name} 
+                      className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 overflow-hidden group"
+                    >
+                      <div className="relative aspect-square overflow-hidden">
+                        <img
+                          src={artist.image_url || 'https://via.placeholder.com/400'}
+                          alt={artist.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+
+                      <div className="p-5">
+                        <div className="mb-3">
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                            {artist.name}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {artist.category}
+                          </p>
+                        </div>
+
+                        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-4">
+                          {artist.description}
+                        </p>
+
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                          <div className="flex space-x-1">
+                            <button
+                              onClick={() => handleEditArtist(artist)}
+                              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-all duration-200"
+                              title="Modifier"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => handleDeleteArtist(artist.name)}
+                            className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all duration-200"
+                            title="Supprimer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
+                  <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                      <thead className="bg-gray-50 dark:bg-gray-700">
+                      <thead className="bg-gray-50 dark:bg-gray-900/50">
                         <tr>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            Nom
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Artiste
                           </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Catégorie
                           </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            Image
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Description
                           </th>
-                          <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Actions
                           </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         {filteredArtists.map((artist) => (
-                          <tr key={artist.name} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                              {artist.name}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                              {artist.category}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                              <div className="h-10 w-10 rounded-md overflow-hidden">
-                                <img 
-                                  src={artist.image_url} 
-                                  alt={artist.name} 
-                                  className="h-full w-full object-cover"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150';
-                                  }}
-                                />
+                          <tr key={artist.name} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="h-10 w-10 flex-shrink-0">
+                                  <img
+                                    src={artist.image_url || 'https://via.placeholder.com/150'}
+                                    alt={artist.name}
+                                    className="h-10 w-10 rounded-full object-cover"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150';
+                                    }}
+                                  />
+                                </div>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                    {artist.name}
+                                  </div>
+                                </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-300 max-w-xs truncate">
-                              {artist.description}
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="px-2 py-1 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full">
+                                {artist.category}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                                {artist.description}
+                              </p>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <button
-                                onClick={() => handleEditArtist(artist)}
-                                className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-4"
-                              >
-                                <Edit className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteArtist(artist.name)}
-                                className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                              >
-                                <Trash2 className="w-5 h-5" />
-                              </button>
+                              <div className="flex items-center justify-end space-x-2">
+                                <button
+                                  onClick={() => handleEditArtist(artist)}
+                                  className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                  title="Modifier"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteArtist(artist.name)}
+                                  className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                  title="Supprimer"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -364,10 +505,22 @@ const AdminArtists: React.FC = () => {
                     </table>
                   </div>
                 </div>
-              </div>
+              )
             ) : (
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm text-center">
-                <p className="text-gray-500 dark:text-gray-400">Aucun artiste trouvé</p>
+              <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+                <div className="text-gray-500 dark:text-gray-400">
+                  <svg className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Aucun artiste trouvé</h3>
+                  <p className="text-gray-500 dark:text-gray-400 mb-4">Essayez de modifier vos critères de recherche.</p>
+                  <button 
+                    onClick={() => setSearchTerm('')}
+                    className="px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
+                  >
+                    Réinitialiser la recherche
+                  </button>
+                </div>
               </div>
             )}
           </>
