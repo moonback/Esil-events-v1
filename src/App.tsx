@@ -24,6 +24,7 @@ import ArtistPage from './pages/ArtistPage';
 import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import CguPage from './pages/CguPage';
+import { AIQuoteAssistant } from './components/AIQuoteAssistant';
 
 // Admin pages
 import RealisationPage from './pages/RealisationPage';
@@ -75,6 +76,7 @@ const App: React.FC = () => {
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        <AIQuoteAssistant />
       </CartProvider>
     </BrowserRouter>
   );
