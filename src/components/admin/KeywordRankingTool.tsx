@@ -460,13 +460,13 @@ const KeywordRankingTool: React.FC<KeywordRankingToolProps> = ({ initialKeyword 
       <div id="search-form" className={`mb-8 bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg ${scrollToForm ? 'ring-2 ring-violet-500 dark:ring-violet-400' : ''}`}>
         {/* Onglets pour choisir entre recherche simple et multiple */}
         <div className="flex mb-4 border-b border-gray-200 dark:border-gray-700">
-          <button
+          {/* <button
             onClick={() => setIsBatchMode(false)}
             className={`py-2 px-4 font-medium text-sm ${!isBatchMode ? 'text-violet-600 border-b-2 border-violet-600 dark:text-violet-400 dark:border-violet-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
           >
             <Search className="w-4 h-4 inline-block mr-1" />
             Recherche simple
-          </button>
+          </button> */}
           <button
             onClick={() => setIsBatchMode(true)}
             className={`py-2 px-4 font-medium text-sm ${isBatchMode ? 'text-violet-600 border-b-2 border-violet-600 dark:text-violet-400 dark:border-violet-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
