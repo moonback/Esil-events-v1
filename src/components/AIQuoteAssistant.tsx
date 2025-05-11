@@ -560,28 +560,67 @@ export const AIQuoteAssistant: React.FC = () => {
             </div>
 
             {/* Chat messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-gray-50">
               <div ref={messagesStartRef} />
               {messages.map((message) => (
                 <div
                   key={message.id}
                   className={`flex ${
                     message.type === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
+                  } items-end gap-2`}
                 >
+                  {message.type === 'bot' && (
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center shadow-sm">
+                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                      </svg>
+                    </div>
+                  )}
                   <div
-                    className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-3 md:p-4 shadow-sm ${
+                    className={`relative max-w-[85%] md:max-w-[75%] rounded-2xl p-3 md:p-4 shadow-sm ${
                       message.type === 'user'
-                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white'
-                        : 'bg-white text-gray-800 border border-gray-100'
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white ml-2'
+                        : 'bg-white text-gray-800 border border-gray-100 mr-2'
                     }`}
                   >
-                    {message.content}
+                    {/* Message content */}
+                    <div className="text-sm md:text-base leading-relaxed">
+                      {message.content}
+                    </div>
+                    
+                    {/* Message timestamp */}
+                    <div className={`text-xs mt-1 ${
+                      message.type === 'user' ? 'text-blue-100' : 'text-gray-400'
+                    }`}>
+                      {message.timestamp.toLocaleTimeString('fr-FR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
+
+                    {/* Decorative elements */}
+                    {message.type === 'user' ? (
+                      <div className="absolute -right-1 bottom-0 w-3 h-3 bg-blue-600 transform rotate-45" />
+                    ) : (
+                      <div className="absolute -left-1 bottom-0 w-3 h-3 bg-white border-l border-b border-gray-100 transform rotate-45" />
+                    )}
                   </div>
+                  {message.type === 'user' && (
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-gray-600 to-gray-700 flex items-center justify-center shadow-sm">
+                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                  )}
                 </div>
               ))}
               {isLoading && (
-                <div className="flex justify-start">
+                <div className="flex justify-start items-end gap-2">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center shadow-sm">
+                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                  </div>
                   <div className="bg-white text-gray-800 rounded-2xl p-4 border border-gray-100 shadow-sm">
                     <div className="flex space-x-2">
                       <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" />
