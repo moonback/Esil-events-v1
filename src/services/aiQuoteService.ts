@@ -344,7 +344,7 @@ Assure-toi que :
     const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
 
     try {
-      // Parse the JSON response
+    // Parse the JSON response
       const parsedResponse = JSON.parse(cleanedText) as AIResponse;
       
       // Verify that all product IDs exist in our database
@@ -369,4 +369,4 @@ Assure-toi que :
     console.error('Error generating quote suggestions:', error);
     throw new Error('Failed to generate quote suggestions');
   }
-};
+}; 
