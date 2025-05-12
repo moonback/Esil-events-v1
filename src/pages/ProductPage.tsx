@@ -34,6 +34,7 @@ const ProductPage: React.FC = () => {
   const [loadingRankings, setLoadingRankings] = useState(false);
   const navigate = useNavigate();
   const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
+  const [isNavigationEnabled, setIsNavigationEnabled] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -254,37 +255,89 @@ const ProductPage: React.FC = () => {
         />
       )}
       
-      {/* Navigation Buttons - Fixed Position */}
-      <div className="fixed top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-50 pointer-events-none">
-        <div className="flex flex-col items-center gap-4">
-          <button
-            onClick={navigateToPreviousProduct}
-            className="bg-white/90 hover:bg-white text-violet-600 p-4 rounded-full shadow-xl transform hover:scale-110 transition-all duration-300 pointer-events-auto border border-violet-100"
-            aria-label="Produit précédent"
+      {/* Navigation Toggle Button */}
+      <div className="fixed top-4 right-4 z-50">
+        <button
+          onClick={() => setIsNavigationEnabled(!isNavigationEnabled)}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 ${
+            isNavigationEnabled 
+              ? 'bg-violet-600 text-white' 
+              : 'bg-white text-violet-600'
+          }`}
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="w-5 h-5" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
           >
-            <ChevronLeft className="w-8 h-8" />
-          </button>
-          {categoryProducts.length > 0 && (
-            <div className="bg-white/90 px-4 py-2 rounded-lg shadow-lg text-sm text-violet-600 font-medium pointer-events-auto border border-violet-100">
-              {categoryProducts.findIndex(p => p.id === product?.id) + 1} / {categoryProducts.length}
-            </div>
-          )}
-        </div>
-        <div className="flex flex-col items-center gap-4">
-          {categoryProducts.length > 0 && (
-            <div className="bg-white/90 px-4 py-2 rounded-lg shadow-lg text-sm text-violet-600 font-medium pointer-events-auto border border-violet-100">
-              {product?.category}
-            </div>
-          )}
-          <button
-            onClick={navigateToNextProduct}
-            className="bg-white/90 hover:bg-white text-violet-600 p-4 rounded-full shadow-xl transform hover:scale-110 transition-all duration-300 pointer-events-auto border border-violet-100"
-            aria-label="Produit suivant"
-          >
-            <ChevronRight className="w-8 h-8" />
-          </button>
-        </div>
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+          <span className="font-medium">
+            {isNavigationEnabled ? 'Désactiver la navigation' : 'Activer la navigation'}
+          </span>
+        </button>
       </div>
+      
+      {/* Navigation Buttons - Fixed Position */}
+      {isNavigationEnabled && (
+        <div className="fixed top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-50 pointer-events-none">
+          <div className="flex flex-col items-center gap-4">
+            <button
+              onClick={navigateToPreviousProduct}
+              className="group bg-white/90 hover:bg-white text-violet-600 p-4 rounded-full shadow-xl transform hover:scale-110 transition-all duration-300 pointer-events-auto border border-violet-100"
+              aria-label="Produit précédent"
+            >
+              <ChevronLeft className="w-8 h-8" />
+            </button>
+            {categoryProducts.length > 0 && (
+              <div className="flex flex-col items-center gap-2">
+                <div className="bg-white/90 px-4 py-2 rounded-lg shadow-lg text-sm text-violet-600 font-medium pointer-events-auto border border-violet-100 backdrop-blur-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-violet-400">Position:</span>
+                    <span className="font-bold">{categoryProducts.findIndex(p => p.id === product?.id) + 1} / {categoryProducts.length}</span>
+                  </div>
+                </div>
+                {categoryProducts[categoryProducts.findIndex(p => p.id === product?.id) - 1] && (
+                  <div className="bg-white/90 px-4 py-2 rounded-lg shadow-lg text-xs text-gray-600 pointer-events-auto border border-violet-100 backdrop-blur-sm max-w-[200px] text-center">
+                    <span className="text-violet-400">Précédent:</span>
+                    <p className="font-medium truncate">{categoryProducts[categoryProducts.findIndex(p => p.id === product?.id) - 1].name}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            {categoryProducts.length > 0 && (
+              <div className="flex flex-col items-center gap-2">
+                <div className="bg-white/90 px-4 py-2 rounded-lg shadow-lg text-sm text-violet-600 font-medium pointer-events-auto border border-violet-100 backdrop-blur-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-violet-400">Catégorie:</span>
+                    <span className="font-bold capitalize">{product?.category}</span>
+                  </div>
+                </div>
+                {categoryProducts[categoryProducts.findIndex(p => p.id === product?.id) + 1] && (
+                  <div className="bg-white/90 px-4 py-2 rounded-lg shadow-lg text-xs text-gray-600 pointer-events-auto border border-violet-100 backdrop-blur-sm max-w-[200px] text-center">
+                    <span className="text-violet-400">Suivant:</span>
+                    <p className="font-medium truncate">{categoryProducts[categoryProducts.findIndex(p => p.id === product?.id) + 1].name}</p>
+                  </div>
+                )}
+              </div>
+            )}
+            <button
+              onClick={navigateToNextProduct}
+              className="group bg-white/90 hover:bg-white text-violet-600 p-4 rounded-full shadow-xl transform hover:scale-110 transition-all duration-300 pointer-events-auto border border-violet-100"
+              aria-label="Produit suivant"
+            >
+              <ChevronRight className="w-8 h-8" />
+            </button>
+          </div>
+        </div>
+      )}
       
       <div className="max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8 py-24 relative">
         {/* Breadcrumb */}
