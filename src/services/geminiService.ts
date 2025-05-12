@@ -82,7 +82,7 @@ export async function getProductSuggestions(
   }));
 
   const prompt = `
-    En tant qu'expert en décoration d'événements, analysez la demande suivante et suggérez les produits les plus appropriés parmi ceux disponibles.
+    En tant qu'expert en Création d'événements, analysez la demande suivante et suggérez les produits les plus appropriés parmi ceux disponibles.
     
     Demande de l'utilisateur: "${userQuery}"
     
