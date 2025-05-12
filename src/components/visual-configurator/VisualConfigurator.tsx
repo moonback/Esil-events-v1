@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../../types/Product';
 import { ProductPaletteItem } from './ProductPaletteItem';
@@ -39,6 +39,7 @@ export const VisualConfigurator: React.FC = () => {
   const [isAiSearching, setIsAiSearching] = useState(false);
   const [aiExplanation, setAiExplanation] = useState('');
   const [aiSuggestions, setAiSuggestions] = useState<Product[]>([]);
+  const [debouncedAiQuery, setDebouncedAiQuery] = useState('');
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
@@ -62,6 +63,22 @@ export const VisualConfigurator: React.FC = () => {
 
     loadProducts();
   }, []);
+
+  // Ajouter le debounce pour la recherche IA
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedAiQuery(aiQuery);
+    }, 500); // Attendre 500ms après la dernière frappe
+
+    return () => clearTimeout(timer);
+  }, [aiQuery]);
+
+  // Déclencher la recherche IA uniquement quand le debouncedAiQuery change
+  useEffect(() => {
+    if (debouncedAiQuery.trim()) {
+      handleAiSearch();
+    }
+  }, [debouncedAiQuery]);
 
   const handleAddProductToCanvas = (product: Product) => {
     setProductsOnCanvas(prev => {
@@ -182,14 +199,14 @@ export const VisualConfigurator: React.FC = () => {
   };
 
   const handleAiSearch = async () => {
-    if (!aiQuery.trim()) return;
+    if (!debouncedAiQuery.trim()) return;
 
     setIsAiSearching(true);
     setAiExplanation('');
     setAiSuggestions([]);
 
     try {
-      const { suggestions, explanation } = await getProductSuggestions(aiQuery, availableProducts);
+      const { suggestions, explanation } = await getProductSuggestions(debouncedAiQuery, availableProducts);
       setAiSuggestions(suggestions);
       setAiExplanation(explanation);
     } catch (error) {
@@ -215,7 +232,7 @@ export const VisualConfigurator: React.FC = () => {
           <button
             onClick={handleFinalizeSelection}
             disabled={productsOnCanvas.length === 0}
-            className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-violet-500 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ShoppingCartIcon className="w-5 h-5" />
             <span>Finaliser le devis</span>
@@ -235,7 +252,6 @@ export const VisualConfigurator: React.FC = () => {
                 className="w-full px-4 py-3 pl-12 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
                 value={aiQuery}
                 onChange={(e) => setAiQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAiSearch()}
               />
               <SparklesIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary-500" />
               <button
