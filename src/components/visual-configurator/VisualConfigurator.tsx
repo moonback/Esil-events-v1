@@ -204,12 +204,6 @@ export const VisualConfigurator: React.FC = () => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !isAiSearching) {
-      handleAiSearch();
-    }
-  };
-
   const handleShowProductDetails = (product: Product) => {
     setSelectedProduct(product);
   };
@@ -268,16 +262,23 @@ export const VisualConfigurator: React.FC = () => {
           {/* AI Search Bar */}
           <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="relative">
-              <input
-                type="text"
+              <textarea
                 placeholder="Décrivez votre événement ou vos besoins..."
-                className="w-full px-4 py-3 pl-12 pr-32 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                className="w-full px-4 py-3 pl-12 pr-32 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all resize-none min-h-[80px] max-h-[120px]"
                 value={aiQuery}
                 onChange={(e) => setAiQuery(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!isAiSearching) {
+                      handleAiSearch();
+                    }
+                  }
+                }}
+                rows={3}
               />
-              <SparklesIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary-500" />
-              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+              <SparklesIcon className="absolute left-4 top-4 w-5 h-5 text-primary-500" />
+              <div className="absolute right-2 bottom-2 flex items-center space-x-2">
                 <div className="relative">
                   <button
                     onClick={() => setShowDemoOptions(!showDemoOptions)}
