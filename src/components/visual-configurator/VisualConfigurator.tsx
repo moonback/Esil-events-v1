@@ -262,6 +262,10 @@ export const VisualConfigurator: React.FC = () => {
           {/* AI Search Bar */}
           <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Recherche IA (Beta)</h3>
+                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">Beta</span>
+              </div>
               <textarea
                 placeholder="Décrivez votre événement ou vos besoins..."
                 className="w-full px-4 py-3 pl-12 pr-32 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all resize-none min-h-[80px] max-h-[120px]"
@@ -277,7 +281,7 @@ export const VisualConfigurator: React.FC = () => {
                 }}
                 rows={3}
               />
-              <SparklesIcon className="absolute left-4 top-4 w-5 h-5 text-primary-500" />
+              <SparklesIcon className="absolute left-4 top-16 w-5 h-5 text-primary-500" />
               <div className="absolute right-2 bottom-2 flex items-center space-x-2">
                 <div className="relative">
                   <button
