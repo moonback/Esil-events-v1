@@ -227,14 +227,14 @@ export const VisualConfigurator: React.FC = () => {
 
   const demoExamples = [
     {
-      title: "Mariage Élégant",
-      description: "Je cherche du mobilier pour un mariage élégant en extérieur pour 100 personnes. J'ai besoin de tables rondes, chaises confortables, et quelques éléments décoratifs pour créer une ambiance romantique et sophistiquée.",
-      query: "Je cherche du mobilier pour un mariage élégant en extérieur pour 100 personnes. J'ai besoin de tables rondes, chaises confortables, et quelques éléments décoratifs pour créer une ambiance romantique et sophistiquée."
+      title: "Équipement Son & Lumière",
+      description: "Je recherche du matériel de sonorisation et d'éclairage pour une soirée événementielle. J'ai besoin d'un système de son complet avec microphones, enceintes et table de mixage, ainsi que des projecteurs et effets lumineux pour créer une ambiance dynamique.",
+      query: "Je recherche du matériel de sonorisation et d'éclairage pour une soirée événementielle. J'ai besoin d'un système de son complet avec microphones, enceintes et table de mixage, ainsi que des projecteurs et effets lumineux pour créer une ambiance dynamique."
     },
     {
-      title: "Soirée Entreprise",
-      description: "J'organise une soirée d'entreprise pour 50 personnes. Je recherche des tables hautes pour le cocktail, des chaises confortables, et des éléments de décoration moderne pour créer une ambiance professionnelle mais chaleureuse.",
-      query: "J'organise une soirée d'entreprise pour 50 personnes. Je recherche des tables hautes pour le cocktail, des chaises confortables, et des éléments de décoration moderne pour créer une ambiance professionnelle mais chaleureuse."
+      title: "Jeux & Animation",
+      description: "J'organise une animation pour un événement et je cherche des jeux et équipements d'animation. Je recherche des jeux gonflables, des structures de jeux, et du matériel d'animation pour divertir les participants de tous âges.",
+      query: "J'organise une animation pour un événement et je cherche des jeux et équipements d'animation. Je recherche des jeux gonflables, des structures de jeux, et du matériel d'animation pour divertir les participants de tous âges."
     }
   ];
 
