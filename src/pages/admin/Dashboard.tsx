@@ -255,23 +255,34 @@ const AdminDashboard: React.FC = () => {
                   key={index}
                   onClick={action.onClick}
                   disabled={exportLoading && action.title === 'Exporter les données'}
-                  className={`p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 
-                    hover:shadow-md hover:border-violet-200 dark:hover:border-violet-800 transition-all duration-300 
-                    flex items-center space-x-3 ${action.bgHover} disabled:opacity-50 disabled:cursor-not-allowed`}
+                  aria-label={action.description || action.title}
+                  className={`group p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 
+                    hover:shadow-lg hover:border-violet-200 dark:hover:border-violet-800 
+                    transform hover:-translate-y-1 transition-all duration-300 ease-in-out
+                    flex items-center space-x-3 ${action.bgHover} 
+                    disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
                 >
-                  <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-700">
+                  <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-700 
+                    group-hover:scale-110 transition-transform duration-300">
                     {action.icon}
                   </div>
-                  <div className="text-left">
-                    <span className="text-gray-700 dark:text-gray-300 font-medium block">
+                  <div className="text-left flex-1">
+                    <span className="text-gray-700 dark:text-gray-300 font-medium block 
+                      group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
                       {action.title}
                     </span>
                     {action.description && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="text-xs text-gray-500 dark:text-gray-400 
+                        group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
                         {action.description}
                       </span>
                     )}
                   </div>
+                  {exportLoading && action.title === 'Exporter les données' && (
+                    <div className="ml-2">
+                      <RefreshCw className="w-4 h-4 animate-spin text-violet-600" />
+                    </div>
+                  )}
                 </button>
               ))}
             </div>
