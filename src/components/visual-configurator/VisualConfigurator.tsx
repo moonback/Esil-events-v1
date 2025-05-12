@@ -608,19 +608,25 @@ export const VisualConfigurator: React.FC = () => {
         {/* Right Column - Canvas & Summary */}
         <div className="space-y-6">
           {/* Canvas */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Votre Devis</h2>
-              <div className="text-sm text-gray-500">
-                {productsOnCanvas.length} produit{productsOnCanvas.length !== 1 ? 's' : ''} sélectionné{productsOnCanvas.length !== 1 ? 's' : ''}
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center space-x-3">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-violet-400 bg-clip-text text-transparent">
+                  Votre Devis
+                </h2>
+                <div className="px-3 py-1 bg-violet-100 rounded-full">
+                  <span className="text-sm font-medium text-violet-700">
+                    {productsOnCanvas.length} produit{productsOnCanvas.length !== 1 ? 's' : ''} sélectionné{productsOnCanvas.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
               </div>
             </div>
             
             <div 
-              className={`min-h-[400px] border-2 border-dashed rounded-lg p-4 transition-all ${
+              className={`min-h-[400px] border-3 border-dashed rounded-xl p-6 transition-all duration-300 ${
                 isDraggingOver 
-                  ? 'border-primary-500 bg-primary-50 scale-105' 
-                  : 'border-gray-300'
+                  ? 'border-violet-400 bg-violet-50 scale-102 shadow-lg' 
+                  : 'border-gray-200 hover:border-violet-200'
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -629,20 +635,30 @@ export const VisualConfigurator: React.FC = () => {
               <AnimatePresence>
                 {productsOnCanvas.length === 0 ? (
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="h-full flex items-center justify-center text-gray-500"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="h-full flex flex-col items-center justify-center text-gray-500 space-y-4"
                   >
                     {isDraggingOver ? (
-                      <span className="text-primary-600 font-medium">Déposez le produit ici</span>
+                      <>
+                        <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center">
+                          <PlusIcon className="w-8 h-8 text-violet-500" />
+                        </div>
+                        <span className="text-lg font-medium text-violet-600">Déposez le produit ici</span>
+                      </>
                     ) : (
-                      <span>Glissez-déposez des produits ici pour créer votre devis</span>
+                      <>
+                        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+                          <ArrowPathIcon className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <span className="text-lg">Glissez-déposez des produits ici pour créer votre devis</span>
+                      </>
                     )}
                   </motion.div>
                 ) : (
                   <motion.div 
-                    className="flex flex-wrap gap-4"
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                     layout
                   >
                     {productsOnCanvas.map(product => (
@@ -652,29 +668,46 @@ export const VisualConfigurator: React.FC = () => {
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.8, opacity: 0 }}
-                        className="relative"
+                        className="relative group"
                       >
-                        <CanvasItem
-                          product={product}
-                          onRemove={handleRemoveProductFromCanvas}
-                        />
-                        <div className="absolute bottom-2 right-2 bg-white rounded-lg shadow-md p-1 flex items-center space-x-2">
+                        <div className="absolute -top-2 -right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
-                            className="p-1 rounded hover:bg-gray-100 transition-colors"
-                            disabled={product.quantity <= 1}
+                            onClick={() => handleRemoveProductFromCanvas(product.id)}
+                            className="p-1.5 bg-red-100 hover:bg-red-200 rounded-full text-red-600 shadow-sm transition-all duration-200"
                           >
-                            <MinusIcon className="w-4 h-4 text-gray-600" />
+                            <XMarkIcon className="w-4 h-4" />
                           </button>
-                          <span className="text-sm font-medium w-8 text-center">
-                            {product.quantity}
-                          </span>
-                          <button
-                            onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
-                            className="p-1 rounded hover:bg-gray-100 transition-colors"
-                          >
-                            <PlusIcon className="w-4 h-4 text-gray-600" />
-                          </button>
+                        </div>
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group-hover:shadow-md transition-all duration-200">
+                          <CanvasItem
+                            product={product}
+                            onRemove={handleRemoveProductFromCanvas}
+                          />
+                          <div className="p-4 bg-gray-50 border-t border-gray-100">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <button
+                                  onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
+                                  className="p-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 transition-colors"
+                                  disabled={product.quantity <= 1}
+                                >
+                                  <MinusIcon className="w-4 h-4 text-gray-600" />
+                                </button>
+                                <span className="text-lg font-medium w-8 text-center">
+                                  {product.quantity}
+                                </span>
+                                <button
+                                  onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
+                                  className="p-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 transition-colors"
+                                >
+                                  <PlusIcon className="w-4 h-4 text-gray-600" />
+                                </button>
+                              </div>
+                              <span className="text-sm font-medium text-violet-600">
+                                {(product.priceTTC * product.quantity).toFixed(2)}€
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </motion.div>
                     ))}
