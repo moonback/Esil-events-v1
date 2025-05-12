@@ -256,7 +256,7 @@ const ProductPage: React.FC = () => {
       )}
       
       {/* Navigation Toggle Button */}
-      <div className="fixed top-4 right-4 z-50">
+      {/* <div className="fixed top-4 right-4 z-50">
         <button
           onClick={() => setIsNavigationEnabled(!isNavigationEnabled)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 ${
@@ -281,7 +281,7 @@ const ProductPage: React.FC = () => {
             {isNavigationEnabled ? 'Désactiver la navigation' : 'Activer la navigation'}
           </span>
         </button>
-      </div>
+      </div> */}
       
       {/* Navigation Buttons - Fixed Position */}
       {isNavigationEnabled && (
@@ -454,12 +454,38 @@ const ProductPage: React.FC = () => {
 
             {/* Product Info */}
             <div className="space-y-4 md:space-y-6 ">
-              <div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">{product.name}</h1>
-                <p className="mt-1 text-gray-500 flex items-center text-sm">
-                  <Tag className="w-3 h-3 mr-1" />
-                  <span>Réf: {product.reference}</span>
-                </p>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">{product.name}</h1>
+                  <p className="mt-1 text-gray-500 flex items-center text-sm">
+                    <Tag className="w-3 h-3 mr-1" />
+                    <span>Réf: {product.reference}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsNavigationEnabled(!isNavigationEnabled)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 ${
+                    isNavigationEnabled 
+                      ? 'bg-violet-600 text-white' 
+                      : 'bg-white text-violet-600 border border-violet-100'
+                  }`}
+                >
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className="w-4 h-4" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                  <span className="text-sm font-medium">
+                    {isNavigationEnabled ? 'Désactiver' : 'Activer'}
+                  </span>
+                </button>
               </div>
 
               <div className="grid grid-cols-2 gap-3 md:gap-6">
