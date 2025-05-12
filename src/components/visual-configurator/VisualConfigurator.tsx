@@ -25,7 +25,7 @@ export const VisualConfigurator: React.FC = () => {
   // Récupérer toutes les catégories uniques
   const categories = useMemo(() => {
     const uniqueCategories = new Set(availableProducts.map(p => p.category));
-    return Array.from(uniqueCategories).sort();
+    return Array.from(uniqueCategories).filter((cat): cat is string => typeof cat === 'string').sort();
   }, [availableProducts]);
 
   useEffect(() => {
