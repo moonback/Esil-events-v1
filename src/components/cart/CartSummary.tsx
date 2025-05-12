@@ -4,7 +4,14 @@ import { ArrowLeft, FileText } from 'lucide-react';
 import { CartSummaryProps } from './types';
 import { motion } from 'framer-motion';
 
-const CartSummary: React.FC<CartSummaryProps> = ({ items, onCheckoutClick }) => {
+const CartSummary: React.FC<CartSummaryProps> = ({ 
+  items, 
+  onCheckoutClick,
+  deliveryEstimation 
+}) => {
+  const subtotal = items?.reduce((total, item) => total + (item.priceTTC * item.quantity), 0) || 0;
+  const total = subtotal + (deliveryEstimation?.deliveryCost || 0) + (deliveryEstimation?.installationCost || 0);
+
   return (
     <motion.div 
       className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 p-4 bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-md border border-gray-200/30 dark:border-gray-700/30"
@@ -27,11 +34,36 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items, onCheckoutClick }) => 
         </Link>
       </motion.div>
       
-      <div className="flex items-center gap-4">
-        <div className="text-right hidden sm:block">
+      <div className="flex flex-col items-end gap-2">
+        <div className="text-right">
+          <p className="text-sm text-gray-600 dark:text-gray-400">Sous-total</p>
+          <p className="text-lg font-bold text-gray-800 dark:text-gray-200">
+            {subtotal.toFixed(2)} €
+          </p>
+        </div>
+
+        {deliveryEstimation && (
+          <>
+            <div className="text-right">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Frais de livraison</p>
+              <p className="text-lg font-bold text-gray-800 dark:text-gray-200">
+                {deliveryEstimation.deliveryCost.toFixed(2)} €
+              </p>
+            </div>
+
+            <div className="text-right">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Frais d'installation</p>
+              <p className="text-lg font-bold text-gray-800 dark:text-gray-200">
+                {deliveryEstimation.installationCost.toFixed(2)} €
+              </p>
+            </div>
+          </>
+        )}
+
+        <div className="text-right border-t pt-2 mt-2">
           <p className="text-sm text-gray-600 dark:text-gray-400">Total TTC</p>
           <p className="text-lg font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-            {items?.reduce((total, item) => total + (item.priceTTC * item.quantity), 0).toFixed(2) || '0.00'} €
+            {total.toFixed(2)} €
           </p>
         </div>
         

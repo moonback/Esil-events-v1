@@ -476,4 +476,39 @@ function formatReasoningExplanation(reasoning: ReasoningResult): string {
   formattedText += `\nConclusion: ${reasoning.conclusion}`;
   
   return formattedText;
+}
+
+export async function callGeminiAPI(payload: GeminiRequestPayload): Promise<string> {
+  if (!GEMINI_API_KEY) {
+    throw new Error("Gemini API key is not configured.");
+  }
+
+  try {
+    const response = await fetch(GEMINI_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Gemini API Error:", errorData);
+      throw new Error(`Gemini API request failed: ${errorData.error?.message || response.statusText}`);
+    }
+
+    const data: GeminiAPIResponse = await response.json();
+
+    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content.parts.length > 0) {
+      return data.candidates[0].content.parts[0].text;
+    } else if (data.promptFeedback?.blockReason) {
+      console.error("Gemini content blocked:", data.promptFeedback);
+      return `Response blocked due to: ${data.promptFeedback.blockReason}.`;
+    }
+    throw new Error("Invalid response structure from Gemini API.");
+  } catch (error) {
+    console.error("Error calling Gemini API:", error);
+    throw error;
+  }
 } 

@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { CheckoutFormProps, FormData } from './types';
 import CartSummaryPreview from './CartSummaryPreview';
 import { useCart } from '../../context/CartContext';
+import { estimateDeliveryAndInstallation } from '../../services/deliveryEstimationService';
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ 
   onSubmit, 
@@ -63,22 +64,100 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     ...initialData
   });
 
+  // Add new state for delivery estimation
+  const [deliveryEstimation, setDeliveryEstimation] = React.useState<{
+    deliveryCost: number;
+    installationCost: number;
+    requiredPersonnel: {
+      delivery: number;
+      installation: number;
+    };
+    estimatedDuration: {
+      delivery: string;
+      installation: string;
+    };
+    notes: string[];
+  } | undefined>(undefined);
+  const [isEstimating, setIsEstimating] = React.useState(false);
+
+  // Variables for conditional rendering
+  const isDelivery = formData.deliveryType !== 'pickup';
+  const isElevator = formData.interiorAccess === 'elevator';
+  const isProfessional = formData.customerType === 'professional';
+
+  // Function to estimate delivery costs
+  const estimateDelivery = React.useCallback(async () => {
+    if (!isDelivery || !formData.deliveryAddress || !formData.deliveryPostalCode || !formData.deliveryCity) {
+      return;
+    }
+
+    setIsEstimating(true);
+    try {
+      const estimation = await estimateDeliveryAndInstallation({
+        items,
+        deliveryType: formData.deliveryType as 'eco' | 'premium',
+        deliveryAddress: formData.deliveryAddress,
+        deliveryPostalCode: formData.deliveryPostalCode,
+        deliveryCity: formData.deliveryCity,
+        exteriorAccess: formData.exteriorAccess || 'parking',
+        interiorAccess: formData.interiorAccess || 'flat',
+        elevatorWidth: formData.elevatorWidth || undefined,
+        elevatorHeight: formData.elevatorHeight || undefined,
+        elevatorDepth: formData.elevatorDepth || undefined,
+        eventDate: formData.eventDate,
+        eventStartTime: formData.eventStartTime,
+        eventEndTime: formData.eventEndTime
+      });
+      setDeliveryEstimation(estimation);
+    } catch (error) {
+      console.error('Error estimating delivery:', error);
+      alert('Une erreur est survenue lors de l\'estimation des frais de livraison.');
+    } finally {
+      setIsEstimating(false);
+    }
+  }, [isDelivery, formData, items]);
+
+  // Debounced estimation function
+  const debouncedEstimation = React.useMemo(
+    () => {
+      let timeoutId: NodeJS.Timeout;
+      return () => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(estimateDelivery, 1000);
+      };
+    },
+    [estimateDelivery]
+  );
+
   // Gestion des changements dans les champs du formulaire
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
 
-    // Gestion spéciale pour les cases à cocher
     if (type === 'checkbox') {
       const target = e.target as HTMLInputElement;
       setFormData(prev => ({ ...prev, [name]: target.checked }));
     } else {
-      // Gestion des champs numériques
       const isNumberInput = type === 'number';
       const processedValue = isNumberInput && value !== '' ? parseFloat(value) : value;
 
       setFormData(prev => ({ ...prev, [name]: processedValue }));
+    }
+
+    // Trigger estimation when relevant fields change
+    if (isDelivery && [
+      'deliveryType',
+      'deliveryAddress',
+      'deliveryPostalCode',
+      'deliveryCity',
+      'exteriorAccess',
+      'interiorAccess',
+      'elevatorWidth',
+      'elevatorHeight',
+      'elevatorDepth'
+    ].includes(name)) {
+      debouncedEstimation();
     }
   };
 
@@ -96,17 +175,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     onSubmit(formData);
   };
 
-  // Variables pour le rendu conditionnel
-  const isDelivery = formData.deliveryType !== 'pickup';
-  const isElevator = formData.interiorAccess === 'elevator';
-  const isProfessional = formData.customerType === 'professional';
-
   return (
     <div className="bg-white p-8 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6">Finaliser votre demande de devis</h2>
       
-      {/* Afficher le récapitulatif du panier */}
-      <CartSummaryPreview items={items} />
+      {/* Afficher le récapitulatif du panier avec l'estimation de livraison */}
+      <CartSummaryPreview 
+        items={items} 
+        deliveryEstimation={deliveryEstimation}
+      />
 
       <form onSubmit={handleSubmit}>
         {/* Section 1: Customer Info */}
@@ -314,6 +391,54 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             </>
           )}
         </div>
+
+        {/* Add delivery estimation section after delivery fields */}
+        {isDelivery && deliveryEstimation && (
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h4 className="text-lg font-semibold mb-4">Estimation des frais de livraison et installation</h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-600">Frais de livraison</p>
+                <p className="text-lg font-bold">{deliveryEstimation.deliveryCost.toFixed(2)} €</p>
+                <p className="text-sm text-gray-500">
+                  Durée estimée: {deliveryEstimation.estimatedDuration.delivery}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Personnel requis: {deliveryEstimation.requiredPersonnel.delivery} personne(s)
+                </p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-gray-600">Frais d'installation</p>
+                <p className="text-lg font-bold">{deliveryEstimation.installationCost.toFixed(2)} €</p>
+                <p className="text-sm text-gray-500">
+                  Durée estimée: {deliveryEstimation.estimatedDuration.installation}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Personnel requis: {deliveryEstimation.requiredPersonnel.installation} personne(s)
+                </p>
+              </div>
+            </div>
+
+            {deliveryEstimation.notes.length > 0 && (
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-600 mb-2">Notes importantes:</p>
+                <ul className="list-disc list-inside text-sm text-gray-500">
+                  {deliveryEstimation.notes.map((note, index) => (
+                    <li key={index}>{note}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {isDelivery && isEstimating && (
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg text-center">
+            <p className="text-gray-600">Calcul de l'estimation en cours...</p>
+          </div>
+        )}
 
         {/* Section 4: Return */}
         <h3 className="text-lg font-semibold mb-4 border-b pb-2">4. Reprise du matériel</h3>

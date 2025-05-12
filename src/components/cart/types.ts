@@ -4,7 +4,6 @@
 export interface CartItem {
   id: string;
   name: string;
-  image: string;
   priceTTC: number;
   quantity: number;
   color?: string;
@@ -68,6 +67,19 @@ export interface CartItemListProps {
 export interface CartSummaryProps {
   items: CartItem[];
   onCheckoutClick: () => void;
+  deliveryEstimation?: {
+    deliveryCost: number;
+    installationCost: number;
+    requiredPersonnel: {
+      delivery: number;
+      installation: number;
+    };
+    estimatedDuration: {
+      delivery: string;
+      installation: string;
+    };
+    notes: string[];
+  };
 }
 
 // Type pour les props du composant EmptyCart

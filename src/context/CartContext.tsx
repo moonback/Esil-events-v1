@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-interface CartItem {
+export interface CartItem {
   id: string;
   name: string;
-  image: string;
-  priceTTC: number;
   quantity: number;
+  priceTTC: number;
   color?: string;
 }
 
