@@ -46,7 +46,7 @@ export const VisualConfigurator: React.FC = () => {
   const [showDemoOptions, setShowDemoOptions] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showAiAssistant, setShowAiAssistant] = useState(false);
-  const { addToCart, items: cartItems } = useCart();
+  const { addToCart, items: cartItems, clearCart } = useCart();
   const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [researchMode, setResearchMode] = useState<'suggestions' | 'research' | 'reasoning'>('suggestions');
@@ -132,6 +132,7 @@ export const VisualConfigurator: React.FC = () => {
 
   const handleClearCanvas = () => {
     setProductsOnCanvas([]);
+    clearCart();
   };
 
   const handleFinalizeSelection = () => {
