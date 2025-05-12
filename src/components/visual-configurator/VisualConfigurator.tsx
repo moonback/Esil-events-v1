@@ -16,7 +16,8 @@ import {
   TrashIcon,
   ArrowPathIcon,
   ShoppingCartIcon,
-  PlayIcon
+  PlayIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ProductModal } from './ProductModal';
@@ -42,6 +43,7 @@ export const VisualConfigurator: React.FC = () => {
   const [aiExplanation, setAiExplanation] = useState('');
   const [aiSuggestions, setAiSuggestions] = useState<Product[]>([]);
   const [showDemoOptions, setShowDemoOptions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -348,12 +350,34 @@ export const VisualConfigurator: React.FC = () => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="mt-3 p-4 bg-primary-50 rounded-lg"
+                  className="mt-3"
                 >
-                  <h3 className="text-sm font-semibold text-primary-800 mb-2">Suggestions Personnaliser :</h3>
-                  <div className="text-sm text-primary-700 whitespace-pre-line">
-                    {aiExplanation}
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-semibold text-primary-800">Suggestions Personnalisées</h3>
+                    <button
+                      onClick={() => setShowSuggestions(!showSuggestions)}
+                      className="flex items-center space-x-1 text-sm text-primary-600 hover:text-primary-700"
+                    >
+                      <span>{showSuggestions ? 'Masquer' : 'Afficher'}</span>
+                      <ChevronDownIcon className={`w-4 h-4 transform transition-transform ${showSuggestions ? 'rotate-180' : ''}`} />
+                    </button>
                   </div>
+                  <AnimatePresence>
+                    {showSuggestions && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-4 bg-primary-50 rounded-lg">
+                          <div className="text-sm text-primary-700 whitespace-pre-line">
+                            {aiExplanation}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               )}
             </AnimatePresence>
