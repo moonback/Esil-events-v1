@@ -12,8 +12,12 @@ import {
   SparklesIcon,
   MagnifyingGlassIcon,
   PlusIcon,
-  MinusIcon
+  MinusIcon,
+  TrashIcon,
+  ArrowPathIcon,
+  ShoppingCartIcon
 } from '@heroicons/react/24/outline';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -139,7 +143,7 @@ export const VisualConfigurator: React.FC = () => {
     return productsOnCanvas.reduce((sum, product) => sum + (product.priceTTC * product.quantity), 0);
   }, [productsOnCanvas]);
 
-  const handleDragStart = (e: React.DragEvent, product: Product) => {
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, product: Product) => {
     e.dataTransfer.setData('product', JSON.stringify(product));
     e.dataTransfer.effectAllowed = 'move';
   };
@@ -191,20 +195,37 @@ export const VisualConfigurator: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Créez votre Devis rapide</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Créez votre Devis rapide</h1>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={handleClearCanvas}
+            className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            <TrashIcon className="w-5 h-5" />
+            <span>Effacer tout</span>
+          </button>
+          <button
+            onClick={handleFinalizeSelection}
+            disabled={productsOnCanvas.length === 0}
+            className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ShoppingCartIcon className="w-5 h-5" />
+            <span>Finaliser le devis</span>
+          </button>
+        </div>
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - Product Palette */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Catalogue Produits</h2>
-          
+        <div className="space-y-6">
           {/* AI Search Bar */}
-          <div className="mb-6">
+          <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Décrivez votre événement ou vos besoins..."
-                className="w-full px-4 py-3 pl-12 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-3 pl-12 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
                 value={aiQuery}
                 onChange={(e) => setAiQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAiSearch()}
@@ -213,132 +234,168 @@ export const VisualConfigurator: React.FC = () => {
               <button
                 onClick={handleAiSearch}
                 disabled={isAiSearching || !aiQuery.trim()}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                {isAiSearching ? 'Recherche...' : 'Rechercher'}
+                {isAiSearching ? (
+                  <ArrowPathIcon className="w-5 h-5 animate-spin" />
+                ) : (
+                  'Rechercher'
+                )}
               </button>
             </div>
             
-            {aiExplanation && (
-              <div className="mt-3 p-4 bg-primary-50 rounded-lg">
-                <h3 className="text-sm font-semibold text-primary-800 mb-2">Suggestions IA :</h3>
-                <div className="text-sm text-primary-700 whitespace-pre-line">
-                  {aiExplanation}
-                </div>
-              </div>
-            )}
+            <AnimatePresence>
+              {aiExplanation && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="mt-3 p-4 bg-primary-50 rounded-lg"
+                >
+                  <h3 className="text-sm font-semibold text-primary-800 mb-2">Suggestions IA :</h3>
+                  <div className="text-sm text-primary-700 whitespace-pre-line">
+                    {aiExplanation}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* AI Suggestions Grid */}
-            {aiSuggestions.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Produits suggérés</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {aiSuggestions.map(product => (
-                    <div
-                      key={product.id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, product)}
-                      className="cursor-move"
-                    >
-                      <ProductPaletteItem
-                        product={product}
-                        onSelect={handleAddProductToCanvas}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <AnimatePresence>
+              {aiSuggestions.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-6"
+                >
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Produits suggérés</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {aiSuggestions.map(product => (
+                      <motion.div
+                        key={product.id}
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        whileHover={{ scale: 1.05 }}
+                        className="cursor-move"
+                        draggable
+                        onDragStart={(e) => {
+                          const dragEvent = e as unknown as React.DragEvent<HTMLDivElement>;
+                          handleDragStart(dragEvent, product);
+                        }}
+                      >
+                        <ProductPaletteItem
+                          product={product}
+                          onSelect={handleAddProductToCanvas}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Regular Search & Filters */}
-          <div className="mb-6 space-y-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Rechercher un produit..."
-                className="w-full px-4 py-2 pl-10 border rounded-lg"
-                value={productFilters.searchTerm}
-                onChange={(e) => handleApplyFilters({ ...productFilters, searchTerm: e.target.value })}
-              />
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            </div>
-            
-            {/* Catégories */}
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => handleApplyFilters({ ...productFilters, category: '' })}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  !productFilters.category 
-                    ? 'bg-primary-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Tout
-              </button>
-              {categories.map(category => (
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="space-y-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Rechercher un produit..."
+                  className="w-full px-4 py-2 pl-10 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                  value={productFilters.searchTerm}
+                  onChange={(e) => handleApplyFilters({ ...productFilters, searchTerm: e.target.value })}
+                />
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              </div>
+              
+              {/* Catégories */}
+              <div className="flex flex-wrap gap-2">
                 <button
-                  key={category}
-                  onClick={() => handleApplyFilters({ ...productFilters, category })}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    productFilters.category === category 
-                      ? 'bg-primary-600 text-white' 
+                  onClick={() => handleApplyFilters({ ...productFilters, category: '' })}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
+                    !productFilters.category 
+                      ? 'bg-primary-600 text-white shadow-md' 
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {category}
+                  Tout
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Product Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {isLoadingProducts ? (
-              <div className="col-span-full text-center py-8">Chargement...</div>
-            ) : filteredProducts.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-gray-500">
-                Aucun produit trouvé
+                {categories.map(category => (
+                  <button
+                    key={category}
+                    onClick={() => handleApplyFilters({ ...productFilters, category })}
+                    className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
+                      productFilters.category === category 
+                        ? 'bg-primary-600 text-white shadow-md' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
               </div>
-            ) : (
-              filteredProducts.map(product => (
-                <div
-                  key={product.id}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, product)}
-                  className="cursor-move"
-                >
-                  <ProductPaletteItem
-                    product={product}
-                    onSelect={handleAddProductToCanvas}
-                  />
+            </div>
+
+            {/* Product Grid */}
+            <div className="mt-6">
+              {isLoadingProducts ? (
+                <div className="flex justify-center items-center py-8">
+                  <ArrowPathIcon className="w-8 h-8 text-primary-500 animate-spin" />
                 </div>
-              ))
+              ) : filteredProducts.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  Aucun produit trouvé
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {filteredProducts.map(product => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <div
+                        className="cursor-move"
+                        draggable
+                        onDragStart={(e: React.DragEvent<HTMLDivElement>) => handleDragStart(e, product)}
+                      >
+                        <ProductPaletteItem
+                          product={product}
+                          onSelect={handleAddProductToCanvas}
+                        />
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center mt-6 space-x-2">
+                <button
+                  onClick={() => handleApplyFilters({ ...productFilters, currentPage: productFilters.currentPage - 1 })}
+                  disabled={productFilters.currentPage === 1}
+                  className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeftIcon className="w-5 h-5" />
+                </button>
+                <span className="text-sm text-gray-600">
+                  Page {productFilters.currentPage} sur {totalPages}
+                </span>
+                <button
+                  onClick={() => handleApplyFilters({ ...productFilters, currentPage: productFilters.currentPage + 1 })}
+                  disabled={productFilters.currentPage === totalPages}
+                  className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronRightIcon className="w-5 h-5" />
+                </button>
+              </div>
             )}
           </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center mt-6 space-x-2">
-              <button
-                onClick={() => handleApplyFilters({ ...productFilters, currentPage: productFilters.currentPage - 1 })}
-                disabled={productFilters.currentPage === 1}
-                className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeftIcon className="w-5 h-5" />
-              </button>
-              <span className="text-sm text-gray-600">
-                Page {productFilters.currentPage} sur {totalPages}
-              </span>
-              <button
-                onClick={() => handleApplyFilters({ ...productFilters, currentPage: productFilters.currentPage + 1 })}
-                disabled={productFilters.currentPage === totalPages}
-                className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronRightIcon className="w-5 h-5" />
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Right Column - Canvas & Summary */}
@@ -347,119 +404,156 @@ export const VisualConfigurator: React.FC = () => {
           <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Votre Devis</h2>
-              <button
-                onClick={handleClearCanvas}
-                className="text-sm text-red-600 hover:text-red-800"
-              >
-                Effacer tout
-              </button>
+              <div className="text-sm text-gray-500">
+                {productsOnCanvas.length} produit{productsOnCanvas.length !== 1 ? 's' : ''} sélectionné{productsOnCanvas.length !== 1 ? 's' : ''}
+              </div>
             </div>
             
             <div 
-              className={`min-h-[400px] border-2 border-dashed rounded-lg p-4 transition-colors ${
+              className={`min-h-[400px] border-2 border-dashed rounded-lg p-4 transition-all ${
                 isDraggingOver 
-                  ? 'border-primary-500 bg-primary-50' 
+                  ? 'border-primary-500 bg-primary-50 scale-105' 
                   : 'border-gray-300'
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
-              {productsOnCanvas.length === 0 ? (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  {isDraggingOver ? (
-                    <span className="text-primary-600 font-medium">Déposez le produit ici</span>
-                  ) : (
-                    <span>Glissez-déposez des produits ici pour créer votre devis</span>
-                  )}
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-4">
-                  {productsOnCanvas.map(product => (
-                    <div key={`${product.id}-${Math.random()}`} className="relative">
-                      <CanvasItem
-                        product={product}
-                        onRemove={handleRemoveProductFromCanvas}
-                      />
-                      <div className="absolute bottom-2 right-2 bg-white rounded-lg shadow-md p-1 flex items-center space-x-2">
-                        <button
-                          onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
-                          className="p-1 rounded hover:bg-gray-100"
-                          disabled={product.quantity <= 1}
-                        >
-                          <MinusIcon className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <span className="text-sm font-medium w-8 text-center">
-                          {product.quantity}
-                        </span>
-                        <button
-                          onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
-                          className="p-1 rounded hover:bg-gray-100"
-                        >
-                          <PlusIcon className="w-4 h-4 text-gray-600" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <AnimatePresence>
+                {productsOnCanvas.length === 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="h-full flex items-center justify-center text-gray-500"
+                  >
+                    {isDraggingOver ? (
+                      <span className="text-primary-600 font-medium">Déposez le produit ici</span>
+                    ) : (
+                      <span>Glissez-déposez des produits ici pour créer votre devis</span>
+                    )}
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    className="flex flex-wrap gap-4"
+                    layout
+                  >
+                    {productsOnCanvas.map(product => (
+                      <motion.div
+                        key={`${product.id}-${Math.random()}`}
+                        layout
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.8, opacity: 0 }}
+                        className="relative"
+                      >
+                        <CanvasItem
+                          product={product}
+                          onRemove={handleRemoveProductFromCanvas}
+                        />
+                        <div className="absolute bottom-2 right-2 bg-white rounded-lg shadow-md p-1 flex items-center space-x-2">
+                          <button
+                            onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
+                            className="p-1 rounded hover:bg-gray-100 transition-colors"
+                            disabled={product.quantity <= 1}
+                          >
+                            <MinusIcon className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <span className="text-sm font-medium w-8 text-center">
+                            {product.quantity}
+                          </span>
+                          <button
+                            onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
+                            className="p-1 rounded hover:bg-gray-100 transition-colors"
+                          >
+                            <PlusIcon className="w-4 h-4 text-gray-600" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
           {/* Summary */}
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-semibold mb-4">Récapitulatif</h2>
-            {productsOnCanvas.length === 0 ? (
-              <p className="text-gray-500">Aucun produit sélectionné</p>
-            ) : (
-              <>
-                <ul className="space-y-2 mb-4">
-                  {productsOnCanvas.map((product, index) => (
-                    <li key={`${product.id}-${index}`} className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <img 
-                          src={product.images[0]} 
-                          alt={product.name}
-                          className="w-10 h-10 rounded object-cover"
-                        />
-                        <div>
-                          <span className="text-sm">{product.name}</span>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <button
-                              onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
-                              className="p-1 rounded hover:bg-gray-100"
-                              disabled={product.quantity <= 1}
-                            >
-                              <MinusIcon className="w-3 h-3 text-gray-600" />
-                            </button>
-                            <span className="text-xs text-gray-600">x{product.quantity}</span>
-                            <button
-                              onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
-                              className="p-1 rounded hover:bg-gray-100"
-                            >
-                              <PlusIcon className="w-3 h-3 text-gray-600" />
-                            </button>
+            <AnimatePresence>
+              {productsOnCanvas.length === 0 ? (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-gray-500"
+                >
+                  Aucun produit sélectionné
+                </motion.p>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <ul className="space-y-2 mb-4">
+                    {productsOnCanvas.map((product, index) => (
+                      <motion.li
+                        key={`${product.id}-${index}`}
+                        layout
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        className="flex justify-between items-center"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <img 
+                            src={product.images[0]} 
+                            alt={product.name}
+                            className="w-10 h-10 rounded object-cover"
+                          />
+                          <div>
+                            <span className="text-sm">{product.name}</span>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <button
+                                onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
+                                className="p-1 rounded hover:bg-gray-100 transition-colors"
+                                disabled={product.quantity <= 1}
+                              >
+                                <MinusIcon className="w-3 h-3 text-gray-600" />
+                              </button>
+                              <span className="text-xs text-gray-600">x{product.quantity}</span>
+                              <button
+                                onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
+                                className="p-1 rounded hover:bg-gray-100 transition-colors"
+                              >
+                                <PlusIcon className="w-3 h-3 text-gray-600" />
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <span className="text-sm font-medium">{(product.priceTTC * product.quantity).toFixed(2)}€</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="border-t pt-4 mt-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="font-medium">Total</span>
-                    <span className="text-lg font-bold">{totalCanvasPrice.toFixed(2)}€</span>
-                  </div>
-                  <button
-                    onClick={handleFinalizeSelection}
-                    className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition-colors"
+                        <span className="text-sm font-medium">{(product.priceTTC * product.quantity).toFixed(2)}€</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                  <motion.div
+                    layout
+                    className="border-t pt-4 mt-4"
                   >
-                    Ajouter la sélection au devis
-                  </button>
-                </div>
-              </>
-            )}
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="font-medium">Total</span>
+                      <span className="text-lg font-bold">{totalCanvasPrice.toFixed(2)}€</span>
+                    </div>
+                    <button
+                      onClick={handleFinalizeSelection}
+                      className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition-colors"
+                    >
+                      Ajouter la sélection au devis
+                    </button>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
