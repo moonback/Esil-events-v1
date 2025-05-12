@@ -5,7 +5,7 @@ import { ProductPaletteItem } from './ProductPaletteItem';
 import { CanvasItem } from './CanvasItem';
 import { useCart } from '../../context/CartContext';
 import { getAllProducts } from '../../services/productService';
-import { getProductSuggestions } from '../../services/geminiService';
+import { getProductSuggestions, performResearch, performReasoning } from '../../services/geminiService';
 import { 
   ChevronLeftIcon, 
   ChevronRightIcon,
@@ -45,9 +45,16 @@ export const VisualConfigurator: React.FC = () => {
   const [aiSuggestions, setAiSuggestions] = useState<Product[]>([]);
   const [showDemoOptions, setShowDemoOptions] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const { addToCart } = useCart();
+  const { addToCart, items: cartItems } = useCart();
   const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [researchMode, setResearchMode] = useState<'suggestions' | 'research' | 'reasoning'>('suggestions');
+  const [researchResults, setResearchResults] = useState<{
+    findings?: Product[];
+    recommendations?: Product[];
+    explanation: string;
+  }>({ explanation: '' });
+  const [maxSuggestions, setMaxSuggestions] = useState<number>(6);
 
   // Récupérer toutes les catégories uniques
   const categories = useMemo(() => {
@@ -194,11 +201,30 @@ export const VisualConfigurator: React.FC = () => {
     setIsAiSearching(true);
     setAiExplanation('');
     setAiSuggestions([]);
+    setResearchResults({ explanation: '' });
 
     try {
-      const { suggestions, explanation } = await getProductSuggestions(aiQuery, availableProducts);
-      setAiSuggestions(suggestions);
-      setAiExplanation(explanation);
+      let result;
+      switch (researchMode) {
+        case 'research':
+          result = await performResearch(aiQuery, availableProducts, maxSuggestions);
+          setResearchResults({
+            findings: result.findings,
+            explanation: result.explanation
+          });
+          break;
+        case 'reasoning':
+          result = await performReasoning(aiQuery, availableProducts, cartItems, maxSuggestions);
+          setResearchResults({
+            recommendations: result.recommendations,
+            explanation: result.explanation
+          });
+          break;
+        default:
+          const { suggestions, explanation } = await getProductSuggestions(aiQuery, availableProducts, maxSuggestions);
+          setAiSuggestions(suggestions);
+          setAiExplanation(explanation);
+      }
     } catch (error) {
       console.error('Error getting AI suggestions:', error);
       setAiExplanation('Désolé, une erreur est survenue lors de la recherche. Veuillez réessayer.');
@@ -272,7 +298,38 @@ export const VisualConfigurator: React.FC = () => {
                   <SparklesIcon className="w-6 h-6 text-violet-500" />
                   <h3 className="text-lg font-semibold text-gray-900">Assistant IA - Configurateur Intelligent</h3>
                 </div>
-                <span className="px-2 py-1 bg-violet-100 text-violet-800 text-xs font-medium rounded-full animate-pulse">Recommandé</span>
+                <div className="flex items-center space-x-4">
+                  <span className="px-2 py-1 bg-violet-100 text-violet-800 text-xs font-medium rounded-full animate-pulse">Recommandé</span>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <label htmlFor="researchMode" className="text-sm text-gray-600">Mode:</label>
+                      <select
+                        id="researchMode"
+                        value={researchMode}
+                        onChange={(e) => setResearchMode(e.target.value as 'suggestions' | 'research' | 'reasoning')}
+                        className="px-3 py-1.5 bg-white border border-violet-200 rounded-md text-sm text-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      >
+                        <option value="suggestions">Suggestions rapides</option>
+                        <option value="research">Recherche approfondie</option>
+                        <option value="reasoning">Analyse raisonnée</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <label htmlFor="maxSuggestions" className="text-sm text-gray-600">Nombre de suggestions:</label>
+                      <select
+                        id="maxSuggestions"
+                        value={maxSuggestions}
+                        onChange={(e) => setMaxSuggestions(Number(e.target.value))}
+                        className="px-3 py-1.5 bg-white border border-violet-200 rounded-md text-sm text-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      >
+                        <option value="3">3</option>
+                        <option value="6">6</option>
+                        <option value="9">9</option>
+                        <option value="12">12</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
               </div>
               <p className="text-sm text-gray-600 mb-3">Décrivez votre événement en détail (type, nombre de personnes, ambiance souhaitée, etc.) pour obtenir des suggestions personnalisées.</p>
               <textarea
@@ -364,7 +421,7 @@ export const VisualConfigurator: React.FC = () => {
             </div>
             
             <AnimatePresence>
-              {aiExplanation && (
+              {researchResults.explanation && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -372,7 +429,11 @@ export const VisualConfigurator: React.FC = () => {
                   className="mt-3"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-semibold text-primary-800">Suggestions Personnalisées</h3>
+                    <h3 className="text-sm font-semibold text-primary-800">
+                      {researchMode === 'research' ? 'Résultats de la recherche' :
+                       researchMode === 'reasoning' ? 'Analyse et recommandations' :
+                       'Suggestions personnalisées'}
+                    </h3>
                     <button
                       onClick={() => setShowSuggestions(!showSuggestions)}
                       className="flex items-center space-x-1 text-sm text-primary-600 hover:text-primary-700"
@@ -391,17 +452,7 @@ export const VisualConfigurator: React.FC = () => {
                       >
                         <div className="p-4 bg-violet-50 rounded-lg border border-violet-100 shadow-inner">
                           <div className="text-sm text-violet-700 whitespace-pre-line space-y-2">
-                            <p className="font-medium">{aiExplanation.split('\n\n')[0]}</p>
-                            <ul className="space-y-2 mt-2">
-                              {aiExplanation.split('\n\n')[1]?.split('\n').map((line, index) => (
-                                line.trim() && (
-                                  <li key={index} className="flex items-start">
-                                    <span className="inline-block bg-violet-200 text-violet-800 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2 mt-0.5">{index + 1}</span>
-                                    <span>{line.replace(/^\d+\.\s*/, '')}</span>
-                                  </li>
-                                )
-                              ))}
-                            </ul>
+                            {researchResults.explanation}
                           </div>
                         </div>
                       </motion.div>
@@ -413,16 +464,22 @@ export const VisualConfigurator: React.FC = () => {
 
             {/* AI Suggestions Grid */}
             <AnimatePresence>
-              {aiSuggestions.length > 0 && (
+              {(aiSuggestions.length > 0 || researchResults.findings?.length || researchResults.recommendations?.length) && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   className="mt-6"
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Produits suggérés</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    {researchMode === 'research' ? 'Produits trouvés' :
+                     researchMode === 'reasoning' ? 'Produits recommandés' :
+                     'Produits suggérés'}
+                  </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {aiSuggestions.map(product => (
+                    {(researchMode === 'suggestions' ? aiSuggestions :
+                      researchMode === 'research' ? researchResults.findings :
+                      researchResults.recommendations)?.map(product => (
                       <motion.div
                         key={product.id}
                         initial={{ scale: 0.9, opacity: 0 }}
@@ -438,7 +495,9 @@ export const VisualConfigurator: React.FC = () => {
                         <div className="absolute -top-2 -right-2 z-10">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 border border-violet-200 shadow-sm">
                             <SparklesIcon className="w-3 h-3 mr-1" />
-                            Recommandé
+                            {researchMode === 'research' ? 'Trouvé' :
+                             researchMode === 'reasoning' ? 'Recommandé' :
+                             'Suggéré'}
                           </span>
                         </div>
                         <ProductPaletteItem
