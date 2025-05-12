@@ -204,14 +204,7 @@ const Header: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <Link 
-                    to="/configurateur-ambiance" 
-                    className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 border-b-2 border-transparent hover:border-primary-500 dark:hover:border-primary-400"
-                  >
-                    <span className="inline-block bg-gradient-to-r from-blue-500 to-cyan-600 text-transparent bg-clip-text font-bold hover:scale-105 transition-transform duration-300">
-                      Créez votre Ambiance
-                    </span>
-                  </Link>
+                  
                   <Link to="/artists" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     Artistes
                   </Link>
@@ -234,6 +227,14 @@ const Header: React.FC = () => {
                     </span>
                     <span className="absolute -top-1 -right-2 flex h-2 w-2">
                       
+                    </span>
+                  </Link>
+                  <Link 
+                    to="/configurateur-ambiance" 
+                    className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 border-b-2 border-transparent hover:border-primary-500 dark:hover:border-primary-400"
+                  >
+                    <span className="inline-block bg-gradient-to-r from-blue-500 to-cyan-600 text-transparent bg-clip-text font-bold hover:scale-105 transition-transform duration-300">
+                      Devis rapide
                     </span>
                   </Link>
                   <Link to="/contact" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
