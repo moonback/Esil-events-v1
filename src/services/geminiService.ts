@@ -68,6 +68,10 @@ export async function getProductSuggestions(
     throw new Error("Gemini API key is not configured.");
   }
 
+  if (!userQuery.trim()) {
+    throw new Error("La requête ne peut pas être vide.");
+  }
+
   // Préparer les données des produits pour le prompt
   const productsInfo = availableProducts.map(p => ({
     id: p.id,

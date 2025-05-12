@@ -41,11 +41,10 @@ export const VisualConfigurator: React.FC = () => {
   const [isAiSearching, setIsAiSearching] = useState(false);
   const [aiExplanation, setAiExplanation] = useState('');
   const [aiSuggestions, setAiSuggestions] = useState<Product[]>([]);
-  const [debouncedAiQuery, setDebouncedAiQuery] = useState('');
+  const [showDemoOptions, setShowDemoOptions] = useState(false);
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [showDemoOptions, setShowDemoOptions] = useState(false);
 
   // Récupérer toutes les catégories uniques
   const categories = useMemo(() => {
@@ -67,22 +66,6 @@ export const VisualConfigurator: React.FC = () => {
 
     loadProducts();
   }, []);
-
-  // Ajouter le debounce pour la recherche IA
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedAiQuery(aiQuery);
-    }, 500); // Attendre 500ms après la dernière frappe
-
-    return () => clearTimeout(timer);
-  }, [aiQuery]);
-
-  // Déclencher la recherche IA uniquement quand le debouncedAiQuery change
-  useEffect(() => {
-    if (debouncedAiQuery.trim()) {
-      handleAiSearch();
-    }
-  }, [debouncedAiQuery]);
 
   const handleAddProductToCanvas = (product: Product) => {
     setProductsOnCanvas(prev => {
@@ -203,14 +186,14 @@ export const VisualConfigurator: React.FC = () => {
   };
 
   const handleAiSearch = async () => {
-    if (!debouncedAiQuery.trim()) return;
+    if (!aiQuery.trim()) return;
 
     setIsAiSearching(true);
     setAiExplanation('');
     setAiSuggestions([]);
 
     try {
-      const { suggestions, explanation } = await getProductSuggestions(debouncedAiQuery, availableProducts);
+      const { suggestions, explanation } = await getProductSuggestions(aiQuery, availableProducts);
       setAiSuggestions(suggestions);
       setAiExplanation(explanation);
     } catch (error) {
@@ -218,6 +201,12 @@ export const VisualConfigurator: React.FC = () => {
       setAiExplanation('Désolé, une erreur est survenue lors de la recherche. Veuillez réessayer.');
     } finally {
       setIsAiSearching(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !isAiSearching) {
+      handleAiSearch();
     }
   };
 
@@ -285,6 +274,7 @@ export const VisualConfigurator: React.FC = () => {
                 className="w-full px-4 py-3 pl-12 pr-32 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
                 value={aiQuery}
                 onChange={(e) => setAiQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
               />
               <SparklesIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary-500" />
               <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
@@ -316,7 +306,10 @@ export const VisualConfigurator: React.FC = () => {
                               {demoExamples.map((example, index) => (
                                 <button
                                   key={index}
-                                  onClick={() => handleDemoClick(example)}
+                                  onClick={() => {
+                                    setAiQuery(example.query);
+                                    setShowDemoOptions(false);
+                                  }}
                                   className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
                                 >
                                   <h4 className="font-medium text-primary-600 mb-1">{example.title}</h4>
@@ -333,7 +326,7 @@ export const VisualConfigurator: React.FC = () => {
                 <button
                   onClick={handleAiSearch}
                   disabled={isAiSearching || !aiQuery.trim()}
-                  className="px-4 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-4 py-1.5 bg-primary-600 text-violet-500 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {isAiSearching ? (
                     <ArrowPathIcon className="w-5 h-5 animate-spin" />
