@@ -5,7 +5,13 @@ import { ProductPaletteItem } from './ProductPaletteItem';
 import { CanvasItem } from './CanvasItem';
 import { useCart } from '../../context/CartContext';
 import { getAllProducts } from '../../services/productService';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { getProductSuggestions } from '../../services/geminiService';
+import { 
+  ChevronLeftIcon, 
+  ChevronRightIcon,
+  SparklesIcon,
+  MagnifyingGlassIcon
+} from '@heroicons/react/24/outline';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -19,6 +25,10 @@ export const VisualConfigurator: React.FC = () => {
   });
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [aiQuery, setAiQuery] = useState('');
+  const [isAiSearching, setIsAiSearching] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState('');
+  const [aiSuggestions, setAiSuggestions] = useState<Product[]>([]);
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
@@ -80,6 +90,13 @@ export const VisualConfigurator: React.FC = () => {
   // Filtrer les produits
   const filteredProducts = useMemo(() => {
     return availableProducts.filter(product => {
+      // Si nous avons des suggestions IA (recherche par IDs)
+      if (productFilters.searchTerm.includes('|')) {
+        const suggestedIds = productFilters.searchTerm.split('|');
+        return suggestedIds.includes(product.id);
+      }
+      
+      // Sinon, utiliser les filtres normaux
       const matchesCategory = !productFilters.category || product.category === productFilters.category;
       const matchesSearch = !productFilters.searchTerm || 
         product.name.toLowerCase().includes(productFilters.searchTerm.toLowerCase());
@@ -130,6 +147,25 @@ export const VisualConfigurator: React.FC = () => {
     }
   };
 
+  const handleAiSearch = async () => {
+    if (!aiQuery.trim()) return;
+
+    setIsAiSearching(true);
+    setAiExplanation('');
+    setAiSuggestions([]);
+
+    try {
+      const { suggestions, explanation } = await getProductSuggestions(aiQuery, availableProducts);
+      setAiSuggestions(suggestions);
+      setAiExplanation(explanation);
+    } catch (error) {
+      console.error('Error getting AI suggestions:', error);
+      setAiExplanation('Désolé, une erreur est survenue lors de la recherche. Veuillez réessayer.');
+    } finally {
+      setIsAiSearching(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Créez votre Ambiance</h1>
@@ -139,15 +175,71 @@ export const VisualConfigurator: React.FC = () => {
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Palette de Produits</h2>
           
-          {/* Filters */}
+          {/* AI Search Bar */}
+          <div className="mb-6">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Décrivez votre événement ou vos besoins..."
+                className="w-full px-4 py-3 pl-12 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                value={aiQuery}
+                onChange={(e) => setAiQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAiSearch()}
+              />
+              <SparklesIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary-500" />
+              <button
+                onClick={handleAiSearch}
+                disabled={isAiSearching || !aiQuery.trim()}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isAiSearching ? 'Recherche...' : 'Rechercher'}
+              </button>
+            </div>
+            
+            {aiExplanation && (
+              <div className="mt-3 p-4 bg-primary-50 rounded-lg">
+                <h3 className="text-sm font-semibold text-primary-800 mb-2">Suggestions IA :</h3>
+                <div className="text-sm text-primary-700 whitespace-pre-line">
+                  {aiExplanation}
+                </div>
+              </div>
+            )}
+
+            {/* AI Suggestions Grid */}
+            {aiSuggestions.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Produits suggérés</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {aiSuggestions.map(product => (
+                    <div
+                      key={product.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, product)}
+                      className="cursor-move"
+                    >
+                      <ProductPaletteItem
+                        product={product}
+                        onSelect={handleAddProductToCanvas}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Regular Search & Filters */}
           <div className="mb-6 space-y-4">
-            <input
-              type="text"
-              placeholder="Rechercher un produit..."
-              className="w-full px-4 py-2 border rounded-lg"
-              value={productFilters.searchTerm}
-              onChange={(e) => handleApplyFilters({ ...productFilters, searchTerm: e.target.value })}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Rechercher un produit..."
+                className="w-full px-4 py-2 pl-10 border rounded-lg"
+                value={productFilters.searchTerm}
+                onChange={(e) => handleApplyFilters({ ...productFilters, searchTerm: e.target.value })}
+              />
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            </div>
             
             {/* Catégories */}
             <div className="flex flex-wrap gap-2">
@@ -181,12 +273,12 @@ export const VisualConfigurator: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {isLoadingProducts ? (
               <div className="col-span-full text-center py-8">Chargement...</div>
-            ) : paginatedProducts.length === 0 ? (
+            ) : filteredProducts.length === 0 ? (
               <div className="col-span-full text-center py-8 text-gray-500">
                 Aucun produit trouvé
               </div>
             ) : (
-              paginatedProducts.map(product => (
+              filteredProducts.map(product => (
                 <div
                   key={product.id}
                   draggable
