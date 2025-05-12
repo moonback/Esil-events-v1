@@ -97,7 +97,7 @@ export async function getProductSuggestions(
   }));
 
   const prompt = `
-    En tant qu'expert en Création d'événements, analysez la demande suivante et suggérez les produits les plus appropriés parmi ceux disponibles.
+    Expert en location de matériel événementiel, analysez la demande et proposez les produits adaptés.
     
     Demande de l'utilisateur: "${userQuery}"
     
@@ -106,7 +106,7 @@ export async function getProductSuggestions(
     
     Instructions importantes:
     1. Analysez précisément la demande de l'utilisateur
-    2. Sélectionnez UNIQUEMENT les produits qui correspondent DIRECTEMENT à la demande
+    2. Sélectionnez UNIQUEMENT les produitsa louer qui correspondent DIRECTEMENT à la demande
     3. Limitez-vous à 6 produits maximum pertinent pour le context de la demande
     4. Pour chaque produit, expliquez brièvement pourquoi il correspond à la demande en utilisant les informations détaillées disponibles (caractéristiques techniques, catégories, etc.)
     5. Fournissez un résumé concis de la sélection
