@@ -76,9 +76,24 @@ export async function getProductSuggestions(
   const productsInfo = availableProducts.map(p => ({
     id: p.id,
     name: p.name,
+    reference: p.reference,
     category: p.category,
+    subCategory: p.subCategory,
+    subSubCategory: p.subSubCategory,
     description: p.description,
-    price: p.priceTTC
+    priceHT: p.priceHT,
+    priceTTC: p.priceTTC,
+    images: p.images,
+    mainImageIndex: p.mainImageIndex,
+    colors: p.colors,
+    technicalSpecs: p.technicalSpecs,
+    technicalDocUrl: p.technicalDocUrl,
+    videoUrl: p.videoUrl,
+    isAvailable: p.isAvailable,
+    slug: p.slug,
+    seo_title: p.seo_title,
+    seo_description: p.seo_description,
+    seo_keywords: p.seo_keywords
   }));
 
   const prompt = `
@@ -92,8 +107,8 @@ export async function getProductSuggestions(
     Instructions importantes:
     1. Analysez précisément la demande de l'utilisateur
     2. Sélectionnez UNIQUEMENT les produits qui correspondent DIRECTEMENT à la demande
-    3. Limitez-vous à 10 produits maximum pertinent pour le context de la demande
-    4. Pour chaque produit, expliquez brièvement pourquoi il correspond à la demande
+    3. Limitez-vous à 6 produits maximum pertinent pour le context de la demande
+    4. Pour chaque produit, expliquez brièvement pourquoi il correspond à la demande en utilisant les informations détaillées disponibles (caractéristiques techniques, catégories, etc.)
     5. Fournissez un résumé concis de la sélection
     
     IMPORTANT: Répondez UNIQUEMENT avec un objet JSON valide, sans aucun texte supplémentaire ni backticks.
@@ -102,7 +117,7 @@ export async function getProductSuggestions(
       "suggestions": [
         {
           "productId": "id1",
-          "reason": "Explication courte et précise (max 2 phrases)"
+          "reason": "Explication détaillée utilisant les caractéristiques techniques et catégories du produit (max 3 phrases)"
         }
       ],
       "summary": "Résumé concis en 2-3 phrases maximum"
