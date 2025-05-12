@@ -284,7 +284,7 @@ export const VisualConfigurator: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-gray-900">Créez votre Devis rapide</h1>
-          <p className="text-gray-600">Sélectionnez vos produits et créez votre devis personnalisé en quelques clics</p>
+          <p className="text-gray-600">Sélectionnez vos produits et créez votre devis personnalisé en quelques clics (hors frais de livraison et installation)</p>
         </div>
         <div className="flex items-center space-x-4">
           <button
