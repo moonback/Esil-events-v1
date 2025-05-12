@@ -22,7 +22,7 @@ export const ProductPaletteItem: React.FC<ProductPaletteItemProps> = ({ product,
       {/* Image Container */}
       <div className="relative aspect-square overflow-hidden">
         <img
-          src={product.images[0]}
+          src={product.images[product.mainImageIndex || 0]}
           alt={product.name}
           className="w-full h-full object-cover transition-transform duration-300 
             group-hover:scale-110 brightness-90 group-hover:brightness-100"

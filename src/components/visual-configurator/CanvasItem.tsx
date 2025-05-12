@@ -1,18 +1,18 @@
 import React from 'react';
-import { Product } from '../../types/Product';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { Product } from '../../types/Product';
 
 interface CanvasItemProps {
-  product: Product;
-  onRemove: (productId: string) => void;
+  product: Product & { quantity: number };
+  onRemove: (id: string) => void;
 }
 
 export const CanvasItem: React.FC<CanvasItemProps> = ({ product, onRemove }) => {
   return (
     <div className="relative group">
-      <div className="relative aspect-square  rounded-lg overflow-hidden shadow-md">
+      <div className="relative aspect-square rounded-lg overflow-hidden shadow-md">
         <img
-          src={product.images[0]}
+          src={product.images[product.mainImageIndex || 0]}
           alt={product.name}
           className="w-full h-full object-cover"
         />

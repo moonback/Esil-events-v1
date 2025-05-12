@@ -57,6 +57,25 @@ export const VisualConfigurator: React.FC = () => {
   }>({ explanation: '' });
   const [maxSuggestions, setMaxSuggestions] = useState<number>(6);
 
+  // Charger les produits du panier au démarrage
+  useEffect(() => {
+    if (cartItems.length > 0 && availableProducts.length > 0) {
+      // Convertir les items du panier en CanvasProduct
+      const canvasProducts: CanvasProduct[] = cartItems.map(cartItem => {
+        const product = availableProducts.find(p => p.id === cartItem.id);
+        if (product) {
+          return {
+            ...product,
+            quantity: cartItem.quantity
+          };
+        }
+        return null;
+      }).filter((item): item is CanvasProduct => item !== null);
+
+      setProductsOnCanvas(canvasProducts);
+    }
+  }, [cartItems, availableProducts]);
+
   // Récupérer toutes les catégories uniques
   const categories = useMemo(() => {
     const uniqueCategories = new Set(availableProducts.map(p => p.category));
