@@ -763,7 +763,7 @@ export const VisualConfigurator: React.FC = () => {
                                 </button>
                               </div>
                               <span className="text-sm font-medium text-violet-600">
-                                {(product.priceTTC * product.quantity).toFixed(2)}€
+                                {(product.priceTTC * product.quantity).toFixed(2)}€ TTC
                               </span>
                             </div>
                           </div>
