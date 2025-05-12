@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, ShoppingCart, Star, Clock, Tag, Truck, Check, ZoomIn, X, BarChart, TrendingUp, TrendingDown } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
@@ -32,6 +32,8 @@ const ProductPage: React.FC = () => {
   const { user } = useAuth();
   const [keywordRankings, setKeywordRankings] = useState<Record<string, KeywordRanking>>({});
   const [loadingRankings, setLoadingRankings] = useState(false);
+  const navigate = useNavigate();
+  const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -172,6 +174,55 @@ const ProductPage: React.FC = () => {
     }
   }, [product?.seo_keywords]);
 
+  // Fonction pour charger tous les produits de la même catégorie
+  const fetchCategoryProducts = async () => {
+    if (!product?.category) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('category', product.category)
+        .order('name');
+
+      if (error) throw error;
+      setCategoryProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching category products:', error);
+    }
+  };
+
+  // Effet pour charger les produits de la catégorie quand le produit change
+  useEffect(() => {
+    if (product?.category) {
+      fetchCategoryProducts();
+    }
+  }, [product?.category]);
+
+  // Fonction pour naviguer vers le produit précédent
+  const navigateToPreviousProduct = () => {
+    if (!categoryProducts.length) return;
+    const currentIndex = categoryProducts.findIndex(p => p.id === product?.id);
+    if (currentIndex > 0) {
+      navigate(`/product/${categoryProducts[currentIndex - 1].id}`);
+    } else {
+      // Si on est au début, aller au dernier produit
+      navigate(`/product/${categoryProducts[categoryProducts.length - 1].id}`);
+    }
+  };
+
+  // Fonction pour naviguer vers le produit suivant
+  const navigateToNextProduct = () => {
+    if (!categoryProducts.length) return;
+    const currentIndex = categoryProducts.findIndex(p => p.id === product?.id);
+    if (currentIndex < categoryProducts.length - 1) {
+      navigate(`/product/${categoryProducts[currentIndex + 1].id}`);
+    } else {
+      // Si on est à la fin, retourner au premier produit
+      navigate(`/product/${categoryProducts[0].id}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-20">
@@ -191,7 +242,7 @@ const ProductPage: React.FC = () => {
     );
   }
 
-return (
+  return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white">
       {/* SEO Component */}
       {product && (
@@ -203,7 +254,39 @@ return (
         />
       )}
       
-      <div className="max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      {/* Navigation Buttons - Fixed Position */}
+      <div className="fixed top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-50 pointer-events-none">
+        <div className="flex flex-col items-center gap-4">
+          <button
+            onClick={navigateToPreviousProduct}
+            className="bg-white/90 hover:bg-white text-violet-600 p-4 rounded-full shadow-xl transform hover:scale-110 transition-all duration-300 pointer-events-auto border border-violet-100"
+            aria-label="Produit précédent"
+          >
+            <ChevronLeft className="w-8 h-8" />
+          </button>
+          {categoryProducts.length > 0 && (
+            <div className="bg-white/90 px-4 py-2 rounded-lg shadow-lg text-sm text-violet-600 font-medium pointer-events-auto border border-violet-100">
+              {categoryProducts.findIndex(p => p.id === product?.id) + 1} / {categoryProducts.length}
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col items-center gap-4">
+          {categoryProducts.length > 0 && (
+            <div className="bg-white/90 px-4 py-2 rounded-lg shadow-lg text-sm text-violet-600 font-medium pointer-events-auto border border-violet-100">
+              {product?.category}
+            </div>
+          )}
+          <button
+            onClick={navigateToNextProduct}
+            className="bg-white/90 hover:bg-white text-violet-600 p-4 rounded-full shadow-xl transform hover:scale-110 transition-all duration-300 pointer-events-auto border border-violet-100"
+            aria-label="Produit suivant"
+          >
+            <ChevronRight className="w-8 h-8" />
+          </button>
+        </div>
+      </div>
+      
+      <div className="max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8 py-24 relative">
         {/* Breadcrumb */}
         <div className="mb-8">
           <nav className="flex" aria-label="Breadcrumb">
@@ -825,8 +908,6 @@ return (
       </div>
     </div>
   );
-
-  
 };
 
 // Composant ZoomableImage pour le zoom interactif

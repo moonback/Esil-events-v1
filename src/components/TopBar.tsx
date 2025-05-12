@@ -53,7 +53,7 @@ const TopBar: React.FC<TopBarProps> = ({ onClose }) => {
             {currentAnnouncement.message}
           </Link>
         ) : (
-          <p className="text-sm font-medium">{currentAnnouncement.message}</p>
+          <p className="text-15px font-medium">{currentAnnouncement.message}</p>
         )}
 
         {announcements.length > 1 && (
