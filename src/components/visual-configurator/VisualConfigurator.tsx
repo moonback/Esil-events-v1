@@ -601,9 +601,10 @@ export const VisualConfigurator: React.FC = () => {
                     </div>
                     <button
                       onClick={handleFinalizeSelection}
-                      className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition-colors"
+                      className="w-full bg-violet-500 text-white py-3 rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center space-x-2 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
                     >
-                      Ajouter la sélection au devis
+                      <ShoppingCartIcon className="w-5 h-5" />
+                      <span>Ajouter la sélection au devis</span>
                     </button>
                   </motion.div>
                 </motion.div>
