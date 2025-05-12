@@ -138,6 +138,13 @@ export const VisualConfigurator: React.FC = () => {
     return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredProducts, productFilters.currentPage]);
 
+  // Fonction pour gérer le changement de page
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      handleApplyFilters({ ...productFilters, currentPage: newPage });
+    }
+  };
+
   // Calculer le total des produits sur le canvas
   const totalCanvasPrice = useMemo(() => {
     return productsOnCanvas.reduce((sum, product) => sum + (product.priceTTC * product.quantity), 0);
@@ -349,52 +356,100 @@ export const VisualConfigurator: React.FC = () => {
                   Aucun produit trouvé
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {filteredProducts.map(product => (
-                    <motion.div
-                      key={product.id}
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <div
-                        className="cursor-move"
-                        draggable
-                        onDragStart={(e: React.DragEvent<HTMLDivElement>) => handleDragStart(e, product)}
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {paginatedProducts.map(product => (
+                      <motion.div
+                        key={product.id}
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        whileHover={{ scale: 1.05 }}
                       >
-                        <ProductPaletteItem
-                          product={product}
-                          onSelect={handleAddProductToCanvas}
-                        />
+                        <div
+                          className="cursor-move"
+                          draggable
+                          onDragStart={(e: React.DragEvent<HTMLDivElement>) => handleDragStart(e, product)}
+                        >
+                          <ProductPaletteItem
+                            product={product}
+                            onSelect={handleAddProductToCanvas}
+                          />
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                      <div className="text-sm text-gray-600">
+                        Affichage de <span className="font-semibold text-gray-900">{(productFilters.currentPage - 1) * ITEMS_PER_PAGE + 1}</span> à{' '}
+                        <span className="font-semibold text-gray-900">
+                          {Math.min(productFilters.currentPage * ITEMS_PER_PAGE, filteredProducts.length)}
+                        </span>{' '}
+                        sur <span className="font-semibold text-gray-900">{filteredProducts.length}</span> produits
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        
+
+                        {/* Bouton Page Précédente */}
+                        <button
+                          onClick={() => handlePageChange(productFilters.currentPage - 1)}
+                          disabled={productFilters.currentPage === 1}
+                          className="p-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                          aria-label="Page précédente"
+                        >
+                          <ChevronLeftIcon className="w-5 h-5" />
+                        </button>
+
+                        {/* Numéros de Page */}
+                        <div className="flex items-center space-x-1">
+                          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                            let pageNum;
+                            if (totalPages <= 5) {
+                              pageNum = i + 1;
+                            } else if (productFilters.currentPage <= 3) {
+                              pageNum = i + 1;
+                            } else if (productFilters.currentPage >= totalPages - 2) {
+                              pageNum = totalPages - 4 + i;
+                            } else {
+                              pageNum = productFilters.currentPage - 2 + i;
+                            }
+
+                            return (
+                              <button
+                                key={pageNum}
+                                onClick={() => handlePageChange(pageNum)}
+                                className={`w-8 h-8 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                  productFilters.currentPage === pageNum
+                                    ? 'bg-primary-600 text-white shadow-sm'
+                                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                                }`}
+                              >
+                                {pageNum}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Bouton Page Suivante */}
+                        <button
+                          onClick={() => handlePageChange(productFilters.currentPage + 1)}
+                          disabled={productFilters.currentPage === totalPages}
+                          className="p-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                          aria-label="Page suivante"
+                        >
+                          <ChevronRightIcon className="w-5 h-5" />
+                        </button>
+
+                        
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center mt-6 space-x-2">
-                <button
-                  onClick={() => handleApplyFilters({ ...productFilters, currentPage: productFilters.currentPage - 1 })}
-                  disabled={productFilters.currentPage === 1}
-                  className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  <ChevronLeftIcon className="w-5 h-5" />
-                </button>
-                <span className="text-sm text-gray-600">
-                  Page {productFilters.currentPage} sur {totalPages}
-                </span>
-                <button
-                  onClick={() => handleApplyFilters({ ...productFilters, currentPage: productFilters.currentPage + 1 })}
-                  disabled={productFilters.currentPage === totalPages}
-                  className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  <ChevronRightIcon className="w-5 h-5" />
-                </button>
-              </div>
-            )}
           </div>
         </div>
 
