@@ -17,7 +17,8 @@ import {
   ArrowPathIcon,
   ShoppingCartIcon,
   PlayIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ProductModal } from './ProductModal';
@@ -262,15 +263,21 @@ export const VisualConfigurator: React.FC = () => {
         {/* Left Column - Product Palette */}
         <div className="space-y-6">
           {/* AI Search Bar */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <div className="relative">
+          <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-violet-200 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 -mt-16 -mr-16 bg-violet-100 rounded-full opacity-30 z-0"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 -mb-12 -ml-12 bg-violet-100 rounded-full opacity-30 z-0"></div>
+            <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Recherche IA (Beta)</h3>
-                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">Beta</span>
+                <div className="flex items-center space-x-2">
+                  <SparklesIcon className="w-6 h-6 text-violet-500" />
+                  <h3 className="text-lg font-semibold text-gray-900">Assistant IA - Configurateur Intelligent</h3>
+                </div>
+                <span className="px-2 py-1 bg-violet-100 text-violet-800 text-xs font-medium rounded-full animate-pulse">Recommandé</span>
               </div>
+              <p className="text-sm text-gray-600 mb-3">Décrivez votre événement en détail (type, nombre de personnes, ambiance souhaitée, etc.) pour obtenir des suggestions personnalisées.</p>
               <textarea
-                placeholder="Décrivez votre événement ou vos besoins..."
-                className="w-full px-4 py-3 pl-12 pr-32 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all resize-none min-h-[80px] max-h-[120px]"
+                placeholder="Ex: Je prépare une soirée d'entreprise pour 50 personnes avec une ambiance lounge et j'ai besoin d'un système de son, d'éclairage et de mobilier adapté..."
+                className="w-full px-4 py-3 pl-12 pr-32 border-2 border-violet-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all resize-none min-h-[100px] max-h-[150px] bg-white shadow-inner"
                 value={aiQuery}
                 onChange={(e) => setAiQuery(e.target.value)}
                 onKeyPress={(e) => {
@@ -281,17 +288,17 @@ export const VisualConfigurator: React.FC = () => {
                     }
                   }
                 }}
-                rows={3}
+                rows={4}
               />
-              <SparklesIcon className="absolute left-4 top-16 w-5 h-5 text-primary-500" />
+              <SparklesIcon className="absolute left-4 top-[132px] w-5 h-5 text-violet-500" />
               <div className="absolute right-2 bottom-2 flex items-center space-x-2">
                 <div className="relative">
                   <button
                     onClick={() => setShowDemoOptions(!showDemoOptions)}
-                    className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-all flex items-center space-x-1"
+                    className="px-3 py-1.5 bg-violet-100 text-violet-600 rounded-md hover:bg-violet-200 transition-all flex items-center space-x-1"
                   >
                     <PlayIcon className="w-4 h-4" />
-                    <span className="text-sm">Démo</span>
+                    <span className="text-sm">Exemples</span>
                   </button>
 
                   {/* Demo Options Dropdown */}
@@ -304,23 +311,32 @@ export const VisualConfigurator: React.FC = () => {
                         className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
                       >
                         <motion.div 
-                          className="w-80 bg-white rounded-lg shadow-lg border border-gray-200"
+                          className="w-96 bg-white rounded-lg shadow-xl border border-violet-200"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <div className="p-4">
-                            <h3 className="text-sm font-semibold text-gray-900 mb-3">Exemples de démonstration</h3>
+                          <div className="p-5">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center space-x-2">
+                                <SparklesIcon className="w-5 h-5 text-violet-500" />
+                                <h3 className="font-semibold text-gray-900">Exemples de recherche IA</h3>
+                              </div>
+                              <button 
+                                onClick={() => setShowDemoOptions(false)}
+                                className="text-gray-400 hover:text-gray-500"
+                              >
+                                <XMarkIcon className="w-5 h-5" />
+                              </button>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-4">Cliquez sur un exemple pour voir comment l'IA peut vous aider à trouver les produits adaptés à votre événement.</p>
                             <div className="space-y-3">
                               {demoExamples.map((example, index) => (
                                 <button
                                   key={index}
-                                  onClick={() => {
-                                    setAiQuery(example.query);
-                                    setShowDemoOptions(false);
-                                  }}
-                                  className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
+                                  onClick={() => handleDemoClick(example)}
+                                  className="w-full text-left p-4 rounded-lg hover:bg-violet-50 transition-colors border border-violet-100 hover:border-violet-300 hover:shadow-md"
                                 >
-                                  <h4 className="font-medium text-primary-600 mb-1">{example.title}</h4>
-                                  <p className="text-sm text-gray-600 line-clamp-2">{example.description}</p>
+                                  <h4 className="font-medium text-violet-700 mb-2">{example.title}</h4>
+                                  <p className="text-sm text-gray-600">{example.description}</p>
                                 </button>
                               ))}
                             </div>
@@ -333,12 +349,15 @@ export const VisualConfigurator: React.FC = () => {
                 <button
                   onClick={handleAiSearch}
                   disabled={isAiSearching || !aiQuery.trim()}
-                  className="px-4 py-1.5 bg-primary-600 text-violet-500 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-4 py-1.5 bg-violet-600 text-white rounded-md hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
                 >
                   {isAiSearching ? (
                     <ArrowPathIcon className="w-5 h-5 animate-spin" />
                   ) : (
-                    'Rechercher'
+                    <div className="flex items-center space-x-2">
+                      <SparklesIcon className="w-4 h-4" />
+                      <span>Obtenir des suggestions</span>
+                    </div>
                   )}
                 </button>
               </div>
@@ -370,9 +389,19 @@ export const VisualConfigurator: React.FC = () => {
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden"
                       >
-                        <div className="p-4 bg-primary-50 rounded-lg">
-                          <div className="text-sm text-primary-700 whitespace-pre-line">
-                            {aiExplanation}
+                        <div className="p-4 bg-violet-50 rounded-lg border border-violet-100 shadow-inner">
+                          <div className="text-sm text-violet-700 whitespace-pre-line space-y-2">
+                            <p className="font-medium">{aiExplanation.split('\n\n')[0]}</p>
+                            <ul className="space-y-2 mt-2">
+                              {aiExplanation.split('\n\n')[1]?.split('\n').map((line, index) => (
+                                line.trim() && (
+                                  <li key={index} className="flex items-start">
+                                    <span className="inline-block bg-violet-200 text-violet-800 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2 mt-0.5">{index + 1}</span>
+                                    <span>{line.replace(/^\d+\.\s*/, '')}</span>
+                                  </li>
+                                )
+                              ))}
+                            </ul>
                           </div>
                         </div>
                       </motion.div>
@@ -399,13 +428,19 @@ export const VisualConfigurator: React.FC = () => {
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         whileHover={{ scale: 1.05 }}
-                        className="cursor-move"
+                        className="cursor-move relative"
                         draggable
                         onDragStart={(e) => {
                           const dragEvent = e as unknown as React.DragEvent<HTMLDivElement>;
                           handleDragStart(dragEvent, product);
                         }}
                       >
+                        <div className="absolute -top-2 -right-2 z-10">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 border border-violet-200 shadow-sm">
+                            <SparklesIcon className="w-3 h-3 mr-1" />
+                            Recommandé
+                          </span>
+                        </div>
                         <ProductPaletteItem
                           product={product}
                           onSelect={handleAddProductToCanvas}
@@ -739,4 +774,4 @@ export const VisualConfigurator: React.FC = () => {
       />
     </div>
   );
-}; 
+};
