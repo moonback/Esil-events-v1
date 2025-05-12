@@ -15,7 +15,8 @@ import {
   MinusIcon,
   TrashIcon,
   ArrowPathIcon,
-  ShoppingCartIcon
+  ShoppingCartIcon,
+  PlayIcon
 } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ProductModal } from './ProductModal';
@@ -44,6 +45,7 @@ export const VisualConfigurator: React.FC = () => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showDemoOptions, setShowDemoOptions] = useState(false);
 
   // Récupérer toutes les catégories uniques
   const categories = useMemo(() => {
@@ -223,6 +225,28 @@ export const VisualConfigurator: React.FC = () => {
     setSelectedProduct(product);
   };
 
+  const demoExamples = [
+    {
+      title: "Mariage Élégant",
+      description: "Je cherche du mobilier pour un mariage élégant en extérieur pour 100 personnes. J'ai besoin de tables rondes, chaises confortables, et quelques éléments décoratifs pour créer une ambiance romantique et sophistiquée.",
+      query: "Je cherche du mobilier pour un mariage élégant en extérieur pour 100 personnes. J'ai besoin de tables rondes, chaises confortables, et quelques éléments décoratifs pour créer une ambiance romantique et sophistiquée."
+    },
+    {
+      title: "Soirée Entreprise",
+      description: "J'organise une soirée d'entreprise pour 50 personnes. Je recherche des tables hautes pour le cocktail, des chaises confortables, et des éléments de décoration moderne pour créer une ambiance professionnelle mais chaleureuse.",
+      query: "J'organise une soirée d'entreprise pour 50 personnes. Je recherche des tables hautes pour le cocktail, des chaises confortables, et des éléments de décoration moderne pour créer une ambiance professionnelle mais chaleureuse."
+    }
+  ];
+
+  const handleDemoClick = (example: typeof demoExamples[0]) => {
+    setAiQuery(example.query);
+    setShowDemoOptions(false);
+    // Déclencher la recherche après un court délai pour montrer l'animation
+    setTimeout(() => {
+      handleAiSearch();
+    }, 500);
+  };
+
   return (
     <div className="mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
@@ -255,22 +279,66 @@ export const VisualConfigurator: React.FC = () => {
               <input
                 type="text"
                 placeholder="Décrivez votre événement ou vos besoins..."
-                className="w-full px-4 py-3 pl-12 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                className="w-full px-4 py-3 pl-12 pr-32 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
                 value={aiQuery}
                 onChange={(e) => setAiQuery(e.target.value)}
               />
               <SparklesIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary-500" />
-              <button
-                onClick={handleAiSearch}
-                disabled={isAiSearching || !aiQuery.trim()}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-primary-600 text-violet-500 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                {isAiSearching ? (
-                  <ArrowPathIcon className="w-5 h-5 animate-spin" />
-                ) : (
-                  'Rechercher'
-                )}
-              </button>
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                <div className="relative">
+                  <button
+                    onClick={() => setShowDemoOptions(!showDemoOptions)}
+                    className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-all flex items-center space-x-1"
+                  >
+                    <PlayIcon className="w-4 h-4" />
+                    <span className="text-sm">Démo</span>
+                  </button>
+
+                  {/* Demo Options Dropdown */}
+                  <AnimatePresence>
+                    {showDemoOptions && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                      >
+                        <motion.div 
+                          className="w-80 bg-white rounded-lg shadow-lg border border-gray-200"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="p-4">
+                            <h3 className="text-sm font-semibold text-gray-900 mb-3">Exemples de démonstration</h3>
+                            <div className="space-y-3">
+                              {demoExamples.map((example, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => handleDemoClick(example)}
+                                  className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
+                                >
+                                  <h4 className="font-medium text-primary-600 mb-1">{example.title}</h4>
+                                  <p className="text-sm text-gray-600 line-clamp-2">{example.description}</p>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <button
+                  onClick={handleAiSearch}
+                  disabled={isAiSearching || !aiQuery.trim()}
+                  className="px-4 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {isAiSearching ? (
+                    <ArrowPathIcon className="w-5 h-5 animate-spin" />
+                  ) : (
+                    'Rechercher'
+                  )}
+                </button>
+              </div>
             </div>
             
             <AnimatePresence>
