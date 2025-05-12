@@ -18,6 +18,7 @@ import {
   ShoppingCartIcon
 } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ProductModal } from './ProductModal';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -42,6 +43,7 @@ export const VisualConfigurator: React.FC = () => {
   const [debouncedAiQuery, setDebouncedAiQuery] = useState('');
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Récupérer toutes les catégories uniques
   const categories = useMemo(() => {
@@ -217,6 +219,10 @@ export const VisualConfigurator: React.FC = () => {
     }
   };
 
+  const handleShowProductDetails = (product: Product) => {
+    setSelectedProduct(product);
+  };
+
   return (
     <div className="mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
@@ -310,6 +316,7 @@ export const VisualConfigurator: React.FC = () => {
                         <ProductPaletteItem
                           product={product}
                           onSelect={handleAddProductToCanvas}
+                          onShowDetails={handleShowProductDetails}
                         />
                       </motion.div>
                     ))}
@@ -389,6 +396,7 @@ export const VisualConfigurator: React.FC = () => {
                           <ProductPaletteItem
                             product={product}
                             onSelect={handleAddProductToCanvas}
+                            onShowDetails={handleShowProductDetails}
                           />
                         </div>
                       </motion.div>
@@ -629,6 +637,13 @@ export const VisualConfigurator: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Product Modal */}
+      <ProductModal
+        product={selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        onAddToCanvas={handleAddProductToCanvas}
+      />
     </div>
   );
 }; 

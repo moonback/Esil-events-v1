@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Product } from '../../types/Product';
-import { PlusIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ShoppingCartIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 
 interface ProductPaletteItemProps {
   product: Product;
   onSelect: (product: Product) => void;
+  onShowDetails: (product: Product) => void;
 }
 
-export const ProductPaletteItem: React.FC<ProductPaletteItemProps> = ({ product, onSelect }) => {
+export const ProductPaletteItem: React.FC<ProductPaletteItemProps> = ({ product, onSelect, onShowDetails }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -17,7 +18,6 @@ export const ProductPaletteItem: React.FC<ProductPaletteItemProps> = ({ product,
         hover:shadow-2xl hover:border-primary-200 bg-white"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => onSelect(product)}
     >
       {/* Image Container */}
       <div className="relative aspect-square overflow-hidden">
@@ -33,11 +33,27 @@ export const ProductPaletteItem: React.FC<ProductPaletteItemProps> = ({ product,
           className={`absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 
             transition-all duration-300 flex items-center justify-center`}
         >
-          <div 
-            className={`opacity-0 group-hover:opacity-100 transition-opacity duration-300 
-              bg-white/80 p-3 rounded-full shadow-lg`}
-          >
-            <PlusIcon className="w-6 h-6 text-primary-600" />
+          <div className="flex space-x-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(product);
+              }}
+              className={`opacity-0 group-hover:opacity-100 transition-opacity duration-300 
+                bg-white/80 p-3 rounded-full shadow-lg hover:bg-white`}
+            >
+              <PlusIcon className="w-6 h-6 text-primary-600" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onShowDetails(product);
+              }}
+              className={`opacity-0 group-hover:opacity-100 transition-opacity duration-300 
+                bg-white/80 p-3 rounded-full shadow-lg hover:bg-white`}
+            >
+              <InformationCircleIcon className="w-6 h-6 text-primary-600" />
+            </button>
           </div>
         </div>
       </div>
