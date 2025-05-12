@@ -10,13 +10,19 @@ import {
   ChevronLeftIcon, 
   ChevronRightIcon,
   SparklesIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  PlusIcon,
+  MinusIcon
 } from '@heroicons/react/24/outline';
 
 const ITEMS_PER_PAGE = 12;
 
+interface CanvasProduct extends Product {
+  quantity: number;
+}
+
 export const VisualConfigurator: React.FC = () => {
-  const [productsOnCanvas, setProductsOnCanvas] = useState<Product[]>([]);
+  const [productsOnCanvas, setProductsOnCanvas] = useState<CanvasProduct[]>([]);
   const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
   const [productFilters, setProductFilters] = useState({
     category: '',
@@ -54,7 +60,24 @@ export const VisualConfigurator: React.FC = () => {
   }, []);
 
   const handleAddProductToCanvas = (product: Product) => {
-    setProductsOnCanvas(prev => [...prev, product]);
+    setProductsOnCanvas(prev => {
+      const existingProduct = prev.find(p => p.id === product.id);
+      if (existingProduct) {
+        return prev.map(p => 
+          p.id === product.id 
+            ? { ...p, quantity: p.quantity + 1 }
+            : p
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+  };
+
+  const handleUpdateQuantity = (productId: string, newQuantity: number) => {
+    if (newQuantity < 1) return;
+    setProductsOnCanvas(prev => 
+      prev.map(p => p.id === productId ? { ...p, quantity: newQuantity } : p)
+    );
   };
 
   const handleRemoveProductFromCanvas = (productId: string) => {
@@ -80,7 +103,7 @@ export const VisualConfigurator: React.FC = () => {
         name: product.name,
         image: product.images[0],
         priceTTC: product.priceTTC,
-        quantity: 1
+        quantity: product.quantity
       });
     });
 
@@ -113,7 +136,7 @@ export const VisualConfigurator: React.FC = () => {
 
   // Calculer le total des produits sur le canvas
   const totalCanvasPrice = useMemo(() => {
-    return productsOnCanvas.reduce((sum, product) => sum + product.priceTTC, 0);
+    return productsOnCanvas.reduce((sum, product) => sum + (product.priceTTC * product.quantity), 0);
   }, [productsOnCanvas]);
 
   const handleDragStart = (e: React.DragEvent, product: Product) => {
@@ -353,11 +376,30 @@ export const VisualConfigurator: React.FC = () => {
               ) : (
                 <div className="flex flex-wrap gap-4">
                   {productsOnCanvas.map(product => (
-                    <CanvasItem
-                      key={`${product.id}-${Math.random()}`}
-                      product={product}
-                      onRemove={handleRemoveProductFromCanvas}
-                    />
+                    <div key={`${product.id}-${Math.random()}`} className="relative">
+                      <CanvasItem
+                        product={product}
+                        onRemove={handleRemoveProductFromCanvas}
+                      />
+                      <div className="absolute bottom-2 right-2 bg-white rounded-lg shadow-md p-1 flex items-center space-x-2">
+                        <button
+                          onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
+                          className="p-1 rounded hover:bg-gray-100"
+                          disabled={product.quantity <= 1}
+                        >
+                          <MinusIcon className="w-4 h-4 text-gray-600" />
+                        </button>
+                        <span className="text-sm font-medium w-8 text-center">
+                          {product.quantity}
+                        </span>
+                        <button
+                          onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
+                          className="p-1 rounded hover:bg-gray-100"
+                        >
+                          <PlusIcon className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -372,17 +414,35 @@ export const VisualConfigurator: React.FC = () => {
             ) : (
               <>
                 <ul className="space-y-2 mb-4">
-                  {productsOnCanvas.map(product => (
-                    <li key={product.id} className="flex justify-between items-center">
+                  {productsOnCanvas.map((product, index) => (
+                    <li key={`${product.id}-${index}`} className="flex justify-between items-center">
                       <div className="flex items-center space-x-2">
                         <img 
                           src={product.images[0]} 
                           alt={product.name}
                           className="w-10 h-10 rounded object-cover"
                         />
-                        <span className="text-sm">{product.name}</span>
+                        <div>
+                          <span className="text-sm">{product.name}</span>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <button
+                              onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
+                              className="p-1 rounded hover:bg-gray-100"
+                              disabled={product.quantity <= 1}
+                            >
+                              <MinusIcon className="w-3 h-3 text-gray-600" />
+                            </button>
+                            <span className="text-xs text-gray-600">x{product.quantity}</span>
+                            <button
+                              onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
+                              className="p-1 rounded hover:bg-gray-100"
+                            >
+                              <PlusIcon className="w-3 h-3 text-gray-600" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-sm font-medium">{product.priceTTC}€</span>
+                      <span className="text-sm font-medium">{(product.priceTTC * product.quantity).toFixed(2)}€</span>
                     </li>
                   ))}
                 </ul>
