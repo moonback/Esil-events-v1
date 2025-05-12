@@ -45,6 +45,7 @@ export const VisualConfigurator: React.FC = () => {
   const [aiSuggestions, setAiSuggestions] = useState<Product[]>([]);
   const [showDemoOptions, setShowDemoOptions] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showAiAssistant, setShowAiAssistant] = useState(false);
   const { addToCart, items: cartItems } = useCart();
   const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -288,230 +289,252 @@ export const VisualConfigurator: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - Product Palette */}
         <div className="space-y-6">
-          {/* AI Search Bar */}
-          <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-violet-200 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 -mt-16 -mr-16 bg-violet-100 rounded-full opacity-30 z-0"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 -mb-12 -ml-12 bg-violet-100 rounded-full opacity-30 z-0"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-2">
-                  <SparklesIcon className="w-6 h-6 text-violet-500" />
-                  <h3 className="text-lg font-semibold text-gray-900">Assistant IA - Configurateur Intelligent</h3>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className="px-2 py-1 bg-violet-100 text-violet-800 text-xs font-medium rounded-full animate-pulse">Recommandé</span>
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2">
-                      <label htmlFor="researchMode" className="text-sm text-gray-600">Mode:</label>
-                      <select
-                        id="researchMode"
-                        value={researchMode}
-                        onChange={(e) => setResearchMode(e.target.value as 'suggestions' | 'research' | 'reasoning')}
-                        className="px-3 py-1.5 bg-white border border-violet-200 rounded-md text-sm text-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                      >
-                        <option value="suggestions">Suggestions rapides</option>
-                        <option value="research">Recherche approfondie</option>
-                        <option value="reasoning">Analyse raisonnée</option>
-                      </select>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <label htmlFor="maxSuggestions" className="text-sm text-gray-600">Nombre de suggestions:</label>
-                      <select
-                        id="maxSuggestions"
-                        value={maxSuggestions}
-                        onChange={(e) => setMaxSuggestions(Number(e.target.value))}
-                        className="px-3 py-1.5 bg-white border border-violet-200 rounded-md text-sm text-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                      >
-                        <option value="3">3</option>
-                        <option value="6">6</option>
-                        <option value="9">9</option>
-                        <option value="12">12</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">Décrivez votre événement en détail (type, nombre de personnes, ambiance souhaitée, etc.) pour obtenir des suggestions personnalisées.</p>
-              <textarea
-                placeholder="Ex: Je prépare une soirée d'entreprise pour 50 personnes avec une ambiance lounge et j'ai besoin d'un système de son, d'éclairage et de mobilier adapté..."
-                className="w-full px-4 py-3 pl-12 pr-32 border-2 border-violet-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all resize-none min-h-[100px] max-h-[150px] bg-white shadow-inner"
-                value={aiQuery}
-                onChange={(e) => setAiQuery(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    if (!isAiSearching) {
-                      handleAiSearch();
-                    }
-                  }
-                }}
-                rows={4}
-              />
-              <SparklesIcon className="absolute left-4 top-[132px] w-5 h-5 text-violet-500" />
-              <div className="absolute right-2 bottom-2 flex items-center space-x-2">
-                <div className="relative">
-                  <button
-                    onClick={() => setShowDemoOptions(!showDemoOptions)}
-                    className="px-3 py-1.5 bg-violet-100 text-violet-600 rounded-md hover:bg-violet-200 transition-all flex items-center space-x-1"
-                  >
-                    <PlayIcon className="w-4 h-4" />
-                    <span className="text-sm">Exemples</span>
-                  </button>
-
-                  {/* Demo Options Dropdown */}
-                  <AnimatePresence>
-                    {showDemoOptions && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-                      >
-                        <motion.div 
-                          className="w-96 bg-white rounded-lg shadow-xl border border-violet-200"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="p-5">
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center space-x-2">
-                                <SparklesIcon className="w-5 h-5 text-violet-500" />
-                                <h3 className="font-semibold text-gray-900">Exemples de recherche IA</h3>
-                              </div>
-                              <button 
-                                onClick={() => setShowDemoOptions(false)}
-                                className="text-gray-400 hover:text-gray-500"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                            <p className="text-sm text-gray-600 mb-4">Cliquez sur un exemple pour voir comment l'IA peut vous aider à trouver les produits adaptés à votre événement.</p>
-                            <div className="space-y-3">
-                              {demoExamples.map((example, index) => (
-                                <button
-                                  key={index}
-                                  onClick={() => handleDemoClick(example)}
-                                  className="w-full text-left p-4 rounded-lg hover:bg-violet-50 transition-colors border border-violet-100 hover:border-violet-300 hover:shadow-md"
-                                >
-                                  <h4 className="font-medium text-violet-700 mb-2">{example.title}</h4>
-                                  <p className="text-sm text-gray-600">{example.description}</p>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </motion.div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-                <button
-                  onClick={handleAiSearch}
-                  disabled={isAiSearching || !aiQuery.trim()}
-                  className="px-4 py-1.5 bg-violet-600 text-white rounded-md hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-                >
-                  {isAiSearching ? (
-                    <ArrowPathIcon className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <SparklesIcon className="w-4 h-4" />
-                      <span>Obtenir des suggestions</span>
-                    </div>
-                  )}
-                </button>
-              </div>
-            </div>
-            
-            <AnimatePresence>
-              {researchResults.explanation && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="mt-3"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-semibold text-primary-800">
-                      {researchMode === 'research' ? 'Résultats de la recherche' :
-                       researchMode === 'reasoning' ? 'Analyse et recommandations' :
-                       'Suggestions personnalisées'}
-                    </h3>
-                    <button
-                      onClick={() => setShowSuggestions(!showSuggestions)}
-                      className="flex items-center space-x-1 text-sm text-primary-600 hover:text-primary-700"
-                    >
-                      <span>{showSuggestions ? 'Masquer' : 'Afficher'}</span>
-                      <ChevronDownIcon className={`w-4 h-4 transform transition-transform ${showSuggestions ? 'rotate-180' : ''}`} />
-                    </button>
-                  </div>
-                  <AnimatePresence>
-                    {showSuggestions && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="p-4 bg-violet-50 rounded-lg border border-violet-100 shadow-inner">
-                          <div className="text-sm text-violet-700 whitespace-pre-line space-y-2">
-                            {researchResults.explanation}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* AI Suggestions Grid */}
-            <AnimatePresence>
-              {(aiSuggestions.length > 0 || researchResults.findings?.length || researchResults.recommendations?.length) && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mt-6"
-                >
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    {researchMode === 'research' ? 'Produits trouvés' :
-                     researchMode === 'reasoning' ? 'Produits recommandés' :
-                     'Produits suggérés'}
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {(researchMode === 'suggestions' ? aiSuggestions :
-                      researchMode === 'research' ? researchResults.findings :
-                      researchResults.recommendations)?.map(product => (
-                      <motion.div
-                        key={product.id}
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        whileHover={{ scale: 1.05 }}
-                        className="cursor-move relative"
-                        draggable
-                        onDragStart={(e) => {
-                          const dragEvent = e as unknown as React.DragEvent<HTMLDivElement>;
-                          handleDragStart(dragEvent, product);
-                        }}
-                      >
-                        <div className="absolute -top-2 -right-2 z-10">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 border border-violet-200 shadow-sm">
-                            <SparklesIcon className="w-3 h-3 mr-1" />
-                            {researchMode === 'research' ? 'Trouvé' :
-                             researchMode === 'reasoning' ? 'Recommandé' :
-                             'Suggéré'}
-                          </span>
-                        </div>
-                        <ProductPaletteItem
-                          product={product}
-                          onSelect={handleAddProductToCanvas}
-                          onShowDetails={handleShowProductDetails}
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          {/* AI Assistant Toggle Button */}
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={() => setShowAiAssistant(!showAiAssistant)}
+              className="flex items-center space-x-2 px-4 py-2 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 transition-colors border border-violet-200"
+            >
+              <SparklesIcon className="w-5 h-5" />
+              <span>{showAiAssistant ? 'Masquer l\'Assistant IA' : 'Afficher l\'Assistant IA'}</span>
+            </button>
           </div>
+
+          {/* AI Search Bar */}
+          <AnimatePresence>
+            {showAiAssistant && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-violet-200 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 -mt-16 -mr-16 bg-violet-100 rounded-full opacity-30 z-0"></div>
+                  <div className="absolute bottom-0 left-0 w-24 h-24 -mb-12 -ml-12 bg-violet-100 rounded-full opacity-30 z-0"></div>
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-2">
+                        <SparklesIcon className="w-6 h-6 text-violet-500" />
+                        <h3 className="text-lg font-semibold text-gray-900">Assistant IA - Configurateur Intelligent</h3>
+                      </div>
+                      <div className="flex items-center space-x-4">
+                        <span className="px-2 py-1 bg-violet-100 text-violet-800 text-xs font-medium rounded-full animate-pulse">Recommandé</span>
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-2">
+                            <label htmlFor="researchMode" className="text-sm text-gray-600">Mode:</label>
+                            <select
+                              id="researchMode"
+                              value={researchMode}
+                              onChange={(e) => setResearchMode(e.target.value as 'suggestions' | 'research' | 'reasoning')}
+                              className="px-3 py-1.5 bg-white border border-violet-200 rounded-md text-sm text-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                            >
+                              <option value="suggestions">Suggestions rapides</option>
+                              <option value="research">Recherche approfondie</option>
+                              <option value="reasoning">Analyse raisonnée</option>
+                            </select>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <label htmlFor="maxSuggestions" className="text-sm text-gray-600">Nombre de suggestions:</label>
+                            <select
+                              id="maxSuggestions"
+                              value={maxSuggestions}
+                              onChange={(e) => setMaxSuggestions(Number(e.target.value))}
+                              className="px-3 py-1.5 bg-white border border-violet-200 rounded-md text-sm text-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                            >
+                              <option value="3">3</option>
+                              <option value="6">6</option>
+                              <option value="9">9</option>
+                              <option value="12">12</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">Décrivez votre événement en détail (type, nombre de personnes, ambiance souhaitée, etc.) pour obtenir des suggestions personnalisées.</p>
+                    <textarea
+                      placeholder="Ex: Je prépare une soirée d'entreprise pour 50 personnes avec une ambiance lounge et j'ai besoin d'un système de son, d'éclairage et de mobilier adapté..."
+                      className="w-full px-4 py-3 pl-12 pr-32 border-2 border-violet-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all resize-none min-h-[100px] max-h-[150px] bg-white shadow-inner"
+                      value={aiQuery}
+                      onChange={(e) => setAiQuery(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          if (!isAiSearching) {
+                            handleAiSearch();
+                          }
+                        }
+                      }}
+                      rows={4}
+                    />
+                    <SparklesIcon className="absolute left-4 top-[132px] w-5 h-5 text-violet-500" />
+                    <div className="absolute right-2 bottom-2 flex items-center space-x-2">
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowDemoOptions(!showDemoOptions)}
+                          className="px-3 py-1.5 bg-violet-100 text-violet-600 rounded-md hover:bg-violet-200 transition-all flex items-center space-x-1"
+                        >
+                          <PlayIcon className="w-4 h-4" />
+                          <span className="text-sm">Exemples</span>
+                        </button>
+
+                        {/* Demo Options Dropdown */}
+                        <AnimatePresence>
+                          {showDemoOptions && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 10 }}
+                              className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                            >
+                              <motion.div 
+                                className="w-96 bg-white rounded-lg shadow-xl border border-violet-200"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <div className="p-5">
+                                  <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center space-x-2">
+                                      <SparklesIcon className="w-5 h-5 text-violet-500" />
+                                      <h3 className="font-semibold text-gray-900">Exemples de recherche IA</h3>
+                                    </div>
+                                    <button 
+                                      onClick={() => setShowDemoOptions(false)}
+                                      className="text-gray-400 hover:text-gray-500"
+                                    >
+                                      <XMarkIcon className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                  <p className="text-sm text-gray-600 mb-4">Cliquez sur un exemple pour voir comment l'IA peut vous aider à trouver les produits adaptés à votre événement.</p>
+                                  <div className="space-y-3">
+                                    {demoExamples.map((example, index) => (
+                                      <button
+                                        key={index}
+                                        onClick={() => handleDemoClick(example)}
+                                        className="w-full text-left p-4 rounded-lg hover:bg-violet-50 transition-colors border border-violet-100 hover:border-violet-300 hover:shadow-md"
+                                      >
+                                        <h4 className="font-medium text-violet-700 mb-2">{example.title}</h4>
+                                        <p className="text-sm text-gray-600">{example.description}</p>
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </motion.div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                      <button
+                        onClick={handleAiSearch}
+                        disabled={isAiSearching || !aiQuery.trim()}
+                        className="px-4 py-1.5 bg-violet-600 text-white rounded-md hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                      >
+                        {isAiSearching ? (
+                          <ArrowPathIcon className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <SparklesIcon className="w-4 h-4" />
+                            <span>Obtenir des suggestions</span>
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <AnimatePresence>
+                    {researchResults.explanation && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="mt-3"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="text-sm font-semibold text-primary-800">
+                            {researchMode === 'research' ? 'Résultats de la recherche' :
+                             researchMode === 'reasoning' ? 'Analyse et recommandations' :
+                             'Suggestions personnalisées'}
+                          </h3>
+                          <button
+                            onClick={() => setShowSuggestions(!showSuggestions)}
+                            className="flex items-center space-x-1 text-sm text-primary-600 hover:text-primary-700"
+                          >
+                            <span>{showSuggestions ? 'Masquer' : 'Afficher'}</span>
+                            <ChevronDownIcon className={`w-4 h-4 transform transition-transform ${showSuggestions ? 'rotate-180' : ''}`} />
+                          </button>
+                        </div>
+                        <AnimatePresence>
+                          {showSuggestions && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="p-4 bg-violet-50 rounded-lg border border-violet-100 shadow-inner">
+                                <div className="text-sm text-violet-700 whitespace-pre-line space-y-2">
+                                  {researchResults.explanation}
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* AI Suggestions Grid */}
+                  <AnimatePresence>
+                    {(aiSuggestions.length > 0 || researchResults.findings?.length || researchResults.recommendations?.length) && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-6"
+                      >
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                          {researchMode === 'research' ? 'Produits trouvés' :
+                           researchMode === 'reasoning' ? 'Produits recommandés' :
+                           'Produits suggérés'}
+                        </h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                          {(researchMode === 'suggestions' ? aiSuggestions :
+                            researchMode === 'research' ? researchResults.findings :
+                            researchResults.recommendations)?.map(product => (
+                            <motion.div
+                              key={product.id}
+                              initial={{ scale: 0.9, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              whileHover={{ scale: 1.05 }}
+                              className="cursor-move relative"
+                              draggable
+                              onDragStart={(e) => {
+                                const dragEvent = e as unknown as React.DragEvent<HTMLDivElement>;
+                                handleDragStart(dragEvent, product);
+                              }}
+                            >
+                              <div className="absolute -top-2 -right-2 z-10">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 border border-violet-200 shadow-sm">
+                                  <SparklesIcon className="w-3 h-3 mr-1" />
+                                  {researchMode === 'research' ? 'Trouvé' :
+                                   researchMode === 'reasoning' ? 'Recommandé' :
+                                   'Suggéré'}
+                                </span>
+                              </div>
+                              <ProductPaletteItem
+                                product={product}
+                                onSelect={handleAddProductToCanvas}
+                                onShowDetails={handleShowProductDetails}
+                              />
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Regular Search & Filters */}
           <div className="bg-white rounded-lg shadow-lg p-6">
