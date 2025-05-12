@@ -241,7 +241,7 @@ export const VisualConfigurator: React.FC = () => {
               <button
                 onClick={handleAiSearch}
                 disabled={isAiSearching || !aiQuery.trim()}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-primary-600 text-violet-500 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {isAiSearching ? (
                   <ArrowPathIcon className="w-5 h-5 animate-spin" />
@@ -259,7 +259,7 @@ export const VisualConfigurator: React.FC = () => {
                   exit={{ opacity: 0, y: -10 }}
                   className="mt-3 p-4 bg-primary-50 rounded-lg"
                 >
-                  <h3 className="text-sm font-semibold text-primary-800 mb-2">Suggestions IA :</h3>
+                  <h3 className="text-sm font-semibold text-primary-800 mb-2">Suggestions Personnaliser :</h3>
                   <div className="text-sm text-primary-700 whitespace-pre-line">
                     {aiExplanation}
                   </div>
@@ -323,8 +323,8 @@ export const VisualConfigurator: React.FC = () => {
                   onClick={() => handleApplyFilters({ ...productFilters, category: '' })}
                   className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
                     !productFilters.category 
-                      ? 'bg-primary-600 text-white shadow-md' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-primary-600 text-violet-500 shadow-md' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 '
                   }`}
                 >
                   Tout
@@ -335,7 +335,7 @@ export const VisualConfigurator: React.FC = () => {
                     onClick={() => handleApplyFilters({ ...productFilters, category })}
                     className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
                       productFilters.category === category 
-                        ? 'bg-primary-600 text-white shadow-md' 
+                        ? 'bg-primary-600 text-violet-500 shadow-md' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
