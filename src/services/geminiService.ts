@@ -88,7 +88,7 @@ export async function getProductSuggestions(
     Instructions importantes:
     1. Analysez précisément la demande de l'utilisateur
     2. Sélectionnez UNIQUEMENT les produits qui correspondent DIRECTEMENT à la demande
-    3. Limitez-vous à 3-5 produits maximum
+    3. Limitez-vous à 10 produits maximum pertinent pour le context de la demande
     4. Pour chaque produit, expliquez brièvement pourquoi il correspond à la demande
     5. Fournissez un résumé concis de la sélection
     
