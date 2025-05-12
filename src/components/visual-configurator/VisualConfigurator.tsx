@@ -732,6 +732,10 @@ export const VisualConfigurator: React.FC = () => {
                   </span>
                 </div>
               </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">Total:</span>
+                <span className="text-xl font-bold text-violet-600">{totalCanvasPrice.toFixed(2)}€ TTC</span>
+              </div>
             </div>
             
             <div 
@@ -782,25 +786,17 @@ export const VisualConfigurator: React.FC = () => {
                         exit={{ scale: 0.8, opacity: 0 }}
                         className="relative group"
                       >
-                        <div className="absolute -top-2 -right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => handleRemoveProductFromCanvas(product.id)}
-                            className="p-1.5 bg-red-100 hover:bg-red-200 rounded-full text-red-600 shadow-sm transition-all duration-200"
-                          >
-                            <XMarkIcon className="w-4 h-4" />
-                          </button>
-                        </div>
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group-hover:shadow-md transition-all duration-200">
                           <CanvasItem
                             product={product}
                             onRemove={handleRemoveProductFromCanvas}
                           />
-                          <div className="p-4 bg-gray-50 border-t border-gray-100">
+                          <div className="p-4 bg-gradient-to-r from-violet-50 to-white border-t border-gray-100">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">
                                 <button
                                   onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
-                                  className="p-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 transition-colors"
+                                  className="p-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                   disabled={product.quantity <= 1}
                                 >
                                   <MinusIcon className="w-4 h-4 text-gray-600" />
@@ -815,9 +811,14 @@ export const VisualConfigurator: React.FC = () => {
                                   <PlusIcon className="w-4 h-4 text-gray-600" />
                                 </button>
                               </div>
-                              <span className="text-sm font-medium text-violet-600">
-                                {(product.priceTTC * product.quantity).toFixed(2)}€ TTC
-                              </span>
+                              <div className="flex flex-col items-end">
+                                <span className="text-sm font-medium text-violet-600">
+                                  {(product.priceTTC * product.quantity).toFixed(2)}€ TTC
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {product.priceTTC.toFixed(2)}€ l'unité
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
