@@ -249,12 +249,15 @@ export const VisualConfigurator: React.FC = () => {
 
   return (
     <div className="mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Créez votre Devis rapide</h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold text-gray-900">Créez votre Devis rapide</h1>
+          <p className="text-gray-600">Sélectionnez vos produits et créez votre devis personnalisé en quelques clics</p>
+        </div>
         <div className="flex items-center space-x-4">
           <button
             onClick={handleClearCanvas}
-            className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
           >
             <TrashIcon className="w-5 h-5" />
             <span>Effacer tout</span>
@@ -262,7 +265,7 @@ export const VisualConfigurator: React.FC = () => {
           <button
             onClick={handleFinalizeSelection}
             disabled={productsOnCanvas.length === 0}
-            className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-violet-500 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-violet-500 rounded-lg hover:bg-violet-50 rounded-lg transition-colors border border-violet-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <ShoppingCartIcon className="w-5 h-5" />
             <span>Finaliser le devis</span>
