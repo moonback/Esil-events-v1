@@ -293,46 +293,46 @@ const AdminAnnouncements: React.FC = () => {
 
         {/* Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 md:p-8 w-full max-w-lg shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 md:p-8 w-full max-w-6xl shadow-2xl transform transition-all max-h-[95vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                   {editingAnnouncement ? 'Modifier l\'annonce' : 'Nouvelle annonce'}
                 </h2>
                 <button
                   onClick={handleCloseModal}
-                  className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                  className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-200 hover:rotate-90"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Message <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={formData.message}
                     onChange={(e) => handleFieldChange('message', e.target.value)}
-                    className={`w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 dark:bg-gray-700 dark:text-white ${
+                    className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 dark:bg-gray-700 dark:text-white transition-all duration-200 ${
                       formErrors.message 
                         ? 'border-red-500 dark:border-red-500' 
-                        : 'border-gray-300 dark:border-gray-600'
+                        : 'border-gray-200 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-400'
                     }`}
                     maxLength={200}
                   />
                   {formErrors.message && (
-                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.message}</p>
+                    <p className="text-sm text-red-600 dark:text-red-400">{formErrors.message}</p>
                   )}
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {formData.message.length}/200 caractères
                   </p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Lien (optionnel)
                   </label>
                   <input
@@ -340,109 +340,115 @@ const AdminAnnouncements: React.FC = () => {
                     value={formData.link}
                     onChange={(e) => handleFieldChange('link', e.target.value)}
                     placeholder="https://..."
-                    className={`w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 dark:bg-gray-700 dark:text-white ${
+                    className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 dark:bg-gray-700 dark:text-white transition-all duration-200 ${
                       formErrors.link 
                         ? 'border-red-500 dark:border-red-500' 
-                        : 'border-gray-300 dark:border-gray-600'
+                        : 'border-gray-200 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-400'
                     }`}
                   />
                   {formErrors.link && (
-                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.link}</p>
+                    <p className="text-sm text-red-600 dark:text-red-400">{formErrors.link}</p>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                       Date de début <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
                       value={formData.start_date}
                       onChange={(e) => handleFieldChange('start_date', e.target.value)}
-                      className={`w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 dark:bg-gray-700 dark:text-white ${
+                      className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 dark:bg-gray-700 dark:text-white transition-all duration-200 ${
                         formErrors.start_date 
                           ? 'border-red-500 dark:border-red-500' 
-                          : 'border-gray-300 dark:border-gray-600'
+                          : 'border-gray-200 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-400'
                       }`}
                     />
                     {formErrors.start_date && (
-                      <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.start_date}</p>
+                      <p className="text-sm text-red-600 dark:text-red-400">{formErrors.start_date}</p>
                     )}
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                       Date de fin <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
                       value={formData.end_date}
                       onChange={(e) => handleFieldChange('end_date', e.target.value)}
-                      className={`w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 dark:bg-gray-700 dark:text-white ${
+                      className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 dark:bg-gray-700 dark:text-white transition-all duration-200 ${
                         formErrors.end_date 
                           ? 'border-red-500 dark:border-red-500' 
-                          : 'border-gray-300 dark:border-gray-600'
+                          : 'border-gray-200 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-400'
                       }`}
                     />
                     {formErrors.end_date && (
-                      <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.end_date}</p>
+                      <p className="text-sm text-red-600 dark:text-red-400">{formErrors.end_date}</p>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                       Couleur de fond
                     </label>
-                    <input
-                      type="color"
-                      value={formData.background_color}
-                      onChange={(e) => handleFieldChange('background_color', e.target.value)}
-                      className="w-full h-12 p-1 rounded-xl cursor-pointer"
-                    />
+                    <div className="relative">
+                      <input
+                        type="color"
+                        value={formData.background_color}
+                        onChange={(e) => handleFieldChange('background_color', e.target.value)}
+                        className="w-full h-14 p-2 rounded-xl cursor-pointer border-2 border-gray-200 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-400 transition-all duration-200"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                       Couleur du texte
                     </label>
-                    <input
-                      type="color"
-                      value={formData.text_color}
-                      onChange={(e) => handleFieldChange('text_color', e.target.value)}
-                      className="w-full h-12 p-1 rounded-xl cursor-pointer"
-                    />
+                    <div className="relative">
+                      <input
+                        type="color"
+                        value={formData.text_color}
+                        onChange={(e) => handleFieldChange('text_color', e.target.value)}
+                        className="w-full h-14 p-2 rounded-xl cursor-pointer border-2 border-gray-200 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-400 transition-all duration-200"
+                      />
+                    </div>
                   </div>
                 </div>
                 
-                <AnnouncementPreview />
+                <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                  <AnnouncementPreview />
+                </div>
 
-                <div className="flex items-center">
+                <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                   <input
                     type="checkbox"
                     id="active"
                     checked={formData.active}
                     onChange={(e) => handleFieldChange('active', e.target.checked)}
-                    className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
+                    className="h-5 w-5 text-violet-600 focus:ring-violet-500 border-2 border-gray-300 dark:border-gray-600 rounded-lg transition-all duration-200"
                   />
-                  <label htmlFor="active" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                  <label htmlFor="active" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Activer l'annonce
                   </label>
                 </div>
 
-                <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-4 pt-4">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-4 pt-6">
                   <button
                     type="button"
                     onClick={handleCloseModal}
-                    className="mt-3 sm:mt-0 px-4 md:px-6 py-2.5 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 font-medium"
+                    className="mt-3 sm:mt-0 px-6 py-3 border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 font-medium hover:border-gray-300 dark:hover:border-gray-500"
                   >
                     Annuler
                   </button>
                   <button
                     type="submit"
-                    className="px-4 md:px-6 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 font-medium disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                    className="px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 font-medium disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl"
                   >
                     {editingAnnouncement ? 'Mettre à jour' : 'Créer'}
                   </button>
