@@ -47,7 +47,7 @@ export const useAdminProductFilters = (products: Product[]): UseAdminProductFilt
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [isFilterOpen, setIsFilterOpen] = useState(false); // Filtres cachés par défaut
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(12);
 
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
