@@ -353,7 +353,7 @@ const AdminProducts: React.FC = () => {
             <div className="space-y-8">
               {viewMode === 'cards' ? (
                 // Vue en cards avec design amélioré
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-3">
                   {currentItems.map((product) => (
                     <div 
                       key={product.id} 
