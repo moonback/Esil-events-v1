@@ -441,13 +441,13 @@ const AdminProducts: React.FC = () => {
                             <div className="space-y-1">
                               <div className="flex items-baseline gap-1">
                                 <p className="text-lg font-bold text-gray-900 dark:text-white">
-                                  {product.priceHT}
+                                  {product.priceHT.toFixed(2)}€
                                 </p>
                                 <span className="text-sm text-gray-500 dark:text-gray-400">€ HT</span>
                               </div>
                               <div className="flex items-baseline gap-1">
                                 <p className="text-base font-medium text-purple-600 dark:text-purple-400">
-                                  {product.priceTTC}
+                                {product.priceTTC.toFixed(2)}€
                                 </p>
                                 <span className="text-xs text-purple-500 dark:text-purple-400">€ TTC</span>
                               </div>
