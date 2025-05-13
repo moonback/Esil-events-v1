@@ -21,13 +21,13 @@ import AdminRoutes from './components/AdminRoutes';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import ArtistPage from './pages/ArtistPage';
-import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
+import { EventsPage } from './pages/EventsPage';
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import CguPage from './pages/CguPage';
+import { VisualConfiguratorPage } from './pages/VisualConfiguratorPage';
 
 // Admin pages
 import RealisationPage from './pages/RealisationPage';
-
 
 const App: React.FC = () => {
   return (
@@ -42,6 +42,7 @@ const App: React.FC = () => {
             <Route path="/products/:category" element={<ProductListPage />} />
             <Route path="/products/:category/:subcategory" element={<ProductListPage />} />
             <Route path="/products/:category/:subcategory/:subsubcategory" element={<ProductListPage />} />
+            <Route path="/configurateur-ambiance" element={<VisualConfiguratorPage />} />
 
             <Route path="/product/:id" element={<ProductPage />} />
             <Route path="/product/:slug" element={<ProductPage />} />
