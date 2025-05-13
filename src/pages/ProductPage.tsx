@@ -16,6 +16,18 @@ interface KeywordRanking {
   lastChecked: string;
 }
 
+// Ajout des interfaces pour le scoring
+interface ProductScore {
+  product: Product;
+  score: number;
+  reasons: string[];
+}
+
+interface TechnicalSpecMatch {
+  key: string;
+  weight: number;
+}
+
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
@@ -67,22 +79,128 @@ const ProductPage: React.FC = () => {
     fetchProduct();
   }, [id]);
   
-  // Fonction pour charger les produits similaires avec différentes méthodes de tri
+  // Fonction de scoring intelligent
+  const calculateProductSimilarity = (
+    currentProduct: Product,
+    similarProduct: Product,
+    sortMethod: 'relevance' | 'price' | 'newest'
+  ): ProductScore => {
+    let score = 0;
+    const reasons: string[] = [];
+
+    // Score de base pour la catégorie
+    if (currentProduct.category === similarProduct.category) {
+      score += 30;
+      reasons.push('Même catégorie');
+    }
+
+    // Score pour la sous-catégorie
+    if (currentProduct.subCategory === similarProduct.subCategory) {
+      score += 20;
+      reasons.push('Même sous-catégorie');
+    }
+
+    // Score pour la sous-sous-catégorie
+    if (currentProduct.subSubCategory === similarProduct.subSubCategory) {
+      score += 15;
+      reasons.push('Même sous-sous-catégorie');
+    }
+
+    // Score pour les couleurs communes
+    const commonColors = currentProduct.colors?.filter(color => 
+      similarProduct.colors?.includes(color)
+    ) || [];
+    if (commonColors.length > 0) {
+      score += commonColors.length * 5;
+      reasons.push(`${commonColors.length} couleur(s) commune(s)`);
+    }
+
+    // Score pour les spécifications techniques similaires
+    const technicalSpecsWeight: TechnicalSpecMatch[] = [
+      { key: 'dimensions', weight: 10 },
+      { key: 'material', weight: 8 },
+      { key: 'capacity', weight: 7 },
+      { key: 'style', weight: 6 },
+      { key: 'color', weight: 5 }
+    ];
+
+    technicalSpecsWeight.forEach(({ key, weight }) => {
+      if (
+        currentProduct.technicalSpecs[key] && 
+        similarProduct.technicalSpecs[key] &&
+        currentProduct.technicalSpecs[key] === similarProduct.technicalSpecs[key]
+      ) {
+        score += weight;
+        reasons.push(`Même ${key}`);
+      }
+    });
+
+    // Score pour la gamme de prix similaire
+    const priceDiff = Math.abs(currentProduct.priceTTC - similarProduct.priceTTC);
+    const priceDiffPercentage = (priceDiff / currentProduct.priceTTC) * 100;
+    if (priceDiffPercentage <= 20) {
+      score += 15;
+      reasons.push('Prix similaire');
+    } else if (priceDiffPercentage <= 50) {
+      score += 8;
+      reasons.push('Prix dans la même gamme');
+    }
+
+    // Score pour la disponibilité
+    if (similarProduct.stock > 0) {
+      score += 10;
+      reasons.push('En stock');
+    }
+
+    // Ajustement du score en fonction de la méthode de tri
+    if (sortMethod === 'price') {
+      // Réduire le score pour les produits avec une grande différence de prix
+      score -= priceDiffPercentage * 0.5;
+    } else if (sortMethod === 'newest') {
+      // Ajouter un bonus pour les nouveaux produits
+      const isNew = new Date(similarProduct.createdAt).getTime() > 
+                    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime();
+      if (isNew) {
+        score += 20;
+        reasons.push('Produit récent');
+      }
+    }
+
+    return {
+      product: similarProduct,
+      score,
+      reasons
+    };
+  };
+
+  // Modification de la fonction fetchSimilarProducts
   const fetchSimilarProducts = async (sortByMethod: 'relevance' | 'price' | 'newest' = sortMethod) => {
     if (!product) return;
     
     setSortMethod(sortByMethod);
     setLoadingSimilar(true);
     try {
-      // Utilisation des options améliorées pour les produits similaires
-      const similar = await getSimilarProducts(product, 8, {
+      // Récupérer les produits similaires de base
+      const similar = await getSimilarProducts(product, 20, {
         prioritizeCategory: true,
         excludeCurrentProduct: true,
         includeAttributes: ['colors', 'technicalSpecs', 'price'],
         sortBy: sortByMethod
       });
-      setSimilarProducts(similar);
-      console.log(`Similar products loaded (sorted by ${sortByMethod}):`, similar.length);
+
+      // Calculer le score pour chaque produit
+      const scoredProducts = similar.map(similarProduct => 
+        calculateProductSimilarity(product, similarProduct, sortByMethod)
+      );
+
+      // Trier les produits par score
+      const sortedProducts = scoredProducts
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 8) // Garder les 8 meilleurs résultats
+        .map(({ product }) => product);
+
+      setSimilarProducts(sortedProducts);
+      console.log(`Similar products loaded (sorted by ${sortByMethod}):`, sortedProducts.length);
     } catch (error) {
       console.error('Error fetching similar products:', error);
     } finally {
@@ -708,18 +826,7 @@ return (
               {/* Carrousel de produits similaires avec animations */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 transition-all duration-500">
                 {similarProducts.map((similarProduct, index) => {
-                  // Déterminer les points communs avec le produit principal
-                  const sameCategory = similarProduct.category === product.category;
-                  const sameSubCategory = similarProduct.subCategory === product.subCategory;
-                  const sameSubSubCategory = similarProduct.subSubCategory === product.subSubCategory;
-                  
-                  // Vérifier si les produits ont des couleurs en commun
-                  const commonColors = product.colors && similarProduct.colors ? 
-                    product.colors.filter(color => similarProduct.colors?.includes(color)) : [];
-                  
-                  // Calculer la différence de prix en pourcentage
-                  const priceDiff = product.priceTTC > 0 ? 
-                    Math.round((similarProduct.priceTTC - product.priceTTC) / product.priceTTC * 100) : 0;
+                  const score = calculateProductSimilarity(product, similarProduct, sortMethod);
                   
                   return (
                     <Link 
@@ -740,7 +847,7 @@ return (
                         />
                         <div className="absolute top-0 left-0 w-full p-3 flex justify-between items-start">
                           {similarProduct.category && (
-                            <span className={`text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md feedback-message-enter ${sameCategory ? 'bg-violet-600' : 'bg-gray-600'}`}>
+                            <span className={`text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md feedback-message-enter ${similarProduct.category === product.category ? 'bg-violet-600' : 'bg-gray-600'}`}>
                               {typeof similarProduct.category === 'string' 
                                 ? similarProduct.category.charAt(0).toUpperCase() + similarProduct.category.slice(1)
                                 : similarProduct.category[0]}
@@ -765,16 +872,14 @@ return (
                         
                         {/* Badges pour les caractéristiques communes */}
                         <div className="flex flex-wrap gap-1 mb-2">
-                          {/* {sameSubCategory && (
-                            <span className="bg-violet-100 text-violet-800 text-xs px-2 py-0.5 rounded-md">
-                              Même sous-catégorie
+                          {score.reasons.slice(0, 3).map((reason, idx) => (
+                            <span 
+                              key={idx}
+                              className="bg-violet-50 text-violet-700 text-xs px-2 py-0.5 rounded-md"
+                            >
+                              {reason}
                             </span>
-                          )} */}
-                          {commonColors.length > 0 && (
-                            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-md">
-                              {commonColors.length} couleur{commonColors.length > 1 ? 's' : ''} commune{commonColors.length > 1 ? 's' : ''}
-                            </span>
-                          )}
+                          ))}
                         </div>
                         
                         {similarProduct.subCategory && (
@@ -787,29 +892,29 @@ return (
                           </div>
                         )}
                       
-                      <div className="mt-auto pt-3 border-t border-gray-100">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="text-xs text-gray-500">Prix TTC / jour</p>
-                            <p className="text-violet-600 font-bold text-lg">
-                              {similarProduct.priceTTC.toFixed(2)} €
-                            </p>
-                          </div>
-                          <div className="flex flex-col items-end">
-                            {similarProduct.stock > 0 && (
-                              <span className="text-xs text-green-600 mb-1 flex items-center">
-                                <Check className="w-3 h-3 mr-1" />
-                                Stock: {similarProduct.stock}
-                              </span>
-                            )}
-                            <div className="bg-violet-50 text-violet-700 p-2 rounded-full group-hover:bg-violet-100 transition-colors transform group-hover:scale-110 duration-200 shadow-sm group-hover:shadow-md">
-                              <ShoppingCart className="w-4 h-4" />
+                        <div className="mt-auto pt-3 border-t border-gray-100">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="text-xs text-gray-500">Prix TTC / jour</p>
+                              <p className="text-violet-600 font-bold text-lg">
+                                {similarProduct.priceTTC.toFixed(2)} €
+                              </p>
+                            </div>
+                            <div className="flex flex-col items-end">
+                              {similarProduct.stock > 0 && (
+                                <span className="text-xs text-green-600 mb-1 flex items-center">
+                                  <Check className="w-3 h-3 mr-1" />
+                                  Stock: {similarProduct.stock}
+                                </span>
+                              )}
+                              <div className="bg-violet-50 text-violet-700 p-2 rounded-full group-hover:bg-violet-100 transition-colors transform group-hover:scale-110 duration-200 shadow-sm group-hover:shadow-md">
+                                <ShoppingCart className="w-4 h-4" />
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
                   );
                 })}
               </div>
