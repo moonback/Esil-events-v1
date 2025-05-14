@@ -79,7 +79,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ query, onSelect }) => {
                 className="px-3 py-2.5 hover:bg-gradient-to-r hover:from-violet-50 hover:to-indigo-50 dark:hover:from-violet-900/20 dark:hover:to-indigo-900/20 rounded-lg cursor-pointer group transition-all duration-300 hover:shadow-sm"
                 onClick={() => {
                   onSelect(product);
-                  navigate(`/product/${product.id}`);
+                  navigate(`/product/${product.slug}`);
                 }}
                 whileHover={{ x: 3 }}
                 whileTap={{ scale: 0.98 }}
@@ -91,7 +91,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({ query, onSelect }) => {
                     </p>
                     {product.category && (
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+                        {typeof product.category === 'string' 
+                          ? product.category.charAt(0).toUpperCase() + product.category.slice(1)
+                          : product.category[0].charAt(0).toUpperCase() + product.category[0].slice(1)}
                       </p>
                     )}
                   </div>

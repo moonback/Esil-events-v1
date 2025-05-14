@@ -111,7 +111,7 @@ const Header: React.FC = () => {
                       results={[]} 
                       onSelect={(product) => {
                         setSearchQuery('');
-                        navigate(`/product/${product.id}`);
+                        navigate(`/product/${product.slug}`);
                       }} 
                     />
                   )}
