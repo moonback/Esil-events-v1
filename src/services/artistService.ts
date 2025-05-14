@@ -6,6 +6,7 @@ export interface Artist {
   category: string;
   image_url: string; // Using snake_case to match database column
   description: string;
+  featured?: boolean;
   created_at?: string;
 }
 

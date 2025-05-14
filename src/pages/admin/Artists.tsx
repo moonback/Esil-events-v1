@@ -162,17 +162,7 @@ const AdminArtists: React.FC = () => {
             </div>
           </div>
           
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 mr-4">
-                <Calendar className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Événements à venir</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">0</p>
-              </div>
-            </div>
-          </div>
+          
         </div>
 
         {error && (

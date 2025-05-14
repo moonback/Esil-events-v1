@@ -412,7 +412,7 @@ export const AdminRealizations: React.FC = () => {
               </div>
             </div>
             
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+            {/* <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
               <div className="flex items-center">
                 <div className="p-3 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 mr-4">
                   <Calendar className="h-6 w-6" />
@@ -422,7 +422,7 @@ export const AdminRealizations: React.FC = () => {
                   <p className="text-2xl font-semibold text-gray-900 dark:text-white">{upcomingEvents}</p>
                 </div>
               </div>
-            </div>
+            </div> */}
             
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
               <div className="flex items-center">
