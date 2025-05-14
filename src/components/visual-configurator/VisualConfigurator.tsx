@@ -344,13 +344,13 @@ export const VisualConfigurator: React.FC = () => {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-2">
                         <SparklesIcon className="w-6 h-6 text-violet-500" />
-                        <h3 className="text-lg font-semibold text-gray-900">Assistant IA - Configurateur Intelligent</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">Assistant IA</h3>
                         <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full border border-yellow-200">
                           BETA
                         </span>
                       </div>
                       <div className="flex items-center space-x-4">
-                        <span className="px-2 py-1 bg-violet-100 text-violet-800 text-xs font-medium rounded-full animate-pulse">Recommandé</span>
+                        {/* <span className="px-2 py-1 bg-violet-100 text-violet-800 text-xs font-medium rounded-full animate-pulse">Recommandé</span> */}
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center space-x-2">
                             <label htmlFor="researchMode" className="text-sm text-gray-600">Mode:</label>
