@@ -318,6 +318,19 @@ return (
           description={product.seo_description || product.description.substring(0, 160)}
           keywords={product.seo_keywords || ''}
           image={product.images && product.images.length > 0 ? product.images[currentImageIndex] : DEFAULT_PRODUCT_IMAGE}
+          url={`https://esil-events.fr/product/${product.slug}`}
+          type="product"
+          product={{
+            name: product.name,
+            description: product.description,
+            price: product.priceTTC,
+            priceCurrency: "EUR",
+            availability: product.isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            image: product.images && product.images.length > 0 ? product.images[currentImageIndex] : DEFAULT_PRODUCT_IMAGE,
+            sku: product.reference,
+            brand: "ESIL Events",
+            category: typeof product.category === 'string' ? product.category : product.category[0]
+          }}
         />
       )}
       
@@ -353,6 +366,36 @@ return (
             </ol>
           </nav>
         </div>
+
+        {/* Structured Breadcrumbs */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Accueil",
+                "item": "https://esil-events.fr"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": typeof product.category === 'string' 
+                  ? product.category.charAt(0).toUpperCase() + product.category.slice(1)
+                  : product.category[0],
+                "item": `https://esil-events.fr/products/${product.category}`
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": product.name,
+                "item": `https://esil-events.fr/product/${product.slug}`
+              }
+            ]
+          })}
+        </script>
 
         <div className="space-y-10  pt-10">
           {/* Main Content */}
