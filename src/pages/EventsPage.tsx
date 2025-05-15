@@ -63,7 +63,7 @@ export const EventsPage: React.FC = () => {
     <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen overflow-hidden">
       {/* Hero Section avec background animé */}
       <motion.div 
-        className="bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-20 mb-16 relative overflow-hidden"
+        className="bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-12 md:py-20 mb-8 md:mb-16 relative overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -71,7 +71,7 @@ export const EventsPage: React.FC = () => {
         {/* Cercles décoratifs animés */}
         <div className="absolute inset-0 overflow-hidden z-0">
           <motion.div 
-            className="absolute top-20 left-10 w-64 h-64 rounded-full bg-purple-500 opacity-10"
+            className="absolute top-20 left-10 w-32 md:w-64 h-32 md:h-64 rounded-full bg-purple-500 opacity-10"
             animate={{ 
               x: [0, 20, 0], 
               y: [0, -20, 0],
@@ -84,7 +84,7 @@ export const EventsPage: React.FC = () => {
             }}
           />
           <motion.div 
-            className="absolute bottom-10 right-20 w-96 h-96 rounded-full bg-indigo-500 opacity-10"
+            className="absolute bottom-10 right-20 w-48 md:w-96 h-48 md:h-96 rounded-full bg-indigo-500 opacity-10"
             animate={{ 
               x: [0, -30, 0], 
               y: [0, 20, 0],
@@ -97,7 +97,7 @@ export const EventsPage: React.FC = () => {
             }}
           />
           <motion.div 
-            className="absolute top-40 right-1/4 w-40 h-40 rounded-full bg-violet-400 opacity-10"
+            className="absolute top-40 right-1/4 w-20 md:w-40 h-20 md:h-40 rounded-full bg-violet-400 opacity-10"
             animate={{ 
               x: [0, 40, 0], 
               y: [0, 30, 0],
@@ -115,13 +115,13 @@ export const EventsPage: React.FC = () => {
         </div>
         
         <motion.div 
-          className="container-custom mx-auto px-6 text-center relative z-10 py-32"
+          className="container-custom mx-auto px-4 md:px-6 text-center relative z-10 py-16 md:py-32"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
         >
           <motion.h1 
-            className="text-5xl md:text-6xl font-bold mb-6 leading-tight"
+            className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 md:mb-6 leading-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
@@ -129,7 +129,7 @@ export const EventsPage: React.FC = () => {
             ESIL <span className="text-violet-300">Events</span>
           </motion.h1>
           <motion.p 
-            className="text-xl md:text-2xl max-w-3xl mx-auto font-light"
+            className="text-lg sm:text-xl md:text-2xl max-w-3xl mx-auto font-light px-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
@@ -139,7 +139,7 @@ export const EventsPage: React.FC = () => {
           
           {/* Animated scroll indicator */}
           <motion.div 
-            className="mt-16"
+            className="mt-8 md:mt-16"
             animate={{ 
               y: [0, 10, 0],
               opacity: [0.6, 1, 0.6]
@@ -150,7 +150,7 @@ export const EventsPage: React.FC = () => {
               ease: "easeInOut"
             }}
           >
-            <svg className="h-8 w-8 mx-auto text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-6 w-6 md:h-8 md:w-8 mx-auto text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
             </svg>
           </motion.div>
@@ -159,32 +159,32 @@ export const EventsPage: React.FC = () => {
 
       {/* About Section avec design amélioré */}
       <motion.section 
-        className="mb-24 relative"
+        className="mb-16 md:mb-24 relative"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={fadeIn}
       >
-        <div className="container-custom mx-auto px-6 -mt-16 relative z-20">
+        <div className="container-custom mx-auto px-4 md:px-6 -mt-8 md:-mt-16 relative z-20">
           <div className="relative">
             {/* Formes décoratives */}
-            <div className="absolute -top-10 -right-10 w-64 h-64 bg-violet-100 rounded-full opacity-50 dark:opacity-20 blur-3xl z-0"></div>
-            <div className="absolute -bottom-10 -left-10 w-80 h-80 bg-indigo-100 rounded-full opacity-60 dark:opacity-20 blur-3xl z-0"></div>
+            <div className="absolute -top-10 -right-10 w-32 md:w-64 h-32 md:h-64 bg-violet-100 rounded-full opacity-50 dark:opacity-20 blur-3xl z-0"></div>
+            <div className="absolute -bottom-10 -left-10 w-40 md:w-80 h-40 md:h-80 bg-indigo-100 rounded-full opacity-60 dark:opacity-20 blur-3xl z-0"></div>
             
             <motion.div 
-              className="relative z-10 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 text-center backdrop-blur-sm bg-opacity-95 dark:bg-opacity-90"
+              className="relative z-10 bg-white dark:bg-gray-800 rounded-2xl md:rounded-3xl shadow-2xl p-6 md:p-12 text-center backdrop-blur-sm bg-opacity-95 dark:bg-opacity-90"
               variants={fadeInUp}
               whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
               transition={{ duration: 0.5 }}
             >
               <motion.h2 
-                className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-violet-700 to-indigo-600 bg-clip-text text-transparent"
+                className="text-2xl md:text-4xl font-bold mb-6 md:mb-8 text-center bg-gradient-to-r from-violet-700 to-indigo-600 bg-clip-text text-transparent"
                 variants={fadeInUp}
               >
                 Créateurs d'expériences mémorables
               </motion.h2>
               
-              <div className="space-y-6 text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
+              <div className="space-y-4 md:space-y-6 text-base md:text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
                 <motion.p variants={fadeInUp}>
                   Chez <span className="text-violet-600 font-semibold dark:text-violet-400">ESIL Events</span>, nous transformons vos idées en réalité. Plus qu'une simple agence événementielle, nous sommes des architectes de moments uniques qui marquent les esprits.
                 </motion.p>
@@ -199,20 +199,20 @@ export const EventsPage: React.FC = () => {
               </div>
               
               <motion.div 
-                className="flex flex-wrap justify-center gap-6 mt-10"
+                className="flex flex-wrap justify-center gap-4 md:gap-6 mt-8 md:mt-10"
                 variants={fadeInUp}
               >
-                <div className="flex items-center border-2 border-violet-200 dark:border-violet-800 rounded-full py-3 px-6">
-                  <span className="text-violet-600 dark:text-violet-400 font-bold text-xl mr-2">20+</span>
-                  <span className="text-gray-600 dark:text-gray-300">années d'expérience</span>
+                <div className="flex items-center border-2 border-violet-200 dark:border-violet-800 rounded-full py-2 md:py-3 px-4 md:px-6">
+                  <span className="text-violet-600 dark:text-violet-400 font-bold text-lg md:text-xl mr-2">20+</span>
+                  <span className="text-gray-600 dark:text-gray-300 text-sm md:text-base">années d'expérience</span>
                 </div>
-                <div className="flex items-center border-2 border-indigo-200 dark:border-indigo-800 rounded-full py-3 px-6">
-                  <span className="text-indigo-600 dark:text-indigo-400 font-bold text-xl mr-2">500+</span>
-                  <span className="text-gray-600 dark:text-gray-300">événements réalisés</span>
+                <div className="flex items-center border-2 border-indigo-200 dark:border-indigo-800 rounded-full py-2 md:py-3 px-4 md:px-6">
+                  <span className="text-indigo-600 dark:text-indigo-400 font-bold text-lg md:text-xl mr-2">500+</span>
+                  <span className="text-gray-600 dark:text-gray-300 text-sm md:text-base">événements réalisés</span>
                 </div>
-                <div className="flex items-center border-2 border-purple-200 dark:border-purple-800 rounded-full py-3 px-6">
-                  <span className="text-purple-600 dark:text-purple-400 font-bold text-xl mr-2">100%</span>
-                  <span className="text-gray-600 dark:text-gray-300">satisfaction client</span>
+                <div className="flex items-center border-2 border-purple-200 dark:border-purple-800 rounded-full py-2 md:py-3 px-4 md:px-6">
+                  <span className="text-purple-600 dark:text-purple-400 font-bold text-lg md:text-xl mr-2">100%</span>
+                  <span className="text-gray-600 dark:text-gray-300 text-sm md:text-base">satisfaction client</span>
                 </div>
               </motion.div>
             </motion.div>
@@ -222,29 +222,29 @@ export const EventsPage: React.FC = () => {
 
       {/* Gallery Section améliorée */}
       <motion.section 
-        className="mb-32 relative overflow-hidden"
+        className="mb-20 md:mb-32 relative overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={staggerContainer}
       >
-        <div className="container-custom mx-auto px-6">
+        <div className="container-custom mx-auto px-4 md:px-6">
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-12 md:mb-16"
             variants={fadeInUp}
           >
             <span className="inline-block text-sm font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-2">Portfolio</span>
-            <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-white">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 md:mb-6 text-gray-800 dark:text-white">
               Nos <span className="text-violet-700 dark:text-violet-400">réalisations</span>
             </h2>
             
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
               Découvrez quelques-uns de nos événements récents qui ont marqué les esprits
             </p>
           </motion.div>
 
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
             variants={staggerContainer}
           >
             {[

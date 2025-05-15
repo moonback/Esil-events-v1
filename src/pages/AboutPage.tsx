@@ -156,7 +156,7 @@ const AboutPage = () => {
       />
       {/* Hero Section avec background animé */}
       <motion.div 
-        className="bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-20 mb-16 relative overflow-hidden"
+        className="bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-12 md:py-20 mb-8 md:mb-16 relative overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -205,13 +205,13 @@ const AboutPage = () => {
         </div>
         
         <motion.div 
-          className="container mx-auto px-6 text-center relative z-10"
+          className="container mx-auto px-4 md:px-6 text-center relative z-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
         >
           <motion.h1 
-            className="text-5xl md:text-6xl font-bold mb-6 leading-tight"
+            className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 md:mb-6 leading-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
@@ -219,7 +219,7 @@ const AboutPage = () => {
             Notre <span className="text-violet-300">Histoire</span>
           </motion.h1>
           <motion.p 
-            className="text-xl md:text-2xl max-w-3xl mx-auto font-light"
+            className="text-lg sm:text-xl md:text-2xl max-w-3xl mx-auto font-light px-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
@@ -233,48 +233,48 @@ const AboutPage = () => {
       
       {/* Section Introduction avec design amélioré */}
       <motion.section 
-        className="mb-24 relative"
+        className="mb-16 md:mb-24 relative px-4 md:px-6"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={fadeIn}
       >
-        <div className="max-w-12xl mx-auto px-6">
+        <div className="max-w-12xl mx-auto">
           <div className="relative">
             {/* Forme décorative */}
             <div className="absolute -top-10 -right-10 w-64 h-64 bg-violet-100 rounded-full opacity-50 dark:opacity-20 blur-3xl z-0"></div>
             <div className="absolute -bottom-10 -left-10 w-80 h-80 bg-indigo-100 rounded-full opacity-60 dark:opacity-20 blur-3xl z-0"></div>
             
-            <div className="relative z-10 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 text-center">
+            <div className="relative z-10 bg-white dark:bg-gray-800 rounded-2xl md:rounded-3xl shadow-xl p-6 md:p-12 text-center">
               <motion.h2 
-                className="text-4xl font-bold mb-6 text-center bg-gradient-to-r from-violet-700 to-indigo-600 bg-clip-text text-transparent"
+                className="text-3xl md:text-4xl font-bold mb-4 md:mb-6 text-center bg-gradient-to-r from-violet-700 to-indigo-600 bg-clip-text text-transparent"
                 variants={fadeInUp}
               >
                 L'excellence au service de vos événements depuis 2004
               </motion.h2>
               
               <motion.p 
-                className="text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed"
+                className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 md:mb-12 max-w-4xl mx-auto leading-relaxed"
                 variants={fadeInUp}
               >
-                Chez <span className="text-violet-600 font-semibold">ESIL Events</span>, nous créons des expériences inoubliables grâce à notre savoir-faire technique et notre créativité. Qu'il s'agisse de concevoir des ambiances lumineuses spectaculaires, de créer des espaces sonores immersifs ou d'imaginer des animations originales, nous transformons vos idées en réalités qui marquent les esprits.
+                Chez <span className="text-violet-600 font-semibold">ESIL Events</span>, nous créons des expériences inoubliables grâce à notre savoir-faire technique et notre créativité.
               </motion.p>
               
               <motion.div 
-                className="flex flex-wrap justify-center gap-6"
+                className="flex flex-wrap justify-center gap-4 md:gap-6"
                 variants={fadeInUp}
               >
-                <div className="flex items-center border-2 border-violet-200 dark:border-violet-800 rounded-full py-3 px-6">
-                  <span className="text-violet-600 dark:text-violet-400 font-bold text-xl mr-2">20+</span>
-                  <span className="text-gray-600 dark:text-gray-300">années d'expérience</span>
+                <div className="flex items-center border-2 border-violet-200 dark:border-violet-800 rounded-full py-2 md:py-3 px-4 md:px-6">
+                  <span className="text-violet-600 dark:text-violet-400 font-bold text-lg md:text-xl mr-2">20+</span>
+                  <span className="text-gray-600 dark:text-gray-300 text-sm md:text-base">années d'expérience</span>
                 </div>
-                <div className="flex items-center border-2 border-indigo-200 dark:border-indigo-800 rounded-full py-3 px-6">
-                  <span className="text-indigo-600 dark:text-indigo-400 font-bold text-xl mr-2">500+</span>
-                  <span className="text-gray-600 dark:text-gray-300">événements réalisés</span>
+                <div className="flex items-center border-2 border-indigo-200 dark:border-indigo-800 rounded-full py-2 md:py-3 px-4 md:px-6">
+                  <span className="text-indigo-600 dark:text-indigo-400 font-bold text-lg md:text-xl mr-2">500+</span>
+                  <span className="text-gray-600 dark:text-gray-300 text-sm md:text-base">événements réalisés</span>
                 </div>
-                <div className="flex items-center border-2 border-purple-200 dark:border-purple-800 rounded-full py-3 px-6">
-                  <span className="text-purple-600 dark:text-purple-400 font-bold text-xl mr-2">100%</span>
-                  <span className="text-gray-600 dark:text-gray-300">satisfaction client</span>
+                <div className="flex items-center border-2 border-purple-200 dark:border-purple-800 rounded-full py-2 md:py-3 px-4 md:px-6">
+                  <span className="text-purple-600 dark:text-purple-400 font-bold text-lg md:text-xl mr-2">100%</span>
+                  <span className="text-gray-600 dark:text-gray-300 text-sm md:text-base">satisfaction client</span>
                 </div>
               </motion.div>
             </div>
@@ -284,28 +284,28 @@ const AboutPage = () => {
       
       {/* Section Services Améliorée */}
       <motion.section 
-        className="mb-32 relative overflow-hidden"
+        className="mb-20 md:mb-32 relative overflow-hidden px-4 md:px-6"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={staggerContainer}
       >
-        <div className="max-w-12xl mx-auto px-6">
+        <div className="max-w-12xl mx-auto">
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-12 md:mb-16"
             variants={fadeInUp}
           >
             <span className="inline-block text-sm font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-2">Nos prestations</span>
-            <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-white">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 md:mb-6 text-gray-800 dark:text-white">
               Notre Expertise : <span className="text-violet-700 dark:text-violet-400">Louer, créer, éblouir !</span>
             </h2>
             
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
               Découvrez nos différentes activités qui font notre force et qui répondent à tous vos besoins événementiels.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             {services.map((service, index) => (
               <motion.div 
                 key={index}
@@ -459,27 +459,27 @@ const AboutPage = () => {
 
       {/* Section Team Members avec des cartes interactives et des animations */}
       <motion.section 
-        className="mb-32 relative overflow-hidden"
+        className="mb-20 md:mb-32 relative overflow-hidden px-4 md:px-6"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={staggerContainer}
       >
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto">
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-12 md:mb-16"
             variants={fadeInUp}
           >
             <span className="inline-block text-sm font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-2">Notre équipe</span>
-            <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-white">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 md:mb-6 text-gray-800 dark:text-white">
               Rencontrez les visages de vos événements
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
               Découvrez les experts passionnés qui rendent chaque événement unique et mémorable grâce à leur savoir-faire et leur créativité.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
             {teamMembers.map((member) => (
               <motion.div 
                 key={member.id} 
@@ -534,11 +534,11 @@ const AboutPage = () => {
           >
             <span className="inline-block text-sm font-semibold text-violet-400 uppercase tracking-wider mb-2">Nos réalisations</span>
             <h2 className="text-4xl font-bold mb-6 text-white">
-            Séminaires, soirées d’entreprise,
+            Séminaires, soirées d'entreprise,
             conférences et plus
             </h2>
             <p className="text-xl text-gray-300 max-w-4xl mx-auto">
-            Nous accompagnons les entreprises dans l’organisation d’événements sur-mesure,
+            Nous accompagnons les entreprises dans l'organisation d'événements sur-mesure,
             retrouvez nos projets récents que nous avons eu le plaisir de concevoir et coordonner.
             </p>
           </motion.div>
@@ -624,13 +624,13 @@ const AboutPage = () => {
 
       {/* CTA Section Améliorée */}
       <motion.section 
-        className="mb-20 relative"
+        className="mb-16 md:mb-20 relative px-4 md:px-6"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
         variants={fadeIn}
       >
-        <div className="max-w-12xl mx-auto ">
+        <div className="max-w-12xl mx-auto">
           <div className="relative overflow-hidden">
             {/* Background avec dégradé animé */}
             <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-700 overflow-hidden">
@@ -652,31 +652,30 @@ const AboutPage = () => {
               />
             </div>
           
-            <div className="relative z-10 py-16 px-8 md:py-24 md:px-12">
+            <div className="relative z-10 py-12 md:py-16 px-6 md:px-12">
               <div className="max-w-4xl mx-auto text-center">
                 <motion.h2 
-                  className="text-4xl md:text-5xl font-bold mb-6 text-white leading-tight"
+                  className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 text-white leading-tight"
                   variants={fadeInUp}
                 >
                   Prêt à transformer votre <span className="text-violet-200">prochain événement</span> en expérience mémorable ?
                 </motion.h2>
                 
                 <motion.p 
-                  className="text-xl text-violet-100 mb-12 font-light"
+                  className="text-lg md:text-xl text-violet-100 mb-8 md:mb-12 font-light"
                   variants={fadeInUp}
                 >
                   Que ce soit pour la location de matériel, l'animation de vos événements ou une gestion complète, 
-                  ESIL Events est là pour vous accompagner à chaque étape. Contactez-nous dès aujourd'hui pour 
-                  discuter de votre projet.
+                  ESIL Events est là pour vous accompagner à chaque étape.
                 </motion.p>
                 
                 <motion.div 
-                  className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6"
+                  className="flex flex-col sm:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6"
                   variants={fadeInUp}
                 >
                   <motion.a 
                     href="/products" 
-                    className="bg-white text-violet-700 px-8 py-4 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center group"
+                    className="w-full sm:w-auto bg-white text-violet-700 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center group"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -687,8 +686,7 @@ const AboutPage = () => {
                   </motion.a>
                   
                   <motion.a 
-                    // href="tel:07.85.95.97.23" 
-                    className="text-white border-2 border-white hover:bg-white hover:text-violet-700 px-8 py-4 rounded-full font-bold flex items-center justify-center transition-colors"
+                    className="w-full sm:w-auto text-white border-2 border-white hover:bg-white hover:text-violet-700 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold flex items-center justify-center transition-colors"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
