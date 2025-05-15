@@ -251,8 +251,8 @@ const Footer = () => {
             <Link to="/cgu" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
               CGU
             </Link>
-            <Link to="/sitemap" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
-              Plan du site
+            <Link to="/login" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
+              Administration
             </Link>
           </div>
         </div>
