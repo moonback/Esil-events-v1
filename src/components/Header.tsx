@@ -254,7 +254,7 @@ const Header: React.FC = () => {
                 
 
                 {/* User Menu */}
-                {user ? (
+                {/* {user ? (
                   <div className="relative user-menu-container" ref={userMenuRef}>
                     <button
                       onClick={() => setShowUserMenu(!showUserMenu)}
@@ -292,7 +292,7 @@ const Header: React.FC = () => {
                     <User className="w-5 h-5 text-gray-700 dark:text-gray-200 transition-all duration-300 transform hover:rotate-12" />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Connexion</span>
                   </Link>
-                )}
+                )} */}
 
                 {/* Mobile Menu Toggle */}
                 <button
