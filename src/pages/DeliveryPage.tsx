@@ -51,7 +51,7 @@ const DeliveryPage: React.FC = () => {
     }
   };
   return (
-    <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen overflow-hidden">
+    <div className="w-full px-2 pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen overflow-hidden">
       <SEO 
         title="Livraison & Installation Événementielle Professionnelle | ESIL Events"
         description="Service complet de livraison et installation de matériel événementiel en Île-de-France et partout en France. 3 formules adaptées : Retrait sur place, Livraison Économique et Solution Premium clé en main."
@@ -59,7 +59,7 @@ const DeliveryPage: React.FC = () => {
       />
       {/* Hero Section avec background animé */}
       <motion.div 
-        className="bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-12 md:py-20 mb-8 md:mb-16 relative overflow-hidden"
+        className="w-full px-2 bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-12 md:py-20 mb-8 md:mb-16 relative overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -108,7 +108,7 @@ const DeliveryPage: React.FC = () => {
         </div>
         
         <motion.div 
-          className="container-custom mx-auto px-4 md:px-6 text-center relative z-10"
+          className="w-full px-2 text-center relative z-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
@@ -132,7 +132,7 @@ const DeliveryPage: React.FC = () => {
         </motion.div>
       </motion.div>
 
-      <div className="container-custom mx-auto px-4 md:px-6">
+      <div className="w-full px-2">
         {/* Introduction */}
         <div className="max-w-4xl mx-auto mb-12 md:mb-16 text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6">Les Solutions de livraison et d'installation de matériel événementiel chez ESIL Events</h2>
@@ -290,7 +290,7 @@ const DeliveryPage: React.FC = () => {
 
       {/* Detailed Information */}
       <motion.section 
-        className="mb-20 md:mb-32 relative overflow-hidden"
+        className="w-full px-2 mb-20 md:mb-32 relative overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
@@ -407,7 +407,7 @@ const DeliveryPage: React.FC = () => {
 
       {/* Why Choose Us Section */}
       <motion.section 
-        className="mb-20 md:mb-32 relative overflow-hidden py-12 md:py-16"
+        className="w-full px-2 mb-20 md:mb-32 relative overflow-hidden py-12 md:py-16"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
@@ -524,7 +524,7 @@ const DeliveryPage: React.FC = () => {
 
       {/* CTA Section */}
       <motion.div 
-        className="bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white rounded-2xl md:rounded-3xl p-8 md:p-12 text-center relative overflow-hidden mb-16 md:mb-20"
+        className="w-full px-2 bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white rounded-2xl md:rounded-3xl p-8 md:p-12 text-center relative overflow-hidden mb-16 md:mb-20"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}

@@ -147,7 +147,7 @@ const AboutPage = () => {
   };
 
   return (
-    <div className="pt-28 pb-20 bg-white dark:bg-gray-900 overflow-hidden">
+    <div className="w-full px-2 pt-28 pb-20 bg-white dark:bg-gray-900 overflow-hidden">
       {/* SEO Component */}
       <SEO 
         title="À propos d'ESIL Events - Notre histoire et notre équipe"
@@ -156,7 +156,7 @@ const AboutPage = () => {
       />
       {/* Hero Section avec background animé */}
       <motion.div 
-        className="bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-12 md:py-20 mb-8 md:mb-16 relative overflow-hidden"
+        className="w-full px-2 bg-gradient-to-br from-violet-900 via-black to-indigo-900 text-white py-12 md:py-20 mb-8 md:mb-16 relative overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -233,7 +233,7 @@ const AboutPage = () => {
       
       {/* Section Introduction avec design amélioré */}
       <motion.section 
-        className="mb-16 md:mb-24 relative px-4 md:px-6"
+        className="w-full px-2 mb-16 md:mb-24 relative"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
@@ -284,7 +284,7 @@ const AboutPage = () => {
       
       {/* Section Services Améliorée */}
       <motion.section 
-        className="mb-20 md:mb-32 relative overflow-hidden px-4 md:px-6"
+        className="w-full px-2 mb-20 md:mb-32 relative overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
@@ -349,7 +349,7 @@ const AboutPage = () => {
 
       {/* Section Pourquoi Nous Choisir Améliorée */}
       <motion.section 
-        className="mb-32 relative overflow-hidden py-16"
+        className="w-full px-2 mb-32 relative overflow-hidden py-16"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
@@ -459,7 +459,7 @@ const AboutPage = () => {
 
       {/* Section Team Members avec des cartes interactives et des animations */}
       <motion.section 
-        className="mb-20 md:mb-32 relative overflow-hidden px-4 md:px-6"
+        className="w-full px-2 mb-20 md:mb-32 relative overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
