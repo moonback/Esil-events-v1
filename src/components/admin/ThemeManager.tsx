@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Palette } from 'lucide-react';
 import { Theme } from '../../types/theme';
-import { getAllThemes, activateTheme } from '../../services/themeService';
+import { getAllThemes } from '../../services/themeService';
+import { useTheme } from '../../context/ThemeContext';
 
 const ThemeManager: React.FC = () => {
   const [themes, setThemes] = useState<Theme[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const { currentTheme, activateTheme } = useTheme();
 
   useEffect(() => {
     loadThemes();
@@ -82,7 +84,7 @@ const ThemeManager: React.FC = () => {
           <div
             key={theme.id}
             className={`relative rounded-xl overflow-hidden shadow-lg transition-all duration-300 ${
-              theme.isActive ? 'ring-2 ring-violet-500' : ''
+              theme.id === currentTheme.id ? 'ring-2 ring-violet-500' : ''
             }`}
           >
             <div
@@ -119,13 +121,13 @@ const ThemeManager: React.FC = () => {
               <button
                 onClick={() => handleThemeActivation(theme.id)}
                 className={`w-full py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-                  theme.isActive
+                  theme.id === currentTheme.id
                     ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300'
                     : 'bg-violet-600 text-white hover:bg-violet-700'
                 }`}
-                disabled={theme.isActive}
+                disabled={theme.id === currentTheme.id}
               >
-                {theme.isActive ? 'Thème actif' : 'Activer ce thème'}
+                {theme.id === currentTheme.id ? 'Thème actif' : 'Activer ce thème'}
               </button>
             </div>
           </div>
