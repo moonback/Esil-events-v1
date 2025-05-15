@@ -254,124 +254,132 @@ const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Mobilier & Deco */}
-            <motion.div 
-              className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 group"
-              variants={scaleIn}
-              whileHover={{ y: -10 }}
-            >
-              <div className="h-48 overflow-hidden relative">
-                <img 
-                  src="\images\3.png" 
-                  alt="Mobilier & Déco" 
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-4 text-violet-700 group-hover:text-violet-800 transition-colors">MOBILIER & DECO</h3>
-                <p className="text-sm mb-4 text-gray-600">
-                  Offrez à vos invités une ambiance unique avec notre sélection de mobilier et de décoration en location : tables, chaises, mobiliers lumineux, décorations thématiques (vintage, fête foraine, super-héros...). Créez un cadre mémorable pour vos événements !
-                </p>
-                <Link to="/products/mobilier" className="flex items-center text-violet-600 font-medium hover:text-violet-800 transition-colors">
-                  Découvrir <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </motion.div>
+            <Link to="/products/mobilier" className="block">
+              <motion.div 
+                className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 group"
+                variants={scaleIn}
+                whileHover={{ y: -10 }}
+              >
+                <div className="h-48 overflow-hidden relative">
+                  <img 
+                    src="\images\3.png" 
+                    alt="Mobilier & Déco" 
+                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold mb-4 text-violet-700 group-hover:text-violet-800 transition-colors">MOBILIER & DECO</h3>
+                  <p className="text-sm mb-4 text-gray-600">
+                    Offrez à vos invités une ambiance unique avec notre sélection de mobilier et de décoration en location : tables, chaises, mobiliers lumineux, décorations thématiques (vintage, fête foraine, super-héros...). Créez un cadre mémorable pour vos événements !
+                  </p>
+                  <div className="flex items-center text-violet-600 font-medium hover:text-violet-800 transition-colors">
+                    Découvrir <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </motion.div>
+            </Link>
 
             {/* Jeux */}
-            <motion.div 
-              className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 group"
-              variants={scaleIn}
-              whileHover={{ y: -10 }}
-            >
-              <div className="h-48 overflow-hidden relative">
-                <img 
-                  src="\images\1.png" 
-                  alt="Jeux" 
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-4 text-indigo-700 group-hover:text-indigo-800 transition-colors">JEUX</h3>
-                <p className="text-sm mb-4 text-gray-600">
-                  Offrez à vos invités une expérience
-                  ludique inoubliable avec notre gamme
-                  de jeux en location : bornes d'arcade,
-                  baby-foot, flippers, air hockey, coups de
-                  poing, paniers de basket et même des
-                  machines à pinces pour distribuer des
-                  cadeaux. Des animations fun et
-                  interactives qui feront le succès de votre
-                  événement !                
-                </p>
-                <Link to="/products/jeux" className="flex items-center text-indigo-600 font-medium hover:text-indigo-800 transition-colors">
-                  Découvrir <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </motion.div>
+            <Link to="/products/jeux" className="block">
+              <motion.div 
+                className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 group"
+                variants={scaleIn}
+                whileHover={{ y: -10 }}
+              >
+                <div className="h-48 overflow-hidden relative">
+                  <img 
+                    src="\images\1.png" 
+                    alt="Jeux" 
+                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold mb-4 text-indigo-700 group-hover:text-indigo-800 transition-colors">JEUX</h3>
+                  <p className="text-sm mb-4 text-gray-600">
+                    Offrez à vos invités une expérience
+                    ludique inoubliable avec notre gamme
+                    de jeux en location : bornes d'arcade,
+                    baby-foot, flippers, air hockey, coups de
+                    poing, paniers de basket et même des
+                    machines à pinces pour distribuer des
+                    cadeaux. Des animations fun et
+                    interactives qui feront le succès de votre
+                    événement !                
+                  </p>
+                  <div className="flex items-center text-indigo-600 font-medium hover:text-indigo-800 transition-colors">
+                    Découvrir <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </motion.div>
+            </Link>
 
             {/* Signalétique */}
-            <motion.div 
-              className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 group"
-              variants={scaleIn}
-              whileHover={{ y: -10 }}
-            >
-              <div className="h-48 overflow-hidden relative">
-                <img 
-                  src="\images\2.png" 
-                  alt="Signalétique" 
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-4 text-purple-700 group-hover:text-purple-800 transition-colors">SIGNALETIQUE</h3>
-                <p className="text-sm mb-4 text-gray-600">
-                  Facilitez l'orientation de vos invités avec
-                  notre matériel de signalétique :
-                  panneaux directionnels, totems, stands,
-                  et banderoles sur mesure. Idéal pour
-                  vos salons, lancements de produits et
-                  autres événements professionnels, pour
-                  une communication claire et impactante.                
-                </p>
-                <Link to="/products/signaletique" className="flex items-center text-purple-600 font-medium hover:text-purple-800 transition-colors">
-                  Découvrir <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </motion.div>
+            <Link to="/products/signaletique" className="block">
+              <motion.div 
+                className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 group"
+                variants={scaleIn}
+                whileHover={{ y: -10 }}
+              >
+                <div className="h-48 overflow-hidden relative">
+                  <img 
+                    src="\images\2.png" 
+                    alt="Signalétique" 
+                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold mb-4 text-purple-700 group-hover:text-purple-800 transition-colors">SIGNALETIQUE</h3>
+                  <p className="text-sm mb-4 text-gray-600">
+                    Facilitez l'orientation de vos invités avec
+                    notre matériel de signalétique :
+                    panneaux directionnels, totems, stands,
+                    et banderoles sur mesure. Idéal pour
+                    vos salons, lancements de produits et
+                    autres événements professionnels, pour
+                    une communication claire et impactante.                
+                  </p>
+                  <div className="flex items-center text-purple-600 font-medium hover:text-purple-800 transition-colors">
+                    Découvrir <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </motion.div>
+            </Link>
 
             {/* Technique */}
-            <motion.div 
-              className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 group"
-              variants={scaleIn}
-              whileHover={{ y: -10 }}
-            >
-              <div className="h-48 overflow-hidden relative">
-                <img 
-                  src="\images\4.png" 
-                  alt="Technique" 
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-4 text-fuchsia-700 group-hover:text-fuchsia-800 transition-colors">TECHNIQUE</h3>
-                <p className="text-sm mb-4 text-gray-600">
-                  Mettez en lumière vos événements avec
-                  notre matériel technique : éclairage,
-                  sonorisation, vidéo et scènes. Parfait
-                  pour des prises de parole, conférences,
-                  concerts ou soirées dansantes, nous
-                  vous fournissons tout le nécessaire pour
-                  garantir le succès de vos animations.                
-                </p>
-                <Link to="/products/technique" className="flex items-center text-fuchsia-600 font-medium hover:text-fuchsia-800 transition-colors">
-                  Découvrir <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </motion.div>
+            <Link to="/products/technique" className="block">
+              <motion.div 
+                className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 group"
+                variants={scaleIn}
+                whileHover={{ y: -10 }}
+              >
+                <div className="h-48 overflow-hidden relative">
+                  <img 
+                    src="\images\4.png" 
+                    alt="Technique" 
+                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold mb-4 text-fuchsia-700 group-hover:text-fuchsia-800 transition-colors">TECHNIQUE</h3>
+                  <p className="text-sm mb-4 text-gray-600">
+                    Mettez en lumière vos événements avec
+                    notre matériel technique : éclairage,
+                    sonorisation, vidéo et scènes. Parfait
+                    pour des prises de parole, conférences,
+                    concerts ou soirées dansantes, nous
+                    vous fournissons tout le nécessaire pour
+                    garantir le succès de vos animations.                
+                  </p>
+                  <div className="flex items-center text-fuchsia-600 font-medium hover:text-fuchsia-800 transition-colors">
+                    Découvrir <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </motion.div>
+            </Link>
           </div>
         </div>
       </motion.section>
