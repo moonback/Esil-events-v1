@@ -315,21 +315,33 @@ return (
       {product && (
         <SEO 
           title={product.seo_title || product.name}
-          description={product.seo_description || product.description.substring(0, 160)}
+          description={product.seo_description || product.description?.substring(0, 160)}
           keywords={product.seo_keywords || ''}
           image={product.images && product.images.length > 0 ? product.images[currentImageIndex] : DEFAULT_PRODUCT_IMAGE}
           url={`https://esil-events.fr/product/${product.slug}`}
           type="product"
           product={{
+            id: product.id,
             name: product.name,
+            reference: product.reference,
+            category: typeof product.category === 'string' ? product.category : product.category[0],
+            sub_category: typeof product.subCategory === 'string' ? product.subCategory : undefined,
+            sub_sub_category: typeof product.subSubCategory === 'string' ? product.subSubCategory : undefined,
             description: product.description,
-            price: product.priceTTC,
-            priceCurrency: "EUR",
-            availability: product.isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-            image: product.images && product.images.length > 0 ? product.images[currentImageIndex] : DEFAULT_PRODUCT_IMAGE,
-            sku: product.reference,
-            brand: "ESIL Events",
-            category: typeof product.category === 'string' ? product.category : product.category[0]
+            price_ht: product.priceHT,
+            price_ttc: product.priceTTC,
+            stock: product.stock,
+            is_available: product.isAvailable,
+            images: product.images,
+            technical_specs: product.technicalSpecs,
+            technical_doc_url: product.technicalDocUrl || undefined,
+            video_url: product.videoUrl || undefined,
+            colors: product.colors,
+            main_image_index: product.mainImageIndex,
+            seo_title: product.seo_title,
+            seo_description: product.seo_description,
+            seo_keywords: product.seo_keywords,
+            slug: product.slug || ''
           }}
         />
       )}
