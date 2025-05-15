@@ -62,7 +62,7 @@ const HomePage: React.FC = () => {
       />
       
       {/* Hero Section with Video and Animated Elements */}
-      <section className="relative h-screen overflow-hidden">
+      <section className="relative h-[90vh] sm:h-screen overflow-hidden">
         <video 
           className="header-video w-full h-full object-cover"
           autoPlay 
@@ -77,7 +77,7 @@ const HomePage: React.FC = () => {
         {/* Cercles décoratifs animés */}
         <div className="absolute inset-0 overflow-hidden z-0">
           <motion.div 
-            className="absolute top-20 left-10 w-64 h-64 rounded-full bg-purple-500 opacity-10"
+            className="absolute top-10 sm:top-20 left-5 sm:left-10 w-32 sm:w-64 h-32 sm:h-64 rounded-full bg-purple-500 opacity-10"
             animate={{ 
               x: [0, 20, 0], 
               y: [0, -20, 0],
@@ -90,7 +90,7 @@ const HomePage: React.FC = () => {
             }}
           />
           <motion.div 
-            className="absolute bottom-10 right-20 w-96 h-96 rounded-full bg-indigo-500 opacity-10"
+            className="absolute bottom-5 sm:bottom-10 right-10 sm:right-20 w-48 sm:w-96 h-48 sm:h-96 rounded-full bg-indigo-500 opacity-10"
             animate={{ 
               x: [0, -30, 0], 
               y: [0, 20, 0],
@@ -103,7 +103,7 @@ const HomePage: React.FC = () => {
             }}
           />
           <motion.div 
-            className="absolute top-40 right-1/4 w-40 h-40 rounded-full bg-violet-400 opacity-10"
+            className="absolute top-20 sm:top-40 right-1/4 w-20 sm:w-40 h-20 sm:h-40 rounded-full bg-violet-400 opacity-10"
             animate={{ 
               x: [0, 40, 0], 
               y: [0, 30, 0],
@@ -117,9 +117,9 @@ const HomePage: React.FC = () => {
           />
         </div>
         
-        <div className="absolute inset-0 bg-black bg-opacity-20 flex flex-col items-center justify-center text-center px-4 z-10">
+        <div className="absolute inset-0 bg-black bg-opacity-20 flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8 z-10">
           <motion.h1 
-            className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4"
+            className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-3 sm:mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
@@ -127,7 +127,7 @@ const HomePage: React.FC = () => {
             ESIL <span className="text-violet-300">Créateur d'Événements</span> Inoubliables
           </motion.h1>
           <motion.p 
-            className="text-xl md:text-2xl text-white mb-10 max-w-5xl"
+            className="text-lg sm:text-xl md:text-2xl text-white mb-6 sm:mb-10 max-w-3xl sm:max-w-4xl lg:max-w-5xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
@@ -135,7 +135,7 @@ const HomePage: React.FC = () => {
             Votre événement de A à Z : Location, Installation, Régie Son & Lumière, Animation ...
           </motion.p>
           <motion.div 
-            className="flex flex-col sm:flex-row gap-6"
+            className="flex flex-col sm:flex-row gap-4 sm:gap-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
@@ -143,14 +143,14 @@ const HomePage: React.FC = () => {
             <motion.div 
               whileHover={{ scale: 1.05, y: -5 }} 
               whileTap={{ scale: 0.95 }}
-              className="relative group"
+              className="relative group w-full sm:w-auto"
             >
               <Link 
                 to="/agence-evenementielle" 
-                className="bg-black hover:bg-violet-600 text-white inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold rounded-full shadow-lg group-hover:shadow-xl transition-all duration-300"
+                className="bg-black hover:bg-violet-600 text-white inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full shadow-lg group-hover:shadow-xl transition-all duration-300 w-full sm:w-auto"
               >
                 Notre Agence événementielle
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-2" />
               </Link>
               <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-purple-500 opacity-20 blur-xl rounded-full transform scale-150 -z-10 group-hover:opacity-30 transition-opacity duration-300" />
             </motion.div>
@@ -158,14 +158,14 @@ const HomePage: React.FC = () => {
             <motion.div 
               whileHover={{ scale: 1.05, y: -5 }} 
               whileTap={{ scale: 0.95 }}
-              className="relative group"
+              className="relative group w-full sm:w-auto"
             >
               <Link 
                 to="/products/" 
-                className="bg-violet-600 hover:bg-black text-white inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold rounded-full shadow-lg group-hover:shadow-xl transition-all duration-300"
+                className="bg-violet-600 hover:bg-black text-white inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full shadow-lg group-hover:shadow-xl transition-all duration-300 w-full sm:w-auto"
               >
                 Nos produits à la location
-                <Package className="w-5 h-5 transition-transform group-hover:translate-x-2" />
+                <Package className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-2" />
               </Link>
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-blue-500 opacity-20 blur-xl rounded-full transform scale-150 -z-10 group-hover:opacity-30 transition-opacity duration-300" />
             </motion.div>
@@ -175,26 +175,26 @@ const HomePage: React.FC = () => {
 
       {/* About Section avec design amélioré */}
       <motion.section 
-        className="section bg-white relative overflow-hidden"
+        className="section bg-white relative overflow-hidden py-12 sm:py-16 lg:py-20"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={fadeIn}
       >
-        <div className="container-custom relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
           {/* Formes décoratives */}
-          <div className="absolute -top-10 -right-10 w-64 h-64 bg-violet-100 rounded-full opacity-50 blur-3xl z-0"></div>
-          <div className="absolute -bottom-10 -left-10 w-80 h-80 bg-indigo-100 rounded-full opacity-60 blur-3xl z-0"></div>
+          <div className="absolute -top-10 -right-10 w-32 sm:w-64 h-32 sm:h-64 bg-violet-100 rounded-full opacity-50 blur-3xl z-0"></div>
+          <div className="absolute -bottom-10 -left-10 w-40 sm:w-80 h-40 sm:h-80 bg-indigo-100 rounded-full opacity-60 blur-3xl z-0"></div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <motion.div variants={fadeInUp}>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-violet-700 to-indigo-600 bg-clip-text text-transparent">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center">
+            <motion.div variants={fadeInUp} className="space-y-4 sm:space-y-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-700 to-indigo-600 bg-clip-text text-transparent">
                 ESIL Events : Partenaire pour des événements d'Entreprise sur-mesure
               </h2>
-              <p className="mb-4 text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                 Depuis plus de 30 ans, ESIL Events accompagne les entreprises dans la conception et la réalisation de leurs événements professionnels. De la planification stratégique à l'exécution terrain, nous orchestrons chaque détail pour garantir des séminaires d'entreprise, conférences, cérémonies internes et soirées d'exception à la hauteur de vos ambitions.
               </p>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                 Notre expertise couvre aussi la location de matériel événementiel : sonorisation, éclairage, scène, mobilier et signalétique. Grâce à nos solutions clé en main, nous assurons l'installation, la régie son & lumière et la coordination de vos prestations pour un événement sans fausse note.
               </p>
               
@@ -229,7 +229,7 @@ const HomePage: React.FC = () => {
 
       {/* Products Section avec animations */}
       <motion.section 
-        className="section bg-gray-100 relative overflow-hidden"
+        className="section bg-gray-100 relative overflow-hidden py-12 sm:py-16 lg:py-20"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
@@ -238,28 +238,28 @@ const HomePage: React.FC = () => {
         {/* Forme décorative en arrière-plan */}
         <div className="absolute inset-0 bg-black transform -skew-y-3"></div>
         
-        <div className="container-custom relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 lg:mb-16"
             variants={fadeInUp}
           >
-            <span className="inline-block text-sm font-semibold text-violet-600 uppercase tracking-wider mb-2">Nos produits</span>
-            <h2 className="text-3xl text-white md:text-4xl font-bold mb-6 text-center">
+            <span className="inline-block text-xs sm:text-sm font-semibold text-violet-600 uppercase tracking-wider mb-2 sm:mb-3">Nos produits</span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center text-white">
               Louez votre matériel évènementiel !
             </h2>
-            <p className="text-center text-white mb-6 max-w-3xl mx-auto text-gray-600">
+            <p className="text-center text-gray-300 mb-6 max-w-2xl sm:max-w-3xl mx-auto text-sm sm:text-base">
               ESIL Events met à votre disposition une large gamme d'équipements professionnels, disponibles en location avec ou sans installation, pour tous vos événements !
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {/* Mobilier & Deco */}
             <motion.div 
               className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 group"
               variants={scaleIn}
               whileHover={{ y: -10 }}
             >
-              <div className="h-48 overflow-hidden relative">
+              <div className="h-40 sm:h-48 overflow-hidden relative">
                 <img 
                   src="\images\3.png" 
                   alt="Mobilier & Déco" 
@@ -267,13 +267,13 @@ const HomePage: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-4 text-violet-700 group-hover:text-violet-800 transition-colors">MOBILIER & DECO</h3>
-                <p className="text-sm mb-4 text-gray-600">
+              <div className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4 text-violet-700 group-hover:text-violet-800 transition-colors">MOBILIER & DECO</h3>
+                <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-gray-600">
                   Offrez à vos invités une ambiance unique avec notre sélection de mobilier et de décoration en location : tables, chaises, mobiliers lumineux, décorations thématiques (vintage, fête foraine, super-héros...). Créez un cadre mémorable pour vos événements !
                 </p>
-                <Link to="/products/mobilier" className="flex items-center text-violet-600 font-medium hover:text-violet-800 transition-colors">
-                  Découvrir <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <Link to="/products/mobilier" className="flex items-center text-violet-600 font-medium hover:text-violet-800 transition-colors text-sm sm:text-base">
+                  Découvrir <ArrowRight className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </motion.div>
@@ -284,7 +284,7 @@ const HomePage: React.FC = () => {
               variants={scaleIn}
               whileHover={{ y: -10 }}
             >
-              <div className="h-48 overflow-hidden relative">
+              <div className="h-40 sm:h-48 overflow-hidden relative">
                 <img 
                   src="\images\1.png" 
                   alt="Jeux" 
@@ -292,21 +292,13 @@ const HomePage: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-4 text-indigo-700 group-hover:text-indigo-800 transition-colors">JEUX</h3>
-                <p className="text-sm mb-4 text-gray-600">
-                  Offrez à vos invités une expérience
-                  ludique inoubliable avec notre gamme
-                  de jeux en location : bornes d'arcade,
-                  baby-foot, flippers, air hockey, coups de
-                  poing, paniers de basket et même des
-                  machines à pinces pour distribuer des
-                  cadeaux. Des animations fun et
-                  interactives qui feront le succès de votre
-                  événement !                
+              <div className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4 text-indigo-700 group-hover:text-indigo-800 transition-colors">JEUX</h3>
+                <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-gray-600">
+                  Offrez à vos invités une expérience ludique inoubliable avec notre gamme de jeux en location : bornes d'arcade, baby-foot, flippers, air hockey, coups de poing, paniers de basket et même des machines à pinces pour distribuer des cadeaux. Des animations fun et interactives qui feront le succès de votre événement !
                 </p>
-                <Link to="/products/jeux" className="flex items-center text-indigo-600 font-medium hover:text-indigo-800 transition-colors">
-                  Découvrir <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <Link to="/products/jeux" className="flex items-center text-indigo-600 font-medium hover:text-indigo-800 transition-colors text-sm sm:text-base">
+                  Découvrir <ArrowRight className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </motion.div>
@@ -317,7 +309,7 @@ const HomePage: React.FC = () => {
               variants={scaleIn}
               whileHover={{ y: -10 }}
             >
-              <div className="h-48 overflow-hidden relative">
+              <div className="h-40 sm:h-48 overflow-hidden relative">
                 <img 
                   src="\images\2.png" 
                   alt="Signalétique" 
@@ -325,19 +317,13 @@ const HomePage: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-4 text-purple-700 group-hover:text-purple-800 transition-colors">SIGNALETIQUE</h3>
-                <p className="text-sm mb-4 text-gray-600">
-                  Facilitez l'orientation de vos invités avec
-                  notre matériel de signalétique :
-                  panneaux directionnels, totems, stands,
-                  et banderoles sur mesure. Idéal pour
-                  vos salons, lancements de produits et
-                  autres événements professionnels, pour
-                  une communication claire et impactante.                
+              <div className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4 text-purple-700 group-hover:text-purple-800 transition-colors">SIGNALETIQUE</h3>
+                <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-gray-600">
+                  Facilitez l'orientation de vos invités avec notre matériel de signalétique : panneaux directionnels, totems, stands, et banderoles sur mesure. Idéal pour vos salons, lancements de produits et autres événements professionnels, pour une communication claire et impactante.
                 </p>
-                <Link to="/products/signaletique" className="flex items-center text-purple-600 font-medium hover:text-purple-800 transition-colors">
-                  Découvrir <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <Link to="/products/signaletique" className="flex items-center text-purple-600 font-medium hover:text-purple-800 transition-colors text-sm sm:text-base">
+                  Découvrir <ArrowRight className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </motion.div>
@@ -348,7 +334,7 @@ const HomePage: React.FC = () => {
               variants={scaleIn}
               whileHover={{ y: -10 }}
             >
-              <div className="h-48 overflow-hidden relative">
+              <div className="h-40 sm:h-48 overflow-hidden relative">
                 <img 
                   src="\images\4.png" 
                   alt="Technique" 
@@ -356,19 +342,13 @@ const HomePage: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-4 text-fuchsia-700 group-hover:text-fuchsia-800 transition-colors">TECHNIQUE</h3>
-                <p className="text-sm mb-4 text-gray-600">
-                  Mettez en lumière vos événements avec
-                  notre matériel technique : éclairage,
-                  sonorisation, vidéo et scènes. Parfait
-                  pour des prises de parole, conférences,
-                  concerts ou soirées dansantes, nous
-                  vous fournissons tout le nécessaire pour
-                  garantir le succès de vos animations.                
+              <div className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4 text-fuchsia-700 group-hover:text-fuchsia-800 transition-colors">TECHNIQUE</h3>
+                <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-gray-600">
+                  Mettez en lumière vos événements avec notre matériel technique : éclairage, sonorisation, vidéo et scènes. Parfait pour des prises de parole, conférences, concerts ou soirées dansantes, nous vous fournissons tout le nécessaire pour garantir le succès de vos animations.
                 </p>
-                <Link to="/products/technique" className="flex items-center text-fuchsia-600 font-medium hover:text-fuchsia-800 transition-colors">
-                  Découvrir <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <Link to="/products/technique" className="flex items-center text-fuchsia-600 font-medium hover:text-fuchsia-800 transition-colors text-sm sm:text-base">
+                  Découvrir <ArrowRight className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </motion.div>
@@ -378,13 +358,13 @@ const HomePage: React.FC = () => {
 
       {/* Contact CTA Section avec design amélioré */}
       <motion.section 
-        className="section relative overflow-hidden"
+        className="section relative overflow-hidden py-12 sm:py-16 lg:py-20"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
         variants={fadeIn}
       >
-        <div className="container-custom">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="relative overflow-hidden">
             {/* Background avec dégradé animé */}
             <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-700 overflow-hidden rounded-xl">
@@ -398,351 +378,34 @@ const HomePage: React.FC = () => {
                     "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%)"
                   ]
                 }}
-                transition={{ 
-                  duration: 15, 
+                transition={{
+                  duration: 10,
                   repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-            </div>
-            <div className="relative z-10 py-16 px-8 md:py-24 md:px-12">
-              <div className="max-w-4xl mx-auto text-center">
-                <motion.h2 
-                  className="text-4xl md:text-5xl font-bold mb-6 text-white leading-tight"
-                  variants={fadeInUp}
-                >
-                  Parlons de votre <span className="text-violet-200">projet</span> !
-                </motion.h2>
-                
-                <motion.p 
-                  className="text-xl text-violet-100 mb-12 font-light"
-                  variants={fadeInUp}
-                >
-                  Chaque événement est unique et mérite une exécution parfaite. Chez ESIL Events, nous transformons vos idées en expériences marquantes, en combinant créativité, expertise technique et gestion rigoureuse.
-                  <br /><br />
-                  <span className="font-semibold">Vous avez un projet en tête ?
-                  Notre équipe est là pour vous aider, créons
-                  ensemble cet événement !</span>
-                </motion.p>
-                
-                <motion.div 
-                  className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6"
-                  variants={fadeInUp}
-                >
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Link 
-                      to="/contact" 
-                      className="bg-white text-violet-700 px-8 py-4 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center group"
-                    >
-                      <span>Créons cet événement !</span>
-                      <svg className="ml-2 w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                      </svg>
-                    </Link>
-                  </motion.div>
-                  
-                  <motion.a 
-                    href="tel:+33620461385" 
-                    className="text-white border-2 border-white hover:bg-white hover:text-violet-700 px-8 py-4 rounded-full font-bold flex items-center justify-center transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <svg className="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                    </svg>
-                    <span>Nous appeler</span>
-                  </motion.a>
-                </motion.div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.section>
-      {/* Photo Gallery Section */}
-      <motion.section 
-        className="relative overflow-hidden py-2"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={fadeIn}
-      >
-        <div className="">
-          <div className="grid grid-cols-6 gap-0">
-            <motion.div 
-              className="overflow-hidden"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
-            >
-              <img 
-                src="/images/esil-events.JPG" 
-                alt="Event Gallery 1"
-                className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
-              />
-            </motion.div>
-
-            <motion.div 
-              className="overflow-hidden"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
-            >
-              <img 
-                src="/images/esil-events.JPG" 
-                alt="Event Gallery 2"
-                className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
-              />
-            </motion.div>
-
-            <motion.div 
-              className="overflow-hidden"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
-            >
-              <img 
-                src="/images/esil-events.JPG" 
-                alt="Event Gallery 3"
-                className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
-              />
-            </motion.div>
-
-            <motion.div 
-              className="overflow-hidden"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
-            >
-              <img 
-                src="/images/esil-events.JPG" 
-                alt="Event Gallery 4"
-                className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
-              />
-            </motion.div>
-
-            <motion.div 
-              className="overflow-hidden"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
-            >
-              <img 
-                src="/images/esil-events.JPG" 
-                alt="Event Gallery 5"
-                className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
-              />
-            </motion.div>
-
-            <motion.div 
-              className="overflow-hidden"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
-            >
-              <img 
-                src="/images/esil-events.JPG" 
-                alt="Event Gallery 6"
-                className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
-              />
-            </motion.div>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Delivery Options Section avec animations */}
-      <motion.section 
-        className="section bg-gray-100 relative overflow-hidden"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={staggerContainer}
-      >
-        {/* Forme décorative en arrière-plan */}
-        <div className="absolute inset-0 bg-gradient-to-r from-violet-50 to-indigo-50 transform skew-y-2"></div>
-        
-        <div className="container-custom relative z-10">
-          <motion.div 
-            className="text-center mb-16"
-            variants={fadeInUp}
-          >
-            <span className="inline-block text-sm font-semibold text-violet-600 uppercase tracking-wider mb-2">Nos services</span>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
-              <span className="text-violet-700">Livraison et installation</span> du matériel événementiel : 3 formules au choix !
-            </h2>
-            <p className="mb-6 max-w-4xl mx-auto text-center text-gray-600">
-              Chez ESIL Events, nous vous proposons trois solutions adaptées à vos besoins pour la livraison et l'installation de votre matériel événementiel. Que ce soit pour une soirée d'exception, un séminaire d'entreprise, une conférence ou toute autre manifestation professionnelle, choisissez la formule qui vous convient :
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Option 1 */}
-            <motion.div 
-              className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500"
-              variants={scaleIn}
-              whileHover={{ y: -10 }}
-            >
-              <div className="bg-black text-white p-4 flex items-center justify-center">
-                <Package className="w-8 h-8" />
-              </div>
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-2 text-black">Retrait sur place</h2>
-                <p className="text-green-600 font-bold mb-4">Gratuit</p>
-                <p className="mb-4 text-gray-600">
-                  Récupérez votre matériel directement dans notre entrepôt à Mantes-la-Ville. Du lundi au vendredi de 9h30 à 12h et 14h15 à 16h.
-                </p>
-                <ul className="space-y-2 mb-6">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
-                    <span className="text-gray-700">Économique</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
-                    <span className="text-gray-700">Flexible sur les horaires</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-violet-600 mr-2 mt-0.5" />
-                    <span className="text-gray-700">Vérification du matériel sur place</span>
-                  </li>
-                </ul>
-                <p className="text-sm text-gray-500">
-                  Prévoir un véhicule adapté au volume du matériel loué.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Option 2 */}
-            <motion.div 
-              className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500"
-              variants={scaleIn}
-              whileHover={{ y: -10 }}
-            >
-              <div className="bg-black  text-white p-4 flex items-center justify-center">
-                <Truck className="w-8 h-8" />
-              </div>
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-2 text-black">Livraison Économique</h2>
-                <p className="text-gray-600 font-bold mb-4">Sur devis</p>
-                <p className="mb-4 text-gray-600">
-                  Nous livrons sur site et vous participez au déchargement si nécessaire. Pensez à vérifier les accès (escaliers, ascenseurs, largeur des portes…).
-                </p>
-                <ul className="space-y-2 mb-6">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-indigo-600 mr-2 mt-0.5" />
-                    <span className="text-gray-700">Livraison à l'adresse de votre choix</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-indigo-600 mr-2 mt-0.5" />
-                    <span className="text-gray-700">Solution intermédiaire économique</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-indigo-600 mr-2 mt-0.5" />
-                    <span className="text-gray-700">Idéal pour les petites quantités</span>
-                  </li>
-                </ul>
-                <p className="text-sm text-gray-500">
-                  Tarif variable selon la distance et le volume.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Option 3 */}
-            <motion.div 
-              className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500"
-              variants={scaleIn}
-              whileHover={{ y: -10 }}
-            >
-              <div className="bg-black  text-white p-4 flex items-center justify-center">
-                <Diamond className="w-8 h-8" />
-              </div>
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-2 text-black">Formule Premium</h2>
-                <p className="text-gray-600 font-bold mb-4">Sur devis</p>
-                <p className="mb-4 text-gray-600">
-                  Service clé en main : livraison, installation et démontage pris en charge par nos techniciens événementiels 7j/7 et 24h/24, partout en France.
-                </p>
-                <ul className="space-y-2 mb-6">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-purple-600 mr-2 mt-0.5" />
-                    <span className="text-gray-700">Installation complète par nos techniciens</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-purple-600 mr-2 mt-0.5" />
-                    <span className="text-gray-700">Démontage et récupération inclus</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-purple-600 mr-2 mt-0.5" />
-                    <span className="text-gray-700">Assistance technique pendant l'événement</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-purple-600 mr-2 mt-0.5" />
-                    <span className="text-gray-700">Idéal pour les installations complexes</span>
-                  </li>
-                </ul>
-                <p className="text-sm text-gray-500">
-                  Des frais supplémentaires peuvent s'appliquer pour les interventions de nuit, le week-end ou les longues distances.
-                </p>
-              </div>
-            </motion.div>
-          </div>
-
-          <p className="mt-8 text-center text-sm">
-            Des frais supplémentaires peuvent s'appliquer pour les interventions de nuit, le week-end ou les longues distances.
-          </p>
-
-          {/* <div className="text-center mt-8">
-            <Link to="/delivery" className="btn-secondary inline-block">
-              En savoir plus
-            </Link>
-          </div> */}
-        </div>
-      </motion.section>
-
-      {/* Contact CTA Section avec design amélioré */}
-      <motion.section 
-        className="section relative overflow-hidden"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={fadeIn}
-      >
-        <div className="container-custom">
-          <div className="relative overflow-hidden">
-            {/* Background avec dégradé animé */}
-            <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-700 overflow-hidden rounded-xl">
-              <motion.div 
-                className="absolute top-0 left-0 right-0 bottom-0 opacity-20"
-                animate={{ 
-                  background: [
-                    "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%)",
-                    "radial-gradient(circle at 70% 60%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%)",
-                    "radial-gradient(circle at 40% 80%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%)",
-                    "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%)"
-                  ]
-                }}
-                transition={{ 
-                  duration: 15, 
-                  repeat: Infinity,
-                  ease: "easeInOut"
+                  ease: "linear"
                 }}
               />
             </div>
             
             {/* Contenu du CTA */}
-            <div className="relative z-10 py-16 px-6 md:px-12 text-center">
+            <div className="relative z-10 py-12 sm:py-16 px-4 sm:px-6 md:px-12 text-center">
               <motion.div
                 variants={fadeInUp}
                 className="max-w-3xl mx-auto"
               >
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6">
                   Prêt à créer un événement <span className="text-violet-200">inoubliable</span> ?
                 </h2>
-                <p className="text-white text-lg mb-8 opacity-90">
+                <p className="text-white text-base sm:text-lg mb-6 sm:mb-8 opacity-90">
                   Contactez notre équipe d'experts pour discuter de votre projet et obtenir un devis personnalisé. Nous vous accompagnons dans chaque étape de votre événement.  
                 </p>
                 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                   <motion.div 
                     whileHover={{ scale: 1.05 }} 
                     whileTap={{ scale: 0.95 }}
+                    className="w-full sm:w-auto"
                   >
-                    <Link to="/contact" className="btn-primary inline-flex items-center">
+                    <Link to="/contact" className="btn-primary inline-flex items-center justify-center w-full sm:w-auto">
                       Demander un devis
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Link>
@@ -751,8 +414,9 @@ const HomePage: React.FC = () => {
                   <motion.div 
                     whileHover={{ scale: 1.05 }} 
                     whileTap={{ scale: 0.95 }}
+                    className="w-full sm:w-auto"
                   >
-                    <a href="tel:+33620461385" className="btn-secondary inline-flex items-center">
+                    <a href="tel:+33620461385" className="btn-secondary inline-flex items-center justify-center w-full sm:w-auto">
                       Nous appeler
                       <svg xmlns="http://www.w3.org/2000/svg" className="ml-2 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>

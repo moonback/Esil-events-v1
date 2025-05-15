@@ -84,20 +84,20 @@ const Header: React.FC = () => {
                 <img 
                   src="images/logo.png" 
                   alt="ESIL Events Logo" 
-                  className="hidden md:block h-20 w-20 transition-all duration-300 transform group-hover:scale-105 hover:rotate-3 filter drop-shadow-lg"
+                  className="hidden md:block h-16 w-16 lg:h-20 lg:w-20 transition-all duration-300 transform group-hover:scale-105 hover:rotate-3 filter drop-shadow-lg"
                 />
                 {/* Mobile version */}
                 <img 
                   src="images/logo.png" 
                   alt="ESIL Events Logo" 
-                  className="md:hidden h-12 w-12 mt-[55px] transition-all duration-300 transform group-hover:scale-105 hover:rotate-3 filter drop-shadow-lg"
+                  className="md:hidden h-8 w-8 sm:h-10 sm:w-10 mt-[55px] transition-all duration-300 transform group-hover:scale-105 hover:rotate-3 filter drop-shadow-lg"
                 />
               </Link>
             </div>
 
             {/* Search Bar Section */}
-            <div className="w-full py-3 border-b border-gray-200/60 dark:border-gray-700/60">
-              <div className="px-4 flex items-center justify-center">
+            <div className="w-full py-2 sm:py-3 border-b border-gray-200/60 dark:border-gray-700/60">
+              <div className="px-2 sm:px-4 flex items-center justify-center">
                 <div className="flex-1 max-w-3xl relative">
                   <SearchBar 
                     onSearch={handleSearch} 
@@ -117,27 +117,26 @@ const Header: React.FC = () => {
                   )}
                 </div>
                 <div className="hidden md:flex space-x-2 ml-4">
-                  
                   <a 
                     href="tel:07.85.95.97.23" 
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
+                    className="flex items-center space-x-2 px-2 sm:px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
                   >
                     <Phone className="w-4 h-4 animate-pulse" />
-                    <span className="text-sm font-medium tracking-wide">07.85.95.97.23</span>
+                    <span className="text-xs sm:text-sm font-medium tracking-wide">07.85.95.97.23</span>
                   </a>
                   <a 
                     href="tel:0620461385" 
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
+                    className="flex items-center space-x-2 px-2 sm:px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
                   >
                     <Phone className="w-4 h-4 animate-pulse" />
-                    <span className="text-sm font-medium tracking-wide">06.20.46.13.85</span>
+                    <span className="text-xs sm:text-sm font-medium tracking-wide">06.20.46.13.85</span>
                   </a>
                   <Link
                     to="/contact"
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
+                    className="flex items-center space-x-2 px-2 sm:px-3 py-1.5 rounded-full bg-primary-50/80 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-primary-500/30"
                   >
                     <Mail className="w-4 h-4" />
-                    <span className="text-sm font-medium tracking-wide">Contact</span>
+                    <span className="text-xs sm:text-sm font-medium tracking-wide">Contact</span>
                   </Link>
                 </div>
                 
@@ -166,13 +165,13 @@ const Header: React.FC = () => {
             </div>
 
             {/* Main Navigation */}
-            <div className="flex items-center h-14 px-4">
+            <div className="flex items-center h-12 sm:h-14 px-2 sm:px-4">
               {/* Spacer for logo */}
-              <div className="w-24"></div>
+              <div className="w-16 sm:w-24"></div>
 
               <div className="flex-1 flex justify-center">
-                <nav className="hidden md:flex items-center space-x-8">
-                  <Link to="/" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 border-b-2 border-transparent hover:border-primary-500 dark:hover:border-primary-400">
+                <nav className="hidden md:flex items-center space-x-4 lg:space-x-8">
+                  <Link to="/" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 border-b-2 border-transparent hover:border-primary-500 dark:hover:border-primary-400">
                     Accueil
                   </Link>
                   <div className="relative group mega-menu-container">
@@ -181,20 +180,17 @@ const Header: React.FC = () => {
                       onClick={() => setShowMegaMenu(!showMegaMenu)}
                       onMouseEnter={() => setShowMegaMenu(true)}
                       onMouseLeave={() => setShowMegaMenu(false)}
-                      className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 flex items-center space-x-1 py-1 nav-link-border"
+                      className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 flex items-center space-x-1 py-1 nav-link-border"
                     >
                       <span className="inline-block bg-gradient-to-r from-violet-500 to-purple-600 text-transparent bg-clip-text font-bold group-hover:scale-105 transition-transform duration-300 relative">
                         Nos locations
-                        <span className="absolute -top-1 -right-2 flex h-2 w-2">
-                          
-                        </span>
                       </span>
-                      <ChevronDown className={`w-4 h-4 ml-1 transition-transform duration-300 ${showMegaMenu ? 'rotate-180' : 'rotate-0'}`} />
+                      <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 ml-1 transition-transform duration-300 ${showMegaMenu ? 'rotate-180' : 'rotate-0'}`} />
                     </button>
                     {showMegaMenu && (
                       <div
                         className="fixed left-0 right-0 w-full bg-white dark:bg-gray-900/95 backdrop-blur-md shadow-lg z-50 border-t border-gray-200/60 dark:border-gray-700/60 transition-all duration-300 animate-fadeIn"
-                        style={{ top: 'calc(var(--header-height)  1px + 20px)' }}
+                        style={{ top: 'calc(var(--header-height) + 1px)' }}
                         onMouseEnter={() => setShowMegaMenu(true)}
                         onMouseLeave={() => setShowMegaMenu(false)}
                       >
@@ -254,7 +250,7 @@ const Header: React.FC = () => {
                 
 
                 {/* User Menu */}
-                {user ? (
+                {/* {user ? (
                   <div className="relative user-menu-container" ref={userMenuRef}>
                     <button
                       onClick={() => setShowUserMenu(!showUserMenu)}
@@ -292,7 +288,7 @@ const Header: React.FC = () => {
                     <User className="w-5 h-5 text-gray-700 dark:text-gray-200 transition-all duration-300 transform hover:rotate-12" />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Connexion</span>
                   </Link>
-                )}
+                )} */}
 
                 {/* Mobile Menu Toggle */}
                 <button

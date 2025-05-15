@@ -117,59 +117,59 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
           
           {/* Sidebar - From top with improved glassmorphism and animations */}
           <motion.div 
-            className="fixed top-0 left-0 right-0 w-full h-auto max-h-[90vh] overflow-y-auto glassmorphism dark:bg-gray-900/90 z-[100] md:hidden rounded-b-2xl shadow-2xl border-b border-gray-200/20 dark:border-gray-700/20"
+            className="fixed top-0 left-0 right-0 w-full h-auto max-h-[85vh] sm:max-h-[90vh] overflow-y-auto glassmorphism dark:bg-gray-900/90 z-[100] md:hidden rounded-b-2xl shadow-2xl border-b border-gray-200/20 dark:border-gray-700/20"
             initial="hidden"
             animate="visible"
             exit="exit"
             variants={slideIn}
           >
             {/* Header with gradient background */}
-            <div className="flex justify-between items-center p-4 border-b border-gray-200/30 dark:border-gray-700/30 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 dark:from-violet-900/30 dark:to-indigo-900/30">
-              <div className="flex items-center space-x-3">
+            <div className="flex justify-between items-center p-3 sm:p-4 border-b border-gray-200/30 dark:border-gray-700/30 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 dark:from-violet-900/30 dark:to-indigo-900/30">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <motion.img 
                   src="/images/logo.png" 
                   alt="ESIL Events Logo" 
-                  className="h-10 w-10 rounded-lg shadow-md"
+                  className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg shadow-md"
                   whileHover={{ rotate: 5, scale: 1.1 }}
                   transition={{ duration: 0.3 }}
                 />
-                <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-500 dark:from-violet-400 dark:to-indigo-300">Menu</h2>
+                <h2 className="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-500 dark:from-violet-400 dark:to-indigo-300">Menu</h2>
               </div>
               <motion.button
                 onClick={onClose}
-                className="p-2 rounded-full bg-white/80 dark:bg-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm hover:shadow-md"
+                className="p-1.5 sm:p-2 rounded-full bg-white/80 dark:bg-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm hover:shadow-md"
                 aria-label="Fermer le menu"
                 whileHover={{ rotate: 90, scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <X className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-200" />
               </motion.button>
             </div>
 
             {/* User info section if logged in - with improved styling */}
             {user && (
-              <div className="px-4 py-3 bg-gradient-to-r from-violet-50/90 to-purple-50/90 dark:from-violet-900/30 dark:to-purple-900/30 border-b border-gray-200/30 dark:border-gray-700/30">
+              <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-violet-50/90 to-purple-50/90 dark:from-violet-900/30 dark:to-purple-900/30 border-b border-gray-200/30 dark:border-gray-700/30">
                 <div className="flex items-center">
                   <motion.div 
-                    className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg flex items-center justify-center"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg flex items-center justify-center"
                     whileHover={{ rotate: 5, scale: 1.05 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <User className="w-6 h-6 text-white" />
+                    <User className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </motion.div>
-                  <div className="ml-3">
+                  <div className="ml-2 sm:ml-3">
                     <p className="text-sm font-bold text-gray-900 dark:text-white">
                       {user.user_metadata?.first_name || 'Bienvenue'}
                     </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 truncate max-w-[200px]">
+                    <p className="text-xs text-gray-600 dark:text-gray-300 truncate max-w-[180px] sm:max-w-[200px]">
                       {user.email}
                     </p>
-                    <div className="mt-1 flex space-x-2">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300">
+                    <div className="mt-1 flex space-x-1 sm:space-x-2">
+                      <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300">
                         Client
                       </span>
                       {isAdminUser && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                        <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
                           Admin
                         </span>
                       )}
@@ -180,20 +180,20 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
             )}
 
             <motion.div 
-              className="px-2 py-3 space-y-3 overflow-y-auto"
+              className="px-2 py-2 sm:py-3 space-y-2 sm:space-y-3 overflow-y-auto"
               variants={staggerChildren}
               initial="hidden"
               animate="visible"
             >
               {/* Main navigation - with improved styling and animations */}
               <motion.div 
-                className="mb-5 bg-white/50 dark:bg-gray-800/30 rounded-xl p-3 shadow-sm"
+                className="mb-4 sm:mb-5 bg-white/50 dark:bg-gray-800/30 rounded-xl p-2 sm:p-3 shadow-sm"
                 variants={itemVariant}
               >
-                <h3 className="px-3 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-3 flex items-center">
-                  <span className="w-5 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full mr-2"></span>
+                <h3 className="px-2 sm:px-3 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-2 sm:mb-3 flex items-center">
+                  <span className="w-4 sm:w-5 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full mr-2"></span>
                   Navigation
-                  <span className="w-5 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full ml-2"></span>
+                  <span className="w-4 sm:w-5 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full ml-2"></span>
                 </h3>
                 <div className="space-y-1">
                   <motion.div variants={itemVariant}>

@@ -77,42 +77,42 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gradient-to-b from-gray-900 to-black text-gray-300 pt-20 pb-12">
-      <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+    <footer className="bg-gradient-to-b from-gray-900 to-black text-gray-300 pt-12 sm:pt-16 lg:pt-20 pb-8 sm:pb-10 lg:pb-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-8">
           {/* Company Info */}
           <div className="lg:pr-4">
-            <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
+            <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center">
               <span className="bg-gradient-to-r from-violet-600 to-indigo-500 bg-clip-text text-transparent">
                 ESIL Events
               </span>
             </h3>
-            <p className="mb-4 text-gray-400 leading-relaxed">
+            <p className="mb-3 sm:mb-4 text-sm sm:text-base text-gray-400 leading-relaxed">
               Expert en organisation d'événements d'entreprise et location de matériel premium pour des expériences mémorables.
             </p>
-            <p className="text-gray-400 leading-relaxed">
+            <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
               Nous concevons des solutions sur mesure pour vos séminaires, soirées et lancements produits.
             </p>
             
-            <div className="mt-8">
+            <div className="mt-6 sm:mt-8">
               <Link 
                 to="/about" 
-                className="inline-flex items-center text-violet-400 hover:text-violet-300 transition-colors"
+                className="inline-flex items-center text-sm sm:text-base text-violet-400 hover:text-violet-300 transition-colors"
               >
                 Découvrir notre histoire
-                <ArrowRight className="ml-2 w-4 h-4" />
+                <ArrowRight className="ml-2 w-3 h-3 sm:w-4 sm:h-4" />
               </Link>
             </div>
           </div>
 
           {/* Services */}
           <div>
-            <h4 className="text-lg font-semibold text-white mb-6 pb-2 border-b border-gray-700">Nos services</h4>
-            <ul className="space-y-3">
+            <h4 className="text-base sm:text-lg font-semibold text-white mb-4 sm:mb-6 pb-2 border-b border-gray-700">Nos services</h4>
+            <ul className="space-y-2 sm:space-y-3">
               {services.map((service, index) => (
                 <li key={index} className="flex items-start">
-                  <CircleDot className="w-4 h-4 text-violet-500 mr-2 mt-1 flex-shrink-0" />
-                  <span className="text-gray-400">{service}</span>
+                  <CircleDot className="w-3 h-3 sm:w-4 sm:h-4 text-violet-500 mr-2 mt-1 flex-shrink-0" />
+                  <span className="text-sm sm:text-base text-gray-400">{service}</span>
                 </li>
               ))}
             </ul>
@@ -120,15 +120,15 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-semibold text-white mb-6 pb-2 border-b border-gray-700">Navigation</h4>
-            <ul className="space-y-3">
+            <h4 className="text-base sm:text-lg font-semibold text-white mb-4 sm:mb-6 pb-2 border-b border-gray-700">Navigation</h4>
+            <ul className="space-y-2 sm:space-y-3">
               {navLinks.map((link, index) => (
                 <li key={index}>
                   <Link 
                     to={link.to} 
-                    className="text-gray-400 hover:text-violet-400 transition-colors flex items-start group"
+                    className="text-sm sm:text-base text-gray-400 hover:text-violet-400 transition-colors flex items-start group"
                   >
-                    <ArrowRight className="w-4 h-4 text-violet-500 mr-2 mt-1 transform group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-violet-500 mr-2 mt-1 transform group-hover:translate-x-1 transition-transform" />
                     {link.text}
                   </Link>
                 </li>
@@ -138,15 +138,15 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="text-lg font-semibold text-white mb-6 pb-2 border-b border-gray-700">Nous contacter</h4>
-            <ul className="space-y-4">
+            <h4 className="text-base sm:text-lg font-semibold text-white mb-4 sm:mb-6 pb-2 border-b border-gray-700">Nous contacter</h4>
+            <ul className="space-y-3 sm:space-y-4">
               <li className="flex items-start">
-                <MapPin className="w-5 h-5 text-violet-500 mr-3 mt-0.5 flex-shrink-0" />
+                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-violet-500 mr-2 sm:mr-3 mt-0.5 flex-shrink-0" />
                 <a 
                   href="https://maps.google.com/?q=7+Rue+de+la+Cellophane+78711+Mantes-la-Ville" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-violet-400 transition-colors"
+                  className="text-sm sm:text-base text-gray-400 hover:text-violet-400 transition-colors"
                 >
                   7 Rue de la Cellophane<br />
                   78711 Mantes-la-Ville<br />
@@ -154,38 +154,38 @@ const Footer = () => {
                 </a>
               </li>
               <li className="flex items-center">
-                <Phone className="w-5 h-5 text-violet-500 mr-3 flex-shrink-0" />
+                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-violet-500 mr-2 sm:mr-3 flex-shrink-0" />
                 <a 
                   href="tel:+33620461385" 
-                  className="text-gray-400 hover:text-violet-400 transition-colors"
+                  className="text-sm sm:text-base text-gray-400 hover:text-violet-400 transition-colors"
                 >
                   06 20 46 13 85
                 </a>
               </li>
               <li className="flex items-center">
-                <Mail className="w-5 h-5 text-violet-500 mr-3 flex-shrink-0" />
+                <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-violet-500 mr-2 sm:mr-3 flex-shrink-0" />
                 <a 
                   href="mailto:contact@esil-events.fr" 
-                  className="text-gray-400 hover:text-violet-400 transition-colors"
+                  className="text-sm sm:text-base text-gray-400 hover:text-violet-400 transition-colors"
                 >
                   contact@esil-events.fr
                 </a>
               </li>
             </ul>
             
-            <div className="mt-6">
-              <h5 className="text-sm font-medium text-gray-300 mb-3">Suivez-nous</h5>
-              <div className="flex space-x-4">
+            <div className="mt-4 sm:mt-6">
+              <h5 className="text-xs sm:text-sm font-medium text-gray-300 mb-2 sm:mb-3">Suivez-nous</h5>
+              <div className="flex space-x-3 sm:space-x-4">
                 {socialLinks.map((social, index) => (
                   <a 
                     key={index}
                     href={social.href} 
-                    className="bg-gray-800 hover:bg-violet-600 text-white p-2 rounded-full transition-all duration-300 transform hover:scale-110"
+                    className="bg-gray-800 hover:bg-violet-600 text-white p-1.5 sm:p-2 rounded-full transition-all duration-300 transform hover:scale-110"
                     aria-label={social.label}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {social.icon}
+                    {React.cloneElement(social.icon, { className: 'w-4 h-4 sm:w-5 sm:h-5' })}
                   </a>
                 ))}
               </div>
@@ -194,10 +194,10 @@ const Footer = () => {
         </div>
 
         {/* Newsletter Subscription */}
-        <div className="border-t border-gray-800 mt-16 pt-12 mb-12">
+        <div className="border-t border-gray-800 mt-12 sm:mt-16 pt-8 sm:pt-12 mb-8 sm:mb-12">
           <div className="max-w-xl mx-auto">
-            <h4 className="text-lg font-semibold text-white mb-4 text-center">Restez informé</h4>
-            <p className="text-gray-400 mb-6 text-center">
+            <h4 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 text-center">Restez informé</h4>
+            <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6 text-center">
               Inscrivez-vous à notre newsletter pour recevoir nos actualités et offres exclusives
             </p>
             

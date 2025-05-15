@@ -43,7 +43,7 @@ const Layout: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
       <SEO 
         title={getPageTitle()}
         description={getPageDescription()}
@@ -52,8 +52,10 @@ const Layout: React.FC = () => {
         image={seoConfig.defaultImage}
       />
       <Header />
-      <main className="flex-grow">
-        <Outlet />
+      <main className="flex-grow pt-[calc(var(--header-height)+1px)] sm:pt-[calc(var(--header-height)+2px)]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+          <Outlet />
+        </div>
       </main>
       <Footer />
     </div>
