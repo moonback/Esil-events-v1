@@ -24,6 +24,7 @@ import ArtistPage from './pages/ArtistPage';
 import { EventsPage } from './pages/EventsPage';  // Changed from default import to named import
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import CguPage from './pages/CguPage';
+import CookieConsentBanner from './components/CookieConsent';
 
 // Admin pages
 import RealisationPage from './pages/RealisationPage';
@@ -34,6 +35,7 @@ const App: React.FC = () => {
     <BrowserRouter>
       <ScrollToTop />
       <CartProvider>
+        <CookieConsentBanner />
         <Routes>
           {/* Routes publiques avec Layout principal */}
           <Route element={<Layout />}>
