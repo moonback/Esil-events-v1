@@ -6,9 +6,15 @@ import { QuoteRequest } from '../../services/quoteRequestService';
 import { getQuoteRequests } from '../../services/quoteRequestService';
 import { formatDate, getStatusColor, getStatusLabel } from '../../components/admin/quoteRequests/QuoteRequestUtils';
 
-type ViewMode = 'month' | 'week';
+type ViewMode = 'month' | 'week' | 'day';
 type TimeFilter = 'all' | 'morning' | 'afternoon' | 'evening';
 type EventTypeFilter = 'all' | 'event' | 'delivery' | 'pickup';
+type EventType = 'event' | 'delivery' | 'pickup';
+
+interface CalendarEvent extends QuoteRequest {
+  type: EventType;
+  displayTime: string;
+}
 
 const CalendarHeader: React.FC<{
   viewMode: ViewMode;
@@ -47,6 +53,16 @@ const CalendarHeader: React.FC<{
             }`}
           >
             Semaine
+          </button>
+          <button
+            onClick={() => setViewMode('day')}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              viewMode === 'day'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Jour
           </button>
         </div>
         <div className="flex gap-2">
@@ -1102,6 +1118,133 @@ const QuoteRequestCalendar: React.FC = () => {
     );
   };
 
+  const getDayHours = () => {
+    const hours = [];
+    for (let i = 5; i <= 23; i++) {
+      hours.push(i.toString().padStart(2, '0') + ':00');
+    }
+    return hours;
+  };
+
+  const getEventsForHour = (date: Date, hour: string) => {
+    const events = getRequestsForDate(date);
+    return events.filter(event => {
+      const eventHour = event.displayTime?.split(':')[0] || '00';
+      return eventHour === hour.split(':')[0];
+    }).map(event => ({
+      ...event,
+      displayTime: event.displayTime || '00:00'
+    })) as CalendarEvent[];
+  };
+
+  const renderDayView = () => {
+    const selectedDate = currentMonth;
+    const hours = getDayHours();
+    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+
+    return (
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+          <h2 className="text-xl font-semibold text-gray-900">
+            {selectedDate.getDate()} {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
+          </h2>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setIsCompact(!isCompact)}
+              className="p-2 rounded-lg hover:bg-white transition-colors"
+              title={isCompact ? "Vue normale" : "Vue compacte"}
+            >
+              {isCompact ? <Grid className="w-5 h-5 text-gray-600" /> : <List className="w-5 h-5 text-gray-600" />}
+            </button>
+            <button
+              onClick={() => setShowEventCount(!showEventCount)}
+              className="p-2 rounded-lg hover:bg-white transition-colors"
+              title={showEventCount ? "Masquer le nombre d'événements" : "Afficher le nombre d'événements"}
+            >
+              <MoreHorizontal className="w-5 h-5 text-gray-600" />
+            </button>
+            <button
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="p-2 rounded-lg hover:bg-white transition-colors"
+              title={isFullscreen ? "Réduire" : "Plein écran"}
+            >
+              {isFullscreen ? <Minimize2 className="w-5 h-5 text-gray-600" /> : <Maximize2 className="w-5 h-5 text-gray-600" />}
+            </button>
+            <button
+              onClick={() => {
+                const newDate = new Date(selectedDate);
+                newDate.setDate(newDate.getDate() - 1);
+                setCurrentMonth(newDate);
+              }}
+              className="p-2 rounded-lg hover:bg-white transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
+            <button
+              onClick={() => {
+                const newDate = new Date(selectedDate);
+                newDate.setDate(newDate.getDate() + 1);
+                setCurrentMonth(newDate);
+              }}
+              className="p-2 rounded-lg hover:bg-white transition-colors"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-[100px_1fr] divide-x divide-gray-200">
+          {/* En-tête des heures */}
+          <div className="bg-gray-50">
+            <div className="h-12 border-b border-gray-200"></div>
+            {hours.map(hour => (
+              <div key={hour} className="h-24 border-b border-gray-200 p-2 text-sm text-gray-500">
+                {hour}
+              </div>
+            ))}
+          </div>
+
+          {/* Contenu des événements */}
+          <div className="relative">
+            <div className="h-12 border-b border-gray-200"></div>
+            {hours.map(hour => {
+              const events = getEventsForHour(selectedDate, hour);
+              return (
+                <div key={hour} className="h-24 border-b border-gray-200 p-2 relative">
+                  {events.map(event => (
+                    <div
+                      key={`${event.id}-${event.type}`}
+                      onClick={() => handleRequestClick(event)}
+                      className={`absolute left-2 right-2 p-2 rounded-lg cursor-pointer transition-all duration-200 ${getEventStyle(event.type, event.status || 'pending')}`}
+                      style={{
+                        top: `${(parseInt(event.displayTime.split(':')[1]) / 60) * 100}%`,
+                        height: 'calc(100% - 8px)'
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        {event.type === 'delivery' && <Truck className="w-4 h-4 flex-shrink-0" />}
+                        {event.type === 'pickup' && <ArrowLeftRight className="w-4 h-4 flex-shrink-0" />}
+                        {event.type === 'event' && <Calendar className="w-4 h-4 flex-shrink-0" />}
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-medium truncate">
+                            {event.first_name} {event.last_name}
+                          </span>
+                          <span className="text-xs opacity-75 truncate">
+                            {getEventLabel(event.type)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const Legend = () => (
     <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
       <div className="flex items-center justify-between mb-3">
@@ -1193,7 +1336,9 @@ const QuoteRequestCalendar: React.FC = () => {
                   statusFilter={statusFilter}
                   setStatusFilter={setStatusFilter}
                 />
-                {viewMode === 'month' ? renderMonthView() : renderWeekView()}
+                {viewMode === 'month' ? renderMonthView() :
+                 viewMode === 'week' ? renderWeekView() :
+                 renderDayView()}
               </div>
             </div>
             {!isFullscreen && (
