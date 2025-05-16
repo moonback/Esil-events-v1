@@ -19,6 +19,8 @@ const QuoteRequestCalendar: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequestDetails, setSelectedRequestDetails] = useState<QuoteRequest | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [showDeliveries, setShowDeliveries] = useState(true);
+  const [showPickups, setShowPickups] = useState(true);
 
   useEffect(() => {
     fetchQuoteRequests();
@@ -58,18 +60,102 @@ const QuoteRequestCalendar: React.FC = () => {
   };
 
   const getRequestsForDate = (date: Date) => {
-    return quoteRequests.filter(request => {
-      if (!request.event_date) return false;
-      const eventDate = new Date(request.event_date);
-      const matchesDate = eventDate.toDateString() === date.toDateString();
-      const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
-      const matchesSearch = !searchTerm || 
-        request.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        request.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        request.email.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesDate && matchesStatus && matchesSearch;
+    const allEvents = quoteRequests.flatMap(request => {
+      const events = [];
+      const eventDate = request.event_date ? new Date(request.event_date) : null;
+      const deliveryDate = request.delivery_date ? new Date(request.delivery_date) : null;
+      const pickupDate = request.pickup_return_date ? new Date(request.pickup_return_date) : null;
+
+      // Événement principal
+      if (eventDate && eventDate.toDateString() === date.toDateString()) {
+        events.push({
+          ...request,
+          type: 'event',
+          displayTime: request.event_start_time || '00:00'
+        });
+      }
+
+      // Livraison
+      if (showDeliveries && deliveryDate && deliveryDate.toDateString() === date.toDateString()) {
+        events.push({
+          ...request,
+          type: 'delivery',
+          displayTime: request.delivery_time_slot || '00:00'
+        });
+      }
+
+      // Reprise
+      if (showPickups && pickupDate && pickupDate.toDateString() === date.toDateString()) {
+        events.push({
+          ...request,
+          type: 'pickup',
+          displayTime: request.pickup_return_start_time || '00:00'
+        });
+      }
+
+      return events;
     });
+
+    return allEvents
+      .filter(event => {
+        const matchesStatus = statusFilter === 'all' || event.status === statusFilter;
+        const matchesSearch = !searchTerm || 
+          event.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.email.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesStatus && matchesSearch;
+      })
+      .sort((a, b) => a.displayTime.localeCompare(b.displayTime));
   };
+
+  const getEventStyle = (type: 'event' | 'delivery' | 'pickup', status: string) => {
+    const baseStyle = 'text-xs p-1 rounded truncate cursor-pointer hover:opacity-80';
+    const statusColor = getStatusColor(status);
+
+    switch (type) {
+      case 'delivery':
+        return `${baseStyle} bg-blue-100 text-blue-800 border border-blue-200`;
+      case 'pickup':
+        return `${baseStyle} bg-purple-100 text-purple-800 border border-purple-200`;
+      default:
+        return `${baseStyle} ${statusColor}`;
+    }
+  };
+
+  const getEventLabel = (type: 'event' | 'delivery' | 'pickup') => {
+    switch (type) {
+      case 'delivery':
+        return 'Livraison';
+      case 'pickup':
+        return 'Reprise';
+      default:
+        return 'Événement';
+    }
+  };
+
+  const renderEventItem = (event: any) => (
+    <div
+      key={`${event.id}-${event.type}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        handleRequestClick(event);
+      }}
+      className={getEventStyle(event.type, event.status)}
+      title={`${getEventLabel(event.type)} - ${event.first_name} ${event.last_name} - ${getStatusLabel(event.status)}`}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-1">
+          <span className="font-medium">{getEventLabel(event.type)}</span>
+          <span className="truncate">
+            {event.first_name} {event.last_name}
+          </span>
+        </div>
+        <span className="ml-1 text-xs opacity-75">
+          {event.displayTime}
+        </span>
+      </div>
+    </div>
+  );
 
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
@@ -122,8 +208,8 @@ const QuoteRequestCalendar: React.FC = () => {
     if (!selectedRequestDetails) return null;
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="fixed  inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-xl max-w-12xl w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6">
             <div className="flex justify-between items-start mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
@@ -474,7 +560,7 @@ const QuoteRequestCalendar: React.FC = () => {
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-      const requestsForDay = getRequestsForDate(date);
+      const eventsForDay = getRequestsForDate(date);
       const isToday = date.toDateString() === new Date().toDateString();
       const isSelected = selectedDate?.toDateString() === date.toDateString();
 
@@ -490,19 +576,7 @@ const QuoteRequestCalendar: React.FC = () => {
             {day}
           </div>
           <div className="mt-1 space-y-1">
-            {requestsForDay.map(request => (
-              <div
-                key={request.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRequestClick(request);
-                }}
-                className={`text-xs p-1 rounded truncate ${getStatusColor(request.status)} cursor-pointer hover:opacity-80`}
-                title={`${request.first_name} ${request.last_name} - ${getStatusLabel(request.status)}`}
-              >
-                {request.first_name} {request.last_name}
-              </div>
-            ))}
+            {eventsForDay.map(renderEventItem)}
           </div>
         </div>
       );
@@ -568,7 +642,7 @@ const QuoteRequestCalendar: React.FC = () => {
         </div>
         <div className="grid grid-cols-7 gap-px bg-gray-200">
           {weekDates.map((date, index) => {
-            const requestsForDay = getRequestsForDate(date);
+            const eventsForDay = getRequestsForDate(date);
             const isToday = date.toDateString() === new Date().toDateString();
             const isSelected = selectedDate?.toDateString() === date.toDateString();
 
@@ -589,19 +663,7 @@ const QuoteRequestCalendar: React.FC = () => {
                   </div>
                 </div>
                 <div className="mt-2 space-y-1">
-                  {requestsForDay.map(request => (
-                    <div
-                      key={request.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRequestClick(request);
-                      }}
-                      className={`text-xs p-1 rounded truncate ${getStatusColor(request.status)} cursor-pointer hover:opacity-80`}
-                      title={`${request.first_name} ${request.last_name} - ${getStatusLabel(request.status)}`}
-                    >
-                      {request.first_name} {request.last_name}
-                    </div>
-                  ))}
+                  {eventsForDay.map(renderEventItem)}
                 </div>
               </div>
             );
@@ -627,27 +689,53 @@ const QuoteRequestCalendar: React.FC = () => {
                   Visualisez et gérez les demandes de devis par date d'événement
                 </p>
               </div>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setViewMode('month')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    viewMode === 'month'
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Mois
-                </button>
-                <button
-                  onClick={() => setViewMode('week')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    viewMode === 'week'
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Semaine
-                </button>
+              <div className="flex flex-wrap gap-4">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setViewMode('month')}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      viewMode === 'month'
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Mois
+                  </button>
+                  <button
+                    onClick={() => setViewMode('week')}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      viewMode === 'week'
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Semaine
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowDeliveries(!showDeliveries)}
+                    className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                      showDeliveries
+                        ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <Truck className="w-4 h-4" />
+                    Livraisons
+                  </button>
+                  <button
+                    onClick={() => setShowPickups(!showPickups)}
+                    className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                      showPickups
+                        ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <ArrowLeftRight className="w-4 h-4" />
+                    Reprises
+                  </button>
+                </div>
               </div>
             </div>
           </div>
