@@ -171,6 +171,8 @@ const QuoteRequestCalendar: React.FC = () => {
   const [isCompact, setIsCompact] = useState(false);
   const [showEventCount, setShowEventCount] = useState(true);
   const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     fetchQuoteRequests();
@@ -759,6 +761,149 @@ const QuoteRequestCalendar: React.FC = () => {
     );
   };
 
+  const formatTime = (time: string) => {
+    if (!time) return '';
+    const [hours, minutes] = time.split(':');
+    return `${hours}h${minutes !== '00' ? minutes : ''}`;
+  };
+
+  // Fonction pour calculer la position optimale du tooltip
+  const calculateTooltipPosition = (e: React.MouseEvent, date: Date) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    const tooltipHeight = 400; // Hauteur approximative du tooltip
+    const spaceBelow = windowHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    // Position horizontale
+    let left = rect.left;
+    if (left + 400 > window.innerWidth) { // 400px est la largeur approximative du tooltip
+      left = window.innerWidth - 420; // 20px de marge
+    }
+
+    // Position verticale
+    let top;
+    if (spaceBelow >= tooltipHeight || spaceBelow > spaceAbove) {
+      // Afficher en dessous si il y a assez d'espace ou si il y a plus d'espace en dessous
+      top = rect.bottom + 10;
+    } else {
+      // Afficher au-dessus
+      top = rect.top - tooltipHeight - 10;
+    }
+
+    return { x: left, y: top };
+  };
+
+  // Composant pour le tooltip de récapitulatif
+  const DayTooltip = ({ date, events }: { date: Date; events: any[] }) => {
+    const formattedDate = formatDate(date.toISOString());
+    const eventsByType = {
+      event: events.filter(e => e.type === 'event'),
+      delivery: events.filter(e => e.type === 'delivery'),
+      pickup: events.filter(e => e.type === 'pickup')
+    };
+
+    return (
+      <div className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-[300px] max-w-[400px] max-h-[80vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 pb-2 mb-3">
+          <h3 className="text-lg font-semibold text-gray-900">{formattedDate}</h3>
+          <p className="text-sm text-gray-500">
+            {events.length} événement{events.length > 1 ? 's' : ''} au total
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {/* Événements */}
+          {eventsByType.event.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="w-4 h-4 text-green-600" />
+                <h4 className="text-sm font-medium text-gray-900">Événements</h4>
+              </div>
+              <div className="space-y-2">
+                {eventsByType.event.map(event => (
+                  <div key={`${event.id}-event`} className="bg-green-50 rounded p-2">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium text-sm text-gray-900">
+                          {event.first_name} {event.last_name}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {event.event_location || 'Lieu non spécifié'}
+                        </p>
+                      </div>
+                      <span className="text-xs font-medium bg-white/50 px-2 py-1 rounded">
+                        {formatTime(event.displayTime)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Livraisons */}
+          {eventsByType.delivery.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Truck className="w-4 h-4 text-blue-600" />
+                <h4 className="text-sm font-medium text-gray-900">Livraisons</h4>
+              </div>
+              <div className="space-y-2">
+                {eventsByType.delivery.map(event => (
+                  <div key={`${event.id}-delivery`} className="bg-blue-50 rounded p-2">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium text-sm text-gray-900">
+                          {event.first_name} {event.last_name}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {event.delivery_address || 'Adresse non spécifiée'}
+                        </p>
+                      </div>
+                      <span className="text-xs font-medium bg-white/50 px-2 py-1 rounded">
+                        {formatTime(event.displayTime)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Reprises */}
+          {eventsByType.pickup.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <ArrowLeftRight className="w-4 h-4 text-purple-600" />
+                <h4 className="text-sm font-medium text-gray-900">Reprises</h4>
+              </div>
+              <div className="space-y-2">
+                {eventsByType.pickup.map(event => (
+                  <div key={`${event.id}-pickup`} className="bg-purple-50 rounded p-2">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium text-sm text-gray-900">
+                          {event.first_name} {event.last_name}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {event.delivery_address || 'Adresse non spécifiée'}
+                        </p>
+                      </div>
+                      <span className="text-xs font-medium bg-white/50 px-2 py-1 rounded">
+                        {formatTime(event.displayTime)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderMonthView = () => {
     const { daysInMonth, firstDayOfMonth } = getDaysInMonth(currentMonth);
     const days = [];
@@ -780,8 +925,15 @@ const QuoteRequestCalendar: React.FC = () => {
         <div
           key={day}
           onClick={() => handleDateClick(date)}
-          onMouseEnter={() => setHoveredDate(date)}
-          onMouseLeave={() => setHoveredDate(null)}
+          onMouseEnter={(e) => {
+            setHoveredDate(date);
+            setTooltipPosition(calculateTooltipPosition(e, date));
+            setShowTooltip(true);
+          }}
+          onMouseLeave={() => {
+            setHoveredDate(null);
+            setShowTooltip(false);
+          }}
           className={`border border-gray-200 p-2 cursor-pointer transition-all duration-200 ${
             isSelected ? 'bg-indigo-50 border-indigo-500' :
             isHovered ? 'bg-gray-50' : ''
@@ -862,6 +1014,18 @@ const QuoteRequestCalendar: React.FC = () => {
           ))}
           {days}
         </div>
+        {showTooltip && hoveredDate && (
+          <div
+            style={{
+              position: 'fixed',
+              left: tooltipPosition.x,
+              top: tooltipPosition.y,
+              zIndex: 1000
+            }}
+          >
+            <DayTooltip date={hoveredDate} events={getRequestsForDate(hoveredDate)} />
+          </div>
+        )}
       </div>
     );
   };
