@@ -1,10 +1,11 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Product } from '../types/Product';
 import { searchProducts } from '../services/productService';
 import { Search, ArrowRight } from 'lucide-react';
+import { debounce } from 'lodash';
 
 interface SearchResultsProps {
   query: string;
@@ -16,23 +17,38 @@ interface SearchResultsProps {
 const SearchResults: React.FC<SearchResultsProps> = ({ query, onSelect }) => {
   const navigate = useNavigate();
   const [results, setResults] = useState<Product[]>([]);
-  const [, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (query.trim()) {
+  // Création d'une fonction debounced mémorisée
+  const debouncedSearch = useCallback(
+    debounce(async (searchQuery: string) => {
+      if (searchQuery.trim()) {
         setIsLoading(true);
-        searchProducts(query)
-          .then(setResults)
-          .catch(console.error)
-          .finally(() => setIsLoading(false));
+        try {
+          const searchResults = await searchProducts(searchQuery);
+          setResults(searchResults);
+        } catch (error) {
+          console.error('Erreur lors de la recherche:', error);
+          setResults([]);
+        } finally {
+          setIsLoading(false);
+        }
       } else {
         setResults([]);
       }
-    }, 300);
+    }, 300),
+    []
+  );
 
-    return () => clearTimeout(timer);
-  }, [query]);
+  useEffect(() => {
+    debouncedSearch(query);
+    
+    // Cleanup function pour annuler les recherches en cours lors du démontage
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [query, debouncedSearch]);
+
   // Définition des animations
   const container = {
     hidden: { opacity: 0 },
