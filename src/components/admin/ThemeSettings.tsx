@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../../context/ThemeContext';
+import AdminLayout from '../layouts/AdminLayout';
+import AdminHeader from '../admin/AdminHeader';
 
 const Container = styled.div`
   padding: 20px;
@@ -68,21 +70,23 @@ const ThemeSettings: React.FC = () => {
   ];
 
   return (
-    <Container>
-      <Title>Paramètres des thèmes festifs</Title>
-      <ThemeGrid>
-        {themes.map(theme => (
-          <ThemeCard
-            key={theme.id}
-            $isActive={currentTheme === theme.id}
-            onClick={() => setTheme(theme.id as 'default' | 'christmas' | 'valentine')}
-          >
-            <ThemeTitle>{theme.title}</ThemeTitle>
-            <ThemeDescription>{theme.description}</ThemeDescription>
-          </ThemeCard>
-        ))}
-      </ThemeGrid>
-    </Container>
+    <AdminLayout>
+      <AdminHeader title="Paramètres des thèmes festifs" />
+      <Container>
+        <ThemeGrid>
+          {themes.map(theme => (
+            <ThemeCard
+              key={theme.id}
+              $isActive={currentTheme === theme.id}
+              onClick={() => setTheme(theme.id as 'default' | 'christmas' | 'valentine')}
+            >
+              <ThemeTitle>{theme.title}</ThemeTitle>
+              <ThemeDescription>{theme.description}</ThemeDescription>
+            </ThemeCard>
+          ))}
+        </ThemeGrid>
+      </Container>
+    </AdminLayout>
   );
 };
 
