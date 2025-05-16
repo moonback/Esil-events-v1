@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Search, Filter, BarChart2, Clock, Users, Tag, X, FileText, Mail, Phone, MapPin, Clock as ClockIcon } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Search, Filter, BarChart2, Clock, Users, Tag, X, FileText, Mail, Phone, MapPin, Clock as ClockIcon, Truck, Package, DoorOpen, ArrowLeftRight, MessageSquare } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { QuoteRequest } from '../../services/quoteRequestService';
@@ -277,71 +277,101 @@ const QuoteRequestCalendar: React.FC = () => {
                 </div>
 
                 {/* Informations de livraison */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations de livraison</h3>
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-500">Type de livraison</p>
-                          <p className="font-medium text-gray-900">{selectedRequestDetails.delivery_type || 'Non spécifié'}</p>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                    <div className="flex items-center">
+                      <Truck className="w-5 h-5 text-indigo-600 mr-3" />
+                      <h3 className="text-lg font-semibold text-gray-900">Informations de livraison</h3>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="space-y-6">
+                      {/* Détails principaux */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <div className="flex items-start">
+                            <Calendar className="w-5 h-5 text-gray-400 mr-3 mt-1" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">Date et créneau</p>
+                              <div className="mt-1 space-y-1">
+                                <p className="text-sm text-gray-600">
+                                  {selectedRequestDetails.delivery_date ? formatDate(selectedRequestDetails.delivery_date) : 'Non spécifiée'}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  {selectedRequestDetails.delivery_time_slot || 'Créneau non spécifié'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Date de livraison</p>
-                          <p className="font-medium text-gray-900">
-                            {selectedRequestDetails.delivery_date ? formatDate(selectedRequestDetails.delivery_date) : 'Non spécifiée'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Créneau horaire</p>
-                          <p className="font-medium text-gray-900">{selectedRequestDetails.delivery_time_slot || 'Non spécifié'}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Adresse de livraison</p>
-                          <p className="font-medium text-gray-900">
-                            {selectedRequestDetails.delivery_address ? (
-                              <>
-                                {selectedRequestDetails.delivery_address}
-                                <br />
-                                {selectedRequestDetails.delivery_postal_code} {selectedRequestDetails.delivery_city}
-                              </>
-                            ) : (
-                              'Non spécifiée'
-                            )}
-                          </p>
+
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <div className="flex items-start">
+                            <MapPin className="w-5 h-5 text-gray-400 mr-3 mt-1" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">Adresse de livraison</p>
+                              <div className="mt-1">
+                                {selectedRequestDetails.delivery_address ? (
+                                  <div className="text-sm text-gray-600">
+                                    <p>{selectedRequestDetails.delivery_address}</p>
+                                    <p>{selectedRequestDetails.delivery_postal_code} {selectedRequestDetails.delivery_city}</p>
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-gray-600">Non spécifiée</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="border-t border-gray-200 pt-4">
-                        <h4 className="text-sm font-medium text-gray-900 mb-3">Informations d'accès</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Type de livraison */}
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-start">
+                          <Package className="w-5 h-5 text-gray-400 mr-3 mt-1" />
                           <div>
-                            <p className="text-sm text-gray-500">Accès extérieur</p>
-                            <p className="font-medium text-gray-900">{selectedRequestDetails.exterior_access || 'Non spécifié'}</p>
+                            <p className="text-sm font-medium text-gray-900">Type de livraison</p>
+                            <p className="mt-1 text-sm text-gray-600">{selectedRequestDetails.delivery_type || 'Non spécifié'}</p>
                           </div>
-                          <div>
-                            <p className="text-sm text-gray-500">Accès intérieur</p>
-                            <p className="font-medium text-gray-900">{selectedRequestDetails.interior_access || 'Non spécifié'}</p>
-                          </div>
-                          {selectedRequestDetails.elevator_width && (
-                            <div className="md:col-span-2">
-                              <p className="text-sm text-gray-500">Dimensions de l'ascenseur</p>
-                              <div className="grid grid-cols-3 gap-4 mt-1">
-                                <div>
-                                  <p className="text-xs text-gray-500">Largeur</p>
-                                  <p className="font-medium text-gray-900">{selectedRequestDetails.elevator_width} cm</p>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-gray-500">Hauteur</p>
-                                  <p className="font-medium text-gray-900">{selectedRequestDetails.elevator_height} cm</p>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-gray-500">Profondeur</p>
-                                  <p className="font-medium text-gray-900">{selectedRequestDetails.elevator_depth} cm</p>
-                                </div>
+                        </div>
+                      </div>
+
+                      {/* Informations d'accès */}
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-start">
+                          <DoorOpen className="w-5 h-5 text-gray-400 mr-3 mt-1" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900">Informations d'accès</p>
+                            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-xs text-gray-500">Accès extérieur</p>
+                                <p className="mt-1 text-sm text-gray-600">{selectedRequestDetails.exterior_access || 'Non spécifié'}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-500">Accès intérieur</p>
+                                <p className="mt-1 text-sm text-gray-600">{selectedRequestDetails.interior_access || 'Non spécifié'}</p>
                               </div>
                             </div>
-                          )}
+                            {selectedRequestDetails.elevator_width && (
+                              <div className="mt-4">
+                                <p className="text-xs text-gray-500 mb-2">Dimensions de l'ascenseur</p>
+                                <div className="grid grid-cols-3 gap-4">
+                                  <div className="bg-white rounded p-2 text-center">
+                                    <p className="text-xs text-gray-500">Largeur</p>
+                                    <p className="text-sm font-medium text-gray-900">{selectedRequestDetails.elevator_width} cm</p>
+                                  </div>
+                                  <div className="bg-white rounded p-2 text-center">
+                                    <p className="text-xs text-gray-500">Hauteur</p>
+                                    <p className="text-sm font-medium text-gray-900">{selectedRequestDetails.elevator_height} cm</p>
+                                  </div>
+                                  <div className="bg-white rounded p-2 text-center">
+                                    <p className="text-xs text-gray-500">Profondeur</p>
+                                    <p className="text-sm font-medium text-gray-900">{selectedRequestDetails.elevator_depth} cm</p>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -349,26 +379,40 @@ const QuoteRequestCalendar: React.FC = () => {
                 </div>
 
                 {/* Informations de reprise */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations de reprise</h3>
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-500">Date de reprise</p>
-                          <p className="font-medium text-gray-900">
-                            {selectedRequestDetails.pickup_return_date ? formatDate(selectedRequestDetails.pickup_return_date) : 'Non spécifiée'}
-                          </p>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-6">
+                  <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                    <div className="flex items-center">
+                      <ArrowLeftRight className="w-5 h-5 text-indigo-600 mr-3" />
+                      <h3 className="text-lg font-semibold text-gray-900">Informations de reprise</h3>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-start">
+                          <Calendar className="w-5 h-5 text-gray-400 mr-3 mt-1" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">Date de reprise</p>
+                            <p className="mt-1 text-sm text-gray-600">
+                              {selectedRequestDetails.pickup_return_date ? formatDate(selectedRequestDetails.pickup_return_date) : 'Non spécifiée'}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Créneau horaire</p>
-                          <p className="font-medium text-gray-900">
-                            {selectedRequestDetails.pickup_return_start_time && selectedRequestDetails.pickup_return_end_time ? (
-                              `${selectedRequestDetails.pickup_return_start_time} - ${selectedRequestDetails.pickup_return_end_time}`
-                            ) : (
-                              'Non spécifié'
-                            )}
-                          </p>
+                      </div>
+
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-start">
+                          <Clock className="w-5 h-5 text-gray-400 mr-3 mt-1" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">Créneau horaire</p>
+                            <p className="mt-1 text-sm text-gray-600">
+                              {selectedRequestDetails.pickup_return_start_time && selectedRequestDetails.pickup_return_end_time ? (
+                                `${selectedRequestDetails.pickup_return_start_time} - ${selectedRequestDetails.pickup_return_end_time}`
+                              ) : (
+                                'Non spécifié'
+                              )}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -377,12 +421,19 @@ const QuoteRequestCalendar: React.FC = () => {
 
                 {/* Commentaires */}
                 {selectedRequestDetails.comments && (
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Commentaires</h3>
-                    <div className="bg-white rounded-lg p-4 border border-gray-200">
-                      <p className="text-gray-700 whitespace-pre-wrap">
-                        {selectedRequestDetails.comments}
-                      </p>
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-6">
+                    <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                      <div className="flex items-center">
+                        <MessageSquare className="w-5 h-5 text-indigo-600 mr-3" />
+                        <h3 className="text-lg font-semibold text-gray-900">Commentaires</h3>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                          {selectedRequestDetails.comments}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 )}
