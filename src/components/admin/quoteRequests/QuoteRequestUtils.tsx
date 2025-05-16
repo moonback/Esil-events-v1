@@ -142,7 +142,6 @@ export const exportToPDF = async (
       <div style="font-family: Arial, sans-serif; color: #333;">
         <div style="text-align: center; margin-bottom: 20px;">
           <h1 style="color: #4f46e5; font-size: 24px; margin-bottom: 5px;">ESIL Events</h1>
-          <p style="font-size: 14px; margin: 0;">Location de mobilier événementiel premium</p>
         </div>
         
         <div style="margin-bottom: 30px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">
@@ -283,18 +282,45 @@ export const exportToPDF = async (
 
     // Générer le PDF à partir du contenu HTML
     const canvas = await html2canvas(printElement, {
-      scale: 1,
+      scale: 2, // Augmenter la résolution pour une meilleure qualité
       useCORS: true,
-      logging: false
+      logging: false,
+      windowWidth: 210 * 8, // Largeur en pixels (210mm * 8 pixels par mm)
+      windowHeight: 297 * 8 // Hauteur en pixels (297mm * 8 pixels par mm)
     });
 
     // Créer le PDF au format A4
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const imgData = canvas.toDataURL('image/png');
-    const imgWidth = 210; // A4 width in mm
-    const imgHeight = canvas.height * imgWidth / canvas.width;
+    const imgData = canvas.toDataURL('image/png', 1.0);
     
-    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    // Dimensions A4 en mm
+    const pageWidth = 210;
+    const pageHeight = 297;
+    
+    // Calculer le nombre de pages nécessaires
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const pageCount = Math.ceil(imgHeight / pageHeight);
+    
+    // Ajouter chaque page au PDF
+    for (let i = 0; i < pageCount; i++) {
+      if (i > 0) {
+        pdf.addPage();
+      }
+      
+      // Calculer la position Y pour cette page
+      const positionY = -(i * pageHeight);
+      
+      // Ajouter l'image avec la position Y ajustée
+      pdf.addImage(
+        imgData,
+        'PNG',
+        0,
+        positionY,
+        imgWidth,
+        imgHeight
+      );
+    }
     
     // Générer un nom de fichier basé sur les informations de la demande
     const fileName = `ESIL_Devis_${request.id?.substring(0, 8).toUpperCase() || 'N/A'}_${request.last_name || 'Client'}.pdf`;
