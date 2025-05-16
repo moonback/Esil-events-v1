@@ -321,32 +321,63 @@ const AdminDashboard: React.FC = () => {
                   <table className="w-full">
                     <thead className="bg-gray-50 dark:bg-gray-700/50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Client</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Événement</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Livraison & Reprise</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Statut</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                       {stats.recentQuoteRequests.map((quote: any) => (
                         <tr key={quote.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                            {new Date(quote.created_at).toLocaleDateString('fr-FR')}
+                            <div className="font-medium">{`${quote.first_name} ${quote.last_name}`}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {quote.company && quote.company !== 'Particulier' ? quote.company : 'Particulier'}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {quote.phone}
+                            </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                            {`${quote.first_name} ${quote.last_name}`}
-                            {quote.company && quote.company !== 'Particulier' && (
-                              <span className="block text-xs text-gray-500 dark:text-gray-400">
-                                {quote.company}
-                              </span>
-                            )}
+                            <div className="font-medium">
+                              {new Date(quote.event_date).toLocaleDateString('fr-FR')}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {quote.event_location || 'Non spécifié'}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {quote.guest_count ? `${quote.guest_count} personnes` : 'Nombre de personnes non spécifié'}
+                            </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                            <div>
-                              <div>{new Date(quote.event_date).toLocaleDateString('fr-FR')}</div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400">
-                                {quote.event_location || 'Non spécifié'}
+                            <div className="space-y-2">
+                              {/* Livraison */}
+                              <div>
+                                <div className="font-medium text-xs text-gray-500 dark:text-gray-400">Livraison</div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  {quote.delivery_date ? new Date(quote.delivery_date).toLocaleDateString('fr-FR') : 'Non spécifiée'}
+                                </div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  {quote.delivery_time_slot || 'Créneau non spécifié'}
+                                </div>
+                                {quote.delivery_address && (
+                                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                                    {`${quote.delivery_address}, ${quote.delivery_postal_code} ${quote.delivery_city}`}
+                                  </div>
+                                )}
+                              </div>
+                              {/* Reprise */}
+                              <div>
+                                <div className="font-medium text-xs text-gray-500 dark:text-gray-400">Reprise</div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  {quote.pickup_return_date ? new Date(quote.pickup_return_date).toLocaleDateString('fr-FR') : 'Non spécifiée'}
+                                </div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  {quote.pickup_return_start_time && quote.pickup_return_end_time ? 
+                                    `${quote.pickup_return_start_time} - ${quote.pickup_return_end_time}` : 
+                                    'Créneau non spécifié'}
+                                </div>
                               </div>
                             </div>
                           </td>
@@ -358,14 +389,6 @@ const AdminDashboard: React.FC = () => {
                               {quote.status === 'pending' ? 'En attente' : 
                                quote.status === 'approved' ? 'Approuvé' : 'En cours'}
                             </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                            <button
-                              onClick={() => navigate(`/admin/quote-requests/${quote.id}`)}
-                              className="text-violet-600 hover:text-violet-900 dark:text-violet-400 dark:hover:text-violet-300"
-                            >
-                              Voir détails
-                            </button>
                           </td>
                         </tr>
                       ))}
