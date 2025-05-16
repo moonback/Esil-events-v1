@@ -453,23 +453,23 @@ const ProductPage: React.FC = () => {
           {/* Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10">
             {/* Product Images */}
-            <div className="bg-white rounded-2xl shadow-xl p-4 md:p-8">
-              <div className="relative aspect-square md:aspect-[4/3] overflow-hidden rounded-xl">
+            <div className="bg-white rounded-2xl shadow-xl p-4 md:p-8 transform transition-all duration-300 hover:shadow-2xl">
+              <div className="relative aspect-square md:aspect-[4/3] overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-white">
                 {product.images && product.images.length > 0 ? (
                   <div className="relative w-full h-full group">
                     <img 
                       src={product.images[currentImageIndex]} 
                       alt={product.name} 
-                      className="w-full h-full object-contain transition-opacity duration-300 cursor-zoom-in"
+                      className="w-full h-full object-contain transition-all duration-300 cursor-zoom-in hover:scale-[1.02]"
                       onClick={() => setZoomOpen(true)}
                       onError={(e) => {
                         e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
                       }}
                     />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/5">
                       <button 
                         onClick={() => setZoomOpen(true)}
-                        className="bg-violet-600/80 text-white p-3 rounded-full hover:bg-violet-700 transition-all duration-300 transform hover:scale-110"
+                        className="bg-violet-600/90 text-white p-3 rounded-full hover:bg-violet-700 transition-all duration-300 transform hover:scale-110 shadow-lg"
                         aria-label="Zoomer l'image"
                       >
                         <ZoomIn className="w-6 h-6" />
@@ -488,14 +488,14 @@ const ProductPage: React.FC = () => {
                   <>
                     <button 
                       onClick={handlePrevImage}
-                      className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-2 md:p-3 shadow-lg hover:bg-violet-50 transition-colors"
+                      className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/95 rounded-full p-2 md:p-3 shadow-lg hover:bg-violet-50 transition-all duration-300 transform hover:scale-110 active:scale-95"
                       aria-label="Image précédente"
                     >
                       <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-violet-600" />
                     </button>
                     <button 
                       onClick={handleNextImage}
-                      className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-2 md:p-3 shadow-lg hover:bg-violet-50 transition-colors"
+                      className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/95 rounded-full p-2 md:p-3 shadow-lg hover:bg-violet-50 transition-all duration-300 transform hover:scale-110 active:scale-95"
                       aria-label="Image suivante"
                     >
                       <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-violet-600" />
@@ -511,17 +511,17 @@ const ProductPage: React.FC = () => {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`relative aspect-square rounded-lg overflow-hidden transition-all duration-200 ${
+                      className={`relative aspect-square rounded-lg overflow-hidden transition-all duration-300 transform hover:scale-105 ${
                         currentImageIndex === index 
-                          ? 'ring-2 ring-violet-600 scale-105 z-10' 
-                          : 'hover:ring-1 hover:ring-violet-300'
+                          ? 'ring-2 ring-violet-600 scale-105 z-10 shadow-lg' 
+                          : 'hover:ring-1 hover:ring-violet-300 hover:shadow-md'
                       }`}
                       aria-label={`Voir image ${index + 1}`}
                     >
                       <img 
                         src={image} 
                         alt={`${product.name} - vue ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                       />
                     </button>
                   ))}
