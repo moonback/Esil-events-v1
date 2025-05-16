@@ -109,6 +109,15 @@ const QuoteRequestDetails: React.FC<QuoteRequestDetailsProps> = ({
             </div>
           </div>
         </div>
+        {/* Description */}
+        <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+          <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <FileText className="h-5 w-5 text-indigo-600" /> Description
+          </h3>
+          <div className="p-3 bg-gray-50 rounded-lg text-sm">
+            <span className="font-medium text-gray-900">{selectedRequest.description || '-'}</span>
+          </div>
+        </div>
 
         {/* Billing Address */}
         <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
