@@ -622,11 +622,11 @@ const AdminProducts: React.FC = () => {
                                   )}
                                 </div>
                                 <div className="ml-0 lg:ml-3">
-                                  <div className="font-medium text-gray-900 dark:text-white">{product.name}</div>
-                                  <div className="text-sm text-gray-500 dark:text-gray-400">{product.reference}</div>
+                                  <div className="font-medium text-gray-900 dark:text-white truncate max-w-[40ch]">{product.name}</div>
+                                  <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[40ch]">{product.reference}</div>
                                   {product.slug && (
-                                    <div className="text-xs text-blue-500 dark:text-blue-400 mt-0.5">
-                                      <span className="font-medium">URL:</span> /product/{product.slug}
+                                    <div className="text-xs text-blue-500 dark:text-blue-400 mt-0.5 truncate max-w-[40ch]">
+                                      <span className="font-medium ">URL:</span> /product/{product.slug}
                                     </div>
                                   )}
                                   <div className="lg:hidden text-xs text-gray-400 mt-1">
