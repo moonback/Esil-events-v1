@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, ShoppingCart, Star, Clock, Tag, Truck, Check, ZoomIn, X, BarChart, TrendingUp, TrendingDown } from 'lucide-react';
+import { 
+  ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, 
+  ShoppingCart, Star, Clock, Tag, Truck, Check, ZoomIn, X, 
+  BarChart, TrendingUp, TrendingDown, Loader2, AlertCircle,
+  Package, FileCode, Video, Lock
+} from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 import { getProductById, getSimilarProducts } from '../services/productService';
@@ -39,11 +44,14 @@ const ProductPage: React.FC = () => {
   const [loadingSimilar, setLoadingSimilar] = useState(false);
   const [sortMethod, setSortMethod] = useState<'relevance' | 'price' | 'newest'>('relevance');
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   const [zoomOpen, setZoomOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { addToCart } = useCart();
   const { user } = useAuth();
   const [keywordRankings, setKeywordRankings] = useState<Record<string, KeywordRanking>>({});
   const [loadingRankings, setLoadingRankings] = useState(false);
+  const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'docs'>('description');
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -292,24 +300,52 @@ const ProductPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-600 shadow-md"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center pt-20 space-y-4">
+        <Loader2 className="w-12 h-12 text-violet-600 animate-spin" />
+        <p className="text-gray-600 font-medium">Chargement du produit...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center pt-20 space-y-6">
+        <div className="bg-red-50 p-6 rounded-2xl shadow-lg flex flex-col items-center space-y-4">
+          <AlertCircle className="w-16 h-16 text-red-500" />
+          <h2 className="text-2xl font-bold text-gray-900">Une erreur est survenue</h2>
+          <p className="text-gray-600 text-center max-w-md">{error}</p>
+          <Link 
+            to="/" 
+            className="px-6 py-3 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+          >
+            Retour à l'accueil
+          </Link>
+        </div>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center pt-20">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">Produit non trouvé</h2>
-        <Link to="/" className="px-6 py-3 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-          Retour à l'accueil
-        </Link>
+      <div className="min-h-screen flex flex-col items-center justify-center pt-20 space-y-6">
+        <div className="bg-amber-50 p-6 rounded-2xl shadow-lg flex flex-col items-center space-y-4">
+          <Package className="w-16 h-16 text-amber-500" />
+          <h2 className="text-2xl font-bold text-gray-900">Produit non trouvé</h2>
+          <p className="text-gray-600 text-center max-w-md">
+            Le produit que vous recherchez n'existe pas ou a été retiré.
+          </p>
+          <Link 
+            to="/" 
+            className="px-6 py-3 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+          >
+            Retour à l'accueil
+          </Link>
+        </div>
       </div>
     );
   }
 
-return (
+  return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white">
       {/* SEO Component */}
       {product && (
@@ -350,9 +386,13 @@ return (
         {/* Breadcrumb */}
         <div className="mb-8">
           <nav className="flex" aria-label="Breadcrumb">
-            <ol className="inline-flex items-center space-x-3 text-sm bg-white px-4 py-2 rounded-lg shadow-sm">
+            <ol className="inline-flex items-center space-x-3 text-sm bg-white px-6 py-3 rounded-xl shadow-md">
               <li className="inline-flex items-center">
-                <Link to="/" className="text-gray-600 hover:text-violet-600 transition-colors duration-200 font-medium">
+                <Link to="/" className="text-gray-600 hover:text-violet-600 transition-colors duration-200 font-medium flex items-center">
+                  <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                  </svg>
                   Accueil
                 </Link>
               </li>
@@ -409,7 +449,7 @@ return (
           })}
         </script>
 
-        <div className="space-y-10  pt-10">
+        <div className="space-y-10 pt-10">
           {/* Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10">
             {/* Product Images */}
@@ -490,217 +530,266 @@ return (
             </div>
 
             {/* Product Info */}
-            <div className="space-y-4 md:space-y-6 ">
-              <div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">{product.name}</h1>
-                <p className="mt-1 text-gray-500 flex items-center text-sm">
-                  <Tag className="w-3 h-3 mr-1" />
-                  <span>Réf: {product.reference}</span>
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 md:gap-6">
-                <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg transition-shadow hover:shadow-md">
-                  <p className="text-xs sm:text-sm text-gray-500">Prix HT / jour</p>
-                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{product.priceHT.toFixed(2)} €</p>
-                </div>
-                <div className="bg-violet-50 p-4 md:p-6 rounded-xl shadow-lg transition-shadow hover:shadow-md">
-                  <p className="text-xs sm:text-sm text-violet-600">Prix TTC / jour</p>
-                  <p className="text-xl sm:text-2xl font-bold text-violet-600">{product.priceTTC.toFixed(2)} €</p>
-                </div>
-              </div>
-
-              {/* Quantity Selector */}
-              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                  {/* Quantity Selector */}
-                  <div className="relative">
-                    <label className="block text-sm font-medium text-gray-700 mb-2 md:mb-3 flex items-center">
-                      <Clock className="w-4 h-4 mr-1 text-violet-600" />
-                      <span>Quantité</span>
-                    </label>
-                    <div className="flex items-center space-x-2 md:space-x-4">
-                      <button 
-                        onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                        className="p-2 md:p-3 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
-                        aria-label="Diminuer la quantité"
-                      >
-                        <Minus className="w-4 h-4 md:w-5 md:h-5" />
-                      </button>
-                      <input 
-                        type="number" 
-                        min="1"
-                        max="999" 
-                        value={quantity} 
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value);
-                          if (!isNaN(val) && val >= 1 && val <= 999) {
-                            setQuantity(val);
-                          }
-                        }}
-                        className="w-20 md:w-28 text-center border-2 border-violet-100 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 shadow-sm text-lg font-medium"
-                        aria-label="Quantité"
-                      />
-                      <button 
-                        onClick={() => setQuantity(prev => Math.min(999, prev + 1))}
-                        className="p-2 md:p-3 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
-                        aria-label="Augmenter la quantité"
-                      >
-                        <Plus className="w-4 h-4 md:w-5 md:h-5" />
-                      </button>
+            <div className="space-y-6">
+              <div className="bg-white rounded-2xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl">
+                <div className="space-y-4">
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight bg-gradient-to-r from-violet-600 to-violet-800 bg-clip-text text-transparent">
+                      {product.name}
+                    </h1>
+                    <div className="mt-2 flex items-center space-x-4">
+                      <p className="text-gray-500 flex items-center text-sm group">
+                        <Tag className="w-4 h-4 mr-1.5 text-violet-500 group-hover:text-violet-600 transition-colors" />
+                        <span className="group-hover:text-violet-600 transition-colors">Réf: {product.reference}</span>
+                      </p>
+                      {/* {product.stock > 0 ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 animate-fade-in">
+                          <Check className="w-3 h-3 mr-1" />
+                          En stock
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 animate-fade-in">
+                          <X className="w-3 h-3 mr-1" />
+                          Indisponible
+                        </span>
+                      )} */}
                     </div>
                   </div>
 
-                  {/* Color Selector */}
-                  {product.colors && product.colors.length > 0 && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 md:mb-3 flex items-center">
-                        <Info className="w-4 h-4 mr-1" />
-                        <span>Couleur</span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                      <p className="text-sm text-gray-500 mb-1">Prix HT / jour</p>
+                      <p className="text-2xl font-bold text-gray-900">{product.priceHT.toFixed(2)} €</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-violet-50 to-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                      <p className="text-sm text-violet-600 mb-1">Prix TTC / jour</p>
+                      <p className="text-2xl font-bold text-violet-600">{product.priceTTC.toFixed(2)} €</p>
+                    </div>
+                  </div>
+
+                  {/* Quantity and Color Selectors */}
+                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 space-y-4 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-gray-700 flex items-center group">
+                        <Clock className="w-4 h-4 mr-1.5 text-violet-500 group-hover:text-violet-600 transition-colors" />
+                        <span className="group-hover:text-violet-600 transition-colors">Quantité</span>
                       </label>
-                      <div className="flex flex-wrap gap-2 md:gap-3">
-                        {product.colors.map((color) => (
-                          <button
-                            key={color}
-                            onClick={() => setSelectedColor(color)}
-                            className={`px-3 py-2 md:px-4 md:py-2 text-sm rounded-lg transition-all shadow-sm ${
-                              selectedColor === color 
-                                ? 'bg-violet-600 text-white shadow-md transform scale-105' 
-                                : 'bg-violet-50 text-gray-700 hover:bg-violet-100 hover:shadow'
-                            }`}
-                            aria-label={`Sélectionner la couleur ${color}`}
-                          >
-                            {color}
-                          </button>
-                        ))}
+                      <div className="flex items-center space-x-2">
+                        <button 
+                          onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                          className="p-2 rounded-lg bg-white text-violet-600 hover:bg-violet-50 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95"
+                          aria-label="Diminuer la quantité"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <input 
+                          type="number" 
+                          min="1"
+                          max="999" 
+                          value={quantity} 
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value);
+                            if (!isNaN(val) && val >= 1 && val <= 999) {
+                              setQuantity(val);
+                            }
+                          }}
+                          className="w-20 text-center border-2 border-violet-100 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 shadow-sm text-lg font-medium transition-all duration-200"
+                          aria-label="Quantité"
+                        />
+                        <button 
+                          onClick={() => setQuantity(prev => Math.min(999, prev + 1))}
+                          className="p-2 rounded-lg bg-white text-violet-600 hover:bg-violet-50 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95"
+                          aria-label="Augmenter la quantité"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
                       </div>
+                    </div>
+
+                    {product.colors && product.colors.length > 0 && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 flex items-center group mb-2">
+                          <Info className="w-4 h-4 mr-1.5 text-violet-500 group-hover:text-violet-600 transition-colors" />
+                          <span className="group-hover:text-violet-600 transition-colors">Couleur</span>
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {product.colors.map((color) => (
+                            <button
+                              key={color}
+                              onClick={() => setSelectedColor(color)}
+                              className={`px-4 py-2 text-sm rounded-lg transition-all duration-300 shadow-sm ${
+                                selectedColor === color 
+                                  ? 'bg-violet-600 text-white shadow-md transform scale-105 ring-2 ring-violet-300' 
+                                  : 'bg-white text-gray-700 hover:bg-violet-50 hover:shadow hover:scale-105'
+                              }`}
+                              aria-label={`Sélectionner la couleur ${color}`}
+                            >
+                              {color}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Add to Cart Button */}
+                  <button 
+                    onClick={handleAddToCart}
+                    className="w-full bg-gradient-to-r from-violet-600 to-violet-700 text-white py-4 px-6 rounded-xl 
+                    hover:from-violet-700 hover:to-violet-800 transition-all duration-300 
+                    flex items-center justify-center space-x-3 text-lg font-semibold
+                    shadow-lg hover:shadow-xl transform hover:-translate-y-1 
+                    active:transform active:translate-y-0 active:shadow-md
+                    relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed
+                    disabled:hover:transform-none disabled:hover:shadow-lg"
+                    disabled={product.colors && product.colors.length > 0 && !selectedColor}
+                    aria-label="Ajouter au devis"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative flex items-center space-x-3">
+                      <ShoppingCart className="w-6 h-6 animate-bounce" />
+                      <span>Ajouter au devis</span>
+                    </div>
+                    <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                  </button>
+                  {product.colors && product.colors.length > 0 && !selectedColor && (
+                    <p className="text-sm text-red-500 text-center animate-fade-in">
+                      Veuillez sélectionner une couleur
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Description, Specs and Docs Tabs */}
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="border-b border-gray-200">
+                  <nav className="flex space-x-4 px-6" aria-label="Tabs">
+                    <button
+                      onClick={() => setActiveTab('description')}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                        activeTab === 'description'
+                          ? 'border-violet-600 text-violet-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>Description</span>
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('specs')}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                        activeTab === 'specs'
+                          ? 'border-violet-600 text-violet-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      <Info className="w-4 h-4" />
+                      <span>Caractéristiques</span>
+                    </button>
+                    {(product.technicalDocUrl || product.videoUrl) && (
+                      <button
+                        onClick={() => setActiveTab('docs')}
+                        className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                          activeTab === 'docs'
+                            ? 'border-violet-600 text-violet-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        <FileCode className="w-4 h-4" />
+                        <span>Documentation</span>
+                      </button>
+                    )}
+                  </nav>
+                </div>
+
+                <div className="p-6">
+                  {activeTab === 'description' && (
+                    <div className="prose prose-violet max-w-none">
+                      {product.description.split('\n').map((paragraph, index) => (
+                        paragraph.trim() ? (
+                          <p key={index} className="mb-4 last:mb-0 text-gray-600 leading-relaxed">
+                            {paragraph}
+                          </p>
+                        ) : null
+                      ))}
+                    </div>
+                  )}
+
+                  {activeTab === 'specs' && (
+                    <dl className="space-y-4">
+                      {Object.entries(product.technicalSpecs).map(([key, value]) => (
+                        <div key={key} className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-3 border-b border-gray-100 last:border-0">
+                          <dt className="text-gray-600 font-medium">{key}</dt>
+                          <dd className="col-span-1 sm:col-span-2 text-gray-900">{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+
+                  {activeTab === 'docs' && (product.technicalDocUrl || product.videoUrl) && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {product.technicalDocUrl && (
+                        <a 
+                          href={product.technicalDocUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center p-4 bg-violet-50 text-violet-700 rounded-xl hover:bg-violet-100 transition-colors shadow-sm hover:shadow-md transform hover:scale-105 duration-300"
+                        >
+                          <FileText className="w-6 h-6 mr-3" />
+                          <span className="font-medium">Documentation Technique</span>
+                        </a>
+                      )}
+                      {product.videoUrl && (
+                        <a 
+                          href={product.videoUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center p-4 bg-violet-50 text-violet-700 rounded-xl hover:bg-violet-100 transition-colors shadow-sm hover:shadow-md transform hover:scale-105 duration-300"
+                        >
+                          <Video className="w-6 h-6 mr-3" />
+                          <span className="font-medium">Vidéo de Présentation</span>
+                        </a>
+                      )}
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Add to Cart Button */}
-              <button 
-                onClick={handleAddToCart}
-                className="w-full bg-gradient-to-r from-violet-600 to-violet-700 text-white py-3 md:py-4 px-6 rounded-xl 
-                hover:from-violet-700 hover:to-violet-800 transition-all duration-300 
-                flex items-center justify-center space-x-3 text-base md:text-lg font-semibold
-                shadow-lg hover:shadow-xl transform hover:-translate-y-1 
-                active:transform active:translate-y-0 active:shadow-md
-                relative overflow-hidden group"
-                aria-label="Ajouter au devis"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative flex items-center space-x-3">
-                  <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 animate-bounce" />
-                  <span>Ajouter au devis</span>
-                </div>
-              </button>
-
-              {/* Description */}
-              <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 hover:shadow-md transition-shadow">
-                <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 flex items-center">
-                  <FileText className="w-5 h-5 mr-2 text-violet-600" />
-                  <span>Description</span>
-                </h2>
-                <div className="text-gray-600 leading-relaxed text-sm md:text-base">
-                  {product.description.split('\n').map((paragraph, index) => (
-                    paragraph.trim() ? (
-                      <p key={index} className="mb-3 last:mb-0">{paragraph}</p>
-                    ) : null
-                  ))}
-                </div>
-              </div>
-
-              {/* Technical Specifications */}
-              <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 hover:shadow-md transition-shadow">
-                <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 flex items-center">
-                  <Info className="w-5 h-5 mr-2 text-violet-600" />
-                  <span>Caractéristiques techniques</span>
-                </h2>
-                <dl className="space-y-3 md:space-y-4">
-                  {Object.entries(product.technicalSpecs).map(([key, value]) => (
-                    <div key={key} className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-4 py-2 border-b border-gray-100 last:border-0">
-                      <dt className="text-gray-600 font-medium text-sm md:text-base">{key}</dt>
-                      <dd className="col-span-1 sm:col-span-2 text-gray-900 text-sm md:text-base">{value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-
-              {/* Documentation and Video Links */}
-              {(product.technicalDocUrl || product.videoUrl) && (
-                <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 hover:shadow-md transition-shadow">
-                  <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 flex items-center">
-                    <FileText className="w-5 h-5 mr-2 text-violet-600" />
-                    <span>Documentation & Présentation</span>
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {product.technicalDocUrl && (
-                      <a 
-                        href={product.technicalDocUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center p-3 md:p-4 bg-violet-50 text-violet-700 rounded-lg hover:bg-violet-100 transition-colors shadow-sm hover:shadow-md transform hover:scale-105 duration-300"
-                      >
-                        <FileText className="w-5 h-5 md:w-6 md:h-6 mr-2" />
-                        <span className="font-medium">Documentation Technique</span>
-                      </a>
-                    )}
-                    {product.videoUrl && (
-                      <a 
-                        href={product.videoUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center p-3 md:p-4 bg-violet-50 text-violet-700 rounded-lg hover:bg-violet-100 transition-colors shadow-sm hover:shadow-md transform hover:scale-105 duration-300"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 md:w-6 md:h-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                        </svg>
-                        <span className="font-medium">Vidéo de Présentation</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-
               {/* SEO Keywords Section - Only visible for authenticated users */}
               {user && (product.seo_keywords || product.seo_title || product.seo_description) && (
-                <div className="bg-gradient-to-br from-violet-50 to-white rounded-xl shadow-lg p-4 md:p-6 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="flex items-center justify-between mb-3 md:mb-4">
-                    <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2 text-violet-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/>
-                        <path d="M7 7h.01"/>
-                      </svg>
+                <div className="bg-gradient-to-br from-violet-50 to-white rounded-2xl shadow-lg p-6 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-bold text-gray-900 flex items-center">
+                      <Lock className="w-5 h-5 mr-2 text-violet-600" />
                       <span>Informations SEO</span>
                     </h2>
-                    <span className="text-xs px-2 py-1 bg-violet-100 text-violet-800 rounded-full font-medium">
+                    <span className="text-xs px-3 py-1 bg-violet-100 text-violet-800 rounded-full font-medium flex items-center">
+                      <Lock className="w-3 h-3 mr-1" />
                       Accès restreint
                     </span>
                   </div>
                   
                   <div className="space-y-4">
                     {product.seo_title && (
-                      <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 border border-violet-100">
-                        <h3 className="text-sm font-medium text-violet-600 mb-1">Titre SEO</h3>
+                      <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-violet-100">
+                        <h3 className="text-sm font-medium text-violet-600 mb-2">Titre SEO</h3>
                         <p className="text-gray-700">{product.seo_title}</p>
                       </div>
                     )}
                     
                     {product.seo_description && (
-                      <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 border border-violet-100">
-                        <h3 className="text-sm font-medium text-violet-600 mb-1">Description SEO</h3>
+                      <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-violet-100">
+                        <h3 className="text-sm font-medium text-violet-600 mb-2">Description SEO</h3>
                         <p className="text-gray-700">{product.seo_description}</p>
                       </div>
                     )}
                     
                     {product.seo_keywords && (
-                      <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 border border-violet-100">
-                        <div className="flex items-center justify-between mb-2">
+                      <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-violet-100">
+                        <div className="flex items-center justify-between mb-3">
                           <h3 className="text-sm font-medium text-violet-600">Mots-clés SEO</h3>
                           {loadingRankings && (
-                            <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-violet-600"></div>
+                            <Loader2 className="w-4 h-4 text-violet-600 animate-spin" />
                           )}
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -716,7 +805,7 @@ return (
                                 className="group relative"
                               >
                                 <span 
-                                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                                  className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium 
                                     ${hasRanking ? 'bg-violet-100' : 'bg-gray-100'} 
                                     ${hasRanking ? 'text-violet-800' : 'text-gray-600'} 
                                     hover:bg-violet-200 transition-colors duration-200 cursor-default`}
@@ -778,10 +867,17 @@ return (
           {/* Toast Notification */}
           {showToast && (
             <div className="fixed bottom-6 right-6 bg-gradient-to-r from-violet-600 to-violet-700 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up z-50 transform hover:scale-105 transition-transform duration-300">
-              <div className="bg-white/20 p-2 rounded-full">
+              <div className="bg-white/20 p-2 rounded-full animate-pulse">
                 <Check className="w-5 h-5" />
               </div>
               <span className="font-medium">Produit ajouté au devis avec succès !</span>
+              <button 
+                onClick={() => setShowToast(false)}
+                className="ml-4 p-1 hover:bg-white/20 rounded-full transition-colors"
+                aria-label="Fermer la notification"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           )}
           
@@ -985,8 +1081,6 @@ return (
       </div>
     </div>
   );
-
-  
 };
 
 // Composant ZoomableImage pour le zoom interactif
