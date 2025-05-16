@@ -524,7 +524,9 @@ export const sendQuoteRequestConfirmation = async (quoteRequest: QuoteRequest): 
         <div class="contact-info">
           <p>Si vous avez des questions, n'hésitez pas à nous contacter :</p>
           <ul class="info-list" style="margin-top: 8px;">
-            <li><span class="info-label">Téléphone :</span> <span class="info-value">06 20 46 13 85</span></li>
+            <li><span class="info-label">Adresse :</span> <span class="info-value">7 rue de la cellophane, 78711 Mantes-la-Ville</span></li>
+            <li><span class="info-label">Service commercial :</span> <span class="info-value">07 85 95 97 23</span></li>
+            <li><span class="info-label">Service technique :</span> <span class="info-value">06 20 46 13 85</span></li>
             <li><span class="info-label">Email :</span> <span class="info-value">contact@esil-events.fr</span></li>
           </ul>
         </div>
