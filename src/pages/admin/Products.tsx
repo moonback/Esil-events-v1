@@ -584,17 +584,7 @@ const AdminProducts: React.FC = () => {
                               )}
                             </div>
                           </th>
-                          <th 
-                            className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
-                            onClick={() => handleSort('stock')}
-                          >
-                            <div className="flex items-center">
-                              Stock
-                              {sortField === 'stock' && (
-                                <ArrowUpDown className="ml-1 h-3 w-3" />
-                              )}
-                            </div>
-                          </th>
+                          
                           <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Statut
                           </th>
@@ -647,18 +637,7 @@ const AdminProducts: React.FC = () => {
                               <div className="text-sm text-gray-900 dark:text-white">{product.priceHT} €</div>
                               <div className="text-xs text-gray-500 dark:text-gray-400">{product.priceTTC} € TTC</div>
                             </td>
-                            <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center">
-                                <span className={`text-sm ${product.stock < 5 ? 'text-amber-600 font-medium' : 'text-gray-500'}`}>
-                                  {product.stock}
-                                </span>
-                                {product.stock < 5 && (
-                                  <span className="ml-2 px-2 py-0.5 text-xs bg-amber-100 text-amber-800 rounded-full">
-                                    Faible
-                                  </span>
-                                )}
-                              </div>
-                            </td>
+                            
                             <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
                               <span
                                 className={`px-2 py-1 text-xs font-medium rounded-full ${
