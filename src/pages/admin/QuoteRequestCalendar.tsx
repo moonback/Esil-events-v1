@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Search, Filter, BarChart2, Clock, Users, Tag } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Search, Filter, BarChart2, Clock, Users, Tag, X, FileText, Mail, Phone, MapPin, Clock as ClockIcon } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { QuoteRequest } from '../../services/quoteRequestService';
@@ -17,6 +17,8 @@ const QuoteRequestCalendar: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRequestDetails, setSelectedRequestDetails] = useState<QuoteRequest | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchQuoteRequests();
@@ -111,6 +113,305 @@ const QuoteRequestCalendar: React.FC = () => {
     };
   };
 
+  const handleRequestClick = (request: QuoteRequest) => {
+    setSelectedRequestDetails(request);
+    setIsDetailsModalOpen(true);
+  };
+
+  const renderRequestDetailsModal = () => {
+    if (!selectedRequestDetails) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            <div className="flex justify-between items-start mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Détails de la demande de devis
+              </h2>
+              <button
+                onClick={() => setIsDetailsModalOpen(false)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Informations client */}
+              <div className="space-y-6">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations client</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start">
+                      <Users className="w-5 h-5 text-gray-400 mr-3 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-500">Nom complet</p>
+                        <p className="font-medium text-gray-900">
+                          {selectedRequestDetails.first_name} {selectedRequestDetails.last_name}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Mail className="w-5 h-5 text-gray-400 mr-3 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-500">Email</p>
+                        <p className="font-medium text-gray-900">{selectedRequestDetails.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Phone className="w-5 h-5 text-gray-400 mr-3 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-500">Téléphone</p>
+                        <p className="font-medium text-gray-900">{selectedRequestDetails.phone || 'Non renseigné'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Détails de l'événement */}
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Détails de l'événement</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start">
+                      <Calendar className="w-5 h-5 text-gray-400 mr-3 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-500">Date de l'événement</p>
+                        <p className="font-medium text-gray-900">
+                          {selectedRequestDetails.event_date ? formatDate(selectedRequestDetails.event_date.toString()) : 'Non renseignée'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <MapPin className="w-5 h-5 text-gray-400 mr-3 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-500">Lieu</p>
+                        <p className="font-medium text-gray-900">{selectedRequestDetails.event_location || 'Non renseigné'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <ClockIcon className="w-5 h-5 text-gray-400 mr-3 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-500">Durée</p>
+                        <p className="font-medium text-gray-900">{selectedRequestDetails.event_duration || 'Non renseignée'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Détails de la demande */}
+              <div className="space-y-6">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Détails de la demande</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Statut</p>
+                      <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(selectedRequestDetails.status || 'pending')}`}>
+                        {getStatusLabel(selectedRequestDetails.status || 'pending')}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Type de client</p>
+                      <p className="font-medium text-gray-900">{selectedRequestDetails.customer_type || 'Non renseigné'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Type de livraison</p>
+                      <p className="font-medium text-gray-900">{selectedRequestDetails.delivery_type || 'Non renseigné'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Articles demandés */}
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Articles demandés</h3>
+                  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Article</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix unitaire</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {selectedRequestDetails.items && selectedRequestDetails.items.length > 0 ? (
+                          selectedRequestDetails.items.map((item, index) => (
+                            <tr key={index}>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {item.name}
+                                {item.color && (
+                                  <span className="ml-2 text-xs text-gray-500">({item.color})</span>
+                                )}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.quantity}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.price?.toFixed(2)}€</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {((item.quantity || 0) * (item.price || 0)).toFixed(2)}€
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                              Aucun article demandé
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                      <tfoot className="bg-gray-50">
+                        <tr>
+                          <td colSpan={3} className="px-6 py-4 text-right text-sm font-medium text-gray-900">
+                            Total
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {selectedRequestDetails.items?.reduce((sum, item) => 
+                              sum + ((item.quantity || 0) * (item.price || 0)), 0
+                            ).toFixed(2)}€
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Informations de livraison */}
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations de livraison</h3>
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Type de livraison</p>
+                          <p className="font-medium text-gray-900">{selectedRequestDetails.delivery_type || 'Non spécifié'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Date de livraison</p>
+                          <p className="font-medium text-gray-900">
+                            {selectedRequestDetails.delivery_date ? formatDate(selectedRequestDetails.delivery_date) : 'Non spécifiée'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Créneau horaire</p>
+                          <p className="font-medium text-gray-900">{selectedRequestDetails.delivery_time_slot || 'Non spécifié'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Adresse de livraison</p>
+                          <p className="font-medium text-gray-900">
+                            {selectedRequestDetails.delivery_address ? (
+                              <>
+                                {selectedRequestDetails.delivery_address}
+                                <br />
+                                {selectedRequestDetails.delivery_postal_code} {selectedRequestDetails.delivery_city}
+                              </>
+                            ) : (
+                              'Non spécifiée'
+                            )}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-gray-200 pt-4">
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">Informations d'accès</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-gray-500">Accès extérieur</p>
+                            <p className="font-medium text-gray-900">{selectedRequestDetails.exterior_access || 'Non spécifié'}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">Accès intérieur</p>
+                            <p className="font-medium text-gray-900">{selectedRequestDetails.interior_access || 'Non spécifié'}</p>
+                          </div>
+                          {selectedRequestDetails.elevator_width && (
+                            <div className="md:col-span-2">
+                              <p className="text-sm text-gray-500">Dimensions de l'ascenseur</p>
+                              <div className="grid grid-cols-3 gap-4 mt-1">
+                                <div>
+                                  <p className="text-xs text-gray-500">Largeur</p>
+                                  <p className="font-medium text-gray-900">{selectedRequestDetails.elevator_width} cm</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500">Hauteur</p>
+                                  <p className="font-medium text-gray-900">{selectedRequestDetails.elevator_height} cm</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500">Profondeur</p>
+                                  <p className="font-medium text-gray-900">{selectedRequestDetails.elevator_depth} cm</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Informations de reprise */}
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations de reprise</h3>
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Date de reprise</p>
+                          <p className="font-medium text-gray-900">
+                            {selectedRequestDetails.pickup_return_date ? formatDate(selectedRequestDetails.pickup_return_date) : 'Non spécifiée'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Créneau horaire</p>
+                          <p className="font-medium text-gray-900">
+                            {selectedRequestDetails.pickup_return_start_time && selectedRequestDetails.pickup_return_end_time ? (
+                              `${selectedRequestDetails.pickup_return_start_time} - ${selectedRequestDetails.pickup_return_end_time}`
+                            ) : (
+                              'Non spécifié'
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Commentaires */}
+                {selectedRequestDetails.comments && (
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Commentaires</h3>
+                    <div className="bg-white rounded-lg p-4 border border-gray-200">
+                      <p className="text-gray-700 whitespace-pre-wrap">
+                        {selectedRequestDetails.comments}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                onClick={() => setIsDetailsModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Fermer
+              </button>
+              <button
+                onClick={() => {
+                  // TODO: Implémenter l'action d'édition
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Modifier
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderMonthView = () => {
     const { daysInMonth, firstDayOfMonth } = getDaysInMonth(currentMonth);
     const days = [];
@@ -141,7 +442,11 @@ const QuoteRequestCalendar: React.FC = () => {
             {requestsForDay.map(request => (
               <div
                 key={request.id}
-                className={`text-xs p-1 rounded truncate ${getStatusColor(request.status)}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRequestClick(request);
+                }}
+                className={`text-xs p-1 rounded truncate ${getStatusColor(request.status)} cursor-pointer hover:opacity-80`}
                 title={`${request.first_name} ${request.last_name} - ${getStatusLabel(request.status)}`}
               >
                 {request.first_name} {request.last_name}
@@ -236,7 +541,11 @@ const QuoteRequestCalendar: React.FC = () => {
                   {requestsForDay.map(request => (
                     <div
                       key={request.id}
-                      className={`text-xs p-1 rounded truncate ${getStatusColor(request.status)}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRequestClick(request);
+                      }}
+                      className={`text-xs p-1 rounded truncate ${getStatusColor(request.status)} cursor-pointer hover:opacity-80`}
                       title={`${request.first_name} ${request.last_name} - ${getStatusLabel(request.status)}`}
                     >
                       {request.first_name} {request.last_name}
@@ -402,6 +711,7 @@ const QuoteRequestCalendar: React.FC = () => {
           </div>
         </div>
       </div>
+      {isDetailsModalOpen && renderRequestDetailsModal()}
     </AdminLayout>
   );
 };
