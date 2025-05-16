@@ -550,7 +550,49 @@ export const printQuoteRequest = (
             </tr>
           </table>
         </div>
-        
+        <div class="section">
+          <h3>Accès</h3>
+          <table>
+            <tr>
+              <td><strong>Accès extérieur:</strong></td>
+              <td>${request.exterior_access || '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>Accès intérieur:</strong></td>
+              <td>${request.interior_access || '-'}</td>
+            </tr>
+            ${request.elevator_width || request.elevator_height || request.elevator_depth ? `
+              <tr>
+                <td><strong>Dimensions ascenseur:</strong></td>
+                <td>
+                  ${[
+                    request.elevator_width ? `Largeur: ${request.elevator_width}cm` : null,
+                    request.elevator_height ? `Hauteur: ${request.elevator_height}cm` : null,
+                    request.elevator_depth ? `Profondeur: ${request.elevator_depth}cm` : null
+                  ].filter(Boolean).join(' | ')}
+                </td>
+              </tr>
+            ` : ''}
+          </table>
+        </div>
+
+        <div class="section">
+          <h3>Reprise</h3>
+          <table>
+            <tr>
+              <td><strong>Date:</strong></td>
+              <td>${request.pickup_return_date ? formatDate(request.pickup_return_date).split(' ')[0] : '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>Début:</strong></td>
+              <td>${request.pickup_return_start_time || '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>Fin:</strong></td>
+              <td>${request.pickup_return_end_time || '-'}</td>
+            </tr>
+          </table>
+        </div>
         ${request.comments ? `
           <div class="section">
             <h3>Commentaires Client</h3>
