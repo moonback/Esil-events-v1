@@ -11,6 +11,9 @@
     "server": "node server.js"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^7.1.0",
     "@supabase/supabase-js": "^2.39.7",
     "@types/gapi": "^0.0.47",
     "@types/gapi.auth2": "^0.0.61",
@@ -18,6 +21,7 @@
     "@types/leaflet": "^1.9.17",
     "@types/nodemailer": "^6.4.17",
     "@types/uuid": "^10.0.0",
+    "axios": "^1.9.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "framer-motion": "^12.9.2",
@@ -27,8 +31,10 @@
     "jspdf": "^3.0.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.344.0",
+    "moment": "^2.30.1",
     "nodemailer": "^6.10.1",
     "react": "^18.3.1",
+    "react-big-calendar": "^1.18.0",
     "react-cookie-consent": "^9.0.0",
     "react-dom": "^18.3.1",
     "react-helmet-async": "^2.0.5",

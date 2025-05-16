@@ -10,6 +10,7 @@ import AdminAnnouncements from '../pages/admin/Announcements';
 import AdminArtists from '../pages/admin/Artists';
 import AdminArtistCategories from '../pages/admin/ArtistCategories';
 import QuoteRequestsAdmin from '../pages/admin/QuoteRequests';
+import QuoteRequestCalendar from '../pages/admin/QuoteRequestCalendar';
 import EmailConfigPage from '../pages/admin/EmailConfig';
 import AdminSitemap from '../pages/admin/Sitemap';
 import { AdminRealizations } from '../pages/admin/Realizations';
@@ -29,6 +30,7 @@ const AdminRoutes: React.FC = () => {
         <Route path="artists" element={<AdminArtists />} />
         <Route path="artist-categories" element={<AdminArtistCategories />} />
         <Route path="quote-requests" element={<QuoteRequestsAdmin />} />
+        <Route path="quote-requests/calendar" element={<QuoteRequestCalendar />} />
         <Route path="email-config" element={<EmailConfigPage />} />
         <Route path="sitemap" element={<AdminSitemap />} />
         <Route path="realizations" element={<AdminRealizations />} />
