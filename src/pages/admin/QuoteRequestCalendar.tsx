@@ -1141,13 +1141,48 @@ const QuoteRequestCalendar: React.FC = () => {
     const selectedDate = currentMonth;
     const hours = getDayHours();
     const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const currentHour = new Date().getHours();
+    const currentMinute = new Date().getMinutes();
 
     return (
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {selectedDate.getDate()} {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
-          </h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-semibold text-gray-900">
+              {selectedDate.getDate()} {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
+            </h2>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const today = new Date();
+                  setCurrentMonth(today);
+                }}
+                className="px-3 py-1 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+              >
+                Aujourd'hui
+              </button>
+              <button
+                onClick={() => {
+                  const newDate = new Date(selectedDate);
+                  newDate.setDate(newDate.getDate() - 1);
+                  setCurrentMonth(newDate);
+                }}
+                className="p-2 rounded-lg hover:bg-white transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <button
+                onClick={() => {
+                  const newDate = new Date(selectedDate);
+                  newDate.setDate(newDate.getDate() + 1);
+                  setCurrentMonth(newDate);
+                }}
+                className="p-2 rounded-lg hover:bg-white transition-colors"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+          </div>
           <div className="flex space-x-2">
             <button
               onClick={() => setIsCompact(!isCompact)}
@@ -1170,26 +1205,6 @@ const QuoteRequestCalendar: React.FC = () => {
             >
               {isFullscreen ? <Minimize2 className="w-5 h-5 text-gray-600" /> : <Maximize2 className="w-5 h-5 text-gray-600" />}
             </button>
-            <button
-              onClick={() => {
-                const newDate = new Date(selectedDate);
-                newDate.setDate(newDate.getDate() - 1);
-                setCurrentMonth(newDate);
-              }}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            <button
-              onClick={() => {
-                const newDate = new Date(selectedDate);
-                newDate.setDate(newDate.getDate() + 1);
-                setCurrentMonth(newDate);
-              }}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
-            </button>
           </div>
         </div>
 
@@ -1197,11 +1212,20 @@ const QuoteRequestCalendar: React.FC = () => {
           {/* En-tête des heures */}
           <div className="bg-gray-50">
             <div className="h-12 border-b border-gray-200"></div>
-            {hours.map(hour => (
-              <div key={hour} className="h-24 border-b border-gray-200 p-2 text-sm text-gray-500">
-                {hour}
-              </div>
-            ))}
+            {hours.map(hour => {
+              const hourNum = parseInt(hour.split(':')[0]);
+              const isCurrentHour = hourNum === currentHour;
+              return (
+                <div 
+                  key={hour} 
+                  className={`h-24 border-b border-gray-200 p-2 text-sm ${
+                    isCurrentHour ? 'text-indigo-600 font-medium' : 'text-gray-500'
+                  }`}
+                >
+                  {hour}
+                </div>
+              );
+            })}
           </div>
 
           {/* Contenu des événements */}
@@ -1209,13 +1233,37 @@ const QuoteRequestCalendar: React.FC = () => {
             <div className="h-12 border-b border-gray-200"></div>
             {hours.map(hour => {
               const events = getEventsForHour(selectedDate, hour);
+              const hourNum = parseInt(hour.split(':')[0]);
+              const isCurrentHour = hourNum === currentHour;
+              const isPastHour = hourNum < currentHour;
+              const isFutureHour = hourNum > currentHour;
+
               return (
-                <div key={hour} className="h-24 border-b border-gray-200 p-2 relative">
+                <div 
+                  key={hour} 
+                  className={`h-24 border-b border-gray-200 p-2 relative ${
+                    isCurrentHour ? 'bg-indigo-50/50' :
+                    isPastHour ? 'bg-gray-50/50' :
+                    'bg-white'
+                  }`}
+                >
+                  {isCurrentHour && (
+                    <div 
+                      className="absolute left-0 right-0 h-0.5 bg-indigo-500"
+                      style={{
+                        top: `${(currentMinute / 60) * 100}%`
+                      }}
+                    >
+                      <div className="absolute -top-1 -left-1 w-3 h-3 bg-indigo-500 rounded-full"></div>
+                    </div>
+                  )}
                   {events.map(event => (
                     <div
                       key={`${event.id}-${event.type}`}
                       onClick={() => handleRequestClick(event)}
-                      className={`absolute left-2 right-2 p-2 rounded-lg cursor-pointer transition-all duration-200 ${getEventStyle(event.type, event.status || 'pending')}`}
+                      className={`absolute left-2 right-2 p-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md ${
+                        getEventStyle(event.type, event.status || 'pending')
+                      }`}
                       style={{
                         top: `${(parseInt(event.displayTime.split(':')[1]) / 60) * 100}%`,
                         height: 'calc(100% - 8px)'
@@ -1231,6 +1279,9 @@ const QuoteRequestCalendar: React.FC = () => {
                           </span>
                           <span className="text-xs opacity-75 truncate">
                             {getEventLabel(event.type)}
+                          </span>
+                          <span className="text-xs font-medium mt-1">
+                            {event.displayTime}
                           </span>
                         </div>
                       </div>
