@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Search, Filter, BarChart2, Clock, Users, Tag, X, FileText, Mail, Phone, MapPin, Clock as ClockIcon, Truck, Package, DoorOpen, ArrowLeftRight, MessageSquare, ChevronUp, ChevronDown, Maximize2, Minimize2 } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Search, Filter, BarChart2, Clock, Users, Tag, X, FileText, Mail, Phone, MapPin, Clock as ClockIcon, Truck, Package, DoorOpen, ArrowLeftRight, MessageSquare, ChevronUp, ChevronDown, Maximize2, Minimize2, Grid, List, MoreHorizontal } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { QuoteRequest } from '../../services/quoteRequestService';
@@ -168,6 +168,9 @@ const QuoteRequestCalendar: React.FC = () => {
   const [eventTypeFilter, setEventTypeFilter] = useState<EventTypeFilter>('all');
   const [showLegend, setShowLegend] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isCompact, setIsCompact] = useState(false);
+  const [showEventCount, setShowEventCount] = useState(true);
+  const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
 
   useEffect(() => {
     fetchQuoteRequests();
@@ -289,6 +292,44 @@ const QuoteRequestCalendar: React.FC = () => {
     }
   };
 
+  const getDayLoad = (date: Date) => {
+    const events = getRequestsForDate(date);
+    const totalEvents = events.length;
+    if (totalEvents === 0) return 'empty';
+    if (totalEvents <= 3) return 'light';
+    if (totalEvents <= 6) return 'medium';
+    return 'heavy';
+  };
+
+  const getLoadColor = (load: string) => {
+    switch (load) {
+      case 'light': return 'bg-green-50 border-green-200';
+      case 'medium': return 'bg-yellow-50 border-yellow-200';
+      case 'heavy': return 'bg-red-50 border-red-200';
+      default: return 'bg-gray-50 border-gray-200';
+    }
+  };
+
+  const LoadIndicator = ({ date }: { date: Date }) => {
+    const load = getDayLoad(date);
+    if (load === 'empty') return null;
+    
+    return (
+      <div className="flex items-center gap-1 mt-1">
+        <div className={`w-2 h-2 rounded-full ${
+          load === 'light' ? 'bg-green-400' :
+          load === 'medium' ? 'bg-yellow-400' :
+          'bg-red-400'
+        }`} />
+        <span className="text-xs text-gray-500">
+          {load === 'light' ? 'Léger' :
+           load === 'medium' ? 'Modéré' :
+           'Chargé'}
+        </span>
+      </div>
+    );
+  };
+
   const renderEventItem = (event: any) => (
     <div
       key={`${event.id}-${event.type}`}
@@ -296,7 +337,7 @@ const QuoteRequestCalendar: React.FC = () => {
         e.stopPropagation();
         handleRequestClick(event);
       }}
-      className={getEventStyle(event.type, event.status)}
+      className={`${getEventStyle(event.type, event.status)} ${isCompact ? 'py-1' : 'py-2'}`}
       title={`${getEventLabel(event.type)} - ${event.first_name} ${event.last_name} - ${getStatusLabel(event.status)}`}
     >
       <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -307,15 +348,17 @@ const QuoteRequestCalendar: React.FC = () => {
           <span className="font-medium truncate">
             {event.first_name} {event.last_name}
           </span>
-          <div className="flex items-center gap-1">
-            <span className="text-xs opacity-75 truncate">
-              {getEventLabel(event.type)}
-            </span>
-            <span className="text-xs opacity-75">•</span>
-            <span className={`text-xs ${getStatusColor(event.status)}`}>
-              {getStatusLabel(event.status)}
-            </span>
-          </div>
+          {!isCompact && (
+            <div className="flex items-center gap-1">
+              <span className="text-xs opacity-75 truncate">
+                {getEventLabel(event.type)}
+              </span>
+              <span className="text-xs opacity-75">•</span>
+              <span className={`text-xs ${getStatusColor(event.status)}`}>
+                {getStatusLabel(event.status)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
       <span className="text-xs font-medium bg-white/50 px-2 py-1 rounded">
@@ -730,26 +773,39 @@ const QuoteRequestCalendar: React.FC = () => {
       const eventsForDay = getRequestsForDate(date);
       const isToday = date.toDateString() === new Date().toDateString();
       const isSelected = selectedDate?.toDateString() === date.toDateString();
+      const isHovered = hoveredDate?.toDateString() === date.toDateString();
+      const load = getDayLoad(date);
 
       days.push(
         <div
           key={day}
           onClick={() => handleDateClick(date)}
+          onMouseEnter={() => setHoveredDate(date)}
+          onMouseLeave={() => setHoveredDate(null)}
           className={`border border-gray-200 p-2 cursor-pointer transition-all duration-200 ${
-            isSelected ? 'bg-indigo-50 border-indigo-500' : 'hover:bg-gray-50'
-          } ${isFullscreen ? 'h-48' : 'h-40'}`}
+            isSelected ? 'bg-indigo-50 border-indigo-500' :
+            isHovered ? 'bg-gray-50' : ''
+          } ${isFullscreen ? 'h-48' : 'h-40'} ${getLoadColor(load)}`}
         >
           <div className="flex justify-between items-center mb-2">
             <div className={`text-sm font-medium ${isToday ? 'text-indigo-600' : 'text-gray-900'}`}>
               {day}
             </div>
-            {isToday && (
-              <span className="px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full">
-                Aujourd'hui
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {isToday && (
+                <span className="px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full">
+                  Aujourd'hui
+                </span>
+              )}
+              {showEventCount && eventsForDay.length > 0 && (
+                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                  {eventsForDay.length} événement{eventsForDay.length > 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
           </div>
-          <div className="space-y-1.5 overflow-y-auto max-h-[calc(100%-2rem)]">
+          {!isCompact && <LoadIndicator date={date} />}
+          <div className={`space-y-1.5 overflow-y-auto ${isCompact ? 'max-h-[calc(100%-1.5rem)]' : 'max-h-[calc(100%-3rem)]'}`}>
             {eventsForDay.map(renderEventItem)}
           </div>
         </div>
@@ -763,6 +819,20 @@ const QuoteRequestCalendar: React.FC = () => {
             {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </h2>
           <div className="flex space-x-2">
+            <button
+              onClick={() => setIsCompact(!isCompact)}
+              className="p-2 rounded-lg hover:bg-white transition-colors"
+              title={isCompact ? "Vue normale" : "Vue compacte"}
+            >
+              {isCompact ? <Grid className="w-5 h-5 text-gray-600" /> : <List className="w-5 h-5 text-gray-600" />}
+            </button>
+            <button
+              onClick={() => setShowEventCount(!showEventCount)}
+              className="p-2 rounded-lg hover:bg-white transition-colors"
+              title={showEventCount ? "Masquer le nombre d'événements" : "Afficher le nombre d'événements"}
+            >
+              <MoreHorizontal className="w-5 h-5 text-gray-600" />
+            </button>
             <button
               onClick={() => setIsFullscreen(!isFullscreen)}
               className="p-2 rounded-lg hover:bg-white transition-colors"
