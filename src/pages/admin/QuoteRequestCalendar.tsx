@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Search, Filter, BarChart2, Clock, Users, Tag, X, FileText, Mail, Phone, MapPin, Clock as ClockIcon, Truck, Package, DoorOpen, ArrowLeftRight, MessageSquare } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Search, Filter, BarChart2, Clock, Users, Tag, X, FileText, Mail, Phone, MapPin, Clock as ClockIcon, Truck, Package, DoorOpen, ArrowLeftRight, MessageSquare, ChevronUp, ChevronDown } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { QuoteRequest } from '../../services/quoteRequestService';
@@ -7,6 +7,8 @@ import { getQuoteRequests } from '../../services/quoteRequestService';
 import { formatDate, getStatusColor, getStatusLabel } from '../../components/admin/quoteRequests/QuoteRequestUtils';
 
 type ViewMode = 'month' | 'week';
+type TimeFilter = 'all' | 'morning' | 'afternoon' | 'evening';
+type EventTypeFilter = 'all' | 'event' | 'delivery' | 'pickup';
 
 const CalendarHeader: React.FC<{
   viewMode: ViewMode;
@@ -162,6 +164,9 @@ const QuoteRequestCalendar: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [showDeliveries, setShowDeliveries] = useState(true);
   const [showPickups, setShowPickups] = useState(true);
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
+  const [eventTypeFilter, setEventTypeFilter] = useState<EventTypeFilter>('all');
+  const [showLegend, setShowLegend] = useState(true);
 
   useEffect(() => {
     fetchQuoteRequests();
@@ -198,6 +203,13 @@ const QuoteRequestCalendar: React.FC = () => {
       dates.push(current);
     }
     return dates;
+  };
+
+  const getTimeOfDay = (time: string) => {
+    const hour = parseInt(time.split(':')[0]);
+    if (hour >= 5 && hour < 12) return 'morning';
+    if (hour >= 12 && hour < 18) return 'afternoon';
+    return 'evening';
   };
 
   const getRequestsForDate = (date: Date) => {
@@ -244,7 +256,9 @@ const QuoteRequestCalendar: React.FC = () => {
           event.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.email.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesStatus && matchesSearch;
+        const matchesEventType = eventTypeFilter === 'all' || event.type === eventTypeFilter;
+        const matchesTime = timeFilter === 'all' || getTimeOfDay(event.displayTime) === timeFilter;
+        return matchesStatus && matchesSearch && matchesEventType && matchesTime;
       })
       .sort((a, b) => a.displayTime.localeCompare(b.displayTime));
   };
@@ -292,9 +306,15 @@ const QuoteRequestCalendar: React.FC = () => {
           <span className="font-medium truncate">
             {event.first_name} {event.last_name}
           </span>
-          <span className="text-xs opacity-75 truncate">
-            {getEventLabel(event.type)}
-          </span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs opacity-75 truncate">
+              {getEventLabel(event.type)}
+            </span>
+            <span className="text-xs opacity-75">•</span>
+            <span className={`text-xs ${getStatusColor(event.status)}`}>
+              {getStatusLabel(event.status)}
+            </span>
+          </div>
         </div>
       </div>
       <span className="text-xs font-medium bg-white/50 px-2 py-1 rounded">
@@ -833,6 +853,70 @@ const QuoteRequestCalendar: React.FC = () => {
     );
   };
 
+  const Legend = () => (
+    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-medium text-gray-900">Légende</h3>
+        <button
+          onClick={() => setShowLegend(!showLegend)}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          {showLegend ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
+      </div>
+      {showLegend && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-green-100 border border-green-200"></div>
+            <span className="text-xs text-gray-600">Événement</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-blue-100 border border-blue-200"></div>
+            <span className="text-xs text-gray-600">Livraison</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-purple-100 border border-purple-200"></div>
+            <span className="text-xs text-gray-600">Reprise</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const AdvancedFilters = () => (
+    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+      <h3 className="text-sm font-medium text-gray-900 mb-3">Filtres avancés</h3>
+      <div className="space-y-3">
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Période</label>
+          <select
+            value={timeFilter}
+            onChange={(e) => setTimeFilter(e.target.value as TimeFilter)}
+            className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="all">Toute la journée</option>
+            <option value="morning">Matin (5h-12h)</option>
+            <option value="afternoon">Après-midi (12h-18h)</option>
+            <option value="evening">Soirée (18h-5h)</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Type d'événement</label>
+          <select
+            value={eventTypeFilter}
+            onChange={(e) => setEventTypeFilter(e.target.value as EventTypeFilter)}
+            className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="all">Tous les types</option>
+            <option value="event">Événements</option>
+            <option value="delivery">Livraisons</option>
+            <option value="pickup">Reprises</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+
   const stats = getStats();
 
   return (
@@ -851,22 +935,22 @@ const QuoteRequestCalendar: React.FC = () => {
 
           <StatsSection stats={stats} />
 
-          <FiltersSection
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-          />
-
-          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
-            <div className="lg:col-span-2">
-              {viewMode === 'month' ? renderMonthView() : renderWeekView()}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="lg:col-span-3">
+              <div className="space-y-6">
+                <FiltersSection
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  statusFilter={statusFilter}
+                  setStatusFilter={setStatusFilter}
+                />
+                {viewMode === 'month' ? renderMonthView() : renderWeekView()}
+              </div>
             </div>
-            
-            {/* <SelectedDateDetails
-              selectedDate={selectedDate}
-              selectedRequests={selectedRequests}
-            /> */}
+            <div className="space-y-4">
+              <AdvancedFilters />
+              <Legend />
+            </div>
           </div>
         </div>
       </div>
