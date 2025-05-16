@@ -254,45 +254,38 @@ const Header: React.FC = () => {
                 
 
                 {/* User Menu */}
-                {/* {user ? (
+                {user && (
                   <div className="relative user-menu-container" ref={userMenuRef}>
                     <button
                       onClick={() => setShowUserMenu(!showUserMenu)}
-                      className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30 flex items-center space-x-1"
+                      className="p-2 rounded-full bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 hover:from-violet-100 hover:to-indigo-100 dark:hover:from-violet-800/30 dark:hover:to-indigo-800/30 transition-all duration-300 transform hover:scale-110 hover:shadow-lg hover:ring-2 hover:ring-violet-500/30 flex items-center space-x-2 group"
                       aria-label="Menu utilisateur"
                       aria-expanded={showUserMenu}
                     >
-                      <User className="w-5 h-5 text-gray-700 dark:text-gray-200 transition-all duration-300 transform group-hover:rotate-12" />
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showUserMenu ? 'rotate-180' : 'rotate-0'}`} />
+                      <User className="w-5 h-5 text-violet-600 dark:text-violet-400 transition-all duration-300 transform group-hover:rotate-12 group-hover:scale-110" />
+                      <ChevronDown className={`w-4 h-4 text-violet-600 dark:text-violet-400 transition-transform duration-300 ${showUserMenu ? 'rotate-180' : 'rotate-0'} group-hover:scale-110`} />
                     </button>
                     {showUserMenu && (
-                      <div className="absolute right-0 mt-2 w-56 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-lg shadow-xl py-2 z-50 border border-gray-200/60 dark:border-gray-700/60 transition-all duration-300 animate-fadeIn">
-                        <div className="px-4 py-3 border-b border-gray-200/60 dark:border-gray-700/60">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">{user.user_metadata.first_name || 'Mon compte'}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{user.email}</p>
+                      <div className="absolute right-0 mt-2 w-64 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-xl shadow-2xl py-2 z-50 border border-violet-200/60 dark:border-violet-800/60 transition-all duration-300 animate-fadeIn">
+                        <div className="px-4 py-3 border-b border-violet-200/60 dark:border-violet-800/60 bg-gradient-to-r from-violet-50/50 to-indigo-50/50 dark:from-violet-900/20 dark:to-indigo-900/20">
+                          <p className="text-sm font-semibold text-violet-900 dark:text-violet-200">{user.user_metadata.first_name || 'Mon compte'}</p>
+                          <p className="text-xs text-violet-600/80 dark:text-violet-400/80 mt-0.5">{user.email}</p>
                         </div>
                         <div className="py-1">
-                          
                           {isAdminUser && (
-                            <Link to="/admin" className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
-                              <Settings className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
-                              Administration
+                            <Link 
+                              to="/admin" 
+                              className="flex items-center px-4 py-2.5 text-sm text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-all duration-200 group/item"
+                            >
+                              <Settings className="w-4 h-4 mr-2.5 text-violet-500 dark:text-violet-400 group-hover/item:scale-110 transition-transform duration-200" />
+                              <span className="group-hover/item:translate-x-0.5 transition-transform duration-200">Administration</span>
                             </Link>
                           )}
                         </div>
-                        
                       </div>
                     )}
                   </div>
-                ) : (
-                  <Link 
-                    to="/login" 
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30 flex items-center space-x-1"
-                  >
-                    <User className="w-5 h-5 text-gray-700 dark:text-gray-200 transition-all duration-300 transform hover:rotate-12" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Connexion</span>
-                  </Link>
-                )} */}
+                )}
 
                 {/* Mobile Menu Toggle */}
                 <button
