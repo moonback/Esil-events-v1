@@ -149,8 +149,6 @@ const FiltersSection: React.FC<{
   </div>
 );
 
-
-
 const QuoteRequestCalendar: React.FC = () => {
   const [quoteRequests, setQuoteRequests] = useState<QuoteRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -252,16 +250,16 @@ const QuoteRequestCalendar: React.FC = () => {
   };
 
   const getEventStyle = (type: 'event' | 'delivery' | 'pickup', status: string) => {
-    const baseStyle = 'text-xs p-1 rounded truncate cursor-pointer hover:opacity-80';
+    const baseStyle = 'text-xs p-2 rounded-lg cursor-pointer hover:opacity-90 transition-all duration-200 flex items-center gap-2';
     const statusColor = getStatusColor(status);
 
     switch (type) {
       case 'delivery':
-        return `${baseStyle} bg-blue-100 text-blue-800 border border-blue-200`;
+        return `${baseStyle} bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100`;
       case 'pickup':
-        return `${baseStyle} bg-purple-100 text-purple-800 border border-purple-200`;
+        return `${baseStyle} bg-purple-50 text-purple-800 border border-purple-200 hover:bg-purple-100`;
       default:
-        return `${baseStyle} ${statusColor}`;
+        return `${baseStyle} ${statusColor} hover:shadow-sm`;
     }
   };
 
@@ -286,17 +284,22 @@ const QuoteRequestCalendar: React.FC = () => {
       className={getEventStyle(event.type, event.status)}
       title={`${getEventLabel(event.type)} - ${event.first_name} ${event.last_name} - ${getStatusLabel(event.status)}`}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-1">
-          <span className="font-medium">{getEventLabel(event.type)}</span>
-          <span className="truncate">
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        {event.type === 'delivery' && <Truck className="w-4 h-4 flex-shrink-0" />}
+        {event.type === 'pickup' && <ArrowLeftRight className="w-4 h-4 flex-shrink-0" />}
+        {event.type === 'event' && <Calendar className="w-4 h-4 flex-shrink-0" />}
+        <div className="flex flex-col min-w-0">
+          <span className="font-medium truncate">
             {event.first_name} {event.last_name}
           </span>
+          <span className="text-xs opacity-75 truncate">
+            {getEventLabel(event.type)}
+          </span>
         </div>
-        <span className="ml-1 text-xs opacity-75">
-          {event.displayTime}
-        </span>
       </div>
+      <span className="text-xs font-medium bg-white/50 px-2 py-1 rounded">
+        {event.displayTime}
+      </span>
     </div>
   );
 
@@ -698,7 +701,7 @@ const QuoteRequestCalendar: React.FC = () => {
     const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
     for (let i = 0; i < firstDayOfMonth; i++) {
-      days.push(<div key={`empty-${i}`} className="h-32 border border-gray-200 bg-gray-50"></div>);
+      days.push(<div key={`empty-${i}`} className="h-40 border border-gray-200 bg-gray-50"></div>);
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -711,14 +714,21 @@ const QuoteRequestCalendar: React.FC = () => {
         <div
           key={day}
           onClick={() => handleDateClick(date)}
-          className={`h-32 border border-gray-200 p-2 cursor-pointer transition-all duration-200 ${
+          className={`h-40 border border-gray-200 p-2 cursor-pointer transition-all duration-200 ${
             isSelected ? 'bg-indigo-50 border-indigo-500' : 'hover:bg-gray-50'
           }`}
         >
-          <div className={`text-sm font-medium ${isToday ? 'text-indigo-600' : 'text-gray-900'}`}>
-            {day}
+          <div className="flex justify-between items-center mb-2">
+            <div className={`text-sm font-medium ${isToday ? 'text-indigo-600' : 'text-gray-900'}`}>
+              {day}
+            </div>
+            {isToday && (
+              <span className="px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full">
+                Aujourd'hui
+              </span>
+            )}
           </div>
-          <div className="mt-1 space-y-1">
+          <div className="space-y-1.5 overflow-y-auto max-h-[calc(100%-2rem)]">
             {eventsForDay.map(renderEventItem)}
           </div>
         </div>
@@ -727,20 +737,20 @@ const QuoteRequestCalendar: React.FC = () => {
 
     return (
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
           <h2 className="text-xl font-semibold text-gray-900">
             {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </h2>
           <div className="flex space-x-2">
             <button
               onClick={() => handleMonthChange('prev')}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-lg hover:bg-white transition-colors"
             >
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
             <button
               onClick={() => handleMonthChange('next')}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-lg hover:bg-white transition-colors"
             >
               <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>
@@ -764,20 +774,20 @@ const QuoteRequestCalendar: React.FC = () => {
 
     return (
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
           <h2 className="text-xl font-semibold text-gray-900">
             Semaine du {formatDate(weekDates[0].toISOString())} au {formatDate(weekDates[6].toISOString())}
           </h2>
           <div className="flex space-x-2">
             <button
               onClick={() => handleWeekChange('prev')}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-lg hover:bg-white transition-colors"
             >
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
             <button
               onClick={() => handleWeekChange('next')}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-lg hover:bg-white transition-colors"
             >
               <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>
@@ -793,19 +803,26 @@ const QuoteRequestCalendar: React.FC = () => {
               <div
                 key={index}
                 onClick={() => handleDateClick(date)}
-                className={`min-h-[200px] border border-gray-200 p-2 cursor-pointer transition-all duration-200 ${
+                className={`min-h-[300px] border border-gray-200 p-2 cursor-pointer transition-all duration-200 ${
                   isSelected ? 'bg-indigo-50 border-indigo-500' : 'hover:bg-gray-50'
                 }`}
               >
-                <div className="flex flex-col">
+                <div className="flex flex-col mb-2">
                   <div className={`text-sm font-medium ${isToday ? 'text-indigo-600' : 'text-gray-900'}`}>
                     {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'][index]}
                   </div>
-                  <div className="text-xs text-gray-500">
-                    {date.getDate()} {monthNames[date.getMonth()]}
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-gray-500">
+                      {date.getDate()} {monthNames[date.getMonth()]}
+                    </div>
+                    {isToday && (
+                      <span className="px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full">
+                        Aujourd'hui
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div className="mt-2 space-y-1">
+                <div className="space-y-1.5 overflow-y-auto max-h-[calc(100%-3rem)]">
                   {eventsForDay.map(renderEventItem)}
                 </div>
               </div>
