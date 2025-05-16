@@ -19,14 +19,14 @@ export interface SmtpConfig {
 // 1. Vous avez activé l'authentification à deux facteurs sur votre compte Google
 // 2. Vous avez généré un mot de passe d'application spécifique pour cette application
 let smtpConfig: SmtpConfig = {
-  host: import.meta.env.VITE_SMTP_HOST || 'mail.dresscodeia.fr',
+  host: import.meta.env.VITE_SMTP_HOST || 'smtp.ionos.fr',
   port: Number(import.meta.env.VITE_SMTP_PORT) || 465,
   secure: import.meta.env.VITE_SMTP_SECURE === 'false' ? false : true, // true pour 465, false pour les autres ports comme 587
   auth: {
-    user: import.meta.env.VITE_SMTP_USER || 'contact@dresscodeia.fr',
+    user: import.meta.env.VITE_SMTP_USER || 'contact@esil-events.fr',
     pass: import.meta.env.VITE_SMTP_PASS || '' // Le mot de passe doit être défini dans les variables d'environnement
   },
-  from: import.meta.env.VITE_SMTP_FROM || 'contact@dresscodeia.fr'
+  from: import.meta.env.VITE_SMTP_FROM || 'contact@esil-events.fr'
 };
 
 // Fonction pour mettre à jour la configuration SMTP
@@ -225,95 +225,325 @@ export const sendQuoteRequestConfirmation = async (quoteRequest: QuoteRequest): 
 
   // Créer le contenu HTML de l'email
   const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <div style="background-color: #4f46e5; color: white; padding: 20px; text-align: center;">
-        <h1 style="margin: 0;">ESIL Events</h1>
-        <p style="margin: 5px 0 0;">Location de mobilier événementiel premium</p>
-      </div>
-      
-      <div style="padding: 20px; border: 1px solid #e5e7eb; border-top: none;">
-        <h2>Confirmation de votre demande de devis</h2>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmation de Devis - ESIL Events</title>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --border-radius: 8px;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: #f5f7fa;
+    }
+    
+    .container {
+      max-width: 650px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      padding: 30px 20px;
+      text-align: center;
+      color: white;
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    
+    .header p {
+      margin: 5px 0 0;
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    
+    .content {
+      padding: 30px;
+    }
+    
+    .section {
+      margin-bottom: 25px;
+    }
+    
+    .section-title {
+      color: var(--primary);
+      font-size: 20px;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--light-gray);
+    }
+    
+    .subsection {
+      margin-bottom: 20px;
+    }
+    
+    .subsection-title {
+      font-size: 17px;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+    
+    .info-list {
+      list-style: none;
+      padding-left: 5px;
+    }
+    
+    .info-list li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+    }
+    
+    .info-list li:last-child {
+      margin-bottom: 0;
+    }
+    
+    .info-label {
+      font-weight: 600;
+      min-width: 140px;
+      padding-right: 10px;
+    }
+    
+    .info-value {
+      flex: 1;
+    }
+    
+    .address {
+      padding: 5px 0 5px 5px;
+      line-height: 1.5;
+    }
+    
+    .total-section {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-top: 15px;
+      margin-bottom: 25px;
+      text-align: right;
+    }
+    
+    .total-amount {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .disclaimer {
+      font-style: italic;
+      color: var(--gray);
+      font-size: 0.9em;
+      margin-top: 10px;
+      padding: 10px;
+      background-color: var(--light-gray);
+      border-radius: var(--border-radius);
+    }
+    
+    .contact-info {
+      margin-top: 25px;
+      padding: 15px;
+      background-color: var(--light);
+      border-radius: var(--border-radius);
+    }
+    
+    .signature {
+      margin-top: 25px;
+    }
+    
+    .footer {
+      background-color: var(--light);
+      padding: 20px;
+      text-align: center;
+      font-size: 0.9em;
+      color: var(--gray);
+    }
+    
+    .footer p {
+      margin: 5px 0;
+    }
+    
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    
+    .items-table th {
+      background-color: var(--light-gray);
+      padding: 10px;
+      text-align: left;
+    }
+    
+    .items-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--light-gray);
+    }
+    
+    .items-table tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="color:rgb(112, 4, 103); font-size: 2.5em; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">ESIL EVENTS</h1>
+      <p style="color:rgb(8, 8, 8); font-size: 1.2em; margin-top: 10px; font-style: italic;">Location, Installation, Régie Son & Lumière, Mobilier, Animation ...</p>
+    
+    </div>
+    
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">Confirmation de votre demande de devis</h2>
         
         <p>Bonjour ${first_name} ${last_name},</p>
-        
-        <p>Nous vous remercions pour votre demande de devis. Notre équipe va l'étudier dans les plus brefs délais et vous contactera prochainement.</p>
-        
-        <h3>Récapitulatif de votre demande :</h3>
-        
-        <h4>Informations personnelles :</h4>
-        <ul>
-          <li><strong>Nom complet :</strong> ${first_name} ${last_name}</li>
-          <li><strong>Email :</strong> ${email}</li>
-          <li><strong>Téléphone :</strong> ${phone || 'Non spécifié'}</li>
-          <li><strong>Société :</strong> ${company || 'Non spécifié'}</li>
-          <li><strong>Type de client :</strong> ${customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</li>
-        </ul>
-        
-        <h4>Adresse de facturation :</h4>
-        <p>
-          ${billing_address || 'Non spécifiée'}<br>
-          ${postal_code || ''} ${city || ''}
-        </p>
-        
-        <h4>Détails de l'événement :</h4>
-        <ul>
-          <li><strong>Date :</strong> ${event_date || 'Non spécifiée'}</li>
-          <li><strong>Durée :</strong> ${event_duration || 'Non spécifiée'}</li>
-          <li><strong>Heure de début :</strong> ${event_start_time || 'Non spécifiée'}</li>
-          <li><strong>Heure de fin :</strong> ${event_end_time || 'Non spécifiée'}</li>
-          <li><strong>Nombre d'invités :</strong> ${guest_count || 'Non spécifié'}</li>
-          <li><strong>Lieu :</strong> ${event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</li>
-        </ul>
-        
-        <h4>Informations de livraison :</h4>
-        <ul>
-          <li><strong>Adresse :</strong> ${delivery_address || 'Non spécifiée'}</li>
-          <li><strong>Code postal :</strong> ${delivery_postal_code || 'Non spécifié'}</li>
-          <li><strong>Ville :</strong> ${delivery_city || 'Non spécifiée'}</li>
-          <li><strong>Date de livraison :</strong> ${delivery_date || 'Non spécifiée'}</li>
-          <li><strong>Créneau horaire :</strong> ${delivery_time_slot || 'Non spécifié'}</li>
-        </ul>
-        
-        <h4>Informations de reprise :</h4>
-        <ul>
-          <li><strong>Date de reprise :</strong> ${pickup_return_date || 'Non spécifiée'}</li>
-          <li><strong>Heure de début :</strong> ${pickup_return_start_time || 'Non spécifiée'}</li>
-          <li><strong>Heure de fin :</strong> ${pickup_return_end_time || 'Non spécifiée'}</li>
-        </ul>
-        
-        ${comments ? `
-        <h4>Commentaires supplémentaires :</h4>
-        <p>${comments}</p>
-        ` : ''}
-        
-        <h4>Articles demandés :</h4>
-        <ul>
-          ${itemsList}
-        </ul>
-        
-        <p><strong>Total estimatif : ${total}€</strong></p>
-        
-        <p style="font-style: italic; color: #6b7280; font-size: 0.9em;">
-          Veuillez noter que ce montant est indicatif et ne comprend pas les frais de livraison et d'installation.
-          Le devis final vous sera communiqué après étude de votre demande.
-        </p>
-        
-        <p>Si vous avez des questions, n'hésitez pas à nous contacter :</p>
-        <p>
-          <strong>Téléphone :</strong> 01 23 45 67 89<br>
-          <strong>Email :</strong> contact@esil-events.fr
-        </p>
-        
-        <p>Cordialement,</p>
-        <p>L'équipe ESIL Events</p>
+        <p style="margin-top: 10px;">Nous vous remercions pour votre demande de devis. Notre équipe va l'étudier dans les plus brefs délais et vous contactera prochainement.</p>
       </div>
       
-      <div style="background-color: #f3f4f6; padding: 15px; text-align: center; font-size: 0.8em; color: #6b7280;">
-        <p>ESIL Events - L'élégance pour chaque événement</p>
-        <p>© ${new Date().getFullYear()} ESIL Events. Tous droits réservés.</p>
+      <div class="section">
+        <h3 class="section-title">Récapitulatif de votre demande</h3>
+        
+        <div class="subsection">
+          <h4 class="subsection-title">Informations personnelles</h4>
+          <ul class="info-list">
+            <li><span class="info-label">Nom complet :</span> <span class="info-value">${first_name} ${last_name}</span></li>
+            <li><span class="info-label">Email :</span> <span class="info-value">${email}</span></li>
+            <li><span class="info-label">Téléphone :</span> <span class="info-value">${phone || 'Non spécifié'}</span></li>
+            <li><span class="info-label">Société :</span> <span class="info-value">${company || 'Non spécifié'}</span></li>
+            <li><span class="info-label">Type de client :</span> <span class="info-value">${customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</span></li>
+          </ul>
+        </div>
+        
+        <div class="subsection">
+          <h4 class="subsection-title">Adresse de facturation</h4>
+          <div class="address">
+            ${billing_address || 'Non spécifiée'}<br>
+            ${postal_code || ''} ${city || ''}
+          </div>
+        </div>
+        
+        <div class="subsection">
+          <h4 class="subsection-title">Détails de l'événement</h4>
+          <ul class="info-list">
+            <li><span class="info-label">Date :</span> <span class="info-value">${event_date || 'Non spécifiée'}</span></li>
+            <li><span class="info-label">Durée :</span> <span class="info-value">${event_duration || 'Non spécifiée'}</span></li>
+            <li><span class="info-label">Heure de début :</span> <span class="info-value">${event_start_time || 'Non spécifiée'}</span></li>
+            <li><span class="info-label">Heure de fin :</span> <span class="info-value">${event_end_time || 'Non spécifiée'}</span></li>
+            <li><span class="info-label">Nombre d'invités :</span> <span class="info-value">${guest_count || 'Non spécifié'}</span></li>
+            <li><span class="info-label">Lieu :</span> <span class="info-value">${event_location === 'indoor' ? 'Intérieur' : 'Extérieur'}</span></li>
+          </ul>
+        </div>
+        
+        <div class="subsection">
+          <h4 class="subsection-title">Informations de livraison</h4>
+          <ul class="info-list">
+            <li><span class="info-label">Adresse :</span> <span class="info-value">${delivery_address || 'Non spécifiée'}</span></li>
+            <li><span class="info-label">Code postal :</span> <span class="info-value">${delivery_postal_code || 'Non spécifié'}</span></li>
+            <li><span class="info-label">Ville :</span> <span class="info-value">${delivery_city || 'Non spécifiée'}</span></li>
+            <li><span class="info-label">Date de livraison :</span> <span class="info-value">${delivery_date || 'Non spécifiée'}</span></li>
+            <li><span class="info-label">Créneau horaire :</span> <span class="info-value">${delivery_time_slot || 'Non spécifié'}</span></li>
+          </ul>
+        </div>
+        
+        <div class="subsection">
+          <h4 class="subsection-title">Informations de reprise</h4>
+          <ul class="info-list">
+            <li><span class="info-label">Date de reprise :</span> <span class="info-value">${pickup_return_date || 'Non spécifiée'}</span></li>
+            <li><span class="info-label">Heure de début :</span> <span class="info-value">${pickup_return_start_time || 'Non spécifiée'}</span></li>
+            <li><span class="info-label">Heure de fin :</span> <span class="info-value">${pickup_return_end_time || 'Non spécifiée'}</span></li>
+          </ul>
+        </div>
+        
+        <div class="subsection">
+          <h4 class="subsection-title">Informations d'accès</h4>
+          <ul class="info-list">
+            <li><span class="info-label">Accès extérieur :</span> <span class="info-value">${exterior_access || 'Non spécifié'}</span></li>
+            <li><span class="info-label">Accès intérieur :</span> <span class="info-value">${interior_access || 'Non spécifié'}</span></li>
+            <li><span class="info-label">Dimensions de l'ascenseur :</span> <span class="info-value">L: ${elevator_width || 'N/A'} × H: ${elevator_height || 'N/A'} × P: ${elevator_depth || 'N/A'}</span></li>
+          </ul>
+        </div>
+        
+        ${comments ? `
+        <div class="subsection">
+          <h4 class="subsection-title">Commentaires supplémentaires</h4>
+          <p>${comments}</p>
+        </div>
+        ` : ''}
+        
+        <div class="subsection">
+          <h4 class="subsection-title">Articles demandés</h4>
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th>Quantité</th>
+                <th>Prix unitaire</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsList}
+            </tbody>
+          </table>
+          
+          <div class="total-section">
+            <span class="total-amount">Total estimatif : ${total}€</span>
+            <div class="disclaimer">
+              Veuillez noter que ce montant est indicatif et ne comprend pas les frais de livraison et d'installation.
+              Le devis final vous sera communiqué après étude de votre demande.
+            </div>
+          </div>
+        </div>
+        
+        <div class="contact-info">
+          <p>Si vous avez des questions, n'hésitez pas à nous contacter :</p>
+          <ul class="info-list" style="margin-top: 8px;">
+            <li><span class="info-label">Téléphone :</span> <span class="info-value">06 20 46 13 85</span></li>
+            <li><span class="info-label">Email :</span> <span class="info-value">contact@esil-events.fr</span></li>
+          </ul>
+        </div>
+        
+        <div class="signature">
+          <p>Cordialement,</p>
+          <p style="margin-top: 5px;"><strong>L'équipe ESIL Events</strong></p>
+        </div>
       </div>
     </div>
-  `;
+    
+    <div class="footer">
+      <p>ESIL Events - L'élégance pour chaque événement</p>
+      <p>© ${new Date().getFullYear()} ESIL Events. Tous droits réservés.</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
 
   return sendEmail(
     email,
@@ -341,85 +571,380 @@ export const sendAdminNotification = async (quoteRequest: QuoteRequest): Promise
 
   // Créer le contenu HTML de l'email
   const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <div style="background-color: #4f46e5; color: white; padding: 20px; text-align: center;">
-        <h1 style="margin: 0;">ESIL Events - Administration</h1>
-        <p style="margin: 5px 0 0;">Nouvelle demande de devis</p>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nouvelle demande de devis - ESIL Events Administration</title>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --border-radius: 8px;
+      --accent: #4338ca;
+      --warning: #dc2626;
+      --highlight: #f0f7ff;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: #f5f7fa;
+    }
+    
+    .container {
+      max-width: 650px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      padding: 30px 20px;
+      text-align: center;
+      color: white;
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    
+    .header p {
+      margin: 5px 0 0;
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    
+    .content {
+      padding: 30px;
+    }
+    
+    .notification-badge {
+      background-color: var(--warning);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 4px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+    
+    .section {
+      margin-bottom: 25px;
+    }
+    
+    .section-title {
+      color: var(--primary);
+      font-size: 20px;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--light-gray);
+    }
+    
+    .info-list {
+      list-style: none;
+      padding-left: 5px;
+    }
+    
+    .info-list li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+    }
+    
+    .info-list li:last-child {
+      margin-bottom: 0;
+    }
+    
+    .info-label {
+      font-weight: 600;
+      min-width: 150px;
+      padding-right: 10px;
+    }
+    
+    .info-value {
+      flex: 1;
+    }
+    
+    .address {
+      padding: 10px;
+      background-color: var(--light);
+      border-radius: var(--border-radius);
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+    
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      border: 1px solid var(--light-gray);
+    }
+    
+    .items-table th {
+      background-color: var(--primary);
+      color: white;
+      padding: 10px;
+      text-align: left;
+    }
+    
+    .items-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--light-gray);
+    }
+    
+    .items-table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .items-table tr:nth-child(even) {
+      background-color: var(--light);
+    }
+    
+    .total-section {
+      background-color: var(--highlight);
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-top: 15px;
+      margin-bottom: 25px;
+      text-align: right;
+      border-left: 4px solid var(--primary);
+    }
+    
+    .total-amount {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .comments {
+      background-color: var(--light);
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-top: 10px;
+      border-left: 4px solid var(--gray);
+    }
+    
+    .action-button {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      padding: 12px 25px;
+      text-decoration: none;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      margin-top: 20px;
+      text-align: center;
+    }
+    
+    .action-button:hover {
+      background-color: var(--secondary);
+    }
+    
+    .footer {
+      background-color: var(--light);
+      padding: 20px;
+      text-align: center;
+      font-size: 0.9em;
+      color: var(--gray);
+      border-top: 1px solid var(--light-gray);
+    }
+    
+    .footer p {
+      margin: 5px 0;
+    }
+    
+    .dimensions {
+      display: flex;
+      margin-top: 5px;
+    }
+    
+    .dimension {
+      padding: 5px 10px;
+      background-color: var(--light);
+      border-radius: 4px;
+      margin-right: 10px;
+      font-size: 0.9em;
+    }
+    
+    .terms-accepted {
+      display: inline-block;
+      background-color: #10b981;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.8em;
+    }
+    
+    .terms-rejected {
+      display: inline-block;
+      background-color: var(--warning);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.8em;
+    }
+    
+    .priority-high {
+      background-color: #fee2e2;
+      border-left: 4px solid #ef4444;
+      padding: 10px;
+      border-radius: var(--border-radius);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>ESIL EVENTS - ADMINISTRATION</h1>
+      <p>Portail de gestion des demandes</p>
+    </div>
+    
+    <div class="content">
+      <div class="notification-badge">
+        Nouvelle demande de devis
       </div>
       
-      <div style="padding: 20px; border: 1px solid #e5e7eb; border-top: none;">
-        <h2>Nouvelle demande de devis reçue</h2>
-        
-        <h3>Informations client :</h3>
-        <ul>
-          <li><strong>Nom :</strong> ${quoteRequest.first_name} ${quoteRequest.last_name}</li>
-          <li><strong>Email :</strong> ${quoteRequest.email}</li>
-          <li><strong>Téléphone :</strong> ${quoteRequest.phone}</li>
-          <li><strong>Société :</strong> ${quoteRequest.company}</li>
-          <li><strong>Type de client :</strong> ${quoteRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</li>
+      <div class="section">
+        <h2 class="section-title">Informations client</h2>
+        <ul class="info-list">
+          <li><span class="info-label">Nom complet :</span> <span class="info-value">${quoteRequest.first_name} ${quoteRequest.last_name}</span></li>
+          <li><span class="info-label">Email :</span> <span class="info-value">${quoteRequest.email}</span></li>
+          <li><span class="info-label">Téléphone :</span> <span class="info-value">${quoteRequest.phone}</span></li>
+          <li><span class="info-label">Société :</span> <span class="info-value">${quoteRequest.company}</span></li>
+          <li><span class="info-label">Type de client :</span> <span class="info-value">${quoteRequest.customer_type === 'professional' ? 'Professionnel' : 'Particulier'}</span></li>
         </ul>
         
-        <h3>Adresse de facturation :</h3>
-        <p>
+        <h3 class="section-title">Adresse de facturation</h3>
+        <div class="address">
           ${quoteRequest.billing_address || 'Non spécifiée'}<br>
           ${quoteRequest.postal_code || ''} ${quoteRequest.city || ''}
-        </p>
-        
-        <h3>Détails de l'événement :</h3>
-        <ul>
-          <li><strong>Date :</strong> ${quoteRequest.event_date}</li>
-          <li><strong>Durée :</strong> ${quoteRequest.event_duration}</li>
-          <li><strong>Description :</strong> ${quoteRequest.description}</li>
-          <li><strong>Heure de début :</strong> ${quoteRequest.event_start_time || 'Non spécifiée'}</li>
-          <li><strong>Heure de fin :</strong> ${quoteRequest.event_end_time || 'Non spécifiée'}</li>
-          <li><strong>Nombre d'invités :</strong> ${quoteRequest.guest_count || 'Non spécifié'}</li>
-          <li><strong>Lieu :</strong> ${quoteRequest.event_location || 'Non spécifié'}</li>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h3 class="section-title">Détails de l'événement</h3>
+        <ul class="info-list">
+          <li><span class="info-label">Date :</span> <span class="info-value">${quoteRequest.event_date}</span></li>
+          <li><span class="info-label">Durée :</span> <span class="info-value">${quoteRequest.event_duration}</span></li>
+          <li><span class="info-label">Description :</span> <span class="info-value">${quoteRequest.description}</span></li>
+          <li><span class="info-label">Heure de début :</span> <span class="info-value">${quoteRequest.event_start_time || 'Non spécifiée'}</span></li>
+          <li><span class="info-label">Heure de fin :</span> <span class="info-value">${quoteRequest.event_end_time || 'Non spécifiée'}</span></li>
+          <li><span class="info-label">Nombre d'invités :</span> <span class="info-value">${quoteRequest.guest_count || 'Non spécifié'}</span></li>
+          <li><span class="info-label">Lieu :</span> <span class="info-value">${quoteRequest.event_location || 'Non spécifié'}</span></li>
         </ul>
-        
-        <h3>Informations de livraison :</h3>
-        <ul>
-          <li><strong>Type de livraison :</strong> ${quoteRequest.delivery_type || 'Non spécifié'}</li>
-          <li><strong>Adresse :</strong> ${quoteRequest.delivery_address || 'Non spécifiée'}</li>
-          <li><strong>Code postal :</strong> ${quoteRequest.delivery_postal_code || 'Non spécifié'}</li>
-          <li><strong>Ville :</strong> ${quoteRequest.delivery_city || 'Non spécifiée'}</li>
-          <li><strong>Date de livraison :</strong> ${quoteRequest.delivery_date || 'Non spécifiée'}</li>
-          <li><strong>Créneau horaire :</strong> ${quoteRequest.delivery_time_slot || 'Non spécifié'}</li>
-          <li><strong>Accès extérieur :</strong> ${quoteRequest.exterior_access || 'Non spécifié'}</li>
-          <li><strong>Accès intérieur :</strong> ${quoteRequest.interior_access || 'Non spécifié'}</li>
-          <li><strong>Dimensions ascenseur :</strong><br>
-            Largeur: ${quoteRequest.elevator_width || 'Non spécifiée'}<br>
-            Hauteur: ${quoteRequest.elevator_height || 'Non spécifiée'}<br>
-            Profondeur: ${quoteRequest.elevator_depth || 'Non spécifiée'}</li>
+      </div>
+      
+      <div class="section">
+        <h3 class="section-title">Informations de livraison</h3>
+        <ul class="info-list">
+          <li><span class="info-label">Type de livraison :</span> <span class="info-value">${quoteRequest.delivery_type || 'Non spécifié'}</span></li>
+          <li><span class="info-label">Adresse :</span> <span class="info-value">${quoteRequest.delivery_address || 'Non spécifiée'}</span></li>
+          <li><span class="info-label">Code postal :</span> <span class="info-value">${quoteRequest.delivery_postal_code || 'Non spécifié'}</span></li>
+          <li><span class="info-label">Ville :</span> <span class="info-value">${quoteRequest.delivery_city || 'Non spécifiée'}</span></li>
+          <li><span class="info-label">Date de livraison :</span> <span class="info-value">${quoteRequest.delivery_date || 'Non spécifiée'}</span></li>
+          <li><span class="info-label">Créneau horaire :</span> <span class="info-value">${quoteRequest.delivery_time_slot || 'Non spécifié'}</span></li>
+          <li><span class="info-label">Accès extérieur :</span> <span class="info-value">${quoteRequest.exterior_access || 'Non spécifié'}</span></li>
+          <li><span class="info-label">Accès intérieur :</span> <span class="info-value">${quoteRequest.interior_access || 'Non spécifié'}</span></li>
+          <li>
+            <span class="info-label">Dimensions ascenseur :</span>
+            <span class="info-value">
+              <div class="dimensions">
+                <div class="dimension">Larg.: ${quoteRequest.elevator_width || 'N/A'}</div>
+                <div class="dimension">Haut.: ${quoteRequest.elevator_height || 'N/A'}</div>
+                <div class="dimension">Prof.: ${quoteRequest.elevator_depth || 'N/A'}</div>
+              </div>
+            </span>
+          </li>
         </ul>
-        
-        <h3>Informations de reprise :</h3>
-        <ul>
-          <li><strong>Date de reprise :</strong> ${quoteRequest.pickup_return_date || 'Non spécifiée'}</li>
-          <li><strong>Heure de début :</strong> ${quoteRequest.pickup_return_start_time || 'Non spécifiée'}</li>
-          <li><strong>Heure de fin :</strong> ${quoteRequest.pickup_return_end_time || 'Non spécifiée'}</li>
+      </div>
+      
+      <div class="section">
+        <h3 class="section-title">Informations de reprise</h3>
+        <ul class="info-list">
+          <li><span class="info-label">Date de reprise :</span> <span class="info-value">${quoteRequest.pickup_return_date || 'Non spécifiée'}</span></li>
+          <li><span class="info-label">Heure de début :</span> <span class="info-value">${quoteRequest.pickup_return_start_time || 'Non spécifiée'}</span></li>
+          <li><span class="info-label">Heure de fin :</span> <span class="info-value">${quoteRequest.pickup_return_end_time || 'Non spécifiée'}</span></li>
         </ul>
+      </div>
+      
+      <div class="section">
+        <h3 class="section-title">Articles demandés</h3>
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Article</th>
+              <th>Quantité</th>
+              <th>Prix unitaire</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsList}
+          </tbody>
+        </table>
         
-        <h3>Articles demandés :</h3>
-        <ul>
-          ${itemsList}
+        <div class="total-section">
+          <span class="total-amount">Total estimatif : ${total}€</span>
+        </div>
+      </div>
+      
+      ${quoteRequest.comments ? `
+      <div class="section">
+        <h3 class="section-title">Commentaires supplémentaires</h3>
+        <div class="comments">
+          ${quoteRequest.comments}
+        </div>
+      </div>
+      ` : ''}
+      
+      <div class="section">
+        <h3 class="section-title">Conditions acceptées</h3>
+        <ul class="info-list">
+          <li>
+            <span class="info-label">CGV :</span> 
+            <span class="info-value">
+              ${quoteRequest.terms_accepted ? 
+                '<span class="terms-accepted">Acceptées</span>' : 
+                '<span class="terms-rejected">Non acceptées</span>'}
+            </span>
+          </li>
         </ul>
-        
-        <p><strong>Total estimatif : ${total}€</strong></p>
-        
-        ${quoteRequest.comments ? `
-        <h3>Commentaires supplémentaires :</h3>
-        <p>${quoteRequest.comments}</p>
-        ` : ''}
-        
-        <h3>Conditions acceptées :</h3>
-        <ul>
-          <li><strong>CGV :</strong> ${quoteRequest.terms_accepted ? 'Oui' : 'Non'}</li>
-        </ul>
-        
-        <p>Veuillez vous connecter au <a href="https://esil-events.fr/admin/quote-requests">panneau d'administration</a> pour plus de détails et pour traiter cette demande.</p>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px;">
+        <a href="https://esil-events.fr/admin/quote-requests" class="action-button">
+          Accéder au panneau d'administration
+        </a>
       </div>
     </div>
-  `;
+    
+    <div class="footer">
+      <p>Email automatique généré par le système ESIL Events</p>
+      <p>© ${new Date().getFullYear()} ESIL Events. Tous droits réservés.</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
 
   return sendEmail(
     adminEmail,

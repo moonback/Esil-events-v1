@@ -34,7 +34,7 @@ const useCheckoutForm = (onSubmitSuccess: () => void) => {
     deliveryPostalCode: '',
     deliveryCity: '',
     exteriorAccess: 'parking',
-    interiorAccess: 'flat',
+    interiorAccess: 'rdc',
     elevatorWidth: '',
     elevatorHeight: '',
     elevatorDepth: '',

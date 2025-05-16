@@ -31,7 +31,7 @@ export interface FormData {
   eventStartTime: string;
   eventEndTime: string;
   guestCount: number;
-  eventLocation: 'indoor' | 'outdoor';
+  eventLocation: 'Intérieur' | 'Extérieur';
 
   // Étape 3 : Livraison
   deliveryType: 'pickup' | 'eco' | 'premium';
@@ -41,8 +41,8 @@ export interface FormData {
   deliveryAddress?: string;
   deliveryPostalCode?: string;
   deliveryCity?: string;
-  exteriorAccess?: 'parking' | 'street';
-  interiorAccess?: 'stairs' | 'flat' | 'elevator';
+  exteriorAccess?: 'parking' | 'rue';
+  interiorAccess?: 'escaliers' | 'rdc' | 'elevator';
   elevatorWidth?: number | '';
   elevatorHeight?: number | '';
   elevatorDepth?: number | '';

@@ -34,7 +34,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     eventStartTime: '',
     eventEndTime: '',
     guestCount: 0,
-    eventLocation: 'indoor',
+    eventLocation: 'Intérieur',
 
     // Étape 3
     deliveryType: 'pickup',
@@ -45,7 +45,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     deliveryPostalCode: '',
     deliveryCity: '',
     exteriorAccess: 'parking',
-    interiorAccess: 'flat',
+    interiorAccess: 'rdc',
     elevatorWidth: '',
     elevatorHeight: '',
     elevatorDepth: '',
@@ -192,11 +192,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-1">Lieu de l'événement *</label>
             <div className="flex flex-wrap gap-x-4 gap-y-2">
               <label className="inline-flex items-center">
-                <input type="radio" name="eventLocation" value="indoor" checked={formData.eventLocation === 'indoor'} onChange={handleInputChange} className="form-radio" required />
+                <input type="radio" name="eventLocation" value="Intérieur" checked={formData.eventLocation === 'Intérieur'} onChange={handleInputChange} className="form-radio" required />
                 <span className="ml-2">Intérieur</span>
               </label>
               <label className="inline-flex items-center">
-                <input type="radio" name="eventLocation" value="outdoor" checked={formData.eventLocation === 'outdoor'} onChange={handleInputChange} className="form-radio" />
+                <input type="radio" name="eventLocation" value="Extérieur" checked={formData.eventLocation === 'Extérieur'} onChange={handleInputChange} className="form-radio" />
                 <span className="ml-2">Extérieur</span>
               </label>
             </div>
@@ -271,7 +271,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     <span className="ml-2">Parking</span>
                   </label>
                   <label className="inline-flex items-center">
-                    <input type="radio" name="exteriorAccess" value="street" checked={formData.exteriorAccess === 'street'} onChange={handleInputChange} className="form-radio" />
+                    <input type="radio" name="exteriorAccess" value="rue" checked={formData.exteriorAccess === 'rue'} onChange={handleInputChange} className="form-radio" />
                     <span className="ml-2">Rue</span>
                   </label>
                 </div>
@@ -280,11 +280,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 <label className="block text-sm font-medium text-gray-700 mb-1">Accès intérieur *</label>
                 <div className="flex flex-wrap gap-x-4 gap-y-2">
                   <label className="inline-flex items-center">
-                    <input type="radio" name="interiorAccess" value="flat" checked={formData.interiorAccess === 'flat'} onChange={handleInputChange} className="form-radio" required={isDelivery}/>
+                    <input type="radio" name="interiorAccess" value="rdc" checked={formData.interiorAccess === 'rdc'} onChange={handleInputChange} className="form-radio" required={isDelivery}/>
                     <span className="ml-2">Plain-pied</span>
                   </label>
                   <label className="inline-flex items-center">
-                    <input type="radio" name="interiorAccess" value="stairs" checked={formData.interiorAccess === 'stairs'} onChange={handleInputChange} className="form-radio" />
+                    <input type="radio" name="interiorAccess" value="escaliers" checked={formData.interiorAccess === 'escaliers'} onChange={handleInputChange} className="form-radio" />
                     <span className="ml-2">Escalier</span>
                   </label>
                   <label className="inline-flex items-center">
