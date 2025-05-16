@@ -197,7 +197,7 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
             Total: {calculateTotalAmount(selectedRequest)}€
           </span>
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        {/* <div className="grid grid-cols-2 gap-2">
           <div>
             <span className="text-gray-500">Date événement:</span>{' '}
             {selectedRequest.event_date ? formatDate(selectedRequest.event_date).split(' ')[0] : '-'}
@@ -215,7 +215,7 @@ const AIResponseGenerator: React.FC<AIResponseGeneratorProps> = ({
             {selectedRequest.items?.length || 0}
           </div>
           
-        </div>
+        </div> */}
       </div>
 
       {/* Options de génération */}
