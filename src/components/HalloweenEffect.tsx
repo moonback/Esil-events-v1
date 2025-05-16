@@ -1,106 +1,486 @@
-import React, { useMemo } from 'react';
-import styled, { keyframes } from 'styled-components';
+import React, { useState, useEffect } from 'react';
 
-const batFly = keyframes`
-  0% { transform: translateY(0) translateX(0) scaleX(1); }
-  20% { transform: translateY(-20px) translateX(20vw) scaleX(-1); }
-  40% { transform: translateY(10px) translateX(40vw) scaleX(1); }
-  60% { transform: translateY(-10px) translateX(60vw) scaleX(-1); }
-  80% { transform: translateY(20px) translateX(80vw) scaleX(1); }
-  100% { transform: translateY(0) translateX(100vw) scaleX(-1); }
-`;
-
-const pumpkinFall = keyframes`
-  0% { top: -10vh; opacity: 0; }
-  10% { opacity: 1; }
-  100% { top: 110vh; opacity: 0.8; }
-`;
-
-const HalloweenContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 99999;
-  overflow: hidden;
-`;
-
-const Bat = styled.div<{ $top: number; $delay: number; $duration: number }>`
-  position: absolute;
-  top: ${props => props.$top}vh;
-  left: 0;
-  width: 40px;
-  height: 20px;
-  animation: ${batFly} ${props => props.$duration}s linear infinite;
-  animation-delay: ${props => props.$delay}s;
-  pointer-events: none;
-  z-index: 1;
-`;
-
-const Pumpkin = styled.div<{ $left: number; $delay: number; $duration: number }>`
-  position: absolute;
-  left: ${props => props.$left}vw;
-  width: 32px;
-  height: 32px;
-  top: -10vh;
-  animation: ${pumpkinFall} ${props => props.$duration}s linear infinite;
-  animation-delay: ${props => props.$delay}s;
-  pointer-events: none;
-  z-index: 2;
-`;
-
-const BatSVG = () => (
-  <svg width="40" height="20" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M2 10 Q10 2 20 10 Q30 2 38 10 Q30 18 20 10 Q10 18 2 10" fill="#222" />
-    <ellipse cx="10" cy="10" rx="2" ry="3" fill="#222" />
-    <ellipse cx="30" cy="10" rx="2" ry="3" fill="#222" />
+const BatSVG = ({ color = "#222" }) => (
+  <svg width="40" height="30" viewBox="0 0 40 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 13C20 13 10 5 2 12C2 12 6 4 15 8C15 8 17 2 20 2C23 2 25 8 25 8C34 4 38 12 38 12C30 5 20 13 20 13Z" fill={color} />
+    <path d="M20 13C20 13 10 21 2 14C2 14 6 22 15 18C15 18 17 24 20 24C23 24 25 18 25 18C34 22 38 14 38 14C30 21 20 13 20 13Z" fill={color} />
+    <ellipse cx="15" cy="13" rx="2" ry="3" fill={color} />
+    <ellipse cx="25" cy="13" rx="2" ry="3" fill={color} />
   </svg>
 );
 
 const PumpkinSVG = () => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="16" cy="20" rx="12" ry="10" fill="#ff9900" stroke="#b35c00" strokeWidth="2" />
-    <rect x="14" y="7" width="4" height="8" rx="2" fill="#b35c00" />
-    <ellipse cx="16" cy="20" rx="6" ry="5" fill="#ffb84d" />
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 8C19 8 18 7 18 5C18 3 19 2 20 2C21 2 22 3 22 5C22 7 21 8 20 8Z" fill="#2F4F1A" />
+    <path d="M16 10C11 12 8 18 8 25C8 32 12 37 20 37C28 37 32 32 32 25C32 18 29 12 24 10" fill="#FF7518" />
+    <path d="M18 10C13 12 10 17 10 22C10 27 12 32 20 32C28 32 30 27 30 22C30 17 27 12 22 10" fill="#FFA04D" />
+    <path d="M16 17C16 17 20 15 24 17C24 17 24 21 20 21C16 21 16 17 16 17Z" fill="#4D1F00" />
+    <path d="M16 24C18 26 22 26 24 24" stroke="#4D1F00" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
-const HALLOWEEN_BATS = 7;
-const HALLOWEEN_PUMPKINS = 10;
+const GhostSVG = () => (
+  <svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 2C10 2 4 8 4 16V36C4 36 4 38 2 38C0 38 0 40 2 42C4 44 6 42 6 42C6 42 10 48 14 46C18 44 18 42 18 42C18 42 18 44 22 46C26 48 30 42 30 42C30 42 32 44 34 42C36 40 36 38 34 38C32 38 32 36 32 36V16C32 8 26 2 18 2Z" fill="white" />
+    <ellipse cx="12" cy="20" rx="3" ry="4" fill="#333" />
+    <ellipse cx="24" cy="20" rx="3" ry="4" fill="#333" />
+  </svg>
+);
 
-const HalloweenEffect: React.FC = () => {
-  const bats = useMemo(() => Array.from({ length: HALLOWEEN_BATS }).map((_, i) => ({
-    key: 'bat-' + i,
-    top: Math.random() * 80,
-    delay: Math.random() * 5,
-    duration: Math.random() * 6 + 8,
-  })), []);
+const SpiderSVG = () => (
+  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="24" cy="24" r="10" fill="#333" />
+    <circle cx="24" cy="24" r="6" fill="#555" />
+    <circle cx="21" cy="21" rx="2" ry="2" fill="white" />
+    <circle cx="27" cy="21" rx="2" ry="2" fill="white" />
+    <path d="M12 12L6 6" stroke="#333" strokeWidth="2" />
+    <path d="M36 12L42 6" stroke="#333" strokeWidth="2" />
+    <path d="M12 36L6 42" stroke="#333" strokeWidth="2" />
+    <path d="M36 36L42 42" stroke="#333" strokeWidth="2" />
+    <path d="M8 20L2 20" stroke="#333" strokeWidth="2" />
+    <path d="M46 20L40 20" stroke="#333" strokeWidth="2" />
+    <path d="M8 28L2 28" stroke="#333" strokeWidth="2" />
+    <path d="M46 28L40 28" stroke="#333" strokeWidth="2" />
+  </svg>
+);
 
-  const pumpkins = useMemo(() => Array.from({ length: HALLOWEEN_PUMPKINS }).map((_, i) => ({
-    key: 'pumpkin-' + i,
-    left: Math.random() * 95,
-    delay: Math.random() * 6,
-    duration: Math.random() * 4 + 6,
-  })), []);
+const Moon = () => (
+  <div className="absolute top-6 right-6 z-10">
+    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="30" cy="30" r="26" fill="#FFE07D" />
+      <path d="M30 4C18 4 8 12 8 30C8 48 22 56 38 50C50 46 46 36 40 34C34 32 30 36 30 40C30 44 34 46 38 44C42 42 42 38 38 36" fill="#FFEFB6" />
+      <circle cx="18" cy="20" r="2" fill="#FFB833" />
+      <circle cx="38" cy="16" r="3" fill="#FFB833" />
+      <circle cx="32" cy="30" r="2" fill="#FFB833" />
+      <circle cx="44" cy="30" r="2" fill="#FFB833" />
+      <circle cx="24" cy="40" r="3" fill="#FFB833" />
+    </svg>
+  </div>
+);
 
+interface StarProps {
+  top: number;
+  left: number;
+}
+
+interface BatProps {
+  index: number;
+}
+
+interface PumpkinProps {
+  index: number;
+}
+
+interface GhostProps {
+  index: number;
+}
+
+interface SpiderProps {
+  index: number;
+}
+
+interface Settings {
+  bats: number;
+  pumpkins: number;
+  ghosts: number;
+  spiders: number;
+  stars: number;
+  fogLevel: number;
+}
+
+const Star: React.FC<StarProps> = ({ top, left }) => (
+  <div className="absolute" style={{ top: `${top}vh`, left: `${left}vw` }}>
+    <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
+  </div>
+);
+
+const Bat: React.FC<BatProps> = ({ index }) => {
+  // Calculer des positions et délais aléatoires mais déterministes basés sur l'index
+  const topBase = 5 + (index % 7) * 10;
+  const top = topBase + Math.sin(index) * 10;
+  const delay = index * 0.5;
+  const duration = 12 + index % 5;
+  const size = 0.7 + (index % 3) * 0.2;
+  
   return (
-    <HalloweenContainer>
-      {bats.map(bat => (
-        <Bat key={bat.key} $top={bat.top} $delay={bat.delay} $duration={bat.duration}>
-          <BatSVG />
-        </Bat>
-      ))}
-      {pumpkins.map(pumpkin => (
-        <Pumpkin key={pumpkin.key} $left={pumpkin.left} $delay={pumpkin.delay} $duration={pumpkin.duration}>
-          <PumpkinSVG />
-        </Pumpkin>
-      ))}
-    </HalloweenContainer>
+    <div 
+      className="absolute left-0 z-20"
+      style={{ 
+        top: `${top}vh`,
+        animation: `batFly${index % 3} ${duration}s ease-in-out infinite`,
+        animationDelay: `${delay}s`,
+        transform: `scale(${size})`,
+      }}
+    >
+      <BatSVG />
+      <style>{`
+        @keyframes batFly0 {
+          0% { transform: translate(0, 0) scale(${size}) rotate(0deg); }
+          10% { transform: translate(20vw, -4vh) scale(${size}) rotate(5deg); }
+          30% { transform: translate(40vw, 0vh) scale(${size}) rotate(-5deg); }
+          50% { transform: translate(60vw, -6vh) scale(${size}) rotate(8deg); }
+          70% { transform: translate(80vw, -2vh) scale(${size}) rotate(-8deg); }
+          90% { transform: translate(90vw, -4vh) scale(${size}) rotate(5deg); }
+          100% { transform: translate(100vw, 0) scale(${size}) rotate(0deg); }
+        }
+        @keyframes batFly1 {
+          0% { transform: translate(0, 0) scale(${size}) rotate(0deg); }
+          20% { transform: translate(20vw, -8vh) scale(${size}) rotate(-8deg); }
+          40% { transform: translate(40vw, -4vh) scale(${size}) rotate(5deg); }
+          60% { transform: translate(70vw, -10vh) scale(${size}) rotate(-5deg); }
+          80% { transform: translate(85vw, -5vh) scale(${size}) rotate(8deg); }
+          100% { transform: translate(100vw, 0) scale(${size}) rotate(0deg); }
+        }
+        @keyframes batFly2 {
+          0% { transform: translate(0, 0) scale(${size}) rotate(0deg); }
+          15% { transform: translate(15vw, -6vh) scale(${size}) rotate(10deg); }
+          35% { transform: translate(45vw, -2vh) scale(${size}) rotate(-5deg); }
+          55% { transform: translate(65vw, -8vh) scale(${size}) rotate(8deg); }
+          75% { transform: translate(80vw, -4vh) scale(${size}) rotate(-10deg); }
+          100% { transform: translate(100vw, 0) scale(${size}) rotate(0deg); }
+        }
+      `}</style>
+    </div>
   );
 };
 
-export default HalloweenEffect; 
+const Pumpkin: React.FC<PumpkinProps> = ({ index }) => {
+  const left = 5 + (index % 9) * 10;
+  const delay = index * 0.8;
+  const duration = 8 + index % 4;
+  const rotation = -15 + (index % 7) * 5;
+  const size = 0.8 + (index % 3) * 0.3;
+  
+  return (
+    <div 
+      className="absolute"
+      style={{ 
+        left: `${left}vw`,
+        animation: `pumpkinFall${index % 3} ${duration}s ease-in infinite`,
+        animationDelay: `${delay}s`,
+        transform: `rotate(${rotation}deg) scale(${size})`,
+      }}
+    >
+      <PumpkinSVG />
+      <style>{`
+        @keyframes pumpkinFall0 {
+          0% { transform: translate(0, -40px) rotate(${rotation}deg) scale(${size}); opacity: 0; }
+          10% { transform: translate(-10px, 10vh) rotate(${rotation+5}deg) scale(${size}); opacity: 1; }
+          30% { transform: translate(10px, 30vh) rotate(${rotation-5}deg) scale(${size}); }
+          50% { transform: translate(-5px, 50vh) rotate(${rotation+10}deg) scale(${size}); }
+          70% { transform: translate(8px, 70vh) rotate(${rotation-10}deg) scale(${size}); }
+          90% { transform: translate(-5px, 90vh) rotate(${rotation+5}deg) scale(${size}); opacity: 1; }
+          100% { transform: translate(0, 100vh) rotate(${rotation}deg) scale(${size}); opacity: 0; }
+        }
+        @keyframes pumpkinFall1 {
+          0% { transform: translate(0, -40px) rotate(${rotation}deg) scale(${size}); opacity: 0; }
+          10% { transform: translate(15px, 10vh) rotate(${rotation-8}deg) scale(${size}); opacity: 1; }
+          30% { transform: translate(-10px, 30vh) rotate(${rotation+8}deg) scale(${size}); }
+          50% { transform: translate(10px, 50vh) rotate(${rotation-15}deg) scale(${size}); }
+          70% { transform: translate(-15px, 70vh) rotate(${rotation+10}deg) scale(${size}); }
+          90% { transform: translate(10px, 90vh) rotate(${rotation-5}deg) scale(${size}); opacity: 1; }
+          100% { transform: translate(0, 100vh) rotate(${rotation}deg) scale(${size}); opacity: 0; }
+        }
+        @keyframes pumpkinFall2 {
+          0% { transform: translate(0, -40px) rotate(${rotation}deg) scale(${size}); opacity: 0; }
+          10% { transform: translate(-20px, 10vh) rotate(${rotation+10}deg) scale(${size}); opacity: 1; }
+          30% { transform: translate(15px, 30vh) rotate(${rotation-12}deg) scale(${size}); }
+          50% { transform: translate(-10px, 50vh) rotate(${rotation+15}deg) scale(${size}); }
+          70% { transform: translate(20px, 70vh) rotate(${rotation-12}deg) scale(${size}); }
+          90% { transform: translate(-15px, 90vh) rotate(${rotation+8}deg) scale(${size}); opacity: 1; }
+          100% { transform: translate(0, 100vh) rotate(${rotation}deg) scale(${size}); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+const Ghost: React.FC<GhostProps> = ({ index }) => {
+  const side = index % 2 === 0 ? 'left' : 'right';
+  const basePos = side === 'left' ? 10 : 80;
+  const pos = basePos + (index % 5) * 2;
+  const delay = index * 1.2;
+  const speed = 20 + index % 15;
+  
+  return (
+    <div 
+      className="absolute z-10"
+      style={{ 
+        [side]: `${pos}vw`,
+        animation: `ghostFloat${index % 3} ${speed}s ease-in-out infinite`,
+        animationDelay: `${delay}s`,
+      }}
+    >
+      <GhostSVG />
+      <style>{`
+        @keyframes ghostFloat0 {
+          0% { transform: translate(0, -100px) scale(0.8); opacity: 0; }
+          10% { transform: translate(${side === 'left' ? '20px' : '-20px'}, 10vh) scale(0.8); opacity: 0.7; }
+          25% { transform: translate(${side === 'left' ? '-15px' : '15px'}, 25vh) scale(0.9); opacity: 0.8; }
+          50% { transform: translate(${side === 'left' ? '25px' : '-25px'}, 50vh) scale(1); opacity: 0.9; }
+          75% { transform: translate(${side === 'left' ? '-20px' : '20px'}, 75vh) scale(0.9); opacity: 0.8; }
+          90% { transform: translate(${side === 'left' ? '15px' : '-15px'}, 90vh) scale(0.8); opacity: 0.7; }
+          100% { transform: translate(0, 110vh) scale(0.7); opacity: 0; }
+        }
+        @keyframes ghostFloat1 {
+          0% { transform: translate(0, -100px) scale(0.7); opacity: 0; }
+          10% { transform: translate(${side === 'left' ? '25px' : '-25px'}, 10vh) scale(0.75); opacity: 0.6; }
+          25% { transform: translate(${side === 'left' ? '-20px' : '20px'}, 25vh) scale(0.8); opacity: 0.7; }
+          50% { transform: translate(${side === 'left' ? '30px' : '-30px'}, 50vh) scale(0.9); opacity: 0.8; }
+          75% { transform: translate(${side === 'left' ? '-25px' : '25px'}, 75vh) scale(0.8); opacity: 0.7; }
+          90% { transform: translate(${side === 'left' ? '20px' : '-20px'}, 90vh) scale(0.75); opacity: 0.6; }
+          100% { transform: translate(0, 110vh) scale(0.7); opacity: 0; }
+        }
+        @keyframes ghostFloat2 {
+          0% { transform: translate(0, -100px) scale(0.9); opacity: 0; }
+          10% { transform: translate(${side === 'left' ? '15px' : '-15px'}, 10vh) scale(0.95); opacity: 0.8; }
+          25% { transform: translate(${side === 'left' ? '-10px' : '10px'}, 25vh) scale(1); opacity: 0.9; }
+          50% { transform: translate(${side === 'left' ? '20px' : '-20px'}, 50vh) scale(1.1); opacity: 1; }
+          75% { transform: translate(${side === 'left' ? '-15px' : '15px'}, 75vh) scale(1); opacity: 0.9; }
+          90% { transform: translate(${side === 'left' ? '10px' : '-10px'}, 90vh) scale(0.95); opacity: 0.8; }
+          100% { transform: translate(0, 110vh) scale(0.9); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+const Spider: React.FC<SpiderProps> = ({ index }) => {
+  const left = 10 + (index % 8) * 10;
+  const delay = index * 1;
+  const speed = 12 + index % 6;
+  
+  return (
+    <div 
+      className="absolute"
+      style={{ 
+        left: `${left}vw`,
+        top: 0,
+        animation: `spiderDrop${index % 3} ${speed}s ease-in-out infinite`,
+        animationDelay: `${delay}s`,
+      }}
+    >
+      <div className="w-1 bg-gray-600" style={{ height: `${20 + index * 5}px` }}></div>
+      <div className="transform -translate-x-1/2">
+        <SpiderSVG />
+      </div>
+      <style>{`
+        @keyframes spiderDrop0 {
+          0% { transform: translateY(-50px); }
+          20% { transform: translateY(30vh); }
+          30% { transform: translateY(25vh); }
+          40% { transform: translateY(30vh); }
+          60% { transform: translateY(30vh); }
+          80% { transform: translateY(0); }
+          100% { transform: translateY(-50px); }
+        }
+        @keyframes spiderDrop1 {
+          0% { transform: translateY(-50px); }
+          20% { transform: translateY(15vh); }
+          25% { transform: translateY(12vh); }
+          30% { transform: translateY(15vh); }
+          70% { transform: translateY(15vh); }
+          90% { transform: translateY(0); }
+          100% { transform: translateY(-50px); }
+        }
+        @keyframes spiderDrop2 {
+          0% { transform: translateY(-50px); }
+          20% { transform: translateY(40vh); }
+          30% { transform: translateY(35vh); }
+          40% { transform: translateY(40vh); }
+          50% { transform: translateY(38vh); }
+          60% { transform: translateY(40vh); }
+          80% { transform: translateY(0); }
+          100% { transform: translateY(-50px); }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+const HalloweenEffect: React.FC = () => {
+  const [showFogEffect, setShowFogEffect] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState<Settings>({
+    bats: 5,
+    pumpkins: 7,
+    ghosts: 3,
+    spiders: 4,
+    stars: 15,
+    fogLevel: 3
+  });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowFogEffect(true);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  const toggleSettings = () => {
+    setShowSettings(!showSettings);
+  };
+
+  const updateSetting = (setting: keyof Settings, value: string) => {
+    setSettings(prev => ({
+      ...prev,
+      [setting]: parseInt(value)
+    }));
+  };
+
+  const stars = Array.from({ length: settings.stars }).map((_, i) => ({
+    top: Math.random() * 60,
+    left: Math.random() * 100
+  }));
+
+  return (
+    <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none">
+      {/* Fond de ciel sombre */}
+      {/* <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-indigo-900 to-purple-900"></div> */}
+      
+      {/* Étoiles */}
+      {stars.map((star, i) => (
+        <Star key={`star-${i}`} top={star.top} left={star.left} />
+      ))}
+      
+      {/* Lune */}
+      <Moon />
+      
+      {/* Effet de brouillard */}
+      {showFogEffect && (
+        <>
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gray-600 opacity-20 blur-xl"></div>
+          <div 
+            className="absolute left-0 right-0 h-64" 
+            style={{
+              bottom: `-20px`,
+              background: `repeating-linear-gradient(0deg, transparent, rgba(255,255,255,0.05) 2px, transparent 3px)`,
+              opacity: settings.fogLevel * 0.1,
+              animation: `fogRoll 60s linear infinite`
+            }}
+          >
+            <style>{`
+              @keyframes fogRoll {
+                0% { background-position: 0 0; }
+                100% { background-position: 100vw 0; }
+              }
+            `}</style>
+          </div>
+        </>
+      )}
+      
+      {/* Chauve-souris */}
+      {Array.from({ length: settings.bats }).map((_, i) => (
+        <Bat key={`bat-${i}`} index={i} />
+      ))}
+      
+      {/* Citrouilles */}
+      {Array.from({ length: settings.pumpkins }).map((_, i) => (
+        <Pumpkin key={`pumpkin-${i}`} index={i} />
+      ))}
+      
+      {/* Fantômes */}
+      {Array.from({ length: settings.ghosts }).map((_, i) => (
+        <Ghost key={`ghost-${i}`} index={i} />
+      ))}
+      
+      {/* Araignées */}
+      {Array.from({ length: settings.spiders }).map((_, i) => (
+        <Spider key={`spider-${i}`} index={i} />
+      ))}
+      
+      {/* Bouton de paramètres */}
+      <div className="absolute bottom-4 right-4 z-50 pointer-events-auto">
+        <button 
+          onClick={toggleSettings}
+          className="bg-orange-600 hover:bg-orange-700 text-white rounded-full p-2 shadow-lg"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="white"/>
+            <path d="M19.4 15C19.2 15.4 19.2 15.8 19.4 16.2L21.1 18.9C21.3 19.3 21.2 19.8 20.9 20.1L18.9 22.1C18.6 22.4 18.1 22.5 17.7 22.3L15 20.6C14.6 20.4 14.2 20.4 13.8 20.6L11.1 22.3C10.7 22.5 10.2 22.4 9.9 22.1L7.9 20.1C7.6 19.8 7.5 19.3 7.7 18.9L9.4 16.2C9.6 15.8 9.6 15.4 9.4 15L7.7 12.3C7.5 11.9 7.6 11.4 7.9 11.1L9.9 9.1C10.2 8.8 10.7 8.7 11.1 8.9L13.8 10.6C14.2 10.8 14.6 10.8 15 10.6L17.7 8.9C18.1 8.7 18.6 8.8 18.9 9.1L20.9 11.1C21.2 11.4 21.3 11.9 21.1 12.3L19.4 15Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      
+      {/* Panneau de paramètres */}
+      {showSettings && (
+        <div className="absolute bottom-16 right-4 bg-gray-800 bg-opacity-90 p-4 rounded-lg shadow-lg z-50 text-white pointer-events-auto">
+          <h3 className="text-xl font-bold mb-3 text-orange-400">Paramètres Halloween</h3>
+          
+          <div className="mb-2">
+            <label className="flex items-center justify-between">
+              <span>Chauves-souris: {settings.bats}</span>
+              <input 
+                type="range" 
+                min="0" 
+                max="10" 
+                value={settings.bats}
+                onChange={(e) => updateSetting('bats', e.target.value)}
+                className="ml-2"
+              />
+            </label>
+          </div>
+          
+          <div className="mb-2">
+            <label className="flex items-center justify-between">
+              <span>Citrouilles: {settings.pumpkins}</span>
+              <input 
+                type="range" 
+                min="0" 
+                max="10" 
+                value={settings.pumpkins}
+                onChange={(e) => updateSetting('pumpkins', e.target.value)}
+                className="ml-2"
+              />
+            </label>
+          </div>
+          
+          <div className="mb-2">
+            <label className="flex items-center justify-between">
+              <span>Fantômes: {settings.ghosts}</span>
+              <input 
+                type="range" 
+                min="0" 
+                max="6" 
+                value={settings.ghosts}
+                onChange={(e) => updateSetting('ghosts', e.target.value)}
+                className="ml-2"
+              />
+            </label>
+          </div>
+          
+          <div className="mb-2">
+            <label className="flex items-center justify-between">
+              <span>Araignées: {settings.spiders}</span>
+              <input 
+                type="range" 
+                min="0" 
+                max="6" 
+                value={settings.spiders}
+                onChange={(e) => updateSetting('spiders', e.target.value)}
+                className="ml-2"
+              />
+            </label>
+          </div>
+          
+          <div className="mb-2">
+            <label className="flex items-center justify-between">
+              <span>Brouillard: {settings.fogLevel}</span>
+              <input 
+                type="range" 
+                min="0" 
+                max="10" 
+                value={settings.fogLevel}
+                onChange={(e) => updateSetting('fogLevel', e.target.value)}
+                className="ml-2"
+              />
+            </label>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default HalloweenEffect;
