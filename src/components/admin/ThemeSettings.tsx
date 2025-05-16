@@ -66,6 +66,21 @@ const ThemeSettings: React.FC = () => {
       id: 'valentine',
       title: 'Thème Saint-Valentin',
       description: 'Cœurs flottants et ambiance romantique'
+    },
+    {
+      id: 'newyear',
+      title: 'Thème Nouvel an',
+      description: 'Feux d’artifice et ambiance festive'
+    },
+    {
+      id: 'halloween',
+      title: 'Thème Halloween',
+      description: 'Chauves-souris et citrouilles animées'
+    },
+    {
+      id: 'spring',
+      title: 'Thème Printemps',
+      description: 'Pétales de fleurs qui tombent'
     }
   ];
 
@@ -78,7 +93,7 @@ const ThemeSettings: React.FC = () => {
             <ThemeCard
               key={theme.id}
               $isActive={currentTheme === theme.id}
-              onClick={() => setTheme(theme.id as 'default' | 'christmas' | 'valentine')}
+              onClick={() => setTheme(theme.id as 'default' | 'christmas' | 'valentine' | 'newyear')}
             >
               <ThemeTitle>{theme.title}</ThemeTitle>
               <ThemeDescription>{theme.description}</ThemeDescription>

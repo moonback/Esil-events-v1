@@ -3,6 +3,9 @@ import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 import SnowEffect from './SnowEffect';
+import FireworksEffect from './FireworksEffect';
+import HalloweenEffect from './HalloweenEffect';
+import SpringEffect from './SpringEffect';
 
 const FestiveContainer = styled.div`
   position: fixed;
@@ -98,6 +101,9 @@ const FestiveEffects: React.FC = () => {
           {renderValentineHearts()}
         </ValentineHearts>
       )}
+      {currentTheme === 'newyear' && <FireworksEffect />}
+      {currentTheme === 'halloween' && <HalloweenEffect />}
+      {currentTheme === 'spring' && <SpringEffect />}
     </FestiveContainer>
   );
 

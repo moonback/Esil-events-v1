@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type ThemeType = 'default' | 'christmas' | 'valentine';
+type ThemeType = 'default' | 'christmas' | 'valentine' | 'newyear' | 'halloween' | 'spring';
 
 interface ThemeContextType {
   currentTheme: ThemeType;
