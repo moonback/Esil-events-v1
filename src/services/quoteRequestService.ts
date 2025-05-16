@@ -65,7 +65,7 @@ const mapFormDataToQuoteRequest = (formData: FormData, cartItems: any[]): QuoteR
     phone: formData.phone,
     event_date: new Date(formData.eventDate),
     event_duration: formData.eventDuration,
-    description: formData.description || `Événement ${formData.eventLocation === 'indoor' ? 'en intérieur' : 'en extérieur'} pour ${formData.guestCount} personnes.`,
+    description: formData.description || `Événement ${formData.eventLocation === 'Intérieur' ? 'en intérieur' : 'en extérieur'} pour ${formData.guestCount} personnes.`,
     status: 'pending', // Default status as per DB schema
     
     // Billing information
