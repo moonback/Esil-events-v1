@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Eye, Search, Trash2, Users, Mail, Phone, Building } from 'lucide-react';
+import { Calendar, Eye, Search, Trash2, Users, Mail, Phone, Building, Clock, MapPin, Tag, MessageSquare } from 'lucide-react';
 import { QuoteRequest } from '../../../services/quoteRequestService';
 import { formatDate, getStatusColor, getStatusLabel } from './QuoteRequestUtils';
 
@@ -33,84 +33,120 @@ const QuoteRequestList: React.FC<QuoteRequestListProps> = ({
   filteredRequestsLength
 }) => {
   return (
-    <div className="w-full ">
+    <div className="w-full">
       {/* List Header */}
-      <div className="bg-white p-4 rounded-t-xl shadow-md border border-gray-200 border-b-0">
-        <h2 className="text-lg font-bold text-gray-800">Liste des demandes</h2>
-        <p className="text-sm text-gray-500">
-          {filteredRequestsLength} demande{filteredRequestsLength !== 1 ? 's' : ''} trouvée{filteredRequestsLength !== 1 ? 's' : ''}
-        </p>
+      <div className="bg-gradient-to-r from-indigo-50 to-white p-5 rounded-t-xl shadow-md border border-gray-200 border-b-0">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-gray-800">Liste des demandes</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              {filteredRequestsLength} demande{filteredRequestsLength !== 1 ? 's' : ''} trouvée{filteredRequestsLength !== 1 ? 's' : ''}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+              Page {currentPage} sur {totalPages}
+            </span>
+          </div>
+        </div>
       </div>
       
-      {/* Request Cards - Modern card-based approach instead of table */}
+      {/* Request Cards */}
       <div className="bg-white rounded-b-xl shadow-lg overflow-hidden border border-gray-200 transition-all duration-200">
         {currentItems.length > 0 ? (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-gray-100">
             {currentItems.map((request) => (
               <div
                 key={request.id}
-                className={`p-4 hover:bg-indigo-50 cursor-pointer transition-all duration-200 ${
-                  selectedRequest?.id === request.id ? 'bg-indigo-100 border-l-4 border-indigo-500' : ''
+                className={`p-5 hover:bg-indigo-50/50 cursor-pointer transition-all duration-200 ${
+                  selectedRequest?.id === request.id ? 'bg-indigo-50 border-l-4 border-indigo-500' : ''
                 }`}
                 onClick={() => {setSelectedRequest(request); setSuggestedResponse(''); setFeedbackMessage(null);}}
               >
-                <div className="flex items-start">
+                <div className="flex items-start gap-4">
                   {/* Avatar/Initial */}
-                  <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md mr-4">
-                    {request.first_name ? request.first_name[0].toUpperCase() : <Users size={24} />}
+                  <div className="flex-shrink-0 h-14 w-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md">
+                    {request.first_name ? request.first_name[0].toUpperCase() : <Users size={28} />}
                   </div>
                   
                   {/* Main Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-sm font-semibold text-gray-900 truncate">
+                        <h3 className="text-base font-semibold text-gray-900 truncate">
                           {request.first_name} {request.last_name}
                         </h3>
-                        <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-500">
+                        <div className="mt-2 flex flex-wrap gap-3 text-sm text-gray-600">
                           {request.email && (
-                            <span className="flex items-center">
-                              <Mail size={12} className="mr-1 text-indigo-400" />
-                              <span className="truncate max-w-[150px]">{request.email}</span>
+                            <span className="flex items-center bg-gray-50 px-3 py-1.5 rounded-lg">
+                              <Mail size={14} className="mr-2 text-indigo-500" />
+                              <span className="truncate max-w-[200px]">{request.email}</span>
                             </span>
                           )}
                           {request.phone && (
-                            <span className="flex items-center">
-                              <Phone size={12} className="mr-1 text-indigo-400" />
+                            <span className="flex items-center bg-gray-50 px-3 py-1.5 rounded-lg">
+                              <Phone size={14} className="mr-2 text-indigo-500" />
                               {request.phone}
                             </span>
                           )}
                           {request.company && (
-                            <span className="flex items-center">
-                              <Building size={12} className="mr-1 text-indigo-400" />
-                              <span className="truncate max-w-[150px]">{request.company}</span>
+                            <span className="flex items-center bg-gray-50 px-3 py-1.5 rounded-lg">
+                              <Building size={14} className="mr-2 text-indigo-500" />
+                              <span className="truncate max-w-[200px]">{request.company}</span>
                             </span>
                           )}
                         </div>
                       </div>
                       
                       {/* Status Badge */}
-                      <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border shadow-sm ${getStatusColor(request.status)}`}>
+                      <span className={`px-3 py-1.5 inline-flex text-sm leading-5 font-semibold rounded-full border shadow-sm ${getStatusColor(request.status)}`}>
                         {getStatusLabel(request.status)}
                       </span>
                     </div>
                     
-                    {/* Dates */}
-                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-                      <div className="flex items-center text-gray-700">
-                        <Calendar size={12} className="mr-1 text-indigo-400" />
-                        <span>Demande: {formatDate(request.created_at)}</span>
-                      </div>
-                      {request.event_date && (
-                        <div className="flex items-center text-gray-700">
-                          <Calendar size={12} className="mr-1 text-indigo-400" />
-                          <span>Événement: {formatDate(request.event_date.toString()).split(' ')[0]}</span>
+                    {/* Additional Information */}
+                    <div className="mt-3 grid grid-cols-2 gap-4">
+                      {/* Dates Section */}
+                      <div className="space-y-2">
+                        <div className="flex items-center text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
+                          <Clock size={14} className="mr-2 text-indigo-500" />
+                          <span className="text-sm">Demande: {formatDate(request.created_at)}</span>
                         </div>
-                      )}
+                        {request.event_date && (
+                          <div className="flex items-center text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
+                            <Calendar size={14} className="mr-2 text-indigo-500" />
+                            <span className="text-sm">Événement: {formatDate(request.event_date.toString()).split(' ')[0]}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Location and Type Section */}
+                      <div className="space-y-2">
+                        {request.event_location && (
+                          <div className="flex items-center text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
+                            <MapPin size={14} className="mr-2 text-indigo-500" />
+                            <span className="text-sm truncate">{request.event_location}</span>
+                          </div>
+                        )}
+                        {request.delivery_type && (
+                          <div className="flex items-center text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
+                            <Tag size={14} className="mr-2 text-indigo-500" />
+                            <span className="text-sm">{request.delivery_type}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
+
+                    {/* Description Preview */}
+                    {request.description && (
+                      <div className="mt-3 flex items-start bg-gray-50 px-3 py-2 rounded-lg">
+                        <MessageSquare size={14} className="mr-2 text-indigo-500 mt-1 flex-shrink-0" />
+                        <p className="text-sm text-gray-600 line-clamp-2">{request.description}</p>
+                      </div>
+                    )}
                     
                     {/* Action Buttons */}
-                    <div className="mt-2 flex justify-end space-x-2">
+                    <div className="mt-4 flex justify-end space-x-3">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -118,20 +154,22 @@ const QuoteRequestList: React.FC<QuoteRequestListProps> = ({
                           setSuggestedResponse('');
                           setFeedbackMessage(null);
                         }}
-                        className="p-1.5 rounded-md text-indigo-600 hover:bg-indigo-100 transition-all duration-200"
+                        className="px-3 py-1.5 rounded-lg text-indigo-600 hover:bg-indigo-100 transition-all duration-200 flex items-center gap-1.5"
                         title="Voir les détails"
                       >
                         <Eye className="h-4 w-4" />
+                        <span className="text-sm font-medium">Détails</span>
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteRequest(request.id || '');
                         }}
-                        className="p-1.5 rounded-md text-red-600 hover:bg-red-100 transition-all duration-200"
+                        className="px-3 py-1.5 rounded-lg text-red-600 hover:bg-red-100 transition-all duration-200 flex items-center gap-1.5"
                         title="Supprimer la demande"
                       >
                         <Trash2 className="h-4 w-4" />
+                        <span className="text-sm font-medium">Supprimer</span>
                       </button>
                     </div>
                   </div>
@@ -142,8 +180,8 @@ const QuoteRequestList: React.FC<QuoteRequestListProps> = ({
         ) : (
           <div className="px-6 py-16 text-center">
             <div className="flex flex-col items-center justify-center text-gray-500">
-              <div className="p-4 bg-gray-50 rounded-full mb-4">
-                <Search className="h-12 w-12 text-indigo-300" />
+              <div className="p-4 bg-indigo-50 rounded-full mb-4">
+                <Search className="h-12 w-12 text-indigo-400" />
               </div>
               <p className="font-semibold text-lg text-gray-700">Aucune demande trouvée</p>
               <p className="text-sm mt-1 text-gray-500">Vérifiez vos filtres ou le terme de recherche.</p>
@@ -151,29 +189,26 @@ const QuoteRequestList: React.FC<QuoteRequestListProps> = ({
           </div>
         )}
 
-        {/* Pagination - Simplified and more modern */}
+        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200 bg-gray-50">
+          <div className="px-6 py-4 flex items-center justify-between border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white">
             <div className="flex-1 flex justify-between items-center">
               <span className="text-sm text-gray-700">
-                <span className="font-medium">{Math.max(indexOfFirstItem + 1, 1)}-{Math.min(indexOfLastItem, filteredRequestsLength)}</span> sur <span className="font-medium">{filteredRequestsLength}</span>
+                Affichage de <span className="font-medium">{Math.max(indexOfFirstItem + 1, 1)}</span> à <span className="font-medium">{Math.min(indexOfLastItem, filteredRequestsLength)}</span> sur <span className="font-medium">{filteredRequestsLength}</span> demandes
               </span>
               
-              <div className="flex space-x-1">
+              <div className="flex space-x-2">
                 <button
                   onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-all duration-200"
                 >
                   Précédent
                 </button>
-                <span className="px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 rounded-md">
-                  {currentPage} / {totalPages}
-                </span>
                 <button
                   onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="relative inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-all duration-200"
                 >
                   Suivant
                 </button>
