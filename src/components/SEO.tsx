@@ -155,11 +155,15 @@ const SEO: React.FC<SEOProps> = ({
             "description": description,
             "address": {
               "@type": "PostalAddress",
+              "streetAddress": "7 Rue de la Cellophane",
+              "addressLocality": "Mantes-la-Ville",
+              "postalCode": "78711",
               "addressCountry": "FR"
+            
             },
             "contactPoint": {
               "@type": "ContactPoint",
-              "telephone": "+33-XXX-XXX-XXX",
+              "telephone": "+33-620-461-385",
               "contactType": "customer service"
             }
           })}
