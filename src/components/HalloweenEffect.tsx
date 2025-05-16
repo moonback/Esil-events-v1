@@ -6,6 +6,10 @@ const BatSVG = ({ color = "#222" }) => (
     <path d="M20 13C20 13 10 21 2 14C2 14 6 22 15 18C15 18 17 24 20 24C23 24 25 18 25 18C34 22 38 14 38 14C30 21 20 13 20 13Z" fill={color} />
     <ellipse cx="15" cy="13" rx="2" ry="3" fill={color} />
     <ellipse cx="25" cy="13" rx="2" ry="3" fill={color} />
+    <path d="M15 13C15 13 15.5 12 16 12" stroke="#444" strokeWidth="0.5" />
+    <path d="M25 13C25 13 24.5 12 24 12" stroke="#444" strokeWidth="0.5" />
+    <path d="M20 2C20 2 19 3 19 4" stroke="#444" strokeWidth="0.5" />
+    <path d="M20 2C20 2 21 3 21 4" stroke="#444" strokeWidth="0.5" />
   </svg>
 );
 
@@ -16,14 +20,29 @@ const PumpkinSVG = () => (
     <path d="M18 10C13 12 10 17 10 22C10 27 12 32 20 32C28 32 30 27 30 22C30 17 27 12 22 10" fill="#FFA04D" />
     <path d="M16 17C16 17 20 15 24 17C24 17 24 21 20 21C16 21 16 17 16 17Z" fill="#4D1F00" />
     <path d="M16 24C18 26 22 26 24 24" stroke="#4D1F00" strokeWidth="2" strokeLinecap="round" />
+    <path d="M14 28C14 28 16 30 20 30C24 30 26 28 26 28" stroke="#4D1F00" strokeWidth="1" strokeLinecap="round" />
+    <path d="M12 25C12 25 14 27 20 27C26 27 28 25 28 25" stroke="#4D1F00" strokeWidth="1" strokeLinecap="round" />
+    <path d="M15 20C15 20 16 19 20 19C24 19 25 20 25 20" stroke="#4D1F00" strokeWidth="1" strokeLinecap="round" />
+    <path d="M16 15C16 15 18 14 20 14C22 14 24 15 24 15" stroke="#4D1F00" strokeWidth="1" strokeLinecap="round" />
   </svg>
 );
 
 const GhostSVG = () => (
   <svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M18 2C10 2 4 8 4 16V36C4 36 4 38 2 38C0 38 0 40 2 42C4 44 6 42 6 42C6 42 10 48 14 46C18 44 18 42 18 42C18 42 18 44 22 46C26 48 30 42 30 42C30 42 32 44 34 42C36 40 36 38 34 38C32 38 32 36 32 36V16C32 8 26 2 18 2Z" fill="white" />
+    <path d="M18 2C10 2 4 8 4 16V36C4 36 4 38 2 38C0 38 0 40 2 42C4 44 6 42 6 42C6 42 10 48 14 46C18 44 18 42 18 42C18 42 18 44 22 46C26 48 30 42 30 42C30 42 32 44 34 42C36 40 36 38 34 38C32 38 32 36 32 36V16C32 8 26 2 18 2Z" fill="url(#ghostGradient)" />
     <ellipse cx="12" cy="20" rx="3" ry="4" fill="#333" />
     <ellipse cx="24" cy="20" rx="3" ry="4" fill="#333" />
+    <path d="M12 20C12 20 12.5 19 13 19" stroke="#666" strokeWidth="0.5" />
+    <path d="M24 20C24 20 23.5 19 23 19" stroke="#666" strokeWidth="0.5" />
+    <path d="M18 28C18 28 16 30 14 30" stroke="#333" strokeWidth="1" strokeLinecap="round" />
+    <path d="M18 28C18 28 20 30 22 30" stroke="#333" strokeWidth="1" strokeLinecap="round" />
+    <defs>
+      <linearGradient id="ghostGradient" x1="18" y1="2" x2="18" y2="48" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="white" stopOpacity="1" />
+        <stop offset="100%" stopColor="white" stopOpacity="0.8" />
+      </linearGradient>
+    </defs>
   </svg>
 );
 
@@ -41,6 +60,14 @@ const SpiderSVG = () => (
     <path d="M46 20L40 20" stroke="#333" strokeWidth="2" />
     <path d="M8 28L2 28" stroke="#333" strokeWidth="2" />
     <path d="M46 28L40 28" stroke="#333" strokeWidth="2" />
+    <path d="M21 21C21 21 21.5 20 22 20" stroke="#666" strokeWidth="0.5" />
+    <path d="M27 21C27 21 26.5 20 26 20" stroke="#666" strokeWidth="0.5" />
+    <path d="M24 24C24 24 23 25 22 25" stroke="#666" strokeWidth="0.5" />
+    <path d="M24 24C24 24 25 25 26 25" stroke="#666" strokeWidth="0.5" />
+    <path d="M12 12C12 12 11 11 10 11" stroke="#444" strokeWidth="0.5" />
+    <path d="M36 12C36 12 37 11 38 11" stroke="#444" strokeWidth="0.5" />
+    <path d="M12 36C12 12 11 37 10 37" stroke="#444" strokeWidth="0.5" />
+    <path d="M36 36C36 36 37 37 38 37" stroke="#444" strokeWidth="0.5" />
   </svg>
 );
 
@@ -54,6 +81,10 @@ const Moon = () => (
       <circle cx="32" cy="30" r="2" fill="#FFB833" />
       <circle cx="44" cy="30" r="2" fill="#FFB833" />
       <circle cx="24" cy="40" r="3" fill="#FFB833" />
+      <path d="M30 4C30 4 29 5 29 6" stroke="#FFB833" strokeWidth="0.5" />
+      <path d="M30 4C30 4 31 5 31 6" stroke="#FFB833" strokeWidth="0.5" />
+      <path d="M38 50C38 50 37 49 36 49" stroke="#FFB833" strokeWidth="0.5" />
+      <path d="M38 50C38 50 39 49 40 49" stroke="#FFB833" strokeWidth="0.5" />
     </svg>
   </div>
 );
