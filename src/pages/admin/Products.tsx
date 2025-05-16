@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown, Copy, BarChart, Hash } from 'lucide-react';
+import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown, Copy, BarChart, Hash, FileText, RefreshCw } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import { Product } from '../../types/Product';
 import { getAllProducts, deleteProduct, createProduct, updateProduct, duplicateProduct, regenerateMissingSlugs } from '../../services/productService';
+import { generateProductSeo } from '../../services/productSeoService';
 import ProductForm from '../../components/ProductForm';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { DEFAULT_PRODUCT_IMAGE } from '../../constants/images';
@@ -18,6 +19,9 @@ const AdminProducts: React.FC = () => {
   const [formError, setFormError] = useState<string>('');
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [seoModalProduct, setSeoModalProduct] = useState<Product | null>(null);
+  const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
+  const [seoGenerationError, setSeoGenerationError] = useState<string>('');
   
   // Utiliser notre hook personnalisé pour les filtres
   const {
@@ -135,6 +139,59 @@ const AdminProducts: React.FC = () => {
         )}
       </div>
     );
+  };
+
+  const handleGenerateSeo = async (product: Product) => {
+    try {
+      setIsGeneratingSeo(true);
+      setSeoGenerationError('');
+
+      const result = await generateProductSeo({
+        name: product.name,
+        reference: product.reference,
+        category: product.category,
+        subCategory: product.subCategory,
+        subSubCategory: product.subSubCategory,
+        description: product.description,
+        priceHT: product.priceHT,
+        colors: product.colors,
+        technicalSpecs: product.technicalSpecs
+      });
+
+      if (result.error) {
+        setSeoGenerationError(result.error);
+        return;
+      }
+
+      if (result.seoContent && result.seoContent.seo_title && result.seoContent.seo_description && result.seoContent.seo_keywords) {
+        const seoContent = result.seoContent;
+        // Mettre à jour le produit avec le nouveau contenu SEO
+        await updateProduct(product.id, {
+          ...product,
+          seo_title: seoContent.seo_title,
+          seo_description: seoContent.seo_description,
+          seo_keywords: seoContent.seo_keywords
+        });
+
+        // Recharger les produits pour afficher les mises à jour
+        await loadProducts();
+        
+        // Mettre à jour le produit dans le modal
+        setSeoModalProduct(prev => prev ? {
+          ...prev,
+          seo_title: seoContent.seo_title,
+          seo_description: seoContent.seo_description,
+          seo_keywords: seoContent.seo_keywords
+        } : null);
+      } else {
+        setSeoGenerationError('Le contenu SEO généré est incomplet');
+      }
+    } catch (err: any) {
+      setSeoGenerationError(err.message || 'Une erreur est survenue lors de la génération du SEO');
+      console.error('Erreur lors de la génération du SEO:', err);
+    } finally {
+      setIsGeneratingSeo(false);
+    }
   };
 
   return (
@@ -530,15 +587,11 @@ const AdminProducts: React.FC = () => {
                           </div>
                           <div className="flex space-x-1">
                             <button
-                              onClick={() => {
-                                const keywords = product.seo_keywords || '';
-                                const encodedKeywords = encodeURIComponent(keywords);
-                                window.location.href = `/admin/keyword-rankings?keywords=${encodedKeywords}&productName=${encodeURIComponent(product.name)}`;
-                              }}
-                              className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/30 rounded-lg transition-all duration-200"
-                              title="Recherche de positionnement SEO"
+                              onClick={() => setSeoModalProduct(product)}
+                              className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-all duration-200"
+                              title="Informations SEO"
                             >
-                              <BarChart className="w-4 h-4" />
+                              <FileText className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(product.id)}
@@ -694,15 +747,11 @@ const AdminProducts: React.FC = () => {
                                   <Copy className="w-4 h-4" />
                                 </button>
                                 <button
-                                  onClick={() => {
-                                    const keywords = product.seo_keywords || '';
-                                    const encodedKeywords = encodeURIComponent(keywords);
-                                    window.location.href = `/admin/keyword-rankings?keywords=${encodedKeywords}&productName=${encodeURIComponent(product.name)}`;
-                                  }}
-                                  className="text-teal-600 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-300"
-                                  title="Recherche de positionnement SEO"
+                                  onClick={() => setSeoModalProduct(product)}
+                                  className="text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300"
+                                  title="Informations SEO"
                                 >
-                                  <BarChart className="w-4 h-4" />
+                                  <FileText className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => handleDelete(product.id)}
@@ -905,11 +954,6 @@ const AdminProducts: React.FC = () => {
                           {quickViewProduct.subCategory}
                         </span>
                       )}
-                      {quickViewProduct.subSubCategory && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
-                          {quickViewProduct.subSubCategory}
-                        </span>
-                      )}
                     </div>
                   </div>
                   
@@ -933,6 +977,117 @@ const AdminProducts: React.FC = () => {
                       Modifier
                     </button>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal SEO */}
+      {seoModalProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Informations SEO</h3>
+                <button 
+                  onClick={() => setSeoModalProduct(null)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{seoModalProduct.name}</h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Réf: {seoModalProduct.reference}</p>
+                </div>
+
+                {seoGenerationError && (
+                  <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-4 rounded-lg border border-red-200 dark:border-red-800">
+                    {seoGenerationError}
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Titre SEO
+                    </label>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <p className="text-sm text-gray-900 dark:text-white">
+                        {seoModalProduct.seo_title || 'Non défini'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Méta-description
+                    </label>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <p className="text-sm text-gray-900 dark:text-white">
+                        {seoModalProduct.seo_description || 'Non définie'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Mots-clés SEO
+                    </label>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                      {seoModalProduct.seo_keywords ? (
+                        <div className="flex flex-wrap gap-2">
+                          {seoModalProduct.seo_keywords.split(',').map((keyword, index) => (
+                            <span 
+                              key={index}
+                              className="px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs rounded-full"
+                            >
+                              {keyword.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Aucun mot-clé défini</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      URL du produit
+                    </label>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <p className="text-sm text-blue-600 dark:text-blue-400">
+                        {seoModalProduct.slug ? `/product/${seoModalProduct.slug}` : 'URL non définie'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 flex space-x-3">
+                  <button
+                    onClick={() => handleGenerateSeo(seoModalProduct)}
+                    disabled={isGeneratingSeo}
+                    className="flex-1 flex items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <RefreshCw className={`w-4 h-4 mr-2 ${isGeneratingSeo ? 'animate-spin' : ''}`} />
+                    {isGeneratingSeo ? 'Génération en cours...' : 'Régénérer le SEO avec Gemini'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingProduct(seoModalProduct);
+                      setShowForm(true);
+                      setSeoModalProduct(null);
+                    }}
+                    className="flex-1 flex items-center justify-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Modifier manuellement
+                  </button>
                 </div>
               </div>
             </div>
