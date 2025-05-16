@@ -426,7 +426,6 @@ export const printQuoteRequest = (
       <body>
         <div class="header">
           <h1>ESIL Events</h1>
-          <p>Location de mobilier événementiel premium</p>
         </div>
         
         <div class="section">
