@@ -5,6 +5,9 @@ import AdminHeader from '../../components/admin/AdminHeader';
 import { QuoteRequest } from '../../services/quoteRequestService';
 import { getQuoteRequests } from '../../services/quoteRequestService';
 import { formatDate, getStatusColor, getStatusLabel } from '../../components/admin/quoteRequests/QuoteRequestUtils';
+import { useCalendar } from '../../hooks/useCalendar';
+import { MonthView, WeekView, DayView } from '../../components/calendar/CalendarViews';
+import { CalendarStats } from '../../types/calendar';
 
 type ViewMode = 'month' | 'week' | 'day';
 type TimeFilter = 'all' | 'morning' | 'afternoon' | 'evening';
@@ -94,7 +97,7 @@ const CalendarHeader: React.FC<{
   </div>
 );
 
-const StatsSection: React.FC<{ stats: { total: number; pending: number; upcoming: number } }> = ({ stats }) => (
+const StatsSection: React.FC<{ stats: CalendarStats }> = ({ stats }) => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
     <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
       <div className="flex items-center">
@@ -168,275 +171,51 @@ const FiltersSection: React.FC<{
 );
 
 const QuoteRequestCalendar: React.FC = () => {
-  const [quoteRequests, setQuoteRequests] = useState<QuoteRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedRequests, setSelectedRequests] = useState<QuoteRequest[]>([]);
-  const [viewMode, setViewMode] = useState<ViewMode>('month');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRequestDetails, setSelectedRequestDetails] = useState<QuoteRequest | null>(null);
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [showDeliveries, setShowDeliveries] = useState(true);
-  const [showPickups, setShowPickups] = useState(true);
-  const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
-  const [eventTypeFilter, setEventTypeFilter] = useState<EventTypeFilter>('all');
-  const [showLegend, setShowLegend] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isCompact, setIsCompact] = useState(false);
-  const [showEventCount, setShowEventCount] = useState(true);
-  const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-  const [showTooltip, setShowTooltip] = useState(false);
-
-  useEffect(() => {
-    fetchQuoteRequests();
-  }, []);
-
-  const fetchQuoteRequests = async () => {
-    try {
-      const response = await getQuoteRequests();
-      if (response.data) {
-        setQuoteRequests(response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching quote requests:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDayOfMonth = new Date(year, month, 1).getDay();
-    return { daysInMonth, firstDayOfMonth };
-  };
-
-  const getWeekDates = (date: Date) => {
-    const start = new Date(date);
-    start.setDate(start.getDate() - start.getDay());
-    const dates = [];
-    for (let i = 0; i < 7; i++) {
-      const current = new Date(start);
-      current.setDate(start.getDate() + i);
-      dates.push(current);
-    }
-    return dates;
-  };
-
-  const getTimeOfDay = (time: string) => {
-    const hour = parseInt(time.split(':')[0]);
-    if (hour >= 5 && hour < 12) return 'morning';
-    if (hour >= 12 && hour < 18) return 'afternoon';
-    return 'evening';
-  };
-
-  const getRequestsForDate = (date: Date) => {
-    const allEvents = quoteRequests.flatMap(request => {
-      const events = [];
-      const eventDate = request.event_date ? new Date(request.event_date) : null;
-      const deliveryDate = request.delivery_date ? new Date(request.delivery_date) : null;
-      const pickupDate = request.pickup_return_date ? new Date(request.pickup_return_date) : null;
-
-      // Événement principal
-      if (eventDate && eventDate.toDateString() === date.toDateString()) {
-        events.push({
-          ...request,
-          type: 'event',
-          displayTime: request.event_start_time || '00:00'
-        });
-      }
-
-      // Livraison
-      if (showDeliveries && deliveryDate && deliveryDate.toDateString() === date.toDateString()) {
-        events.push({
-          ...request,
-          type: 'delivery',
-          displayTime: request.delivery_time_slot || '00:00'
-        });
-      }
-
-      // Reprise
-      if (showPickups && pickupDate && pickupDate.toDateString() === date.toDateString()) {
-        events.push({
-          ...request,
-          type: 'pickup',
-          displayTime: request.pickup_return_start_time || '00:00'
-        });
-      }
-
-      return events;
-    });
-
-    return allEvents
-      .filter(event => {
-        const matchesStatus = statusFilter === 'all' || event.status === statusFilter;
-        const matchesSearch = !searchTerm || 
-          event.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.email.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesEventType = eventTypeFilter === 'all' || event.type === eventTypeFilter;
-        const matchesTime = timeFilter === 'all' || getTimeOfDay(event.displayTime) === timeFilter;
-        return matchesStatus && matchesSearch && matchesEventType && matchesTime;
-      })
-      .sort((a, b) => a.displayTime.localeCompare(b.displayTime));
-  };
-
-  const getEventStyle = (type: 'event' | 'delivery' | 'pickup', status: string) => {
-    const baseStyle = 'text-xs p-2 rounded-lg cursor-pointer hover:opacity-90 transition-all duration-200 flex items-center gap-2';
-    const statusColor = getStatusColor(status);
-
-    switch (type) {
-      case 'delivery':
-        return `${baseStyle} bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100`;
-      case 'pickup':
-        return `${baseStyle} bg-purple-50 text-purple-800 border border-purple-200 hover:bg-purple-100`;
-      default:
-        return `${baseStyle} ${statusColor} hover:shadow-sm`;
-    }
-  };
-
-  const getEventLabel = (type: 'event' | 'delivery' | 'pickup') => {
-    switch (type) {
-      case 'delivery':
-        return 'Livraison';
-      case 'pickup':
-        return 'Reprise';
-      default:
-        return 'Événement';
-    }
-  };
-
-  const getDayLoad = (date: Date) => {
-    const events = getRequestsForDate(date);
-    const totalEvents = events.length;
-    if (totalEvents === 0) return 'empty';
-    if (totalEvents <= 3) return 'light';
-    if (totalEvents <= 6) return 'medium';
-    return 'heavy';
-  };
-
-  const getLoadColor = (load: string) => {
-    switch (load) {
-      case 'light': return 'bg-green-50 border-green-200';
-      case 'medium': return 'bg-yellow-50 border-yellow-200';
-      case 'heavy': return 'bg-red-50 border-red-200';
-      default: return 'bg-gray-50 border-gray-200';
-    }
-  };
-
-  const LoadIndicator = ({ date }: { date: Date }) => {
-    const load = getDayLoad(date);
-    if (load === 'empty') return null;
-    
-    return (
-      <div className="flex items-center gap-1 mt-1">
-        <div className={`w-2 h-2 rounded-full ${
-          load === 'light' ? 'bg-green-400' :
-          load === 'medium' ? 'bg-yellow-400' :
-          'bg-red-400'
-        }`} />
-        <span className="text-xs text-gray-500">
-          {load === 'light' ? 'Léger' :
-           load === 'medium' ? 'Modéré' :
-           'Chargé'}
-        </span>
-      </div>
-    );
-  };
-
-  const renderEventItem = (event: any) => (
-    <div
-      key={`${event.id}-${event.type}`}
-      onClick={(e) => {
-        e.stopPropagation();
-        handleRequestClick(event);
-      }}
-      className={`${getEventStyle(event.type, event.status)} ${isCompact ? 'py-1' : 'py-2'}`}
-      title={`${getEventLabel(event.type)} - ${event.first_name} ${event.last_name} - ${getStatusLabel(event.status)}`}
-    >
-      <div className="flex items-center gap-2 min-w-0 flex-1">
-        {event.type === 'delivery' && <Truck className="w-4 h-4 flex-shrink-0" />}
-        {event.type === 'pickup' && <ArrowLeftRight className="w-4 h-4 flex-shrink-0" />}
-        {event.type === 'event' && <Calendar className="w-4 h-4 flex-shrink-0" />}
-        <div className="flex flex-col min-w-0">
-          <span className="font-medium truncate">
-            {event.first_name} {event.last_name}
-          </span>
-          {!isCompact && (
-            <div className="flex items-center gap-1">
-              <span className="text-xs opacity-75 truncate">
-                {getEventLabel(event.type)}
-              </span>
-              <span className="text-xs opacity-75">•</span>
-              <span className={`text-xs ${getStatusColor(event.status)}`}>
-                {getStatusLabel(event.status)}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-      <span className="text-xs font-medium bg-white/50 px-2 py-1 rounded">
-        {event.displayTime}
-      </span>
-    </div>
-  );
-
-  const handleDateClick = (date: Date) => {
-    setSelectedDate(date);
-    setSelectedRequests(getRequestsForDate(date));
-  };
+  const {
+    quoteRequests,
+    loading,
+    filters,
+    viewState,
+    selectedRequestDetails,
+    isDetailsModalOpen,
+    getRequestsForDate,
+    getStats,
+    handleRequestClick,
+    updateFilters,
+    updateViewState,
+    setSelectedRequestDetails,
+    setIsDetailsModalOpen
+  } = useCalendar();
 
   const handleMonthChange = (direction: 'prev' | 'next') => {
-    const newDate = new Date(currentMonth);
+    const newDate = new Date(viewState.currentMonth);
     if (direction === 'prev') {
       newDate.setMonth(newDate.getMonth() - 1);
     } else {
       newDate.setMonth(newDate.getMonth() + 1);
     }
-    setCurrentMonth(newDate);
+    updateViewState({ currentMonth: newDate });
   };
 
   const handleWeekChange = (direction: 'prev' | 'next') => {
-    const newDate = new Date(currentMonth);
+    const newDate = new Date(viewState.currentMonth);
     if (direction === 'prev') {
       newDate.setDate(newDate.getDate() - 7);
     } else {
       newDate.setDate(newDate.getDate() + 7);
     }
-    setCurrentMonth(newDate);
+    updateViewState({ currentMonth: newDate });
   };
 
-  const getStats = () => {
-    const totalRequests = quoteRequests.length;
-    const pendingRequests = quoteRequests.filter(r => r.status === 'pending').length;
-    const upcomingEvents = quoteRequests.filter(r => {
-      if (!r.event_date) return false;
-      const eventDate = new Date(r.event_date);
-      const today = new Date();
-      return eventDate >= today;
-    }).length;
-
-    return {
-      total: totalRequests,
-      pending: pendingRequests,
-      upcoming: upcomingEvents
-    };
-  };
-
-  const handleRequestClick = (request: QuoteRequest) => {
-    setSelectedRequestDetails(request);
-    setIsDetailsModalOpen(true);
+  const handleDateClick = (date: Date) => {
+    updateViewState({ selectedDate: date });
   };
 
   const renderRequestDetailsModal = () => {
     if (!selectedRequestDetails) return null;
 
     return (
-      <div className="fixed  inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-xl shadow-xl max-w-12xl w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6">
             <div className="flex justify-between items-start mb-6">
@@ -777,625 +556,147 @@ const QuoteRequestCalendar: React.FC = () => {
     );
   };
 
-  const formatTime = (time: string) => {
-    if (!time) return '';
-    const [hours, minutes] = time.split(':');
-    return `${hours}h${minutes !== '00' ? minutes : ''}`;
-  };
-
-  // Fonction pour calculer la position optimale du tooltip
-  const calculateTooltipPosition = (e: React.MouseEvent, date: Date) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    const tooltipHeight = 400; // Hauteur approximative du tooltip
-    const spaceBelow = windowHeight - rect.bottom;
-    const spaceAbove = rect.top;
-
-    // Position horizontale
-    let left = rect.left;
-    if (left + 400 > window.innerWidth) { // 400px est la largeur approximative du tooltip
-      left = window.innerWidth - 420; // 20px de marge
-    }
-
-    // Position verticale
-    let top;
-    if (spaceBelow >= tooltipHeight || spaceBelow > spaceAbove) {
-      // Afficher en dessous si il y a assez d'espace ou si il y a plus d'espace en dessous
-      top = rect.bottom + 10;
-    } else {
-      // Afficher au-dessus
-      top = rect.top - tooltipHeight - 10;
-    }
-
-    return { x: left, y: top };
-  };
-
-  // Composant pour le tooltip de récapitulatif
-  const DayTooltip = ({ date, events }: { date: Date; events: any[] }) => {
-    const formattedDate = formatDate(date.toISOString());
-    const eventsByType = {
-      event: events.filter(e => e.type === 'event'),
-      delivery: events.filter(e => e.type === 'delivery'),
-      pickup: events.filter(e => e.type === 'pickup')
-    };
-
-    return (
-      <div className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-[300px] max-w-[400px] max-h-[80vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 pb-2 mb-3">
-          <h3 className="text-lg font-semibold text-gray-900">{formattedDate}</h3>
-          <p className="text-sm text-gray-500">
-            {events.length} événement{events.length > 1 ? 's' : ''} au total
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {/* Événements */}
-          {eventsByType.event.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-green-600" />
-                <h4 className="text-sm font-medium text-gray-900">Événements</h4>
-              </div>
-              <div className="space-y-2">
-                {eventsByType.event.map(event => (
-                  <div key={`${event.id}-event`} className="bg-green-50 rounded p-2">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium text-sm text-gray-900">
-                          {event.first_name} {event.last_name}
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          {event.event_location || 'Lieu non spécifié'}
-                        </p>
-                      </div>
-                      <span className="text-xs font-medium bg-white/50 px-2 py-1 rounded">
-                        {formatTime(event.displayTime)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Livraisons */}
-          {eventsByType.delivery.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Truck className="w-4 h-4 text-blue-600" />
-                <h4 className="text-sm font-medium text-gray-900">Livraisons</h4>
-              </div>
-              <div className="space-y-2">
-                {eventsByType.delivery.map(event => (
-                  <div key={`${event.id}-delivery`} className="bg-blue-50 rounded p-2">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium text-sm text-gray-900">
-                          {event.first_name} {event.last_name}
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          {event.delivery_address || 'Adresse non spécifiée'}
-                        </p>
-                      </div>
-                      <span className="text-xs font-medium bg-white/50 px-2 py-1 rounded">
-                        {formatTime(event.displayTime)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Reprises */}
-          {eventsByType.pickup.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <ArrowLeftRight className="w-4 h-4 text-purple-600" />
-                <h4 className="text-sm font-medium text-gray-900">Reprises</h4>
-              </div>
-              <div className="space-y-2">
-                {eventsByType.pickup.map(event => (
-                  <div key={`${event.id}-pickup`} className="bg-purple-50 rounded p-2">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium text-sm text-gray-900">
-                          {event.first_name} {event.last_name}
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          {event.delivery_address || 'Adresse non spécifiée'}
-                        </p>
-                      </div>
-                      <span className="text-xs font-medium bg-white/50 px-2 py-1 rounded">
-                        {formatTime(event.displayTime)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  const renderMonthView = () => {
-    const { daysInMonth, firstDayOfMonth } = getDaysInMonth(currentMonth);
-    const days = [];
-    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-
-    for (let i = 0; i < firstDayOfMonth; i++) {
-      days.push(<div key={`empty-${i}`} className={`border border-gray-200 bg-gray-50 ${isFullscreen ? 'h-48' : 'h-40'}`}></div>);
-    }
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-      const eventsForDay = getRequestsForDate(date);
-      const isToday = date.toDateString() === new Date().toDateString();
-      const isSelected = selectedDate?.toDateString() === date.toDateString();
-      const isHovered = hoveredDate?.toDateString() === date.toDateString();
-      const load = getDayLoad(date);
-
-      days.push(
-        <div
-          key={day}
-          onClick={() => handleDateClick(date)}
-          onMouseEnter={(e) => {
-            setHoveredDate(date);
-            setTooltipPosition(calculateTooltipPosition(e, date));
-            setShowTooltip(true);
-          }}
-          onMouseLeave={() => {
-            setHoveredDate(null);
-            setShowTooltip(false);
-          }}
-          className={`border border-gray-200 p-2 cursor-pointer transition-all duration-200 ${
-            isSelected ? 'bg-indigo-50 border-indigo-500' :
-            isHovered ? 'bg-gray-50' : ''
-          } ${isFullscreen ? 'h-48' : 'h-40'} ${getLoadColor(load)}`}
-        >
-          <div className="flex justify-between items-center mb-2">
-            <div className={`text-sm font-medium ${isToday ? 'text-indigo-600' : 'text-gray-900'}`}>
-              {day}
-            </div>
-            <div className="flex items-center gap-2">
-              {isToday && (
-                <span className="px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full">
-                  Aujourd'hui
-                </span>
-              )}
-              {showEventCount && eventsForDay.length > 0 && (
-                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
-                  {eventsForDay.length} événement{eventsForDay.length > 1 ? 's' : ''}
-                </span>
-              )}
-            </div>
-          </div>
-          {!isCompact && <LoadIndicator date={date} />}
-          <div className={`space-y-1.5 overflow-y-auto ${isCompact ? 'max-h-[calc(100%-1.5rem)]' : 'max-h-[calc(100%-3rem)]'}`}>
-            {eventsForDay.map(renderEventItem)}
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-          </h2>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setIsCompact(!isCompact)}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-              title={isCompact ? "Vue normale" : "Vue compacte"}
-            >
-              {isCompact ? <Grid className="w-5 h-5 text-gray-600" /> : <List className="w-5 h-5 text-gray-600" />}
-            </button>
-            <button
-              onClick={() => setShowEventCount(!showEventCount)}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-              title={showEventCount ? "Masquer le nombre d'événements" : "Afficher le nombre d'événements"}
-            >
-              <MoreHorizontal className="w-5 h-5 text-gray-600" />
-            </button>
-            <button
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-              title={isFullscreen ? "Réduire" : "Plein écran"}
-            >
-              {isFullscreen ? <Minimize2 className="w-5 h-5 text-gray-600" /> : <Maximize2 className="w-5 h-5 text-gray-600" />}
-            </button>
-            <button
-              onClick={() => handleMonthChange('prev')}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            <button
-              onClick={() => handleMonthChange('next')}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
-            </button>
-          </div>
-        </div>
-        <div className="grid grid-cols-7 gap-px bg-gray-200">
-          {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map(day => (
-            <div key={day} className="bg-gray-50 p-2 text-center text-sm font-medium text-gray-900">
-              {day}
-            </div>
-          ))}
-          {days}
-        </div>
-        {showTooltip && hoveredDate && (
-          <div
-            style={{
-              position: 'fixed',
-              left: tooltipPosition.x,
-              top: tooltipPosition.y,
-              zIndex: 1000
-            }}
-          >
-            <DayTooltip date={hoveredDate} events={getRequestsForDate(hoveredDate)} />
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderWeekView = () => {
-    const weekDates = getWeekDates(currentMonth);
-    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-
-    return (
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Semaine du {formatDate(weekDates[0].toISOString())} au {formatDate(weekDates[6].toISOString())}
-          </h2>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-              title={isFullscreen ? "Réduire" : "Plein écran"}
-            >
-              {isFullscreen ? <Minimize2 className="w-5 h-5 text-gray-600" /> : <Maximize2 className="w-5 h-5 text-gray-600" />}
-            </button>
-            <button
-              onClick={() => handleWeekChange('prev')}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            <button
-              onClick={() => handleWeekChange('next')}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
-            </button>
-          </div>
-        </div>
-        <div className="grid grid-cols-7 gap-px bg-gray-200">
-          {weekDates.map((date, index) => {
-            const eventsForDay = getRequestsForDate(date);
-            const isToday = date.toDateString() === new Date().toDateString();
-            const isSelected = selectedDate?.toDateString() === date.toDateString();
-
-            return (
-              <div
-                key={index}
-                onClick={() => handleDateClick(date)}
-                className={`border border-gray-200 p-2 cursor-pointer transition-all duration-200 ${
-                  isSelected ? 'bg-indigo-50 border-indigo-500' : 'hover:bg-gray-50'
-                } ${isFullscreen ? 'min-h-[500px]' : 'min-h-[300px]'}`}
-              >
-                <div className="flex flex-col mb-2">
-                  <div className={`text-sm font-medium ${isToday ? 'text-indigo-600' : 'text-gray-900'}`}>
-                    {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'][index]}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs text-gray-500">
-                      {date.getDate()} {monthNames[date.getMonth()]}
-                    </div>
-                    {isToday && (
-                      <span className="px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full">
-                        Aujourd'hui
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-1.5 overflow-y-auto max-h-[calc(100%-3rem)]">
-                  {eventsForDay.map(renderEventItem)}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  const getDayHours = () => {
-    const hours = [];
-    for (let i = 5; i <= 23; i++) {
-      hours.push(i.toString().padStart(2, '0') + ':00');
-    }
-    return hours;
-  };
-
-  const getEventsForHour = (date: Date, hour: string) => {
-    const events = getRequestsForDate(date);
-    return events.filter(event => {
-      const eventHour = event.displayTime?.split(':')[0] || '00';
-      return eventHour === hour.split(':')[0];
-    }).map(event => ({
-      ...event,
-      displayTime: event.displayTime || '00:00'
-    })) as CalendarEvent[];
-  };
-
-  const renderDayView = () => {
-    const selectedDate = currentMonth;
-    const hours = getDayHours();
-    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-    const currentHour = new Date().getHours();
-    const currentMinute = new Date().getMinutes();
-
-    return (
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              {selectedDate.getDate()} {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
-            </h2>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  const today = new Date();
-                  setCurrentMonth(today);
-                }}
-                className="px-3 py-1 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-              >
-                Aujourd'hui
-              </button>
-              <button
-                onClick={() => {
-                  const newDate = new Date(selectedDate);
-                  newDate.setDate(newDate.getDate() - 1);
-                  setCurrentMonth(newDate);
-                }}
-                className="p-2 rounded-lg hover:bg-white transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5 text-gray-600" />
-              </button>
-              <button
-                onClick={() => {
-                  const newDate = new Date(selectedDate);
-                  newDate.setDate(newDate.getDate() + 1);
-                  setCurrentMonth(newDate);
-                }}
-                className="p-2 rounded-lg hover:bg-white transition-colors"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-600" />
-              </button>
-            </div>
-          </div>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setIsCompact(!isCompact)}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-              title={isCompact ? "Vue normale" : "Vue compacte"}
-            >
-              {isCompact ? <Grid className="w-5 h-5 text-gray-600" /> : <List className="w-5 h-5 text-gray-600" />}
-            </button>
-            <button
-              onClick={() => setShowEventCount(!showEventCount)}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-              title={showEventCount ? "Masquer le nombre d'événements" : "Afficher le nombre d'événements"}
-            >
-              <MoreHorizontal className="w-5 h-5 text-gray-600" />
-            </button>
-            <button
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2 rounded-lg hover:bg-white transition-colors"
-              title={isFullscreen ? "Réduire" : "Plein écran"}
-            >
-              {isFullscreen ? <Minimize2 className="w-5 h-5 text-gray-600" /> : <Maximize2 className="w-5 h-5 text-gray-600" />}
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-[100px_1fr] divide-x divide-gray-200">
-          {/* En-tête des heures */}
-          <div className="bg-gray-50">
-            <div className="h-12 border-b border-gray-200"></div>
-            {hours.map(hour => {
-              const hourNum = parseInt(hour.split(':')[0]);
-              const isCurrentHour = hourNum === currentHour;
-              return (
-                <div 
-                  key={hour} 
-                  className={`h-24 border-b border-gray-200 p-2 text-sm ${
-                    isCurrentHour ? 'text-indigo-600 font-medium' : 'text-gray-500'
-                  }`}
-                >
-                  {hour}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Contenu des événements */}
-          <div className="relative">
-            <div className="h-12 border-b border-gray-200"></div>
-            {hours.map(hour => {
-              const events = getEventsForHour(selectedDate, hour);
-              const hourNum = parseInt(hour.split(':')[0]);
-              const isCurrentHour = hourNum === currentHour;
-              const isPastHour = hourNum < currentHour;
-              const isFutureHour = hourNum > currentHour;
-
-              return (
-                <div 
-                  key={hour} 
-                  className={`h-24 border-b border-gray-200 p-2 relative ${
-                    isCurrentHour ? 'bg-indigo-50/50' :
-                    isPastHour ? 'bg-gray-50/50' :
-                    'bg-white'
-                  }`}
-                >
-                  {isCurrentHour && (
-                    <div 
-                      className="absolute left-0 right-0 h-0.5 bg-indigo-500"
-                      style={{
-                        top: `${(currentMinute / 60) * 100}%`
-                      }}
-                    >
-                      <div className="absolute -top-1 -left-1 w-3 h-3 bg-indigo-500 rounded-full"></div>
-                    </div>
-                  )}
-                  {events.map(event => (
-                    <div
-                      key={`${event.id}-${event.type}`}
-                      onClick={() => handleRequestClick(event)}
-                      className={`absolute left-2 right-2 p-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md ${
-                        getEventStyle(event.type, event.status || 'pending')
-                      }`}
-                      style={{
-                        top: `${(parseInt(event.displayTime.split(':')[1]) / 60) * 100}%`,
-                        height: 'calc(100% - 8px)'
-                      }}
-                    >
-                      <div className="flex items-center gap-2">
-                        {event.type === 'delivery' && <Truck className="w-4 h-4 flex-shrink-0" />}
-                        {event.type === 'pickup' && <ArrowLeftRight className="w-4 h-4 flex-shrink-0" />}
-                        {event.type === 'event' && <Calendar className="w-4 h-4 flex-shrink-0" />}
-                        <div className="flex flex-col min-w-0">
-                          <span className="font-medium truncate">
-                            {event.first_name} {event.last_name}
-                          </span>
-                          <span className="text-xs opacity-75 truncate">
-                            {getEventLabel(event.type)}
-                          </span>
-                          <span className="text-xs font-medium mt-1">
-                            {event.displayTime}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const Legend = () => (
-    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-gray-900">Légende</h3>
-        <button
-          onClick={() => setShowLegend(!showLegend)}
-          className="text-gray-400 hover:text-gray-600"
-        >
-          {showLegend ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </button>
-      </div>
-      {showLegend && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-100 border border-green-200"></div>
-            <span className="text-xs text-gray-600">Événement</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-100 border border-blue-200"></div>
-            <span className="text-xs text-gray-600">Livraison</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-purple-100 border border-purple-200"></div>
-            <span className="text-xs text-gray-600">Reprise</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  const AdvancedFilters = () => (
-    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-      <h3 className="text-sm font-medium text-gray-900 mb-3">Filtres avancés</h3>
-      <div className="space-y-3">
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Période</label>
-          <select
-            value={timeFilter}
-            onChange={(e) => setTimeFilter(e.target.value as TimeFilter)}
-            className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="all">Toute la journée</option>
-            <option value="morning">Matin (5h-12h)</option>
-            <option value="afternoon">Après-midi (12h-18h)</option>
-            <option value="evening">Soirée (18h-5h)</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Type d'événement</label>
-          <select
-            value={eventTypeFilter}
-            onChange={(e) => setEventTypeFilter(e.target.value as EventTypeFilter)}
-            className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="all">Tous les types</option>
-            <option value="event">Événements</option>
-            <option value="delivery">Livraisons</option>
-            <option value="pickup">Reprises</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  );
-
   const stats = getStats();
 
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className={`max-w-12xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isFullscreen ? 'fixed inset-0 bg-white z-50 overflow-auto' : ''}`}>
+      <div className={`max-w-12xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${viewState.isFullscreen ? 'fixed inset-0 bg-white z-50 overflow-auto' : ''}`}>
         <div className="space-y-6">
           <CalendarHeader
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-            showDeliveries={showDeliveries}
-            setShowDeliveries={setShowDeliveries}
-            showPickups={showPickups}
-            setShowPickups={setShowPickups}
+            viewMode={viewState.viewMode}
+            setViewMode={(mode) => updateViewState({ viewMode: mode })}
+            showDeliveries={filters.showDeliveries}
+            setShowDeliveries={(show) => updateFilters({ showDeliveries: show })}
+            showPickups={filters.showPickups}
+            setShowPickups={(show) => updateFilters({ showPickups: show })}
           />
 
           <StatsSection stats={stats} />
 
-          <div className={`grid ${isFullscreen ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-4'} gap-6`}>
-            <div className={isFullscreen ? 'w-full' : 'lg:col-span-3'}>
+          <div className={`grid ${viewState.isFullscreen ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-4'} gap-6`}>
+            <div className={viewState.isFullscreen ? 'w-full' : 'lg:col-span-3'}>
               <div className="space-y-6">
                 <FiltersSection
-                  searchTerm={searchTerm}
-                  setSearchTerm={setSearchTerm}
-                  statusFilter={statusFilter}
-                  setStatusFilter={setStatusFilter}
+                  searchTerm={filters.searchTerm}
+                  setSearchTerm={(term) => updateFilters({ searchTerm: term })}
+                  statusFilter={filters.statusFilter}
+                  setStatusFilter={(status) => updateFilters({ statusFilter: status })}
                 />
-                {viewMode === 'month' ? renderMonthView() :
-                 viewMode === 'week' ? renderWeekView() :
-                 renderDayView()}
+                {viewState.viewMode === 'month' ? (
+                  <MonthView
+                    viewMode={viewState.viewMode}
+                    currentMonth={viewState.currentMonth}
+                    selectedDate={viewState.selectedDate}
+                    isFullscreen={viewState.isFullscreen}
+                    isCompact={viewState.isCompact}
+                    showEventCount={viewState.showEventCount}
+                    getRequestsForDate={getRequestsForDate}
+                    handleRequestClick={handleRequestClick}
+                    handleMonthChange={handleMonthChange}
+                    handleWeekChange={handleWeekChange}
+                    handleDateClick={handleDateClick}
+                    setIsCompact={(isCompact) => updateViewState({ isCompact })}
+                    setShowEventCount={(show) => updateViewState({ showEventCount: show })}
+                    setIsFullscreen={(isFullscreen) => updateViewState({ isFullscreen })}
+                  />
+                ) : viewState.viewMode === 'week' ? (
+                  <WeekView
+                    viewMode={viewState.viewMode}
+                    currentMonth={viewState.currentMonth}
+                    selectedDate={viewState.selectedDate}
+                    isFullscreen={viewState.isFullscreen}
+                    isCompact={viewState.isCompact}
+                    showEventCount={viewState.showEventCount}
+                    getRequestsForDate={getRequestsForDate}
+                    handleRequestClick={handleRequestClick}
+                    handleMonthChange={handleMonthChange}
+                    handleWeekChange={handleWeekChange}
+                    handleDateClick={handleDateClick}
+                    setIsCompact={(isCompact) => updateViewState({ isCompact })}
+                    setShowEventCount={(show) => updateViewState({ showEventCount: show })}
+                    setIsFullscreen={(isFullscreen) => updateViewState({ isFullscreen })}
+                  />
+                ) : (
+                  <DayView
+                    viewMode={viewState.viewMode}
+                    currentMonth={viewState.currentMonth}
+                    selectedDate={viewState.selectedDate}
+                    isFullscreen={viewState.isFullscreen}
+                    isCompact={viewState.isCompact}
+                    showEventCount={viewState.showEventCount}
+                    getRequestsForDate={getRequestsForDate}
+                    handleRequestClick={handleRequestClick}
+                    handleMonthChange={handleMonthChange}
+                    handleWeekChange={handleWeekChange}
+                    handleDateClick={handleDateClick}
+                    setIsCompact={(isCompact) => updateViewState({ isCompact })}
+                    setShowEventCount={(show) => updateViewState({ showEventCount: show })}
+                    setIsFullscreen={(isFullscreen) => updateViewState({ isFullscreen })}
+                  />
+                )}
               </div>
             </div>
-            {!isFullscreen && (
+            {!viewState.isFullscreen && (
               <div className="space-y-4">
-                <AdvancedFilters />
-                <Legend />
+                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                  <h3 className="text-sm font-medium text-gray-900 mb-3">Filtres avancés</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Période</label>
+                      <select
+                        value={filters.timeFilter}
+                        onChange={(e) => updateFilters({ timeFilter: e.target.value as any })}
+                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="all">Toute la journée</option>
+                        <option value="morning">Matin (5h-12h)</option>
+                        <option value="afternoon">Après-midi (12h-18h)</option>
+                        <option value="evening">Soirée (18h-5h)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Type d'événement</label>
+                      <select
+                        value={filters.eventTypeFilter}
+                        onChange={(e) => updateFilters({ eventTypeFilter: e.target.value as any })}
+                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="all">Tous les types</option>
+                        <option value="event">Événements</option>
+                        <option value="delivery">Livraisons</option>
+                        <option value="pickup">Reprises</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-medium text-gray-900">Légende</h3>
+                    <button
+                      onClick={() => updateViewState({ showLegend: !viewState.showLegend })}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      {viewState.showLegend ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {viewState.showLegend && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-green-100 border border-green-200"></div>
+                        <span className="text-xs text-gray-600">Événement</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-blue-100 border border-blue-200"></div>
+                        <span className="text-xs text-gray-600">Livraison</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-purple-100 border border-purple-200"></div>
+                        <span className="text-xs text-gray-600">Reprise</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
