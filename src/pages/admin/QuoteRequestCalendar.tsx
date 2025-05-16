@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Search, Filter, BarChart2, Clock, Users, Tag, X, FileText, Mail, Phone, MapPin, Clock as ClockIcon, Truck, Package, DoorOpen, ArrowLeftRight, MessageSquare, ChevronUp, ChevronDown } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Search, Filter, BarChart2, Clock, Users, Tag, X, FileText, Mail, Phone, MapPin, Clock as ClockIcon, Truck, Package, DoorOpen, ArrowLeftRight, MessageSquare, ChevronUp, ChevronDown, Maximize2, Minimize2 } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { QuoteRequest } from '../../services/quoteRequestService';
@@ -167,6 +167,7 @@ const QuoteRequestCalendar: React.FC = () => {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
   const [eventTypeFilter, setEventTypeFilter] = useState<EventTypeFilter>('all');
   const [showLegend, setShowLegend] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     fetchQuoteRequests();
@@ -721,7 +722,7 @@ const QuoteRequestCalendar: React.FC = () => {
     const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
     for (let i = 0; i < firstDayOfMonth; i++) {
-      days.push(<div key={`empty-${i}`} className="h-40 border border-gray-200 bg-gray-50"></div>);
+      days.push(<div key={`empty-${i}`} className={`border border-gray-200 bg-gray-50 ${isFullscreen ? 'h-48' : 'h-40'}`}></div>);
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -734,9 +735,9 @@ const QuoteRequestCalendar: React.FC = () => {
         <div
           key={day}
           onClick={() => handleDateClick(date)}
-          className={`h-40 border border-gray-200 p-2 cursor-pointer transition-all duration-200 ${
+          className={`border border-gray-200 p-2 cursor-pointer transition-all duration-200 ${
             isSelected ? 'bg-indigo-50 border-indigo-500' : 'hover:bg-gray-50'
-          }`}
+          } ${isFullscreen ? 'h-48' : 'h-40'}`}
         >
           <div className="flex justify-between items-center mb-2">
             <div className={`text-sm font-medium ${isToday ? 'text-indigo-600' : 'text-gray-900'}`}>
@@ -762,6 +763,13 @@ const QuoteRequestCalendar: React.FC = () => {
             {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </h2>
           <div className="flex space-x-2">
+            <button
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="p-2 rounded-lg hover:bg-white transition-colors"
+              title={isFullscreen ? "Réduire" : "Plein écran"}
+            >
+              {isFullscreen ? <Minimize2 className="w-5 h-5 text-gray-600" /> : <Maximize2 className="w-5 h-5 text-gray-600" />}
+            </button>
             <button
               onClick={() => handleMonthChange('prev')}
               className="p-2 rounded-lg hover:bg-white transition-colors"
@@ -800,6 +808,13 @@ const QuoteRequestCalendar: React.FC = () => {
           </h2>
           <div className="flex space-x-2">
             <button
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="p-2 rounded-lg hover:bg-white transition-colors"
+              title={isFullscreen ? "Réduire" : "Plein écran"}
+            >
+              {isFullscreen ? <Minimize2 className="w-5 h-5 text-gray-600" /> : <Maximize2 className="w-5 h-5 text-gray-600" />}
+            </button>
+            <button
               onClick={() => handleWeekChange('prev')}
               className="p-2 rounded-lg hover:bg-white transition-colors"
             >
@@ -823,9 +838,9 @@ const QuoteRequestCalendar: React.FC = () => {
               <div
                 key={index}
                 onClick={() => handleDateClick(date)}
-                className={`min-h-[300px] border border-gray-200 p-2 cursor-pointer transition-all duration-200 ${
+                className={`border border-gray-200 p-2 cursor-pointer transition-all duration-200 ${
                   isSelected ? 'bg-indigo-50 border-indigo-500' : 'hover:bg-gray-50'
-                }`}
+                } ${isFullscreen ? 'min-h-[500px]' : 'min-h-[300px]'}`}
               >
                 <div className="flex flex-col mb-2">
                   <div className={`text-sm font-medium ${isToday ? 'text-indigo-600' : 'text-gray-900'}`}>
@@ -922,7 +937,7 @@ const QuoteRequestCalendar: React.FC = () => {
   return (
     <AdminLayout>
       <AdminHeader />
-      <div className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className={`max-w-12xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isFullscreen ? 'fixed inset-0 bg-white z-50 overflow-auto' : ''}`}>
         <div className="space-y-6">
           <CalendarHeader
             viewMode={viewMode}
@@ -935,8 +950,8 @@ const QuoteRequestCalendar: React.FC = () => {
 
           <StatsSection stats={stats} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-3">
+          <div className={`grid ${isFullscreen ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-4'} gap-6`}>
+            <div className={isFullscreen ? 'w-full' : 'lg:col-span-3'}>
               <div className="space-y-6">
                 <FiltersSection
                   searchTerm={searchTerm}
@@ -947,10 +962,12 @@ const QuoteRequestCalendar: React.FC = () => {
                 {viewMode === 'month' ? renderMonthView() : renderWeekView()}
               </div>
             </div>
-            <div className="space-y-4">
-              <AdvancedFilters />
-              <Legend />
-            </div>
+            {!isFullscreen && (
+              <div className="space-y-4">
+                <AdvancedFilters />
+                <Legend />
+              </div>
+            )}
           </div>
         </div>
       </div>
