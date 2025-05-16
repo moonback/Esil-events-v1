@@ -201,7 +201,7 @@ const AdminProducts: React.FC = () => {
   };
 
   const getProductUrl = (product: Product) => {
-    return `${window.location.origin}/products/${product.slug}`;
+    return `${window.location.origin}/product/${product.slug}`;
   };
 
   return (
