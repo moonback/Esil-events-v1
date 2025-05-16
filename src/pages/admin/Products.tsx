@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown, Copy, BarChart, Hash, FileText, RefreshCw } from 'lucide-react';
+import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown, Copy, BarChart, Hash, FileText, RefreshCw, QrCode } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import { Product } from '../../types/Product';
 import { getAllProducts, deleteProduct, createProduct, updateProduct, duplicateProduct, regenerateMissingSlugs } from '../../services/productService';
@@ -22,6 +23,7 @@ const AdminProducts: React.FC = () => {
   const [seoModalProduct, setSeoModalProduct] = useState<Product | null>(null);
   const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
   const [seoGenerationError, setSeoGenerationError] = useState<string>('');
+  const [qrCodeProduct, setQrCodeProduct] = useState<Product | null>(null);
   
   // Utiliser notre hook personnalisé pour les filtres
   const {
@@ -192,6 +194,14 @@ const AdminProducts: React.FC = () => {
     } finally {
       setIsGeneratingSeo(false);
     }
+  };
+
+  const handleGenerateQRCode = (product: Product) => {
+    setQrCodeProduct(product);
+  };
+
+  const getProductUrl = (product: Product) => {
+    return `${window.location.origin}/product/${product.slug}`;
   };
 
   return (
@@ -585,7 +595,21 @@ const AdminProducts: React.FC = () => {
                               <Copy className="w-4 h-4" />
                             </button>
                           </div>
-                          <div className="flex space-x-1">
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleGenerateQRCode(product)}
+                              className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                              title="Générer QR Code"
+                            >
+                              <QrCode className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={() => handleGenerateSeo(product)}
+                              className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                              title="Générer SEO"
+                            >
+                              <BarChart className="w-5 h-5" />
+                            </button>
                             <button
                               onClick={() => setSeoModalProduct(product)}
                               className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-all duration-200"
@@ -1090,6 +1114,66 @@ const AdminProducts: React.FC = () => {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal QR Code */}
+      {qrCodeProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">QR Code du produit</h3>
+              <button
+                onClick={() => setQrCodeProduct(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ×
+              </button>
+            </div>
+            <div className="flex flex-col items-center space-y-4">
+              <QRCodeSVG
+                value={getProductUrl(qrCodeProduct)}
+                size={256}
+                level="H"
+                includeMargin={true}
+              />
+              <p className="text-sm text-gray-600 text-center">
+                {qrCodeProduct.name}
+              </p>
+              <a
+                href={getProductUrl(qrCodeProduct)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-700 text-sm"
+              >
+                {getProductUrl(qrCodeProduct)}
+              </a>
+              <button
+                onClick={() => {
+                  const canvas = document.createElement('canvas');
+                  const svg = document.querySelector('svg');
+                  if (svg) {
+                    const svgData = new XMLSerializer().serializeToString(svg);
+                    const img = new Image();
+                    img.onload = () => {
+                      canvas.width = img.width;
+                      canvas.height = img.height;
+                      const ctx = canvas.getContext('2d');
+                      ctx?.drawImage(img, 0, 0);
+                      const link = document.createElement('a');
+                      link.download = `qr-code-${qrCodeProduct.slug}.png`;
+                      link.href = canvas.toDataURL('image/png');
+                      link.click();
+                    };
+                    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+                  }
+                }}
+                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              >
+                Télécharger le QR Code
+              </button>
             </div>
           </div>
         </div>
