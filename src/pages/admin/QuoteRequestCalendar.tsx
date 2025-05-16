@@ -8,6 +8,149 @@ import { formatDate, getStatusColor, getStatusLabel } from '../../components/adm
 
 type ViewMode = 'month' | 'week';
 
+const CalendarHeader: React.FC<{
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
+  showDeliveries: boolean;
+  setShowDeliveries: (show: boolean) => void;
+  showPickups: boolean;
+  setShowPickups: (show: boolean) => void;
+}> = ({ viewMode, setViewMode, showDeliveries, setShowDeliveries, showPickups, setShowPickups }) => (
+  <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Agenda des demandes de devis</h1>
+        <p className="mt-2 text-sm text-gray-500">
+          Visualisez et gérez les demandes de devis par date d'événement
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-4">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setViewMode('month')}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              viewMode === 'month'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Mois
+          </button>
+          <button
+            onClick={() => setViewMode('week')}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              viewMode === 'week'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Semaine
+          </button>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowDeliveries(!showDeliveries)}
+            className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+              showDeliveries
+                ? 'bg-blue-100 text-blue-800 border border-blue-200 shadow-sm'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <Truck className="w-4 h-4" />
+            Livraisons
+          </button>
+          <button
+            onClick={() => setShowPickups(!showPickups)}
+            className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+              showPickups
+                ? 'bg-purple-100 text-purple-800 border border-purple-200 shadow-sm'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <ArrowLeftRight className="w-4 h-4" />
+            Reprises
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const StatsSection: React.FC<{ stats: { total: number; pending: number; upcoming: number } }> = ({ stats }) => (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+      <div className="flex items-center">
+        <div className="p-3 rounded-full bg-indigo-50 text-indigo-600 mr-4">
+          <Users className="w-6 h-6" />
+        </div>
+        <div>
+          <p className="text-sm text-gray-500">Total des demandes</p>
+          <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
+        </div>
+      </div>
+    </div>
+    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+      <div className="flex items-center">
+        <div className="p-3 rounded-full bg-yellow-50 text-yellow-600 mr-4">
+          <Clock className="w-6 h-6" />
+        </div>
+        <div>
+          <p className="text-sm text-gray-500">En attente</p>
+          <p className="text-2xl font-semibold text-gray-900">{stats.pending}</p>
+        </div>
+      </div>
+    </div>
+    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+      <div className="flex items-center">
+        <div className="p-3 rounded-full bg-green-50 text-green-600 mr-4">
+          <Calendar className="w-6 h-6" />
+        </div>
+        <div>
+          <p className="text-sm text-gray-500">Événements à venir</p>
+          <p className="text-2xl font-semibold text-gray-900">{stats.upcoming}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const FiltersSection: React.FC<{
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  statusFilter: string;
+  setStatusFilter: (status: string) => void;
+}> = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter }) => (
+  <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+    <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex-1">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Rechercher un client..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
+        </div>
+      </div>
+      <select
+        value={statusFilter}
+        onChange={(e) => setStatusFilter(e.target.value)}
+        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+      >
+        <option value="all">Tous les statuts</option>
+        <option value="pending">En attente</option>
+        <option value="in_progress">En cours</option>
+        <option value="completed">Terminé</option>
+        <option value="cancelled">Annulé</option>
+      </select>
+    </div>
+  </div>
+);
+
+
+
 const QuoteRequestCalendar: React.FC = () => {
   const [quoteRequests, setQuoteRequests] = useState<QuoteRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -680,173 +823,33 @@ const QuoteRequestCalendar: React.FC = () => {
       <AdminHeader />
       <div className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
-          {/* Header Section */}
-          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Agenda des demandes de devis</h1>
-                <p className="mt-2 text-sm text-gray-500">
-                  Visualisez et gérez les demandes de devis par date d'événement
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-4">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setViewMode('month')}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
-                      viewMode === 'month'
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    Mois
-                  </button>
-                  <button
-                    onClick={() => setViewMode('week')}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
-                      viewMode === 'week'
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    Semaine
-                  </button>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowDeliveries(!showDeliveries)}
-                    className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                      showDeliveries
-                        ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Truck className="w-4 h-4" />
-                    Livraisons
-                  </button>
-                  <button
-                    onClick={() => setShowPickups(!showPickups)}
-                    className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                      showPickups
-                        ? 'bg-purple-100 text-purple-800 border border-purple-200'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    <ArrowLeftRight className="w-4 h-4" />
-                    Reprises
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <CalendarHeader
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            showDeliveries={showDeliveries}
+            setShowDeliveries={setShowDeliveries}
+            showPickups={showPickups}
+            setShowPickups={setShowPickups}
+          />
 
-          {/* Stats Section */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-              <div className="flex items-center">
-                <div className="p-3 rounded-full bg-indigo-50 text-indigo-600 mr-4">
-                  <Users className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Total des demandes</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-              <div className="flex items-center">
-                <div className="p-3 rounded-full bg-yellow-50 text-yellow-600 mr-4">
-                  <Clock className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">En attente</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.pending}</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-              <div className="flex items-center">
-                <div className="p-3 rounded-full bg-green-50 text-green-600 mr-4">
-                  <Calendar className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Événements à venir</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.upcoming}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <StatsSection stats={stats} />
 
-          {/* Filters Section */}
-          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <input
-                  type="text"
-                  placeholder="Rechercher un client..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="all">Tous les statuts</option>
-                <option value="pending">En attente</option>
-                <option value="in_progress">En cours</option>
-                <option value="completed">Terminé</option>
-                <option value="cancelled">Annulé</option>
-              </select>
-            </div>
-          </div>
+          <FiltersSection
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+          />
 
-          {/* Calendar Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
             <div className="lg:col-span-2">
               {viewMode === 'month' ? renderMonthView() : renderWeekView()}
             </div>
             
-            {/* Selected Date Details */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                {selectedDate ? formatDate(selectedDate.toISOString()) : 'Sélectionnez une date'}
-              </h3>
-              
-              {selectedRequests.length > 0 ? (
-                <div className="space-y-4">
-                  {selectedRequests.map(request => (
-                    <div
-                      key={request.id}
-                      className="p-4 rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-medium text-gray-900">
-                            {request.first_name} {request.last_name}
-                          </h4>
-                          <p className="text-sm text-gray-500">{request.email}</p>
-                        </div>
-                        <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusColor(request.status)}`}>
-                          {getStatusLabel(request.status)}
-                        </span>
-                      </div>
-                      {request.event_date && (
-                        <p className="mt-2 text-sm text-gray-600">
-                          Événement prévu le {formatDate(request.event_date.toString())}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  {selectedDate ? 'Aucune demande pour cette date' : 'Sélectionnez une date pour voir les demandes'}
-                </div>
-              )}
-            </div>
+            {/* <SelectedDateDetails
+              selectedDate={selectedDate}
+              selectedRequests={selectedRequests}
+            /> */}
           </div>
         </div>
       </div>
