@@ -16,7 +16,8 @@ import {
   Users,
   AlertCircle,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Calendar
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { signOut } from '../../services/authService';
@@ -132,6 +133,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/admin/products' },
     { label: 'Catégories', icon: <Tag className="w-5 h-5" />, path: '/admin/categories' },
     { label: 'Demandes de devis', icon: <MessageSquare className="w-5 h-5" />, path: '/admin/quote-requests' },
+    { label: 'Agenda des devis', icon: <Calendar className="w-5 h-5" />, path: '/admin/quote-requests/calendar' },
     { label: 'Artistes', icon: <Music className="w-5 h-5" />, path: '/admin/artists' },
     { label: 'Catégories d\'artistes', icon: <Grid className="w-5 h-5" />, path: '/admin/artist-categories' },
     { label: 'Réalisations', icon: <FileText className="w-5 h-5" />, path: '/admin/realizations' },

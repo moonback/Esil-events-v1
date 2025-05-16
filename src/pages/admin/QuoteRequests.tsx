@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, ArrowDownUp, RefreshCw, Search, Filter, X, SlidersHorizontal } from 'lucide-react';
+import { FileText, ArrowDownUp, RefreshCw, Search, Filter, X, SlidersHorizontal, Calendar } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { getQuoteRequests, QuoteRequest } from '../../services/quoteRequestService';
@@ -13,6 +13,7 @@ import {
 import { useQuoteRequestFilters } from '../../hooks/useQuoteRequestFilters';
 import { usePagination } from '../../hooks/usePagination';
 import { useQuoteRequestActions } from '../../hooks/useQuoteRequestActions';
+import { Link } from 'react-router-dom';
 
 const QuoteRequestsAdmin: React.FC = () => {
   // État principal
@@ -144,8 +145,29 @@ const QuoteRequestsAdmin: React.FC = () => {
   // --- Render ---
   return (
     <AdminLayout>
-      <div className="container mx-auto px-4 py-8">
-        <AdminHeader title="Demandes de devis" />
+      <div className="container mx-auto ">
+        
+        
+        {/* Header Section */}
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+            <AdminHeader title="Demandes de devis" />
+              <p className="mt-2 text-sm text-gray-500">
+                Gérez les demandes de devis et répondez aux clients
+              </p>
+            </div>
+            <div className="flex gap-4">
+              <Link
+                to="/admin/quote-requests/calendar"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
+              >
+                <Calendar className="w-5 h-5 mr-2" />
+                Voir l'agenda
+              </Link>
+            </div>
+          </div>
+        </div>
         
         {/* Main content */}
         <div className="mt-8">
