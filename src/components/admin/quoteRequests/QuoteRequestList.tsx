@@ -33,7 +33,7 @@ const QuoteRequestList: React.FC<QuoteRequestListProps> = ({
   filteredRequestsLength
 }) => {
   return (
-    <div className="w-full lg:w-3/5 xl:w-1/2">
+    <div className="w-full ">
       {/* List Header */}
       <div className="bg-white p-4 rounded-t-xl shadow-md border border-gray-200 border-b-0">
         <h2 className="text-lg font-bold text-gray-800">Liste des demandes</h2>
