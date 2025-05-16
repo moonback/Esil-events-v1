@@ -557,7 +557,7 @@ export const sendQuoteRequestConfirmation = async (quoteRequest: QuoteRequest): 
 // Fonction pour envoyer une notification à l'administrateur
 export const sendAdminNotification = async (quoteRequest: QuoteRequest): Promise<{ success: boolean; error?: any }> => {
   // Adresse email de l'administrateur (à configurer)
-  const adminEmail = smtpConfig.from;
+  const adminEmail = 'contact@esil-events.fr';
   
   // Formater les articles pour l'email
   const itemsList = quoteRequest.items && quoteRequest.items.length > 0
