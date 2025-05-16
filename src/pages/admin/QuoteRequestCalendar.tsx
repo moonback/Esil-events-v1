@@ -577,12 +577,12 @@ const QuoteRequestCalendar: React.FC = () => {
           <div className={`grid ${viewState.isFullscreen ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-4'} gap-6`}>
             <div className={viewState.isFullscreen ? 'w-full' : 'lg:col-span-3'}>
               <div className="space-y-6">
-                <FiltersSection
+                {/* <FiltersSection
                   searchTerm={filters.searchTerm}
                   setSearchTerm={(term) => updateFilters({ searchTerm: term })}
                   statusFilter={filters.statusFilter}
                   setStatusFilter={(status) => updateFilters({ statusFilter: status })}
-                />
+                /> */}
                 {viewState.viewMode === 'month' ? (
                   <MonthView
                     viewMode={viewState.viewMode}
