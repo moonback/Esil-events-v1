@@ -265,7 +265,48 @@ export const exportToPDF = async (
             </tr>
           </table>
         </div>
-        
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Accès</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <tr>
+              <td style="padding: 5px; width: 30%;"><strong>Accès extérieur:</strong></td>
+              <td style="padding: 5px;">${request.exterior_access || '-'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Accès intérieur:</strong></td>
+              <td style="padding: 5px;">${request.interior_access || '-'}</td>
+            </tr>
+            ${request.elevator_width || request.elevator_height || request.elevator_depth ? `
+              <tr>
+                <td style="padding: 5px;"><strong>Dimensions ascenseur:</strong></td>
+                <td style="padding: 5px;">
+                  ${[
+                    request.elevator_width ? `Largeur: ${request.elevator_width}cm` : null,
+                    request.elevator_height ? `Hauteur: ${request.elevator_height}cm` : null,
+                    request.elevator_depth ? `Profondeur: ${request.elevator_depth}cm` : null
+                  ].filter(Boolean).join(' | ')}
+                </td>
+              </tr>
+            ` : ''}
+          </table>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Reprise</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <tr>
+              <td style="padding: 5px; width: 30%;"><strong>Date:</strong></td>
+              <td style="padding: 5px;">${request.pickup_return_date ? formatDate(request.pickup_return_date).split(' ')[0] : '-'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Début:</strong></td>
+              <td style="padding: 5px;">${request.pickup_return_start_time || '-'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px;"><strong>Fin:</strong></td>
+              <td style="padding: 5px;">${request.pickup_return_end_time || '-'}</td>
+            </tr>
+          </table>
+        </div>
         ${request.comments ? `
           <div style="margin-bottom: 20px;">
             <h3 style="font-size: 16px; margin-bottom: 10px; color: #4f46e5;">Commentaires Client</h3>
