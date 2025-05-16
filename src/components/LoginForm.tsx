@@ -121,7 +121,7 @@ const LoginForm: React.FC = () => {
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-violet-100 rounded-full opacity-50 dark:opacity-20 blur-3xl z-0"></div>
           <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-100 rounded-full opacity-60 dark:opacity-20 blur-3xl z-0"></div>
           
-          <div className="relative z-10">
+          <div className="relative pt-20 z-10">
             <motion.div 
               className="text-center mb-8"
               variants={fadeInUp}
