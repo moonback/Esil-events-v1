@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown, Copy, BarChart } from 'lucide-react';
+import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown, Copy, BarChart, Hash } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import { Product } from '../../types/Product';
 import { getAllProducts, deleteProduct, createProduct, updateProduct, duplicateProduct, regenerateMissingSlugs } from '../../services/productService';
@@ -234,30 +234,25 @@ const AdminProducts: React.FC = () => {
             </div>
           </div>
           
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 mr-4">
-                <Layers className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Stock Total</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{totalStock}</p>
-              </div>
-            </div>
-          </div>
+          
           
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 mr-4">
-                <Tag className="h-6 w-6" />
+              <div className="p-3 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 mr-4">
+                <Hash className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Stock Faible</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{lowStockProducts}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Mots-clés par produit</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  {(products.reduce((acc, product) => {
+                    const keywords = product.seo_keywords ? product.seo_keywords.split(',').filter(k => k.trim()).length : 0;
+                    return acc + keywords;
+                  }, 0) / (products.length || 1)).toFixed(1)}
+                </p>
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 mr-4">
@@ -266,6 +261,20 @@ const AdminProducts: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Indisponibles</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">{unavailableProducts}</p>
+              </div>
+            </div>
+          </div>
+
+
+
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mr-4">
+                <Search className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Référencés sur Google</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{products.filter(p => p.seo_title && p.seo_description).length}</p>
               </div>
             </div>
           </div>
