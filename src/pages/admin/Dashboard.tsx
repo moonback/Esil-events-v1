@@ -459,7 +459,7 @@ const AdminDashboard: React.FC = () => {
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Événement</th>
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Livraison & Reprise</th>
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Statut</th>
-                        <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                        {/* <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th> */}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -559,7 +559,7 @@ const AdminDashboard: React.FC = () => {
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex items-center justify-end space-x-2">
                               <button 
                                 onClick={() => navigate(`/admin/quote-requests/${quote.id}`)}
@@ -572,7 +572,7 @@ const AdminDashboard: React.FC = () => {
                                 <Edit className="w-5 h-5" />
                               </button>
                             </div>
-                          </td>
+                          </td> */}
                         </tr>
                       ))}
                     </tbody>
@@ -585,11 +585,17 @@ const AdminDashboard: React.FC = () => {
                   Affichage de <span className="font-medium">{filteredQuotes.length}</span> devis sur <span className="font-medium">{stats.quoteRequestsCount}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button className="p-2 border border-gray-200 dark:border-gray-600 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                  <button 
+                    onClick={() => navigate('/admin/quote-requests')}
+                    className="p-2 border border-gray-200 dark:border-gray-600 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   <div className="px-3 py-1 text-sm font-medium">1</div>
-                  <button className="p-2 border border-gray-200 dark:border-gray-600 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                  <button 
+                    onClick={() => navigate('/admin/quote-requests')}
+                    className="p-2 border border-gray-200 dark:border-gray-600 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
