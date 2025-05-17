@@ -10,6 +10,8 @@ import { Product } from '../types/Product';
 import SEO from '../components/SEO';
 import ComparisonBar from '../components/product-list/ComparisonBar';
 import { useComparison } from '../context/ComparisonContext';
+import { useCart } from '../context/CartContext';
+import { CartItem } from '../components/cart/types';
 
 // Using Product type from types/Product.ts
 
@@ -50,6 +52,7 @@ const ProductListPage: React.FC = () => {
   } = useProductFilters(products, category, 12);
 
   const { addToComparison, isInComparison } = useComparison();
+  const { addToCart } = useCart();
 
   // Ajouter l'effet pour le défilement vers le haut
   useEffect(() => {
@@ -404,7 +407,29 @@ const ProductListPage: React.FC = () => {
                           </div>
                         </div>
                       </Link>
-                      <div className="p-4 border-t border-gray-100">
+                      <div className="p-4 border-t border-gray-100 space-y-2">
+                        <button
+                          onClick={() => {
+                            const cartItem: CartItem = {
+                              id: product.id,
+                              name: product.name,
+                              priceTTC: product.priceTTC,
+                              image: product.images && product.images.length > 0 
+                                ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
+                                  ? product.images[product.mainImageIndex] 
+                                  : product.images[0])
+                                : DEFAULT_PRODUCT_IMAGE,
+                              quantity: 1
+                            };
+                            addToCart(cartItem);
+                          }}
+                          className="w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                          Ajouter au panier
+                        </button>
                         <button
                           onClick={() => addToComparison(product)}
                           disabled={isInComparison(product.id)}
@@ -487,7 +512,29 @@ const ProductListPage: React.FC = () => {
                           </div>
                         </div>
                       </Link>
-                      <div className="p-4 border-l border-gray-100 flex items-center">
+                      <div className="p-4 border-l border-gray-100 flex flex-col space-y-2">
+                        <button
+                          onClick={() => {
+                            const cartItem: CartItem = {
+                              id: product.id,
+                              name: product.name,
+                              priceTTC: product.priceTTC,
+                              image: product.images && product.images.length > 0 
+                                ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
+                                  ? product.images[product.mainImageIndex] 
+                                  : product.images[0])
+                                : DEFAULT_PRODUCT_IMAGE,
+                              quantity: 1
+                            };
+                            addToCart(cartItem);
+                          }}
+                          className="flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                          Ajouter au panier
+                        </button>
                         <button
                           onClick={() => addToComparison(product)}
                           disabled={isInComparison(product.id)}
