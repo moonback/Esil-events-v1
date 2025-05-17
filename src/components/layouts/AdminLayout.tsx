@@ -144,6 +144,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { label: 'Emails', icon: <Mail className="w-5 h-5" />, path: '/admin/email-config' },
     { label: 'Sitemap', icon: <Globe className="w-5 h-5" />, path: '/admin/sitemap' },
     { label: 'Mots-clés', icon: <FileText className="w-5 h-5" />, path: '/admin/keyword-rankings' },
+    { label: 'Gemini', icon: <FileText className="w-5 h-5" />, path: '/admin/gemini' },
   ];
 
   // Fonction pour déterminer si un élément de menu est actif

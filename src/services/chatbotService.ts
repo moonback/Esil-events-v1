@@ -1,5 +1,6 @@
 import { Message, BotResponse } from '../components/chat/types';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { useAdminService } from './adminService';
 
 interface ChatContext {
   eventType?: string;
@@ -49,50 +50,25 @@ const cleanJsonResponse = (text: string): string => {
   return cleaned;
 };
 
-const getDynamicQuickReplies = (context: ChatContext, lastMessage: string): string[] => {
+const getDynamicQuickReplies = (context: ChatContext, lastMessage: string, config: any): string[] => {
   const replies: string[] = [];
   
   // Réponses basées sur le type d'événement
   if (context.eventType) {
-    switch (context.eventType.toLowerCase()) {
-      case 'mariage':
-        if (!context.style) {
-          replies.push('Quel style de mariage recherchez-vous ? (Rustique, Moderne, Classique, Bohème)');
-        }
-        if (!context.theme) {
-          replies.push('Avez-vous un thème ou une palette de couleurs en tête ?');
-        }
-        if (!context.budget) {
-          replies.push('Quel est votre budget pour la décoration ?');
-        }
-        if (!context.guestCount) {
-          replies.push('Combien d\'invités prévoyez-vous ?');
-        }
-        replies.push('Souhaitez-vous voir des exemples de décoration ?');
-        break;
-        
-      case 'entreprise':
-        if (!context.theme) {
-          replies.push('Quel thème souhaitez-vous pour votre événement d\'entreprise ?');
-        }
-        if (!context.guestCount) {
-          replies.push('Combien de participants seront présents ?');
-        }
-        replies.push('Avez-vous besoin de matériel audiovisuel ?');
-        replies.push('Souhaitez-vous une décoration particulière ?');
-        break;
-        
-      default:
-        if (!context.eventType) {
-          replies.push('Quel type d\'événement organisez-vous ?');
-        }
-        if (!context.budget) {
-          replies.push('Quel est votre budget ?');
-        }
-        if (!context.guestCount) {
-          replies.push('Combien de personnes seront présentes ?');
-        }
-        replies.push('Avez-vous des préférences particulières ?');
+    const eventTypeConfig = config.eventTypes.find((et: any) => et.id === context.eventType);
+    if (eventTypeConfig) {
+      // Utiliser les réponses rapides configurées pour ce type d'événement
+      if (config.quickReplies.eventTypes[context.eventType]) {
+        replies.push(...config.quickReplies.eventTypes[context.eventType]);
+      }
+
+      // Ajouter des suggestions basées sur les styles et thèmes disponibles
+      if (!context.style && eventTypeConfig.styles.length > 0) {
+        replies.push(`Quel style préférez-vous parmi : ${eventTypeConfig.styles.join(', ')} ?`);
+      }
+      if (!context.theme && eventTypeConfig.themes.length > 0) {
+        replies.push(`Quel thème vous inspire le plus : ${eventTypeConfig.themes.join(', ')} ?`);
+      }
     }
   }
 
@@ -109,9 +85,7 @@ const getDynamicQuickReplies = (context: ChatContext, lastMessage: string): stri
 
   // Réponses génériques si pas assez de réponses contextuelles
   if (replies.length < 3) {
-    replies.push('Avez-vous des questions spécifiques sur le matériel ?');
-    replies.push('Souhaitez-vous voir des exemples de décoration ?');
-    replies.push('Avez-vous besoin d\'aide pour la planification ?');
+    replies.push(...config.quickReplies.generic);
   }
 
   // Retourner un maximum de 4 réponses
@@ -124,10 +98,12 @@ export const processUserMessage = async (
   context: ChatContext
 ): Promise<BotResponse> => {
   try {
+    const { loadConfig } = useAdminService();
+    const config = loadConfig();
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const chatHistory = formatChatHistory(history);
     
-    const prompt = `${SYSTEM_PROMPT}
+    const prompt = `${config.systemPrompt}
 
 Contexte actuel:
 ${JSON.stringify(context, null, 2)}
@@ -148,7 +124,7 @@ Réponds uniquement au format JSON spécifié ci-dessus.`;
 
     // Enrichir la réponse avec des suggestions dynamiques
     const lastMessage = history[history.length - 1]?.content || '';
-    botResponse.quickReplies = getDynamicQuickReplies(context, lastMessage);
+    botResponse.quickReplies = getDynamicQuickReplies(context, lastMessage, config);
 
     return botResponse;
   } catch (error) {
@@ -164,6 +140,8 @@ export const formatChatHistory = (messages: Message[]): string => {
 };
 
 export const extractContextFromMessage = (message: string): Partial<ChatContext> => {
+  const { loadConfig } = useAdminService();
+  const config = loadConfig();
   const context: Partial<ChatContext> = {};
 
   // Extraction du budget
@@ -185,28 +163,25 @@ export const extractContextFromMessage = (message: string): Partial<ChatContext>
   }
 
   // Extraction du type d'événement
-  const eventTypes = ['mariage', 'anniversaire', 'entreprise', 'conférence', 'séminaire', 'cocktail', 'gala'];
-  for (const type of eventTypes) {
-    if (message.toLowerCase().includes(type)) {
-      context.eventType = type;
+  for (const eventType of config.eventTypes) {
+    if (message.toLowerCase().includes(eventType.id)) {
+      context.eventType = eventType.id;
       break;
     }
   }
 
   // Extraction du style
-  const styles = ['moderne', 'classique', 'rustique', 'bohème', 'industriel', 'minimaliste', 'luxe'];
-  for (const style of styles) {
-    if (message.toLowerCase().includes(style)) {
-      context.style = style;
+  for (const style of config.styles) {
+    if (style.keywords.some(keyword => message.toLowerCase().includes(keyword))) {
+      context.style = style.id;
       break;
     }
   }
 
   // Extraction du thème
-  const themes = ['romantique', 'tropical', 'vintage', 'naturel', 'urbain', 'chic', 'festif'];
-  for (const theme of themes) {
-    if (message.toLowerCase().includes(theme)) {
-      context.theme = theme;
+  for (const theme of config.themes) {
+    if (theme.keywords.some(keyword => message.toLowerCase().includes(keyword))) {
+      context.theme = theme.id;
       break;
     }
   }

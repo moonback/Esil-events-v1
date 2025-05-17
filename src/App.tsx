@@ -30,6 +30,7 @@ import MoodboardPage from './pages/MoodboardPage';
 
 // Admin pages
 import RealisationPage from './pages/RealisationPage';
+import AdminPage from './pages/admin/AdminPage';
 
 
 const App: React.FC = () => {
@@ -76,6 +77,7 @@ const App: React.FC = () => {
           {/* Route admin avec le composant AdminRoutes */}
           <Route path="/admin/*" element={<AdminRoutes />} />
           
+          <Route path="/admin/gemini" element={<AdminPage />} />
 
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />
