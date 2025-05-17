@@ -25,6 +25,8 @@ import { EventsPage } from './pages/EventsPage';  // Changed from default import
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import CguPage from './pages/CguPage';
 import CookieConsentBanner from './components/CookieConsent';
+import { Chatbot } from './components/chat';
+import MoodboardPage from './pages/MoodboardPage';
 
 // Admin pages
 import RealisationPage from './pages/RealisationPage';
@@ -60,6 +62,7 @@ const App: React.FC = () => {
             <Route path="/agence-evenementielle" element={<EventsPage />} />
             <Route path="/cgu" element={<CguPage />} />
             <Route path='/realisations' element={<RealisationPage />} />
+            <Route path="/moodboard/:id" element={<MoodboardPage />} />
 
           </Route>
 
@@ -77,6 +80,7 @@ const App: React.FC = () => {
           {/* Page 404 */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        <Chatbot />
       </CartProvider>
     </BrowserRouter>
   );
