@@ -49,7 +49,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   };
 
   return (
-    <div className={`lg:w-1/4 ${isFilterOpen ? 'block' : 'hidden lg:block'}`}>
+    <div className={`lg:w-1/5 ${isFilterOpen ? 'block' : 'hidden lg:block'}`}>
       <div className="bg-white p-4 rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-medium text-gray-900">Filtres</h2>
