@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '../types/Product';
 
 interface ComparisonContextType {
@@ -11,21 +11,32 @@ interface ComparisonContextType {
 
 const ComparisonContext = createContext<ComparisonContextType | undefined>(undefined);
 
-export const ComparisonProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [comparisonProducts, setComparisonProducts] = useState<Product[]>([]);
-  const MAX_COMPARISON_PRODUCTS = 3;
+const STORAGE_KEY = 'comparison_products';
+
+export const ComparisonProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [comparisonProducts, setComparisonProducts] = useState<Product[]>(() => {
+    const savedProducts = localStorage.getItem(STORAGE_KEY);
+    return savedProducts ? JSON.parse(savedProducts) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(comparisonProducts));
+  }, [comparisonProducts]);
 
   const addToComparison = (product: Product) => {
-    if (comparisonProducts.length >= MAX_COMPARISON_PRODUCTS) {
-      return;
-    }
-    if (!isInComparison(product.id)) {
-      setComparisonProducts([...comparisonProducts, product]);
-    }
+    setComparisonProducts(prev => {
+      if (prev.length >= 3) {
+        return prev;
+      }
+      if (!prev.some(p => p.id === product.id)) {
+        return [...prev, product];
+      }
+      return prev;
+    });
   };
 
   const removeFromComparison = (productId: string) => {
-    setComparisonProducts(comparisonProducts.filter(p => p.id !== productId));
+    setComparisonProducts(prev => prev.filter(p => p.id !== productId));
   };
 
   const clearComparison = () => {

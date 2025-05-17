@@ -12,8 +12,13 @@ import ComparisonBar from '../components/product-list/ComparisonBar';
 import { useComparison } from '../context/ComparisonContext';
 import { useCart } from '../context/CartContext';
 import { CartItem } from '../components/cart/types';
+import Notification from '../components/common/Notification';
 
-// Using Product type from types/Product.ts
+interface NotificationState {
+  show: boolean;
+  message: string;
+  type: 'success' | 'error' | 'info';
+}
 
 const ProductListPage: React.FC = () => {
   const { category, subcategory, subsubcategory } = useParams<{ category: string; subcategory?: string; subsubcategory?: string }>();
@@ -23,6 +28,11 @@ const ProductListPage: React.FC = () => {
   // isFilterOpen is now managed by useProductFilters
   const [error, setError] = useState<string | null>(null);
   const [categoryInfo, setCategoryInfo] = useState<{name: string, description?: string, seo_title?: string, seo_description?: string, seo_keywords?: string}>({name: ''});
+  const [notification, setNotification] = useState<NotificationState>({
+    show: false,
+    message: '',
+    type: 'success'
+  });
 
   // Use the product filters hook with pagination (12 products per page)
   const {
@@ -51,7 +61,7 @@ const ProductListPage: React.FC = () => {
     itemsPerPage
   } = useProductFilters(products, category, 12);
 
-  const { addToComparison, isInComparison } = useComparison();
+  const { addToComparison, isInComparison, comparisonProducts } = useComparison();
   const { addToCart } = useCart();
 
   // Ajouter l'effet pour le défilement vers le haut
@@ -191,6 +201,39 @@ const ProductListPage: React.FC = () => {
     }
     
     return breadcrumb;
+  };
+
+  const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setNotification({ show: true, message, type });
+  };
+
+  const handleAddToCart = (product: Product) => {
+    const cartItem: CartItem = {
+      id: product.id,
+      name: product.name,
+      priceTTC: product.priceTTC,
+      image: product.images && product.images.length > 0 
+        ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
+          ? product.images[product.mainImageIndex] 
+          : product.images[0])
+        : DEFAULT_PRODUCT_IMAGE,
+      quantity: 1
+    };
+    addToCart(cartItem);
+    showNotification(`${product.name} a été ajouté au panier`);
+  };
+
+  const handleAddToComparison = (product: Product) => {
+    if (comparisonProducts.length >= 3) {
+      showNotification('Vous ne pouvez comparer que 3 produits maximum', 'error');
+      return;
+    }
+    if (isInComparison(product.id)) {
+      showNotification(`${product.name} est déjà dans la comparaison`, 'info');
+      return;
+    }
+    addToComparison(product);
+    showNotification(`${product.name} a été ajouté à la comparaison`);
   };
 
   if (loading) {
@@ -409,20 +452,7 @@ const ProductListPage: React.FC = () => {
                       </Link>
                       <div className="p-4 border-t border-gray-100 space-y-2">
                         <button
-                          onClick={() => {
-                            const cartItem: CartItem = {
-                              id: product.id,
-                              name: product.name,
-                              priceTTC: product.priceTTC,
-                              image: product.images && product.images.length > 0 
-                                ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
-                                  ? product.images[product.mainImageIndex] 
-                                  : product.images[0])
-                                : DEFAULT_PRODUCT_IMAGE,
-                              quantity: 1
-                            };
-                            addToCart(cartItem);
-                          }}
+                          onClick={() => handleAddToCart(product)}
                           className="w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -431,7 +461,7 @@ const ProductListPage: React.FC = () => {
                           Ajouter au panier
                         </button>
                         <button
-                          onClick={() => addToComparison(product)}
+                          onClick={() => handleAddToComparison(product)}
                           disabled={isInComparison(product.id)}
                           className={`w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                             isInComparison(product.id)
@@ -514,20 +544,7 @@ const ProductListPage: React.FC = () => {
                       </Link>
                       <div className="p-4 border-l border-gray-100 flex flex-col space-y-2">
                         <button
-                          onClick={() => {
-                            const cartItem: CartItem = {
-                              id: product.id,
-                              name: product.name,
-                              priceTTC: product.priceTTC,
-                              image: product.images && product.images.length > 0 
-                                ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
-                                  ? product.images[product.mainImageIndex] 
-                                  : product.images[0])
-                                : DEFAULT_PRODUCT_IMAGE,
-                              quantity: 1
-                            };
-                            addToCart(cartItem);
-                          }}
+                          onClick={() => handleAddToCart(product)}
                           className="flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -536,7 +553,7 @@ const ProductListPage: React.FC = () => {
                           Ajouter au panier
                         </button>
                         <button
-                          onClick={() => addToComparison(product)}
+                          onClick={() => handleAddToComparison(product)}
                           disabled={isInComparison(product.id)}
                           className={`flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                             isInComparison(product.id)
@@ -619,6 +636,15 @@ const ProductListPage: React.FC = () => {
 
       {/* Comparison Bar */}
       <ComparisonBar />
+
+      {/* Notification */}
+      {notification.show && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(prev => ({ ...prev, show: false }))}
+        />
+      )}
     </>
   );
 };
