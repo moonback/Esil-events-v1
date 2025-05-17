@@ -48,8 +48,7 @@ interface DashboardStats {
   monthlyTrend: number;
 }
 
-// L'interface QuickAction a été déplacée vers le header
-// Voir AdminHeader.tsx pour plus de détails
+
 
 // Composant de chargement
 const StatCardSkeleton: React.FC = () => (
