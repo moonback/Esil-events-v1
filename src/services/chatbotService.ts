@@ -30,24 +30,25 @@ Directives importantes :
 
 IMPORTANT - Format de réponse REQUIS (en JSON) :
 {
-  "message": "Message principal (obligatoire)",
-  "type": "text" | "product" | "moodboard" | "checklist" (obligatoire, défaut: "text"),
+  "message": "Message principal (obligatoire) - Inclus ici le message d'accueil et les prochaines étapes",
+  "type": "text",
   "metadata": {
-    "productId": "ID du produit suggéré",
-    "moodboardId": "ID du moodboard",
-    "checklistId": "ID de la checklist",
-    "eventType": "Type d'événement",
-    "theme": "Thème de l'événement",
-    "style": "Style décoratif"
+    "productId": null,
+    "moodboardId": null,
+    "checklistId": null
   },
-  "quickReplies": ["Réponse rapide 1", "Réponse rapide 2"]
+  "quickReplies": [
+    "Question 1",
+    "Question 2",
+    "Question 3"
+  ]
 }
 
 RÈGLES STRICTES :
 1. Réponds UNIQUEMENT avec le JSON ci-dessus
-2. Le champ "message" est OBLIGATOIRE et ne doit jamais être vide
-3. Le champ "type" est OBLIGATOIRE et doit être l'un des types listés
-4. Les champs "metadata" et "quickReplies" sont optionnels
+2. Le champ "message" est OBLIGATOIRE et doit contenir ton message principal
+3. Le champ "type" doit toujours être "text" pour les réponses initiales
+4. Le champ "quickReplies" doit contenir 3-4 questions pertinentes pour guider l'utilisateur
 5. Ne mets pas de backticks ou de marqueurs de code autour du JSON
 6. Assure-toi que le JSON est valide et bien formaté`;
 
@@ -144,27 +145,46 @@ Réponds uniquement au format JSON spécifié ci-dessus.`;
     const response = await result.response;
     const text = response.text();
     console.log('📨 Texte brut reçu:', text);
+    console.log('📨 Type de la réponse:', typeof text);
+    console.log('📨 Longueur de la réponse:', text.length);
     
     const cleanedText = cleanJsonResponse(text);
     console.log('🧹 Texte nettoyé:', cleanedText);
+    console.log('🧹 Type du texte nettoyé:', typeof cleanedText);
+    console.log('🧹 Longueur du texte nettoyé:', cleanedText.length);
     
     let botResponse: BotResponse;
     try {
-      botResponse = JSON.parse(cleanedText);
-      console.log('🔄 Réponse parsée:', botResponse);
+      console.log('🔄 Tentative de parsing JSON...');
+      const parsedResponse = JSON.parse(cleanedText);
+      console.log('🔄 Réponse parsée:', parsedResponse);
+      console.log('🔄 Type de la réponse parsée:', typeof parsedResponse);
+      console.log('🔄 Clés présentes:', Object.keys(parsedResponse));
 
-      // Ensure the response has the required fields with defaults
+      // Format the response according to our expected structure
       botResponse = {
-        message: botResponse.message || 'Je ne peux pas répondre pour le moment.',
-        type: botResponse.type || 'text',
-        metadata: botResponse.metadata || {},
-        quickReplies: botResponse.quickReplies || []
+        message: parsedResponse.response?.greeting || 'Je ne peux pas répondre pour le moment.',
+        type: 'text',
+        metadata: {
+          // Store the questions and other data in a way that matches our type
+          productId: undefined,
+          moodboardId: undefined,
+          checklistId: undefined
+        },
+        quickReplies: parsedResponse.response?.questions?.map((q: any) => q.question) || []
       };
       
+      // Store additional data in the message if needed
+      if (parsedResponse.response?.next_steps) {
+        botResponse.message += '\n\n' + parsedResponse.response.next_steps;
+      }
+      
       console.log('✨ Réponse finale avec valeurs par défaut:', botResponse);
-    } catch (parseError) {
-      console.error('❌ Erreur de parsing JSON:', parseError);
-      console.error('Texte qui a causé l\'erreur:', cleanedText);
+    } catch (error) {
+      console.error('❌ Erreur de parsing JSON:', error);
+      console.error('❌ Message d\'erreur:', error instanceof Error ? error.message : 'Erreur inconnue');
+      console.error('❌ Texte qui a causé l\'erreur:', cleanedText);
+      console.error('❌ Type du texte qui a causé l\'erreur:', typeof cleanedText);
       // Return a default response if parsing fails
       botResponse = {
         message: 'Je ne peux pas traiter votre message pour le moment. Veuillez réessayer.',
