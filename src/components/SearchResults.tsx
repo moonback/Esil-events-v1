@@ -10,7 +10,6 @@ interface SearchResultsProps {
   query: string;
   onSelect: (product: Product) => void;
   onClose: () => void;
-  results: Product[];
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({ query, onSelect }) => {
@@ -91,9 +90,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ query, onSelect }) => {
                     </p>
                     {product.category && (
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {typeof product.category === 'string' 
-                          ? product.category.charAt(0).toUpperCase() + product.category.slice(1)
-                          : product.category[0].charAt(0).toUpperCase() + product.category[0].slice(1)}
+                        {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
                       </p>
                     )}
                   </div>
