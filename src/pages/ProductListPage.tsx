@@ -434,10 +434,13 @@ const ProductListPage: React.FC = () => {
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-2xl font-bold text-violet-600">
-                              {product.priceTTC.toFixed(2)}€
+                                  {product.priceTTC.toFixed(2)}€
                                 </p>
                                 <span className="text-sm text-gray-500 font-medium">
                                   TTC / jour
+                                </span>
+                                <span className="text-xs text-gray-400 block mt-1">
+                                  HT : {(product.priceTTC / 1.2).toFixed(2)}€
                                 </span>
                               </div>
                               <span className="text-sm font-semibold text-violet-600 flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -530,6 +533,9 @@ const ProductListPage: React.FC = () => {
                               </p>
                               <span className="text-sm text-gray-500 font-medium">
                                 TTC / jour
+                              </span>
+                              <span className="text-xs text-gray-400 block mt-1">
+                                HT : {(product.priceTTC / 1.2).toFixed(2)}€
                               </span>
                             </div>
                             
