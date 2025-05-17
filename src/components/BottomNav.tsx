@@ -1,11 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Package, ShoppingCart, User } from 'lucide-react';
+import { Home, Package, ShoppingCart, Scale } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useComparison } from '../context/ComparisonContext';
 
 const BottomNav: React.FC = () => {
   const { items } = useCart();
+  const { comparisonProducts } = useComparison();
   const totalItems = items.length;
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('/');
@@ -75,18 +76,23 @@ const BottomNav: React.FC = () => {
         </Link>
         
         <Link 
-          to="/contact" 
+          to="/compare" 
           className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-300 ${
-            isActive('/contact') ? 'text-violet-600' : 'text-gray-500'
+            isActive('/compare') ? 'text-violet-600' : 'text-gray-500'
           }`}
         >
           <div className="relative">
-            <User size={22} />
-            {isActive('/contact') && (
+            <Scale size={22} />
+            {comparisonProducts.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-violet-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                {comparisonProducts.length}
+              </span>
+            )}
+            {isActive('/compare') && (
               <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-violet-600 rounded-full"></span>
             )}
           </div>
-          <span className={`text-xs mt-1 font-medium ${isActive('/contact') ? 'text-violet-600' : 'text-gray-500'}`}>Contact</span>
+          <span className={`text-xs mt-1 font-medium ${isActive('/compare') ? 'text-violet-600' : 'text-gray-500'}`}>Comparer</span>
         </Link>
       </div>
     </div>
