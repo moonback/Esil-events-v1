@@ -29,10 +29,92 @@ let smtpConfig: SmtpConfig = {
   from: import.meta.env.VITE_SMTP_FROM || 'contact@esil-events.fr'
 };
 
-// Fonction pour mettre à jour la configuration SMTP
-export const updateSmtpConfig = (config: Partial<SmtpConfig>): void => {
-  smtpConfig = { ...smtpConfig, ...config };
-  console.log('Configuration SMTP mise à jour:', { ...smtpConfig, auth: { ...smtpConfig.auth, pass: '***' } });
+// Fonction pour sauvegarder la configuration SMTP
+export const saveSmtpConfig = async (config: SmtpConfig): Promise<{ success: boolean; error?: any }> => {
+  try {
+    // Sauvegarder dans le localStorage (sans le mot de passe)
+    const configToStore = {
+      ...config,
+      auth: {
+        user: config.auth.user
+      }
+    };
+    localStorage.setItem('smtpConfig', JSON.stringify(configToStore));
+
+    // Sauvegarder sur le backend via l'API
+    const apiUrl = 'http://localhost:3001/api/email/config';
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ config })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    // Mettre à jour la configuration en mémoire
+    smtpConfig = config;
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la configuration SMTP:', error);
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
+  }
+};
+
+// Fonction pour charger la configuration SMTP
+export const loadSmtpConfig = async (): Promise<{ success: boolean; error?: any }> => {
+  try {
+    // Charger depuis le localStorage
+    const storedConfig = localStorage.getItem('smtpConfig');
+    if (storedConfig) {
+      const parsedConfig = JSON.parse(storedConfig);
+      // Charger la configuration complète depuis le backend
+      const apiUrl = 'http://localhost:3001/api/email/config';
+      const response = await fetch(apiUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const backendConfig = await response.json();
+      smtpConfig = backendConfig;
+      return { success: true };
+    }
+
+    // Si aucune configuration n'est stockée, utiliser les valeurs par défaut
+    smtpConfig = {
+      host: import.meta.env.VITE_SMTP_HOST || 'smtp.ionos.fr',
+      port: Number(import.meta.env.VITE_SMTP_PORT) || 465,
+      secure: import.meta.env.VITE_SMTP_SECURE === 'false' ? false : true,
+      auth: {
+        user: import.meta.env.VITE_SMTP_USER || 'contact@esil-events.fr',
+        pass: import.meta.env.VITE_SMTP_PASS || ''
+      },
+      from: import.meta.env.VITE_SMTP_FROM || 'contact@esil-events.fr'
+    };
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur lors du chargement de la configuration SMTP:', error);
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
+  }
+};
+
+// Modifier la fonction updateSmtpConfig pour utiliser la persistance
+export const updateSmtpConfig = async (config: Partial<SmtpConfig>): Promise<{ success: boolean; error?: any }> => {
+  try {
+    const newConfig = { ...smtpConfig, ...config };
+    const result = await saveSmtpConfig(newConfig);
+    if (result.success) {
+      console.log('Configuration SMTP mise à jour:', { ...newConfig, auth: { ...newConfig.auth, pass: '***' } });
+    }
+    return result;
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la configuration SMTP:', error);
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
+  }
 };
 
 // Fonction pour récupérer la configuration SMTP actuelle (sans le mot de passe)
