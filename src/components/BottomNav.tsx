@@ -89,19 +89,19 @@ const BottomNav: React.FC = () => {
         </Link>
         
         <Link 
-          to="/contact" 
+          to="/compare" 
           className={`relative group flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 ${
-            isActive('/contact') ? 'bg-violet-600 text-white' : 'text-gray-600 hover:bg-violet-50'
+            isActive('/compare') ? 'bg-violet-600 text-white' : 'text-gray-600 hover:bg-violet-50'
           }`}
         >
           <User size={24} />
-          {isActive('/contact') && (
+          {isActive('/compare') && (
             <span className="absolute -right-1 top-1/2 -translate-y-1/2 w-1 h-8 bg-violet-600 rounded-full"></span>
           )}
           <span className={`absolute right-full mr-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap ${
             isExpanded ? 'opacity-100' : ''
           }`}>
-            Contact
+            Comparer
           </span>
         </Link>
       </div>
