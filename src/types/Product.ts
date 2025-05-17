@@ -2,16 +2,9 @@ export interface Product {
   id: string;
   name: string;
   reference: string;
-  // Modification pour permettre plusieurs catégories
-  category: string | string[];
-  subCategory: string | string[];
-  subSubCategory: string | string[];
-  // Nouveaux champs pour stocker les relations catégorie-sous-catégorie-sous-sous-catégorie
-  categoryRelations?: Array<{
-    category: string;
-    subCategory?: string;
-    subSubCategory?: string;
-  }>;
+  category: string;
+  subCategory: string;
+  subSubCategory: string;
   description: string;
   priceHT: number;
   priceTTC: number;
