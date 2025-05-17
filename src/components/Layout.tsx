@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import SEO from './SEO';
+import BottomNav from './BottomNav';
 import { seoConfig } from '../config/seo';
 
 const Layout: React.FC = () => {
@@ -55,6 +56,7 @@ const Layout: React.FC = () => {
       <main className="flex-grow">
         <Outlet />
       </main>
+      <BottomNav />
       <Footer />
     </div>
   );
