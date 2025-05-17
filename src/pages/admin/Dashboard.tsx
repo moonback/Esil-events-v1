@@ -48,7 +48,13 @@ interface DashboardStats {
   monthlyTrend: number;
 }
 
-
+interface QuoteRequest {
+  id: string;
+  status: string;
+  created_at: string;
+  total_amount?: number;
+  // ... autres propriétés existantes
+}
 
 // Composant de chargement
 const StatCardSkeleton: React.FC = () => (
@@ -150,12 +156,50 @@ const AdminDashboard: React.FC = () => {
       const pendingQuotes = quoteRequests.data?.filter(q => q.status === 'pending').length || 0;
       const approvedQuotes = quoteRequests.data?.filter(q => q.status === 'approved').length || 0;
       
-      // Estimation de revenus (fictif pour la démo)
-      const avgQuoteValue = 1250; // Valeur moyenne d'un devis en euros
-      const revenueEstimate = approvedQuotes * avgQuoteValue;
+      // Calcul des revenus réels basé sur les devis approuvés
+      const revenueEstimate = quoteRequests.data
+        ?.filter(q => q.status === 'approved')
+        .reduce((total, quote) => {
+          const quoteTotal = quote.items?.reduce((sum, item) => 
+            sum + ((item.quantity || 0) * (item.price || 0)), 0) || 0;
+          return total + quoteTotal;
+        }, 0) || 0;
       
-      // Tendance mensuelle (fictive pour la démo)
-      const monthlyTrend = 8.5;
+      // Calcul de la tendance mensuelle réelle
+      const currentMonth = new Date().getMonth();
+      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const currentYear = new Date().getFullYear();
+      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+      const currentMonthQuotes = quoteRequests.data?.filter(q => {
+        const quoteDate = new Date(q.created_at || '');
+        return quoteDate.getMonth() === currentMonth && quoteDate.getFullYear() === currentYear;
+      }) || [];
+
+      const lastMonthQuotes = quoteRequests.data?.filter(q => {
+        const quoteDate = new Date(q.created_at || '');
+        return quoteDate.getMonth() === lastMonth && quoteDate.getFullYear() === lastMonthYear;
+      }) || [];
+
+      const currentMonthRevenue = currentMonthQuotes
+        .filter(q => q.status === 'approved')
+        .reduce((total, quote) => {
+          const quoteTotal = quote.items?.reduce((sum, item) => 
+            sum + ((item.quantity || 0) * (item.price || 0)), 0) || 0;
+          return total + quoteTotal;
+        }, 0);
+
+      const lastMonthRevenue = lastMonthQuotes
+        .filter(q => q.status === 'approved')
+        .reduce((total, quote) => {
+          const quoteTotal = quote.items?.reduce((sum, item) => 
+            sum + ((item.quantity || 0) * (item.price || 0)), 0) || 0;
+          return total + quoteTotal;
+        }, 0);
+
+      const monthlyTrend = lastMonthRevenue === 0 
+        ? 100 
+        : ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100;
 
       setStats({
         productsCount: products.length,
@@ -165,7 +209,7 @@ const AdminDashboard: React.FC = () => {
         pendingQuoteRequests: pendingQuotes,
         approvedQuoteRequests: approvedQuotes,
         revenueEstimate: revenueEstimate,
-        monthlyTrend: monthlyTrend,
+        monthlyTrend: Math.round(monthlyTrend * 10) / 10, // Arrondir à 1 décimale
       });
       
       setLastUpdate(new Date());
