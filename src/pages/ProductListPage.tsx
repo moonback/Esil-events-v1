@@ -408,6 +408,12 @@ const ProductListPage: React.FC = () => {
                               {product.isAvailable ? 'Disponible' : 'Indisponible'}
                             </span>
                           )}
+                          {/* Badge Nouveau */}
+                          {product.createdAt && (new Date().getTime() - new Date(product.createdAt).getTime() < 15 * 24 * 60 * 60 * 1000) && (
+                            <span className="absolute top-3 left-3 z-10 px-3 py-1.5 text-xs font-bold rounded-full shadow-sm bg-yellow-100 text-yellow-800 animate-pulse">
+                              Nouveau à la location
+                            </span>
+                          )}
                           
                           {/* Product image with hover effect */}
                           <div className="aspect-w-1 aspect-h-1 w-full h-64 overflow-hidden bg-gray-50 flex items-center justify-center p-6">
@@ -496,6 +502,12 @@ const ProductListPage: React.FC = () => {
                                 : 'bg-red-100 text-red-800'
                             }`}>
                               {product.isAvailable ? 'Disponible' : 'Indisponible'}
+                            </span>
+                          )}
+                          {/* Badge Nouveau */}
+                          {product.createdAt && (new Date().getTime() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000) && (
+                            <span className="absolute top-3 left-3 z-10 px-3 py-1.5 text-xs font-bold rounded-full shadow-sm bg-yellow-100 text-yellow-800 animate-pulse">
+                              Nouveau
                             </span>
                           )}
                           
