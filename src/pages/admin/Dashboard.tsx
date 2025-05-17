@@ -269,13 +269,29 @@ const AdminDashboard: React.FC = () => {
             <div className="absolute -top-8 -left-8 w-40 h-40 bg-indigo-300/10 rotate-45 rounded-xl blur-xl"></div>
             
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between relative z-10">
-              <div>
-                <h1 className="text-4xl font-bold text-white mb-2">
-                  Bonjour, Admin 👋
-                </h1>
-                <p className="text-indigo-100 opacity-90 max-w-xl">
-                  Bienvenue sur votre tableau de bord. Vous avez <span className="font-semibold">{stats.pendingQuoteRequests} devis</span> en attente aujourd'hui.
-                </p>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <h1 className="text-4xl font-bold text-white">
+                    Bonjour, Admin
+                  </h1>
+                  <span className="text-3xl animate-bounce">👋</span>
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <p className="text-indigo-100 opacity-90 max-w-xl">
+                    Bienvenue sur votre tableau de bord.
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-indigo-100 opacity-90">
+                      Vous avez
+                    </span>
+                    <span className="px-3 py-1 bg-white/20 rounded-full text-white font-semibold">
+                      {stats.pendingQuoteRequests} devis
+                    </span>
+                    <span className="text-indigo-100 opacity-90">
+                      en attente aujourd'hui
+                    </span>
+                  </div>
+                </div>
               </div>
               
               <div className="mt-4 md:mt-0 flex items-center space-x-4">
