@@ -181,10 +181,11 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         </div>
 
         {/* Colors */}
+        {Array.from(new Set(products.flatMap(product => product.colors || []))).map(color => (
+
         <div className="mb-8">
           <h4 className="font-medium mb-4 text-gray-900">Couleurs</h4>
           <div className="flex flex-wrap gap-2">
-            {Array.from(new Set(products.flatMap(product => product.colors || []))).map(color => (
               <button
                 key={color}
                 onClick={() => setSelectedColors(
@@ -200,10 +201,9 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
               >
                 {color}
               </button>
-            ))}
           </div>
         </div>
-        
+        ))}
 
         {/* Sort By */}
         <div className="mb-6">
