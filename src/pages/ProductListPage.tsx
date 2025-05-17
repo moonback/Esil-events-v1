@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Filter, ChevronDown } from 'lucide-react';
+import { Filter, ChevronDown, Scale } from 'lucide-react';
 import { getAllProducts, getProductsByCategory, getProductsBySubCategory, getProductsBySubSubCategory } from '../services/productService';
 import { Category, getAllCategories } from '../services/categoryService';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
@@ -8,6 +8,8 @@ import ProductFilters from '../components/product-list/ProductFilters';
 import { useProductFilters } from '../hooks/useProductFilters';
 import { Product } from '../types/Product';
 import SEO from '../components/SEO';
+import ComparisonBar from '../components/product-list/ComparisonBar';
+import { useComparison } from '../context/ComparisonContext';
 
 // Using Product type from types/Product.ts
 
@@ -46,6 +48,8 @@ const ProductListPage: React.FC = () => {
     totalPages,
     itemsPerPage
   } = useProductFilters(products, category, 12);
+
+  const { addToComparison, isInComparison } = useComparison();
 
   // Ajouter l'effet pour le défilement vers le haut
   useEffect(() => {
@@ -342,46 +346,129 @@ const ProductListPage: React.FC = () => {
               displayMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                   {currentItems.map((product) => (
-                    <Link
-                      key={product.id}
-                      to={`/product/${product.slug}`}
-                      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col h-full transform hover:-translate-y-2"
-                    >
-                      <div className="relative">
-                        {/* Badge for availability status */}
-                        {product.isAvailable !== undefined && (
-                          <span className={`absolute top-3 right-3 z-10 px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${
-                            product.isAvailable 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {product.isAvailable ? 'Disponible' : 'Indisponible'}
-                          </span>
-                        )}
-                        
-                        {/* Product image with hover effect */}
-                        <div className="aspect-w-1 aspect-h-1 w-full h-64 overflow-hidden bg-gray-50 flex items-center justify-center p-6">
-                          <img
-                            src={product.images && product.images.length > 0 
-                              ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
-                                ? product.images[product.mainImageIndex] 
-                                : product.images[0])
-                              : DEFAULT_PRODUCT_IMAGE}
-                            alt={product.name}
-                            className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500"
-                          />
+                    <div key={product.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col h-full transform hover:-translate-y-2">
+                      <Link
+                        to={`/product/${product.slug}`}
+                        className="flex-grow"
+                      >
+                        <div className="relative">
+                          {/* Badge for availability status */}
+                          {product.isAvailable !== undefined && (
+                            <span className={`absolute top-3 right-3 z-10 px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${
+                              product.isAvailable 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {product.isAvailable ? 'Disponible' : 'Indisponible'}
+                            </span>
+                          )}
+                          
+                          {/* Product image with hover effect */}
+                          <div className="aspect-w-1 aspect-h-1 w-full h-64 overflow-hidden bg-gray-50 flex items-center justify-center p-6">
+                            <img
+                              src={product.images && product.images.length > 0 
+                                ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
+                                  ? product.images[product.mainImageIndex] 
+                                  : product.images[0])
+                                : DEFAULT_PRODUCT_IMAGE}
+                              alt={product.name}
+                              className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                            />
+                          </div>
                         </div>
+                        
+                        <div className="p-6 flex-grow flex flex-col bg-white rounded-b-2xl">
+                          <h3 className="text-lg font-bold text-gray-900 group-hover:text-violet-700 transition-colors line-clamp-2 mb-2">
+                            {product.name}
+                          </h3>
+                          <p className="text-sm text-gray-500 mb-4 font-medium">
+                            Réf: {product.reference}
+                          </p>
+                          <div className="mt-auto pt-4 border-t border-gray-100">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-2xl font-bold text-violet-600">
+                                  {product.priceTTC.toFixed(2)}€
+                                </p>
+                                <span className="text-sm text-gray-500 font-medium">
+                                  TTC / jour
+                                </span>
+                              </div>
+                              <span className="text-sm font-semibold text-violet-600 flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                Voir
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                      <div className="p-4 border-t border-gray-100">
+                        <button
+                          onClick={() => addToComparison(product)}
+                          disabled={isInComparison(product.id)}
+                          className={`w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            isInComparison(product.id)
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-violet-50 text-violet-700 hover:bg-violet-100'
+                          }`}
+                        >
+                          <Scale className="h-4 w-4 mr-2" />
+                          {isInComparison(product.id) ? 'Ajouté à la comparaison' : 'Comparer'}
+                        </button>
                       </div>
-                      
-                      <div className="p-6 flex-grow flex flex-col bg-white rounded-b-2xl">
-                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-violet-700 transition-colors line-clamp-2 mb-2">
-                          {product.name}
-                        </h3>
-                        <p className="text-sm text-gray-500 mb-4 font-medium">
-                          Réf: {product.reference}
-                        </p>
-                        <div className="mt-auto pt-4 border-t border-gray-100">
-                          <div className="flex items-center justify-between">
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col space-y-6">
+                  {currentItems.map((product) => (
+                    <div key={product.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-row transform hover:-translate-y-1">
+                      <Link
+                        to={`/product/${product.slug}`}
+                        className="flex-grow"
+                      >
+                        <div className="relative w-1/4 min-w-[200px]">
+                          {/* Badge for availability status */}
+                          {product.isAvailable !== undefined && (
+                            <span className={`absolute top-3 right-3 z-10 px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${
+                              product.isAvailable 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {product.isAvailable ? 'Disponible' : 'Indisponible'}
+                            </span>
+                          )}
+                          
+                          {/* Product image */}
+                          <div className="h-full overflow-hidden bg-gray-50 flex items-center justify-center p-6">
+                            <img
+                              src={product.images && product.images.length > 0 
+                                ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
+                                  ? product.images[product.mainImageIndex] 
+                                  : product.images[0])
+                                : DEFAULT_PRODUCT_IMAGE}
+                              alt={product.name}
+                              className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="p-8 flex-grow flex flex-col justify-between">
+                          <div>
+                            <h3 className="text-xl font-bold text-gray-900 group-hover:text-violet-700 transition-colors mb-3">
+                              {product.name}
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-3 font-medium">
+                              Réf: {product.reference}
+                            </p>
+                            <p className="text-gray-600 mb-4 line-clamp-2">
+                              {product.description || 'Aucune description disponible'}
+                            </p>
+                          </div>
+                          
+                          <div className="flex items-center justify-between mt-4">
                             <div>
                               <p className="text-2xl font-bold text-violet-600">
                                 {product.priceTTC.toFixed(2)}€
@@ -390,84 +477,31 @@ const ProductListPage: React.FC = () => {
                                 TTC / jour
                               </span>
                             </div>
-                            <span className="text-sm font-semibold text-violet-600 flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                              Voir
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            
+                            <span className="text-sm font-semibold text-violet-600 flex items-center px-4 py-2 rounded-lg bg-violet-50 group-hover:bg-violet-100 transition-colors duration-200">
+                              Voir le produit
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                               </svg>
                             </span>
                           </div>
                         </div>
+                      </Link>
+                      <div className="p-4 border-l border-gray-100 flex items-center">
+                        <button
+                          onClick={() => addToComparison(product)}
+                          disabled={isInComparison(product.id)}
+                          className={`flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            isInComparison(product.id)
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-violet-50 text-violet-700 hover:bg-violet-100'
+                          }`}
+                        >
+                          <Scale className="h-4 w-4 mr-2" />
+                          {isInComparison(product.id) ? 'Ajouté à la comparaison' : 'Comparer'}
+                        </button>
                       </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col space-y-6">
-                  {currentItems.map((product) => (
-                    <Link
-                      key={product.id}
-                      to={`/product/${product.slug}`}
-                      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-row transform hover:-translate-y-1"
-                    >
-                      <div className="relative w-1/4 min-w-[200px]">
-                        {/* Badge for availability status */}
-                        {product.isAvailable !== undefined && (
-                          <span className={`absolute top-3 right-3 z-10 px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${
-                            product.isAvailable 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {product.isAvailable ? 'Disponible' : 'Indisponible'}
-                          </span>
-                        )}
-                        
-                        {/* Product image */}
-                        <div className="h-full overflow-hidden bg-gray-50 flex items-center justify-center p-6">
-                          <img
-                            src={product.images && product.images.length > 0 
-                              ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
-                                ? product.images[product.mainImageIndex] 
-                                : product.images[0])
-                              : DEFAULT_PRODUCT_IMAGE}
-                            alt={product.name}
-                            className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="p-8 flex-grow flex flex-col justify-between">
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900 group-hover:text-violet-700 transition-colors mb-3">
-                            {product.name}
-                          </h3>
-                          <p className="text-sm text-gray-500 mb-3 font-medium">
-                            Réf: {product.reference}
-                          </p>
-                          <p className="text-gray-600 mb-4 line-clamp-2">
-                            {product.description || 'Aucune description disponible'}
-                          </p>
-                        </div>
-                        
-                        <div className="flex items-center justify-between mt-4">
-                          <div>
-                            <p className="text-2xl font-bold text-violet-600">
-                              {product.priceTTC.toFixed(2)}€
-                            </p>
-                            <span className="text-sm text-gray-500 font-medium">
-                              TTC / jour
-                            </span>
-                          </div>
-                          
-                          <span className="text-sm font-semibold text-violet-600 flex items-center px-4 py-2 rounded-lg bg-violet-50 group-hover:bg-violet-100 transition-colors duration-200">
-                            Voir le produit
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
               )
@@ -535,6 +569,9 @@ const ProductListPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Comparison Bar */}
+      <ComparisonBar />
     </>
   );
 };
