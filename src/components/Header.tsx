@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, X, User, Settings, Mail, Phone, Sun, Moon, ChevronDown, Package, LogOut } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, Settings, Mail, Phone, Sun, Moon, ChevronDown, Package, LogOut, Scale } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useComparison } from '../context/ComparisonContext';
 import { useAuth } from '../hooks/useAuth';
 import MegaMenu from './MegaMenu';
 import SearchBar from './SearchBar';
@@ -20,6 +21,7 @@ const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
  
   const { items } = useCart();
+  const { comparisonProducts } = useComparison();
   const { user, isAdminUser } = useAuth();
   const navigate = useNavigate();
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -235,6 +237,21 @@ const Header: React.FC = () => {
               </div>
 
               <div className="flex items-center space-x-3">
+                {/* Comparison Button with Animation */}
+                <Link 
+                  to="/compare" 
+                  className="relative group p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 transform hover:scale-110 hover:shadow-md hover:ring-2 hover:ring-primary-500/30 hover:animate-bounce"
+                  aria-label="Comparer les produits"
+                >
+                  <Scale className="w-5 h-5 text-gray-700 dark:text-gray-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-all duration-300 transform group-hover:rotate-12" />
+                  {comparisonProducts.length > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg animate-pulse-fast shadow-md">
+                      {comparisonProducts.length}
+                    </span>
+                  )}
+                  <span className="absolute inset-0 rounded-full bg-primary-200 dark:bg-primary-700 opacity-0 group-hover:opacity-20 transform scale-0 group-hover:scale-100 transition-all duration-300"></span>
+                </Link>
+
                 {/* Cart Button with Animation */}
                 <Link 
                   to="/cart" 
