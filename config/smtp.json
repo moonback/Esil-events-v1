@@ -1,0 +1,10 @@
+{
+  "host": "smtp.ionos.fr",
+  "port": 465,
+  "secure": true,
+  "auth": {
+    "user": "contact@esil-events.fr",
+    "pass": "Yoann-36100!"
+  },
+  "from": "contact@esil-events.fr"
+}

@@ -108,7 +108,6 @@ const Header: React.FC = () => {
                     <SearchResults 
                       query={searchQuery} 
                       onClose={() => setSearchQuery('')} 
-                      results={[]} 
                       onSelect={(product) => {
                         setSearchQuery('');
                         navigate(`/product/${product.slug}`);
