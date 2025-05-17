@@ -5,8 +5,8 @@ import { Sun, Moon, Gift, Heart, Ghost } from 'lucide-react';
 const themeOptions: { value: Theme; label: string; icon: JSX.Element }[] = [
   { value: 'default', label: 'Défaut', icon: <Sun className="w-4 h-4" /> },
   { value: 'noel', label: 'Noël', icon: <Gift className="w-4 h-4" /> },
-  { value: 'saint-valentin', label: 'Saint-Valentin', icon: <Heart className="w-4 h-4" /> },
   { value: 'halloween', label: 'Halloween', icon: <Ghost className="w-4 h-4" /> },
+  { value: 'saint-valentin', label: 'Saint-Valentin', icon: <Heart className="w-4 h-4" /> },
 ];
 
 const ThemeSelector: React.FC = () => {

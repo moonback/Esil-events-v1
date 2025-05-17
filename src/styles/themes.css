@@ -27,17 +27,17 @@
     --theme-font-family: 'Mountains of Christmas', cursive;
   }
   [data-theme="halloween"] {
-      --theme-primary-color: #C53030; /* Rouge Noël */
-      --theme-secondary-color: #2F855A; /* Vert Noël */
-      --theme-accent-color: #D69E2E; /* Or */
-      --theme-background-color: #F0FFF4; /* Vert très clair */
-      --theme-text-color: #2D3748; /* Gris foncé */
-      --theme-text-light-color: #4A5568; /* Gris moyen */
-      --theme-header-background: rgba(229, 240, 229, 0.9); /* Vert pâle transparent */
-      --theme-footer-background-from: #2F855A;
-      --theme-footer-background-to: #1A4731;
-      --theme-footer-text-color: #E6FFFA;
-      --theme-font-family: 'Mountains of Christmas', cursive;
+      --theme-primary-color: #7C3AED; /* Violet foncé */
+      --theme-secondary-color: #F59E0B; /* Orange */
+      --theme-accent-color: #EF4444; /* Rouge */
+      --theme-background-color: #1F2937; /* Gris très foncé */
+      --theme-text-color: #F3F4F6; /* Gris très clair */
+      --theme-text-light-color: #D1D5DB; /* Gris clair */
+      --theme-header-background: rgba(31, 41, 55, 0.9); /* Gris foncé transparent */
+      --theme-footer-background-from: #111827;
+      --theme-footer-background-to: #000000;
+      --theme-footer-text-color: #F3F4F6;
+      --theme-font-family: 'Code Pro', sans-serif;
     }
   
   [data-theme="saint-valentin"] {

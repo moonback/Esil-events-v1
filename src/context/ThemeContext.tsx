@@ -20,13 +20,11 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => {
     const loadTheme = async () => {
       try {
-        // Essayer de charger le thème depuis le serveur
         const serverTheme = await getCurrentThemeSetting();
         if (serverTheme) {
           setThemeState(serverTheme);
           localStorage.setItem(THEME_STORAGE_KEY, serverTheme);
         } else {
-          // Fallback sur localStorage
           const storedTheme = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
           if (storedTheme) setThemeState(storedTheme);
         }
@@ -47,7 +45,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     localStorage.setItem(THEME_STORAGE_KEY, newTheme);
     
     try {
-      // Sauvegarder le thème sur le serveur
       await updateCurrentThemeSetting(newTheme);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde du thème sur le serveur:', error);
