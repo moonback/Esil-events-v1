@@ -118,12 +118,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   
-  // Effect to handle initial animation
   useEffect(() => {
     setMounted(true);
   }, []);
   
-  // Toggle sidebar collapse state - mémorisé pour éviter les re-rendus inutiles
   const toggleSidebar = useCallback(() => {
     setCollapsed(prev => !prev);
   }, []);
@@ -146,17 +144,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { label: 'Mots-clés', icon: <FileText className="w-5 h-5" />, path: '/admin/keyword-rankings' },
   ];
 
-  // Fonction pour déterminer si un élément de menu est actif
   const isMenuItemActive = useCallback((path: string) => {
     return location.pathname === path;
   }, [location.pathname]);
 
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 flex transition-opacity duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-      {/* Mobile Menu Button - Enhanced with animations */}
+      {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="md:hidden fixed top-4 left-4 z-20 p-2.5 rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md active:scale-95"
+        className="md:hidden fixed top-4 left-4 z-[60] p-2.5 rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md active:scale-95"
       >
         {isMobileMenuOpen ? (
           <X className="w-5 h-5 text-gray-700 dark:text-gray-300" />
@@ -165,14 +162,22 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         )}
       </button>
 
-      {/* Sidebar - Enhanced with glass morphism effect and animations */}
+      {/* Overlay for mobile */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[55] md:hidden transition-opacity duration-300"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
       <aside 
-        className={`fixed inset-y-0 left-0 ${collapsed ? 'w-20' : 'w-64'} bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-r border-gray-200/80 dark:border-gray-700/80 shadow-xl z-10 transform transition-all duration-300 ease-in-out md:translate-x-0 ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 ${collapsed ? 'w-20' : 'w-64'} bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-r border-gray-200/80 dark:border-gray-700/80 shadow-xl z-[60] transform transition-all duration-300 ease-in-out md:translate-x-0 ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Logo and Toggle - Enhanced with better spacing and animations */}
+          {/* Logo and Toggle */}
           <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200/80 dark:border-gray-700/80">
             <Logo collapsed={collapsed} />
             <button 
@@ -187,10 +192,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </button>
           </div>
 
-          {/* Navigation - Enhanced with better spacing and scrollbar styling */}
+          {/* Navigation */}
           <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-            {/* <UserWelcome user={user} collapsed={collapsed} /> */}
-            
             <div className="space-y-1.5">
               {menuItems.map((item) => (
                 <NavItem 
@@ -204,7 +207,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </div>
           </nav>
 
-          {/* Bottom Section - Enhanced with better styling */}
+          {/* Bottom Section */}
           <div className="p-4 border-t border-gray-200/80 dark:border-gray-700/80">
             {!collapsed ? (
               <button
@@ -243,15 +246,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </div>
       </aside>
 
-      {/* Overlay for mobile - Enhanced with better blur effect */}
-      {isMobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[5] md:hidden transition-opacity duration-300"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* Main Content - Enhanced with better transitions and padding */}
+      {/* Main Content */}
       <div className={`w-full ${collapsed ? 'md:pl-20' : 'md:pl-64'} transition-all duration-300 ease-in-out`}>
         <main className="min-h-screen p-4 md:p-8 transition-all duration-300">
           {children}
