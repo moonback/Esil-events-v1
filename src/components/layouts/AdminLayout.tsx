@@ -17,7 +17,8 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
-  Calendar
+  Calendar,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { signOut } from '../../services/authService';
@@ -137,6 +138,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { label: 'Réalisations', icon: <FileText className="w-5 h-5" />, path: '/admin/realizations' },
     { label: 'Annonces', icon: <AlertCircle className="w-5 h-5" />, path: '/admin/announcements' },
     { label: 'Newsletter', icon: <Mail className="w-5 h-5" />, path: '/admin/newsletter' },
+    { label: 'Paramètres', icon: <Settings className="w-5 h-5" />, path: '/admin/settings' },
     // { label: 'Clients', icon: <Users className="w-5 h-5" />, path: '/admin/customers' },
     // { label: 'Pages', icon: <FileText className="w-5 h-5" />, path: '/admin/pages' },
     { label: 'Emails', icon: <Mail className="w-5 h-5" />, path: '/admin/email-config' },

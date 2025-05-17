@@ -1,0 +1,55 @@
+/* Thème par Défaut */
+:root {
+    --theme-primary-color: #6D28D9; /* Violet */
+    --theme-secondary-color: #4F46E5; /* Indigo */
+    --theme-accent-color: #EC4899; /* Pink */
+    --theme-background-color: #FFFFFF;
+    --theme-text-color: #1F2937; /* Gray-800 */
+    --theme-text-light-color: #6B7280; /* Gray-500 */
+    --theme-header-background: rgba(255, 255, 255, 0.85);
+    --theme-footer-background-from: #111827; /* Gray-900 */
+    --theme-footer-background-to: #000000; /* Black */
+    --theme-footer-text-color: #D1D5DB; /* Gray-300 */
+    --theme-font-family: 'Code Pro', sans-serif;
+  }
+  
+  [data-theme="noel"] {
+    --theme-primary-color: #C53030; /* Rouge Noël */
+    --theme-secondary-color: #2F855A; /* Vert Noël */
+    --theme-accent-color: #D69E2E; /* Or */
+    --theme-background-color: #F0FFF4; /* Vert très clair */
+    --theme-text-color: #2D3748; /* Gris foncé */
+    --theme-text-light-color: #4A5568; /* Gris moyen */
+    --theme-header-background: rgba(229, 240, 229, 0.9); /* Vert pâle transparent */
+    --theme-footer-background-from: #2F855A;
+    --theme-footer-background-to: #1A4731;
+    --theme-footer-text-color: #E6FFFA;
+    --theme-font-family: 'Mountains of Christmas', cursive;
+  }
+  [data-theme="halloween"] {
+      --theme-primary-color: #C53030; /* Rouge Noël */
+      --theme-secondary-color: #2F855A; /* Vert Noël */
+      --theme-accent-color: #D69E2E; /* Or */
+      --theme-background-color: #F0FFF4; /* Vert très clair */
+      --theme-text-color: #2D3748; /* Gris foncé */
+      --theme-text-light-color: #4A5568; /* Gris moyen */
+      --theme-header-background: rgba(229, 240, 229, 0.9); /* Vert pâle transparent */
+      --theme-footer-background-from: #2F855A;
+      --theme-footer-background-to: #1A4731;
+      --theme-footer-text-color: #E6FFFA;
+      --theme-font-family: 'Mountains of Christmas', cursive;
+    }
+  
+  [data-theme="saint-valentin"] {
+    --theme-primary-color: #E53E3E; /* Rouge St Valentin */
+    --theme-secondary-color: #D53F8C; /* Rose St Valentin */
+    --theme-accent-color: #FBBF24; /* Jaune doux */
+    --theme-background-color: #FFF5F5; /* Rose très clair */
+    --theme-text-color: #4A044E; /* Violet foncé */
+    --theme-text-light-color: #702459; /* Violet moyen */
+    --theme-header-background: rgba(254, 228, 228, 0.9); /* Rose pâle transparent */
+    --theme-footer-background-from: #D53F8C;
+    --theme-footer-background-to: #9D174D;
+    --theme-footer-text-color: #FCE7F3;
+    --theme-font-family: 'Code Pro', sans-serif;
+  } 
