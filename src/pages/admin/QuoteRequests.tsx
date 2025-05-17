@@ -160,7 +160,7 @@ const QuoteRequestsAdmin: React.FC = () => {
             <div className="flex gap-4">
               <Link
                 to="/admin/quote-requests/calendar"
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
+                className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors flex items-center"
               >
                 <Calendar className="w-5 h-5 mr-2" />
                 Voir l'agenda
