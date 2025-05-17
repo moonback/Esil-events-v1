@@ -237,7 +237,7 @@ const ProductListPage: React.FC = () => {
             {categoryInfo.name || 'Tous nos produits'}
           </h1>
           {categoryInfo.description && (
-            <p className="text-gray-600 text-lg leading-relaxed max-w-3xl">{categoryInfo.description}</p>
+            <p className="text-gray-600 text-lg leading-relaxed max-w-8xl">{categoryInfo.description}</p>
           )}
         </div>
 
