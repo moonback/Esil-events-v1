@@ -9,7 +9,8 @@ export const Chatbot: React.FC = () => {
     isLoading,
     isOpen,
     sendMessage,
-    toggleChat
+    toggleChat,
+    resetChat
   } = useChatbot();
 
   return (
@@ -20,6 +21,7 @@ export const Chatbot: React.FC = () => {
           messages={messages}
           onClose={toggleChat}
           onSendMessage={sendMessage}
+          onReset={resetChat}
           isLoading={isLoading}
         />
       )}

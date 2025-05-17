@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaRedo } from 'react-icons/fa';
 import { Message } from './types';
 import { ProductSuggestionCard } from './ProductSuggestionCard';
 import { MoodboardCard } from './MoodboardCard';
@@ -122,10 +122,33 @@ const QuickReplyButton = styled.button`
   }
 `;
 
+const HeaderButton = styled.button`
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+`;
+
+const HeaderButtons = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
 interface ChatWindowProps {
   messages: Message[];
   onClose: () => void;
   onSendMessage: (message: string) => void;
+  onReset: () => void;
   isLoading: boolean;
 }
 
@@ -133,6 +156,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   messages,
   onClose,
   onSendMessage,
+  onReset,
   isLoading
 }) => {
   const [inputValue, setInputValue] = useState('');
@@ -218,9 +242,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     <ChatContainer>
       <ChatHeader>
         <h3>Assistant Événementiel</h3>
-        <CloseButton onClick={onClose} aria-label="Fermer le chat">
-          <FaTimes />
-        </CloseButton>
+        <HeaderButtons>
+          <HeaderButton onClick={onReset} aria-label="Réinitialiser la conversation">
+            <FaRedo />
+          </HeaderButton>
+          <HeaderButton onClick={onClose} aria-label="Fermer le chat">
+            <FaTimes />
+          </HeaderButton>
+        </HeaderButtons>
       </ChatHeader>
       
       <MessagesContainer>

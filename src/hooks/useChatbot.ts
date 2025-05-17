@@ -92,6 +92,17 @@ export const useChatbot = () => {
     }));
   }, []);
 
+  const resetChat = useCallback(() => {
+    if (window.confirm('Êtes-vous sûr de vouloir réinitialiser la conversation ?')) {
+      setState(prev => ({
+        ...prev,
+        messages: [],
+        context: {},
+        error: null
+      }));
+    }
+  }, []);
+
   const updateContext = useCallback((newContext: Partial<ChatState['context']>) => {
     setState(prev => ({
       ...prev,
@@ -106,6 +117,7 @@ export const useChatbot = () => {
     ...state,
     sendMessage,
     toggleChat,
-    updateContext
+    updateContext,
+    resetChat
   };
 }; 

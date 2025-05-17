@@ -40,4 +40,12 @@ export interface BotResponse {
 export interface ChatbotProps {
   onClose?: () => void;
   initialMessage?: string;
+}
+
+export interface MessageMetadata {
+  productId?: string;
+  moodboardId?: string;
+  checklistId?: string;
+  quickReplies?: string[];
+  eventType?: string;
 } 

@@ -17,7 +17,7 @@ interface ChatContext {
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
 
 const SYSTEM_PROMPT = `Tu es un assistant expert en événementiel, spécialisé dans la location de matériel pour événements.
-Ton rôle est d'aider les utilisateurs à planifier leurs événements en leur suggérant le matériel approprié.
+Ton rôle est d'aider les utilisateurs à planifier leurs événements en leur suggérant le matériel approprié et des inspirations visuelles.
 
 Directives importantes :
 1. Sois professionnel, amical et précis dans tes recommandations
@@ -26,6 +26,7 @@ Directives importantes :
 4. Propose des solutions créatives et personnalisées
 5. N'hésite pas à suggérer des combinaisons de matériel complémentaires
 6. Prends en compte les tendances actuelles en décoration événementielle
+7. Suggère des moodboards pertinents pour inspirer les utilisateurs
 
 Format de réponse attendu (en JSON) :
 {
@@ -69,6 +70,9 @@ const getDynamicQuickReplies = (context: ChatContext, lastMessage: string, confi
       if (!context.theme && eventTypeConfig.themes.length > 0) {
         replies.push(`Quel thème vous inspire le plus : ${eventTypeConfig.themes.join(', ')} ?`);
       }
+      
+      // Ajouter une suggestion de moodboard
+      replies.push(`Voulez-vous voir des inspirations visuelles pour votre ${context.eventType} ?`);
     }
   }
 
@@ -78,6 +82,9 @@ const getDynamicQuickReplies = (context: ChatContext, lastMessage: string, confi
   }
   if (lastMessage.toLowerCase().includes('style') || lastMessage.toLowerCase().includes('thème')) {
     replies.push('Voulez-vous voir des exemples de décoration dans ce style ?');
+  }
+  if (lastMessage.toLowerCase().includes('inspiration') || lastMessage.toLowerCase().includes('idée')) {
+    replies.push('Je peux vous montrer des moodboards d\'inspiration');
   }
   if (lastMessage.toLowerCase().includes('invités') || lastMessage.toLowerCase().includes('personnes')) {
     replies.push('Souhaitez-vous des suggestions adaptées à ce nombre de personnes ?');
@@ -98,8 +105,15 @@ export const processUserMessage = async (
   context: ChatContext
 ): Promise<BotResponse> => {
   try {
+    console.log('🚀 Début du traitement du message:', { userInput, context });
+    
     const { loadConfig } = useAdminService();
     const config = loadConfig();
+    console.log('📋 Configuration chargée:', config);
+
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    console.log('🔑 API Key présente:', !!apiKey);
+
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const chatHistory = formatChatHistory(history);
     
@@ -115,20 +129,34 @@ Message de l'utilisateur: ${userInput}
 
 Réponds uniquement au format JSON spécifié ci-dessus.`;
 
+    console.log('📝 Prompt préparé:', prompt);
+
+    console.log('⏳ Envoi de la requête à Gemini...');
     const result = await model.generateContent(prompt);
+    console.log('✅ Réponse reçue de Gemini');
+    
     const response = await result.response;
     const text = response.text();
+    console.log('📨 Texte brut reçu:', text);
     
     const cleanedText = cleanJsonResponse(text);
+    console.log('🧹 Texte nettoyé:', cleanedText);
+    
     const botResponse: BotResponse = JSON.parse(cleanedText);
+    console.log('🔄 Réponse parsée:', botResponse);
 
     // Enrichir la réponse avec des suggestions dynamiques
     const lastMessage = history[history.length - 1]?.content || '';
     botResponse.quickReplies = getDynamicQuickReplies(context, lastMessage, config);
+    console.log('✨ Réponse finale avec suggestions:', botResponse);
 
     return botResponse;
   } catch (error) {
-    console.error('Erreur lors du traitement du message:', error);
+    console.error('❌ Erreur détaillée:', {
+      message: error instanceof Error ? error.message : 'Erreur inconnue',
+      stack: error instanceof Error ? error.stack : undefined,
+      error
+    });
     throw new Error('Une erreur est survenue lors du traitement de votre message.');
   }
 };
@@ -140,6 +168,8 @@ export const formatChatHistory = (messages: Message[]): string => {
 };
 
 export const extractContextFromMessage = (message: string): Partial<ChatContext> => {
+  console.log('🔍 Extraction du contexte du message:', message);
+  
   const { loadConfig } = useAdminService();
   const config = loadConfig();
   const context: Partial<ChatContext> = {};
@@ -149,6 +179,7 @@ export const extractContextFromMessage = (message: string): Partial<ChatContext>
     const budgetMatch = message.match(/\d+/);
     if (budgetMatch) {
       context.budget = parseInt(budgetMatch[0]);
+      console.log('💰 Budget extrait:', context.budget);
     }
   }
 
@@ -159,6 +190,7 @@ export const extractContextFromMessage = (message: string): Partial<ChatContext>
     const guestMatch = message.match(/\d+/);
     if (guestMatch) {
       context.guestCount = parseInt(guestMatch[0]);
+      console.log('👥 Nombre d\'invités extrait:', context.guestCount);
     }
   }
 
@@ -166,6 +198,7 @@ export const extractContextFromMessage = (message: string): Partial<ChatContext>
   for (const eventType of config.eventTypes) {
     if (message.toLowerCase().includes(eventType.id)) {
       context.eventType = eventType.id;
+      console.log('🎉 Type d\'événement extrait:', context.eventType);
       break;
     }
   }
@@ -174,6 +207,7 @@ export const extractContextFromMessage = (message: string): Partial<ChatContext>
   for (const style of config.styles) {
     if (style.keywords.some(keyword => message.toLowerCase().includes(keyword))) {
       context.style = style.id;
+      console.log('🎨 Style extrait:', context.style);
       break;
     }
   }
@@ -182,9 +216,11 @@ export const extractContextFromMessage = (message: string): Partial<ChatContext>
   for (const theme of config.themes) {
     if (theme.keywords.some(keyword => message.toLowerCase().includes(keyword))) {
       context.theme = theme.id;
+      console.log('🎭 Thème extrait:', context.theme);
       break;
     }
   }
 
+  console.log('📊 Contexte final extrait:', context);
   return context;
 }; 
