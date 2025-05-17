@@ -169,6 +169,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     getChecklistForEventType
   } = useInteractionService();
 
+  console.log('ChatWindow messages:', messages);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -197,6 +199,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   };
 
   const renderMessageContent = (message: Message) => {
+    console.log('Rendering message:', message);
     switch (message.type) {
       case 'product':
         const product = getProductDetails(message.metadata?.productId || '');
@@ -253,23 +256,26 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       </ChatHeader>
       
       <MessagesContainer>
-        {messages.map((message) => (
-          <MessageBubble key={message.id} $isUser={message.sender === 'user'}>
-            {renderMessageContent(message)}
-            {message.type === 'text' && message.metadata?.quickReplies && (
-              <QuickRepliesContainer>
-                {message.metadata.quickReplies.map((reply: string, index: number) => (
-                  <QuickReplyButton
-                    key={index}
-                    onClick={() => onSendMessage(reply)}
-                  >
-                    {reply}
-                  </QuickReplyButton>
-                ))}
-              </QuickRepliesContainer>
-            )}
-          </MessageBubble>
-        ))}
+        {messages.map((message) => {
+          console.log('Mapping message:', message);
+          return (
+            <MessageBubble key={message.id} $isUser={message.sender === 'user'}>
+              {renderMessageContent(message)}
+              {message.type === 'text' && message.metadata?.quickReplies && (
+                <QuickRepliesContainer>
+                  {message.metadata.quickReplies.map((reply: string, index: number) => (
+                    <QuickReplyButton
+                      key={index}
+                      onClick={() => onSendMessage(reply)}
+                    >
+                      {reply}
+                    </QuickReplyButton>
+                  ))}
+                </QuickRepliesContainer>
+              )}
+            </MessageBubble>
+          );
+        })}
         <div ref={messagesEndRef} />
       </MessagesContainer>
 

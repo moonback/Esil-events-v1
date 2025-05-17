@@ -91,17 +91,7 @@ export const defaultChecklists: Record<string, ChecklistItem[]> = {
   ]
 };
 
-// Fonctions d'interaction
-export const handleProductClick = (productId: string) => {
-  const navigate = useNavigate();
-  navigate(`/product/${productId}`);
-};
-
-export const handleMoodboardClick = (moodboardId: string) => {
-  const navigate = useNavigate();
-  navigate(`/moodboard/${moodboardId}`);
-};
-
+// Fonctions utilitaires
 export const getProductDetails = (productId: string): Product | undefined => {
   return placeholderProducts.find(p => p.id === productId);
 };

@@ -9,6 +9,7 @@ export interface Message {
     moodboardId?: string;
     checklistId?: string;
     quickReplies?: string[];
+    eventType?: string;
   };
 }
 

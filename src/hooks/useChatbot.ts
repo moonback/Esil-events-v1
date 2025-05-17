@@ -16,6 +16,7 @@ export const useChatbot = () => {
 
   const sendMessage = useCallback(async (content: string) => {
     try {
+      console.log('Sending message:', content);
       setState(prev => ({
         ...prev,
         isLoading: true,
@@ -31,49 +32,65 @@ export const useChatbot = () => {
         type: 'text'
       };
 
-      // Ajouter le message de l'utilisateur
-      setState(prev => ({
-        ...prev,
-        messages: [...prev.messages, userMessage]
-      }));
+      console.log('Created user message:', userMessage);
 
-      // Extraire le contexte du message
+      // Ajoute le message utilisateur à l'historique local
+      const updatedHistory = [...state.messages, userMessage];
+      setState(prev => {
+        const newState = {
+          ...prev,
+          messages: updatedHistory
+        };
+        console.log('Updated state with user message:', newState);
+        return newState;
+      });
+
+      // Extraire le contexte du message et le mettre à jour localement
       const newContext = extractContextFromMessage(content);
-      
-      // Mettre à jour le contexte
+      const updatedContext = { ...state.context, ...newContext };
       setState(prev => ({
         ...prev,
-        context: {
-          ...prev.context,
-          ...newContext
-        }
+        context: updatedContext
       }));
+      console.log('Extracted context:', newContext);
+      console.log('Updated context for API:', updatedContext);
 
-      // Appeler le service de chatbot
-      const response = await processUserMessage(
-        state.messages,
+      // Appeler le service de chatbot avec l'historique et le contexte à jour
+      console.log('Calling processUserMessage with:', {
+        messages: updatedHistory,
         content,
-        state.context
+        context: updatedContext
+      });
+      const response = await processUserMessage(
+        updatedHistory,
+        content,
+        updatedContext
       );
+      console.log('Received bot response:', response);
 
-      // Créer le message du bot
+      // Create bot message with safe defaults
       const botMessage: Message = {
         id: uuidv4(),
-        content: response.message,
+        content: response?.message || 'Je ne peux pas répondre pour le moment.',
         sender: 'bot',
         timestamp: new Date(),
-        type: response.type,
+        type: response?.type || 'text',
         metadata: {
-          ...response.metadata,
-          quickReplies: response.quickReplies
+          ...(response?.metadata || {}),
+          quickReplies: response?.quickReplies || []
         }
       };
+      console.log('Created bot message:', botMessage);
 
-      setState(prev => ({
-        ...prev,
-        messages: [...prev.messages, botMessage],
-        isLoading: false
-      }));
+      setState(prev => {
+        const newState = {
+          ...prev,
+          messages: [...prev.messages, botMessage],
+          isLoading: false
+        };
+        console.log('Updated state with bot message:', newState);
+        return newState;
+      });
 
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message:', error);

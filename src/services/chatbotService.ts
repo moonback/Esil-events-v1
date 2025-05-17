@@ -28,10 +28,10 @@ Directives importantes :
 6. Prends en compte les tendances actuelles en décoration événementielle
 7. Suggère des moodboards pertinents pour inspirer les utilisateurs
 
-Format de réponse attendu (en JSON) :
+IMPORTANT - Format de réponse REQUIS (en JSON) :
 {
-  "message": "Message principal",
-  "type": "text" | "product" | "moodboard" | "checklist",
+  "message": "Message principal (obligatoire)",
+  "type": "text" | "product" | "moodboard" | "checklist" (obligatoire, défaut: "text"),
   "metadata": {
     "productId": "ID du produit suggéré",
     "moodboardId": "ID du moodboard",
@@ -43,7 +43,13 @@ Format de réponse attendu (en JSON) :
   "quickReplies": ["Réponse rapide 1", "Réponse rapide 2"]
 }
 
-IMPORTANT: Réponds UNIQUEMENT avec le JSON, sans backticks ni marqueurs de code.`;
+RÈGLES STRICTES :
+1. Réponds UNIQUEMENT avec le JSON ci-dessus
+2. Le champ "message" est OBLIGATOIRE et ne doit jamais être vide
+3. Le champ "type" est OBLIGATOIRE et doit être l'un des types listés
+4. Les champs "metadata" et "quickReplies" sont optionnels
+5. Ne mets pas de backticks ou de marqueurs de code autour du JSON
+6. Assure-toi que le JSON est valide et bien formaté`;
 
 const cleanJsonResponse = (text: string): string => {
   let cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
@@ -142,8 +148,31 @@ Réponds uniquement au format JSON spécifié ci-dessus.`;
     const cleanedText = cleanJsonResponse(text);
     console.log('🧹 Texte nettoyé:', cleanedText);
     
-    const botResponse: BotResponse = JSON.parse(cleanedText);
-    console.log('🔄 Réponse parsée:', botResponse);
+    let botResponse: BotResponse;
+    try {
+      botResponse = JSON.parse(cleanedText);
+      console.log('🔄 Réponse parsée:', botResponse);
+
+      // Ensure the response has the required fields with defaults
+      botResponse = {
+        message: botResponse.message || 'Je ne peux pas répondre pour le moment.',
+        type: botResponse.type || 'text',
+        metadata: botResponse.metadata || {},
+        quickReplies: botResponse.quickReplies || []
+      };
+      
+      console.log('✨ Réponse finale avec valeurs par défaut:', botResponse);
+    } catch (parseError) {
+      console.error('❌ Erreur de parsing JSON:', parseError);
+      console.error('Texte qui a causé l\'erreur:', cleanedText);
+      // Return a default response if parsing fails
+      botResponse = {
+        message: 'Je ne peux pas traiter votre message pour le moment. Veuillez réessayer.',
+        type: 'text',
+        metadata: {},
+        quickReplies: []
+      };
+    }
 
     // Enrichir la réponse avec des suggestions dynamiques
     const lastMessage = history[history.length - 1]?.content || '';
