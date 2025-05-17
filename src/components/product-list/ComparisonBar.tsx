@@ -27,10 +27,10 @@ const ComparisonBar: React.FC = () => {
   }
 
   // Animation classes pour l'expansion et la minimization
-  const containerClasses = `fixed transition-all duration-300 ease-in-out z-50 ${
+  const containerClasses = `fixed transition-all duration-300 ease-in-out z-40 ${
     isMinimized 
-      ? 'right-0 bottom-20 left-auto' 
-      : 'bottom-0 left-0 right-0'
+      ? 'right-0 bottom-[72px] left-auto' 
+      : 'bottom-[64px] left-0 right-0'
   }`;
 
   return (
