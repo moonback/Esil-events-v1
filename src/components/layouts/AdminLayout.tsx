@@ -1,5 +1,5 @@
 import React, { useState, useCallback, memo, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Package, 
   FileText, 
@@ -21,6 +21,12 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { signOut } from '../../services/authService';
+
+// Imports pour le Chatbot
+import ChatbotIcon from '../admin/chatbot/ChatbotIcon';
+import ChatbotWindow from '../admin/chatbot/ChatbotWindow';
+import { useChatbot } from '../../hooks/useChatbot';
+import { QuoteRequest, getQuoteRequests, updateQuoteRequestStatus } from '../../services/quoteRequestService';
 
 interface MenuItem {
   label: string;
@@ -113,11 +119,53 @@ const Logo: React.FC<{collapsed: boolean}> = memo(({ collapsed }) => (
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   
+  // États pour le chatbot
+  const [adminQuoteRequests, setAdminQuoteRequests] = useState<QuoteRequest[]>([]);
+  
+  // Charger les devis pour le chatbot
+  useEffect(() => {
+    const fetchAdminQuotes = async () => {
+      try {
+        const { data } = await getQuoteRequests();
+        if (data) {
+          setAdminQuoteRequests(data);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des devis pour le chatbot:", error);
+      }
+    };
+    fetchAdminQuotes();
+  }, []);
+
+  const handleChatbotAction = async (payload: string) => {
+    if (payload.startsWith('view_quote_')) {
+      const quoteId = payload.replace('view_quote_', '');
+      chatbot.toggleChatbot(); // Fermer le chatbot
+      navigate(`/admin/quote-requests?viewId=${quoteId}`);
+    } else if (payload.startsWith('update_status_')) {
+      const parts = payload.split('_');
+      const quoteId = parts[2];
+      const newStatus = parts[3];
+      try {
+        await updateQuoteRequestStatus(quoteId, newStatus);
+        chatbot.addMessage(`Statut du devis ${quoteId.substring(0,8)} mis à jour à "${newStatus}".`, 'bot');
+        // Recharger les devis pour refléter le changement
+        const { data } = await getQuoteRequests();
+        if (data) setAdminQuoteRequests(data);
+      } catch (error) {
+        chatbot.addMessage(`Erreur lors de la mise à jour du statut du devis ${quoteId.substring(0,8)}.`, 'bot');
+      }
+    }
+  };
+
+  const chatbot = useChatbot(adminQuoteRequests, handleChatbotAction);
+
   // Effect to handle initial animation
   useEffect(() => {
     setMounted(true);
@@ -257,6 +305,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           {children}
         </main>
       </div>
+
+      {/* Intégration du Chatbot */}
+      <ChatbotIcon isOpen={chatbot.isOpen} toggleChatbot={chatbot.toggleChatbot} />
+      {chatbot.isOpen && (
+        <ChatbotWindow
+          messages={chatbot.messages}
+          onSendMessage={chatbot.handleSendMessage}
+          onClose={chatbot.toggleChatbot}
+          isLoading={chatbot.isLoading}
+          onActionClick={chatbot.handleChatAction}
+          onClearHistory={chatbot.clearChatHistory}
+        />
+      )}
     </div>
   );
 };
