@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
-import CookieConsent from 'react-cookie-consent';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCookieConsent } from '../hooks/useCookieConsent';
 
 const CookieConsentBanner: React.FC = () => {
   const [showDetails, setShowDetails] = useState(false);
-  const { acceptAll, rejectAll, consent } = useCookieConsent();
-  const [isVisible, setIsVisible] = useState(true);
+  const { acceptAll, rejectAll, hasConsent } = useCookieConsent();
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // Ne montrer la bannière que si l'utilisateur n'a pas encore fait son choix
+    setIsVisible(!hasConsent);
+  }, [hasConsent]);
 
   const handleAccept = () => {
     acceptAll();

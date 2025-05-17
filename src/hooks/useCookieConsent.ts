@@ -1,108 +1,37 @@
 import { useState, useEffect } from 'react';
-import Cookies from 'js-cookie';
 
-export type CookieConsentType = {
-  necessary: boolean;
-  analytics: boolean;
-  marketing: boolean;
-  preferences: boolean;
-};
+const COOKIE_CONSENT_KEY = 'cookie-consent-status';
 
-const COOKIE_NAME = 'esil-events-consent';
-const COOKIE_EXPIRY_DAYS = 150;
+type ConsentStatus = 'accepted' | 'rejected' | null;
 
 export const useCookieConsent = () => {
-  const [consent, setConsent] = useState<CookieConsentType | null>(null);
-
-  useEffect(() => {
-    const savedConsent = Cookies.get(COOKIE_NAME);
-    if (savedConsent) {
-      try {
-        setConsent(JSON.parse(savedConsent));
-      } catch (error) {
-        console.error('Error parsing cookie consent:', error);
-      }
+  const [consent, setConsent] = useState<ConsentStatus>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(COOKIE_CONSENT_KEY) as ConsentStatus;
     }
-  }, []);
+    return null;
+  });
 
   const acceptAll = () => {
-    const newConsent: CookieConsentType = {
-      necessary: true,
-      analytics: true,
-      marketing: true,
-      preferences: true
-    };
-    Cookies.set(COOKIE_NAME, JSON.stringify(newConsent), { expires: COOKIE_EXPIRY_DAYS });
-    setConsent(newConsent);
-    // Activer tous les scripts de tracking
-    enableAllTracking();
+    setConsent('accepted');
+    localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
   };
 
   const rejectAll = () => {
-    const newConsent: CookieConsentType = {
-      necessary: true, // Les cookies nécessaires sont toujours acceptés
-      analytics: false,
-      marketing: false,
-      preferences: false
-    };
-    Cookies.set(COOKIE_NAME, JSON.stringify(newConsent), { expires: COOKIE_EXPIRY_DAYS });
-    setConsent(newConsent);
-    // Désactiver tous les scripts de tracking non nécessaires
-    disableNonEssentialTracking();
+    setConsent('rejected');
+    localStorage.setItem(COOKIE_CONSENT_KEY, 'rejected');
   };
 
-  const updateConsent = (newConsent: Partial<CookieConsentType>) => {
-    const updatedConsent = { ...consent, ...newConsent } as CookieConsentType;
-    Cookies.set(COOKIE_NAME, JSON.stringify(updatedConsent), { expires: COOKIE_EXPIRY_DAYS });
-    setConsent(updatedConsent);
-    // Mettre à jour les scripts en fonction des nouvelles préférences
-    updateTrackingScripts(updatedConsent);
+  const resetConsent = () => {
+    setConsent(null);
+    localStorage.removeItem(COOKIE_CONSENT_KEY);
   };
 
   return {
     consent,
     acceptAll,
     rejectAll,
-    updateConsent
+    resetConsent,
+    hasConsent: consent !== null
   };
-};
-
-// Fonctions utilitaires pour gérer les scripts de tracking
-const enableAllTracking = () => {
-  // Activer Google Analytics
-  if (window.gtag) {
-    window.gtag('consent', 'update', {
-      'analytics_storage': 'granted',
-      'ad_storage': 'granted'
-    });
-  }
-  // Activer d'autres scripts de tracking ici
-};
-
-const disableNonEssentialTracking = () => {
-  // Désactiver Google Analytics
-  if (window.gtag) {
-    window.gtag('consent', 'update', {
-      'analytics_storage': 'denied',
-      'ad_storage': 'denied'
-    });
-  }
-  // Désactiver d'autres scripts de tracking ici
-};
-
-const updateTrackingScripts = (consent: CookieConsentType) => {
-  if (window.gtag) {
-    window.gtag('consent', 'update', {
-      'analytics_storage': consent.analytics ? 'granted' : 'denied',
-      'ad_storage': consent.marketing ? 'granted' : 'denied'
-    });
-  }
-  // Mettre à jour d'autres scripts en fonction des préférences
-};
-
-// Déclaration pour TypeScript
-declare global {
-  interface Window {
-    gtag: (...args: any[]) => void;
-  }
-} 
+}; 
