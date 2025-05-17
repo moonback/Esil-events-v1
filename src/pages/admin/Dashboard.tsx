@@ -274,7 +274,7 @@ const AdminDashboard: React.FC = () => {
                   Bonjour, Admin 👋
                 </h1>
                 <p className="text-indigo-100 opacity-90 max-w-xl">
-                  Bienvenue sur votre tableau de bord. Vous avez <span className="font-semibold">{activeNotifications} notifications</span> et <span className="font-semibold">{stats.pendingQuoteRequests} devis</span> en attente aujourd'hui.
+                  Bienvenue sur votre tableau de bord. Vous avez <span className="font-semibold">{stats.pendingQuoteRequests} devis</span> en attente aujourd'hui.
                 </p>
               </div>
               
