@@ -1,5 +1,5 @@
 import React, { useState, ReactNode, useEffect, useRef } from 'react';
-import { Search, Bell, Settings, User, LogOut, Menu, X, Home, ChevronDown, Moon, Sun, Package, FileText, Download, ClipboardList, TrendingUp, RefreshCw } from 'lucide-react';
+import { Search, Bell, Settings, User, LogOut, Menu, X, Home, ChevronDown, Moon, Sun, Package, FileText, Download, ClipboardList, TrendingUp, RefreshCw, Plus } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { signOut } from '../../services/authService';
 import { useNavigate } from 'react-router-dom';
@@ -22,27 +22,19 @@ interface QuickAction {
 
 const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar }) => {
   const navigate = useNavigate();
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showQuickActionsMenu, setShowQuickActionsMenu] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [showQuickActions, setShowQuickActions] = useState(false);
-  const [exportLoading, setExportLoading] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: 'New user registration', time: '2 min ago', read: false },
-    { id: 2, text: 'Server update completed', time: '1 hour ago', read: false },
-    { id: 3, text: 'Weekly report available', time: 'Yesterday', read: true }
-  ]);
-  const [showNotifications, setShowNotifications] = useState(false);
   const { user } = useAuth();
-  
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const notificationsRef = useRef<HTMLDivElement>(null);
+  const quickActionsMenuRef = useRef<HTMLDivElement>(null);
   
   const quickActions: QuickAction[] = [
     {
       title: 'Ajouter un produit',
-      icon: <Package className="w-7 h-7" />,
+      icon: <Package className="w-4 h-4" />,
       onClick: () => navigate('/admin/products?action=new'),
       bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600',
       textColor: 'text-white',
@@ -51,7 +43,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
     },
     {
       title: 'Nouvelle catégorie',
-      icon: <FileText className="w-7 h-7" />,
+      icon: <FileText className="w-4 h-4" />,
       onClick: () => navigate('/admin/categories?action=new'),
       bgColor: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
       textColor: 'text-white',
@@ -60,7 +52,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
     },
     {
       title: 'Voir les devis',
-      icon: <ClipboardList className="w-7 h-7" />,
+      icon: <ClipboardList className="w-4 h-4" />,
       onClick: () => navigate('/admin/quote-requests'),
       bgColor: 'bg-gradient-to-br from-purple-500 to-purple-600',
       textColor: 'text-white',
@@ -69,7 +61,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
     },
     {
       title: 'Exporter les données',
-      icon: <Download className="w-7 h-7" />,
+      icon: <Download className="w-4 h-4" />,
       onClick: handleExportData,
       bgColor: 'bg-gradient-to-br from-gray-600 to-gray-700',
       textColor: 'text-white',
@@ -78,7 +70,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
     },
     {
       title: 'Suivi SEO',
-      icon: <TrendingUp className="w-7 h-7" />,
+      icon: <TrendingUp className="w-4 h-4" />,
       onClick: () => navigate('/admin/keyword-rankings'),
       bgColor: 'bg-gradient-to-br from-teal-500 to-teal-600',
       textColor: 'text-white',
@@ -104,8 +96,8 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setShowUserMenu(false);
       }
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
-        setShowNotifications(false);
+      if (quickActionsMenuRef.current && !quickActionsMenuRef.current.contains(event.target as Node)) {
+        setShowQuickActionsMenu(false);
       }
     };
     
@@ -152,33 +144,6 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
             >
               <Menu className="w-6 h-6" />
             </button>
-            
-            {/* Breadcrumb - Hidden on mobile */}
-            
-          </div>
-
-          {/* Center - Quick Actions */}
-          <div className="hidden md:flex items-center space-x-2">
-            {quickActions.map((action, index) => (
-              <button
-                key={index}
-                onClick={action.onClick}
-                disabled={exportLoading && action.title === 'Exporter les données'}
-                className={`${action.bgColor} ${action.hoverBg} ${action.textColor} px-3 py-1.5 rounded-lg flex items-center space-x-2 transition-all duration-200 hover:shadow-md group relative`}
-                title={action.description}
-              >
-                <div className="transform group-hover:scale-110 transition-transform">
-                  {action.icon}
-                </div>
-                <span className="text-xs font-medium">{action.title}</span>
-                {exportLoading && action.title === 'Exporter les données' && (
-                  <div className="ml-1">
-                    <RefreshCw className="w-3 h-3 animate-spin" />
-                  </div>
-                )}
-                <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              </button>
-            ))}
           </div>
 
           {/* Right Side Actions */}
@@ -191,6 +156,45 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
               <Home className="w-4 h-4" />
               <span className="text-xs font-medium">Voir le site</span>
             </button>
+
+            {/* Quick Actions Menu */}
+            <div className="hidden md:block" ref={quickActionsMenuRef}>
+              <button
+                onClick={() => setShowQuickActionsMenu(!showQuickActionsMenu)}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-md"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="text-sm font-medium">Actions rapides</span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showQuickActionsMenu ? 'transform rotate-180' : ''}`} />
+              </button>
+
+              {showQuickActionsMenu && (
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg py-1 border border-gray-200 dark:border-gray-700">
+                  {quickActions.map((action, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        action.onClick();
+                        setShowQuickActionsMenu(false);
+                      }}
+                      disabled={exportLoading && action.title === 'Exporter les données'}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      title={action.description}
+                    >
+                      <div className="mr-3 text-gray-500 dark:text-gray-400">
+                        {action.icon}
+                      </div>
+                      <span>{action.title}</span>
+                      {exportLoading && action.title === 'Exporter les données' && (
+                        <div className="ml-auto">
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* User Menu */}
             <div className="relative" ref={userMenuRef}>
