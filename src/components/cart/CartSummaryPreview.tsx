@@ -153,7 +153,7 @@ const CartSummaryPreview: React.FC<CartSummaryPreviewProps> = ({ items }) => {
             <svg className="w-5 h-5 mr-2 text-violet-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            Ce montant est donné à titre indicatif. Le devis final pourra être ajusté en fonction de vos besoins spécifiques.
+            Veuillez noter que ce montant est indicatif et ne comprend pas les frais de livraison et d'installation. Le devis final vous sera communiqué après étude de votre demande.
           </p>
         </motion.div>
       </div>
