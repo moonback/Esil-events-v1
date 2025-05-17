@@ -231,8 +231,6 @@ const AdminDashboard: React.FC = () => {
     return stats.recentQuoteRequests.filter(quote => quote.status === statusFilter);
   }, [stats.recentQuoteRequests, statusFilter]);
 
-  // Les actions rapides ont été déplacées vers le header
-  // Voir AdminHeader.tsx pour plus de détails
 
   if (error) {
     return (
@@ -305,7 +303,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 
-                <button className="relative p-3 rounded-xl bg-white/20 hover:bg-white/30
+                {/* <button className="relative p-3 rounded-xl bg-white/20 hover:bg-white/30
                   transition-all duration-300 shadow-lg hover:shadow-xl backdrop-blur-sm border border-white/20">
                   <Bell className="w-6 h-6 text-white" />
                   {activeNotifications > 0 && (
@@ -313,7 +311,7 @@ const AdminDashboard: React.FC = () => {
                       {activeNotifications}
                     </span>
                   )}
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
