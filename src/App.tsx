@@ -25,10 +25,15 @@ import { EventsPage } from './pages/EventsPage';  // Changed from default import
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import CguPage from './pages/CguPage';
 import CookieConsentBanner from './components/CookieConsent';
+import { initializeSmtpConfig } from './services/emailService';
 
 // Admin pages
 import RealisationPage from './pages/RealisationPage';
 
+// Initialiser la configuration SMTP au démarrage
+initializeSmtpConfig().catch(error => {
+  console.error('Erreur lors de l\'initialisation de la configuration SMTP:', error);
+});
 
 const App: React.FC = () => {
   return (

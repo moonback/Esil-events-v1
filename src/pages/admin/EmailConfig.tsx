@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, RefreshCw, Send } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
-import { getSmtpConfig, updateSmtpConfig, sendEmail, SmtpConfig } from '../../services/emailService';
+import { getSmtpConfig, updateSmtpConfig, sendEmail, SmtpConfig, initializeSmtpConfig } from '../../services/emailService';
 
 const EmailConfigPage: React.FC = () => {
   const [config, setConfig] = useState<Partial<SmtpConfig>>({
@@ -21,19 +21,34 @@ const EmailConfigPage: React.FC = () => {
   const [testLoading, setTestLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  // Charger la configuration actuelle
+  // Initialiser la configuration SMTP au chargement
   useEffect(() => {
-    const currentConfig = getSmtpConfig();
-    setConfig({
-      host: currentConfig.host,
-      port: currentConfig.port,
-      secure: currentConfig.secure,
-      auth: {
-        user: currentConfig.auth.user,
-        pass: ''
-      },
-      from: currentConfig.from
-    });
+    const initConfig = async () => {
+      try {
+        await initializeSmtpConfig();
+        const currentConfig = getSmtpConfig();
+        if (currentConfig) {
+          setConfig({
+            host: currentConfig.host,
+            port: currentConfig.port,
+            secure: currentConfig.secure,
+            auth: {
+              user: currentConfig.auth.user,
+              pass: ''
+            },
+            from: currentConfig.from
+          });
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'initialisation de la configuration SMTP:', error);
+        setMessage({ 
+          type: 'error', 
+          text: `Erreur lors du chargement de la configuration: ${error instanceof Error ? error.message : 'Une erreur est survenue'}` 
+        });
+      }
+    };
+
+    initConfig();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
