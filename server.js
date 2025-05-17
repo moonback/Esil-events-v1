@@ -292,6 +292,77 @@ app.get('/api/serpapi/search', async (req, res) => {
   }
 });
 
+// Endpoint pour sauvegarder la configuration SMTP
+app.post('/api/email/config', async (req, res) => {
+  console.log('Requête reçue sur /api/email/config');
+  try {
+    const { config } = req.body;
+
+    // Vérifier si la configuration est présente
+    if (!config) {
+      console.error('Configuration SMTP manquante');
+      return res.status(400).json({ error: 'Configuration SMTP manquante' });
+    }
+
+    // Sauvegarder la configuration dans un fichier
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Obtenir le chemin absolu du répertoire courant
+    const currentDir = process.cwd();
+    const configDir = path.join(currentDir, 'config');
+    const configPath = path.join(configDir, 'smtp.json');
+    
+    // Créer le dossier config s'il n'existe pas
+    if (!fs.existsSync(configDir)) {
+      fs.mkdirSync(configDir, { recursive: true });
+    }
+    
+    // Sauvegarder la configuration
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
+    
+    console.log('Configuration SMTP sauvegardée avec succès');
+    res.json({ success: true, message: 'Configuration SMTP sauvegardée avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la configuration SMTP:', error);
+    res.status(500).json({ 
+      error: error.message,
+      details: error.toString()
+    });
+  }
+});
+
+// Endpoint pour récupérer la configuration SMTP
+app.get('/api/email/config', async (req, res) => {
+  console.log('Requête reçue sur /api/email/config (GET)');
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Obtenir le chemin absolu du répertoire courant
+    const currentDir = process.cwd();
+    const configPath = path.join(currentDir, 'config', 'smtp.json');
+    
+    // Vérifier si le fichier de configuration existe
+    if (!fs.existsSync(configPath)) {
+      console.log('Aucune configuration SMTP trouvée');
+      return res.status(404).json({ error: 'Configuration SMTP non trouvée' });
+    }
+    
+    // Lire la configuration
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    
+    console.log('Configuration SMTP récupérée avec succès');
+    res.json(config);
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la configuration SMTP:', error);
+    res.status(500).json({ 
+      error: error.message,
+      details: error.toString()
+    });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
