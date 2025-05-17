@@ -1,7 +1,8 @@
 import React, { useState, ReactNode, useEffect, useRef } from 'react';
-import { Search, Bell, Settings, User, LogOut, Menu, X, Home, ChevronDown, Moon, Sun } from 'lucide-react';
+import { Search, Bell, Settings, User, LogOut, Menu, X, Home, ChevronDown, Moon, Sun, Package, FileText, Download, ClipboardList, TrendingUp, RefreshCw, Plus } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { signOut } from '../../services/authService';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminHeaderProps {
   title?: string;
@@ -9,30 +10,94 @@ interface AdminHeaderProps {
   onToggleSidebar?: () => void;
 }
 
+interface QuickAction {
+  title: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  bgColor: string;
+  textColor: string;
+  hoverBg: string;
+  description?: string;
+}
+
 const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar }) => {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showQuickActionsMenu, setShowQuickActionsMenu] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: 'New user registration', time: '2 min ago', read: false },
-    { id: 2, text: 'Server update completed', time: '1 hour ago', read: false },
-    { id: 3, text: 'Weekly report available', time: 'Yesterday', read: true }
-  ]);
-  const [showNotifications, setShowNotifications] = useState(false);
   const { user } = useAuth();
-  
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const notificationsRef = useRef<HTMLDivElement>(null);
+  const quickActionsMenuRef = useRef<HTMLDivElement>(null);
   
+  const quickActions: QuickAction[] = [
+    {
+      title: 'Ajouter un produit',
+      icon: <Package className="w-4 h-4" />,
+      onClick: () => navigate('/admin/products?action=new'),
+      bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600',
+      textColor: 'text-white',
+      hoverBg: 'hover:from-blue-600 hover:to-blue-700',
+      description: 'Créer un nouveau produit'
+    },
+    {
+      title: 'Nouvelle catégorie',
+      icon: <FileText className="w-4 h-4" />,
+      onClick: () => navigate('/admin/categories?action=new'),
+      bgColor: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
+      textColor: 'text-white',
+      hoverBg: 'hover:from-emerald-600 hover:to-emerald-700',
+      description: 'Ajouter une nouvelle catégorie'
+    },
+    {
+      title: 'Voir les devis',
+      icon: <ClipboardList className="w-4 h-4" />,
+      onClick: () => navigate('/admin/quote-requests'),
+      bgColor: 'bg-gradient-to-br from-purple-500 to-purple-600',
+      textColor: 'text-white',
+      hoverBg: 'hover:from-purple-600 hover:to-purple-700',
+      description: 'Gérer les demandes de devis'
+    },
+    {
+      title: 'Exporter les données',
+      icon: <Download className="w-4 h-4" />,
+      onClick: handleExportData,
+      bgColor: 'bg-gradient-to-br from-gray-600 to-gray-700',
+      textColor: 'text-white',
+      hoverBg: 'hover:from-gray-700 hover:to-gray-800',
+      description: 'Télécharger toutes les données'
+    },
+    {
+      title: 'Suivi SEO',
+      icon: <TrendingUp className="w-4 h-4" />,
+      onClick: () => navigate('/admin/keyword-rankings'),
+      bgColor: 'bg-gradient-to-br from-teal-500 to-teal-600',
+      textColor: 'text-white',
+      hoverBg: 'hover:from-teal-600 hover:to-teal-700',
+      description: 'Surveiller le classement des mots-clés'
+    }
+  ];
+
+  async function handleExportData() {
+    try {
+      setExportLoading(true);
+      // Logique d'exportation ici
+    } catch (error) {
+      console.error('Erreur lors de l\'exportation:', error);
+    } finally {
+      setExportLoading(false);
+    }
+  }
+
   // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setShowUserMenu(false);
       }
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
-        setShowNotifications(false);
+      if (quickActionsMenuRef.current && !quickActionsMenuRef.current.contains(event.target as Node)) {
+        setShowQuickActionsMenu(false);
       }
     };
     
@@ -58,8 +123,6 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
     }
   };
 
-
-
   return (
     <div className="mb-6">
       {/* Page Title Bar - visible below header */}
@@ -70,143 +133,76 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
         </div>
       )}
       
-      <header className="fixed top-0 right-0 md:left-64 left-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-30 shadow-sm transition-all duration-300">
+      <header className="fixed top-0 right-0 md:left-64 left-0 h-16 bg-white/80 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700 z-30 shadow-sm backdrop-blur-md transition-all duration-300">
         <div className="h-full px-4 flex items-center justify-between">
           {/* Left Side */}
           <div className="flex items-center">
             {/* Mobile Menu Toggle */}
             <button
-              className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 hover:scale-105"
               onClick={onToggleSidebar}
             >
               <Menu className="w-6 h-6" />
             </button>
-            
-            {/* Breadcrumb - Hidden on mobile */}
-            <div className="hidden md:flex items-center text-sm text-gray-500 dark:text-gray-400 ml-2">
-              <div className="p-1.5 bg-violet-50 dark:bg-violet-900/20 rounded-md">
-                <Home className="w-4 h-4 text-violet-600 dark:text-violet-400" />
-              </div>
-              <span className="mx-2">/</span>
-              <span className="font-medium text-gray-900 dark:text-white">{title || 'Dashboard'}</span>
-            </div>
           </div>
 
-          {/* Search Bar - Hidden on mobile unless search is open */}
-          {/* <div className={`${isSearchOpen ? 'flex absolute top-0 left-0 right-0 p-4 bg-white dark:bg-gray-800 h-16 z-40' : 'hidden md:flex'} flex-1 max-w-xl mx-auto`}>
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-              />
-              {isSearchOpen && (
-                <button
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                  onClick={() => setIsSearchOpen(false)}
-                >
-                  <X className="w-4 h-4 text-gray-500" />
-                </button>
-              )}
-            </div>
-          </div> */}
-
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-1 md:space-x-3">
-            {/* Mobile Search Toggle */}
-            {/* <button
-              className="md:hidden p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-            >
-              <Search className="w-5 h-5" />
-            </button> */}
-
-            {/* Dark Mode Toggle */}
-            {/* <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button> */}
-
-            {/* Notifications */}
-            {/* <div className="relative" ref={notificationsRef}>
-              <button
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
-              >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700">
-                    <h3 className="font-medium text-gray-900 dark:text-white">Notifications</h3>
-                    <button 
-                      onClick={markAllAsRead}
-                      className="text-xs text-primary-600 hover:text-primary-500 dark:text-primary-400"
-                    >
-                      Marquer tout comme lu
-                    </button>
-                  </div>
-                  <div className="max-h-64 overflow-y-auto">
-                    {notifications.length > 0 ? (
-                      <div>
-                        {notifications.map((notification) => (
-                          <div 
-                            key={notification.id} 
-                            className={`px-4 py-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 ${!notification.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
-                          >
-                            <div className="flex items-start">
-                              <div className="flex-1">
-                                <p className="text-sm text-gray-800 dark:text-gray-200">{notification.text}</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{notification.time}</p>
-                              </div>
-                              {!notification.read && (
-                                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="py-4 text-center text-gray-500 dark:text-gray-400 text-sm">
-                        Aucune notification
-                      </p>
-                    )}
-                  </div>
-                  <div className="px-4 py-2 bg-gray-50 dark:bg-gray-700 text-center">
-                    <button className="text-xs text-primary-600 hover:text-primary-500 dark:text-primary-400">
-                      Voir toutes les notifications
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div> */}
-
+          <div className="flex items-center space-x-2">
             {/* Settings */}
             <button 
               onClick={() => window.location.href = '/'}
-              className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 hover:shadow-md"
             >
-              <Home className="w-5 h-5" />
-              <span className="text-sm font-medium">Voir le site</span>
+              <Home className="w-4 h-4" />
+              <span className="text-xs font-medium">Voir le site</span>
             </button>
+
+            {/* Quick Actions Menu */}
+            <div className="hidden md:block" ref={quickActionsMenuRef}>
+              <button
+                onClick={() => setShowQuickActionsMenu(!showQuickActionsMenu)}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-md"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="text-sm font-medium">Actions rapides</span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showQuickActionsMenu ? 'transform rotate-180' : ''}`} />
+              </button>
+
+              {showQuickActionsMenu && (
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg py-1 border border-gray-200 dark:border-gray-700">
+                  {quickActions.map((action, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        action.onClick();
+                        setShowQuickActionsMenu(false);
+                      }}
+                      disabled={exportLoading && action.title === 'Exporter les données'}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      title={action.description}
+                    >
+                      <div className="mr-3 text-gray-500 dark:text-gray-400">
+                        {action.icon}
+                      </div>
+                      <span>{action.title}</span>
+                      {exportLoading && action.title === 'Exporter les données' && (
+                        <div className="ml-auto">
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* User Menu */}
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 hover:scale-105"
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
                   <span className="text-white text-sm font-medium">
                     {user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
                   </span>
@@ -214,7 +210,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
                 <div className="hidden md:block">
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
                     {user?.email?.split('@')[0] || 'User'}
-                    <ChevronDown className="w-4 h-4 ml-1" />
+                    <ChevronDown className={`w-4 h-4 ml-1 transition-transform duration-200 ${showUserMenu ? 'transform rotate-180' : ''}`} />
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     Administrateur
@@ -223,7 +219,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1 border border-gray-200 dark:border-gray-700">
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg py-1 border border-gray-200 dark:border-gray-700 transform origin-top-right transition-all duration-200 animate-in fade-in slide-in-from-top-2">
                   <div className="md:hidden px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                     <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                       {user?.email || 'User'}
@@ -259,10 +255,10 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 top-16 bg-white dark:bg-gray-800 md:hidden z-20">
+          <div className="fixed inset-0 top-16 bg-white/95 dark:bg-gray-800/95 md:hidden z-20 backdrop-blur-sm">
             <div className="p-4 space-y-4">
               <nav className="space-y-1">
-                <button className="flex items-center w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                <button className="flex items-center w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 hover:scale-105">
                   <Home className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400" />
                   Tableau de bord
                 </button>
@@ -271,18 +267,18 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, icon, onToggleSidebar 
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                 {/* <button
                   onClick={() => setDarkMode(!darkMode)}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 hover:scale-105"
                 >
                   {darkMode ? <Sun className="w-5 h-5 mr-3" /> : <Moon className="w-5 h-5 mr-3" />}
                   {darkMode ? 'Mode clair' : 'Mode sombre'}
                 </button>
-                <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 hover:scale-105">
                   <Settings className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400" />
                   Paramètres
                 </button> */}
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200 hover:scale-105"
                 >
                   <LogOut className="w-5 h-5 mr-3" />
                   Déconnexion
