@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Filter, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown, Copy, BarChart, Hash, FileText, RefreshCw } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import { Product } from '../../types/Product';
 import { getAllProducts, deleteProduct, createProduct, updateProduct, duplicateProduct, regenerateMissingSlugs } from '../../services/productService';
@@ -9,6 +10,7 @@ import AdminHeader from '../../components/admin/AdminHeader';
 import { DEFAULT_PRODUCT_IMAGE } from '../../constants/images';
 import ProductFilterPanel from '../../components/admin/ProductFilterPanel';
 import { useAdminProductFilters } from '../../hooks/useAdminProductFilters';
+import { StatCard } from '../../components/StatCard';
 
 const AdminProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -279,62 +281,84 @@ const AdminProducts: React.FC = () => {
             </div>
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 mr-4">
-                <Package className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Total Produits</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{totalProducts}</p>
-              </div>
-            </div>
-          </div>
-          
-          
-          
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 mr-4">
-                <Hash className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Mots-clés par produit</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  {(products.reduce((acc, product) => {
-                    const keywords = product.seo_keywords ? product.seo_keywords.split(',').filter(k => k.trim()).length : 0;
-                    return acc + keywords;
-                  }, 0) / (products.length || 1)).toFixed(1)}
-                </p>
-              </div>
-            </div>
-          </div>
+          <StatCard
+            title="Total Produits"
+            value={totalProducts}
+            icon={Package}
+            iconBgColor="bg-indigo-100 dark:bg-indigo-900/30"
+            iconColor="text-indigo-600 dark:text-indigo-400"
+            trendValue={((totalProducts - products.filter(p => new Date(p.createdAt) < new Date(new Date().getFullYear(), new Date().getMonth(), 1)).length) / 
+              (products.filter(p => new Date(p.createdAt) < new Date(new Date().getFullYear(), new Date().getMonth(), 1)).length || 1)) * 100}
+            trendData={Array.from({ length: 10 }, (_, i) => {
+              const date = new Date();
+              date.setMonth(date.getMonth() - (9 - i));
+              return products.filter(p => new Date(p.createdAt) <= date).length;
+            })}
+            trendColor="bg-indigo-500"
+          />
 
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 mr-4">
-                <ShoppingCart className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Indisponibles</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{unavailableProducts}</p>
-              </div>
-            </div>
-          </div>
+          <StatCard
+            title="Mots-clés par produit"
+            value={(products.reduce((acc, product) => {
+              const keywords = product.seo_keywords ? product.seo_keywords.split(',').filter(k => k.trim()).length : 0;
+              return acc + keywords;
+            }, 0) / (products.length || 1)).toFixed(1)}
+            icon={Hash}
+            iconBgColor="bg-purple-100 dark:bg-purple-900/30"
+            iconColor="text-purple-600 dark:text-purple-400"
+            trendValue={((products.reduce((acc, product) => {
+              const keywords = product.seo_keywords ? product.seo_keywords.split(',').filter(k => k.trim()).length : 0;
+              return acc + keywords;
+            }, 0) / (products.length || 1)) - 
+            (products.filter(p => new Date(p.createdAt) < new Date(new Date().getFullYear(), new Date().getMonth(), 1))
+              .reduce((acc, product) => {
+                const keywords = product.seo_keywords ? product.seo_keywords.split(',').filter(k => k.trim()).length : 0;
+                return acc + keywords;
+              }, 0) / (products.filter(p => new Date(p.createdAt) < new Date(new Date().getFullYear(), new Date().getMonth(), 1)).length || 1))) * 100}
+            trendData={Array.from({ length: 10 }, (_, i) => {
+              const date = new Date();
+              date.setMonth(date.getMonth() - (9 - i));
+              const productsUntilDate = products.filter(p => new Date(p.createdAt) <= date);
+              return productsUntilDate.reduce((acc, product) => {
+                const keywords = product.seo_keywords ? product.seo_keywords.split(',').filter(k => k.trim()).length : 0;
+                return acc + keywords;
+              }, 0) / (productsUntilDate.length || 1);
+            })}
+            trendColor="bg-purple-500"
+          />
 
+          <StatCard
+            title="Indisponibles"
+            value={unavailableProducts}
+            icon={ShoppingCart}
+            iconBgColor="bg-red-100 dark:bg-red-900/30"
+            iconColor="text-red-600 dark:text-red-400"
+            trendValue={((unavailableProducts - products.filter(p => !p.isAvailable && new Date(p.createdAt) < new Date(new Date().getFullYear(), new Date().getMonth(), 1)).length) / 
+              (products.filter(p => !p.isAvailable && new Date(p.createdAt) < new Date(new Date().getFullYear(), new Date().getMonth(), 1)).length || 1)) * 100}
+            trendData={Array.from({ length: 10 }, (_, i) => {
+              const date = new Date();
+              date.setMonth(date.getMonth() - (9 - i));
+              return products.filter(p => !p.isAvailable && new Date(p.createdAt) <= date).length;
+            })}
+            trendColor="bg-red-500"
+          />
 
-
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mr-4">
-                <Search className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Référencés sur Google</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{products.filter(p => p.seo_title && p.seo_description).length}</p>
-              </div>
-            </div>
-          </div>
+          <StatCard
+            title="Référencés sur Google"
+            value={products.filter(p => p.seo_title && p.seo_description).length}
+            icon={Search}
+            iconBgColor="bg-blue-100 dark:bg-blue-900/30"
+            iconColor="text-blue-600 dark:text-blue-400"
+            trendValue={((products.filter(p => p.seo_title && p.seo_description).length - 
+              products.filter(p => p.seo_title && p.seo_description && new Date(p.createdAt) < new Date(new Date().getFullYear(), new Date().getMonth(), 1)).length) / 
+              (products.filter(p => p.seo_title && p.seo_description && new Date(p.createdAt) < new Date(new Date().getFullYear(), new Date().getMonth(), 1)).length || 1)) * 100}
+            trendData={Array.from({ length: 10 }, (_, i) => {
+              const date = new Date();
+              date.setMonth(date.getMonth() - (9 - i));
+              return products.filter(p => p.seo_title && p.seo_description && new Date(p.createdAt) <= date).length;
+            })}
+            trendColor="bg-blue-500"
+          />
         </div>
 
         {error && (
