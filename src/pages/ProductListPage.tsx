@@ -390,7 +390,7 @@ const ProductListPage: React.FC = () => {
               </div>
             ) : (
               displayMode === 'grid' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
                   {currentItems.map((product) => (
                     <div key={product.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col h-full transform hover:-translate-y-2">
                       <Link
@@ -429,12 +429,12 @@ const ProductListPage: React.FC = () => {
                           </h3>
                           <p className="text-sm text-gray-500 mb-4 font-medium">
                             Réf: {product.reference}
-                          </p>
+                          </p> 
                           <div className="mt-auto pt-4 border-t border-gray-100">
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-2xl font-bold text-violet-600">
-                                  {product.priceTTC.toFixed(2)}€
+                              {product.priceTTC.toFixed(2)}€
                                 </p>
                                 <span className="text-sm text-gray-500 font-medium">
                                   TTC / jour
@@ -450,7 +450,7 @@ const ProductListPage: React.FC = () => {
                           </div>
                         </div>
                       </Link>
-                      <div className="p-4 border-t border-gray-100 space-y-2">
+                      <div className="p-4 border-t border-gray-100 space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                         <button
                           onClick={() => handleAddToCart(product)}
                           className="w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors"
@@ -542,7 +542,7 @@ const ProductListPage: React.FC = () => {
                           </div>
                         </div>
                       </Link>
-                      <div className="p-4 border-l border-gray-100 flex flex-col space-y-2">
+                      <div className="p-4 border-l border-gray-100 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                         <button
                           onClick={() => handleAddToCart(product)}
                           className="flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors"
