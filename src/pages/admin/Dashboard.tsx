@@ -500,7 +500,6 @@ const AdminDashboard: React.FC = () => {
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Événement</th>
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Livraison & Reprise</th>
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Statut</th>
-                        {/* <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th> */}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -600,20 +599,6 @@ const AdminDashboard: React.FC = () => {
                               </div>
                             </div>
                           </td>
-                          {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex items-center justify-end space-x-2">
-                              <button 
-                                onClick={() => navigate(`/admin/quote-requests/${quote.id}`)}
-                                className="p-1 rounded-md text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                <Eye className="w-5 h-5" />
-                              </button>
-                              <button 
-                                onClick={() => navigate(`/admin/quote-requests/${quote.id}/edit`)}
-                                className="p-1 rounded-md text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                <Edit className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </td> */}
                         </tr>
                       ))}
                     </tbody>
@@ -642,87 +627,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            {/* Calendrier des événements */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-              <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Événements à venir</h2>
-                <button className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                  <CalendarIcon className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                {stats.recentQuoteRequests.slice(0, 3).map((quote, index) => (
-                  <div key={index} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <div className="flex items-start">
-                      <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg mr-4">
-                        <Calendar className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">
-                          Événement {quote.company ? `- ${quote.company}` : ''}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                          {new Date(quote.event_date).toLocaleDateString('fr-FR', { 
-                            day: 'numeric', 
-                            month: 'long'
-                          })} • {quote.event_location || 'Lieu non spécifié'}
-                        </div>
-                        <div className="flex items-center mt-2">
-                          <Clock className="w-4 h-4 text-gray-400 mr-1" />
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {Math.floor(Math.random() * 10) + 1} jours restants
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="p-4 text-center">
-                <button 
-                  onClick={() => navigate('/admin/events')}
-                  className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
-                >
-                  Voir tous les événements
-                </button>
-              </div>
-            </div>
           </div>
-
-          {/* Section d'analyse supplémentaire */}
-          <div className="grid grid-cols-1 gap-8 mb-8">
-            {/* Graphique de performance */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-              <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Activité mensuelle</h2>
-                <div className="flex items-center space-x-2">
-                  <select
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md p-2"
-                  >
-                    <option value="2025-05">Mai 2025</option>
-                    <option value="2025-04">Avril 2025</option>
-                    <option value="2025-03">Mars 2025</option>
-                  </select>
-                </div>
-              </div>
-              <div className="p-4">
-                <div className="w-full h-60 flex justify-center items-center">
-                  <BarChart2 className="w-24 h-24 text-gray-300 dark:text-gray-600" />
-                  <div className="text-center ml-4">
-                    <p className="text-gray-500 dark:text-gray-400">Chargez des données de performance mensuelle pour voir les statistiques.</p>
-                    <button className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm">
-                      Charger les données
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          
         </div>
       </div>
     </AdminLayout>
