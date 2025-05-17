@@ -4,15 +4,17 @@ import {
   ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, 
   ShoppingCart, Star, Clock, Tag, Truck, Check, ZoomIn, X, 
   BarChart, TrendingUp, TrendingDown, Loader2, AlertCircle,
-  Package, FileCode, Video, Lock
+  Package, FileCode, Video, Lock, Scale
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
+import { useComparison } from '../context/ComparisonContext';
 import { getProductById, getSimilarProducts } from '../services/productService';
 import { supabase } from '../services/supabaseClient';
 import { Product } from '../types/Product';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 import SEO from '../components/SEO';
+import Notification from '../components/common/Notification';
 
 interface KeywordRanking {
   keyword: string;
@@ -52,6 +54,17 @@ const ProductPage: React.FC = () => {
   const [keywordRankings, setKeywordRankings] = useState<Record<string, KeywordRanking>>({});
   const [loadingRankings, setLoadingRankings] = useState(false);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'docs'>('description');
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    message: string;
+    type: 'success' | 'error' | 'info';
+  }>({
+    show: false,
+    message: '',
+    type: 'success'
+  });
+
+  const { addToComparison, isInComparison, comparisonProducts } = useComparison();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -252,6 +265,35 @@ const ProductPage: React.FC = () => {
     setTimeout(() => {
       setShowToast(false);
     }, 3000);
+  };
+
+  const handleAddToComparison = () => {
+    if (!product) return;
+    
+    if (comparisonProducts.length >= 3) {
+      setNotification({
+        show: true,
+        message: 'Vous ne pouvez comparer que 3 produits maximum',
+        type: 'error'
+      });
+      return;
+    }
+    
+    if (isInComparison(product.id)) {
+      setNotification({
+        show: true,
+        message: `${product.name} est déjà dans la comparaison`,
+        type: 'info'
+      });
+      return;
+    }
+    
+    addToComparison(product);
+    setNotification({
+      show: true,
+      message: `${product.name} a été ajouté à la comparaison`,
+      type: 'success'
+    });
   };
 
   // Fonction pour récupérer les positions des mots-clés
@@ -633,30 +675,48 @@ const ProductPage: React.FC = () => {
                   </div>
 
                   {/* Add to Cart Button */}
-                  <button 
-                    onClick={handleAddToCart}
-                    className="w-full bg-gradient-to-r from-violet-600 to-violet-700 text-white py-4 px-6 rounded-xl 
-                    hover:from-violet-700 hover:to-violet-800 transition-all duration-300 
-                    flex items-center justify-center space-x-3 text-lg font-semibold
-                    shadow-lg hover:shadow-xl transform hover:-translate-y-1 
-                    active:transform active:translate-y-0 active:shadow-md
-                    relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed
-                    disabled:hover:transform-none disabled:hover:shadow-lg"
-                    disabled={product.colors && product.colors.length > 0 && !selectedColor}
-                    aria-label="Ajouter au devis"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="relative flex items-center space-x-3">
-                      <ShoppingCart className="w-6 h-6 animate-bounce" />
-                      <span>Ajouter au devis</span>
-                    </div>
-                    <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                  </button>
-                  {product.colors && product.colors.length > 0 && !selectedColor && (
-                    <p className="text-sm text-red-500 text-center animate-fade-in">
-                      Veuillez sélectionner une couleur
-                    </p>
-                  )}
+                  <div className="space-y-4">
+                    <button 
+                      onClick={handleAddToCart}
+                      className="w-full bg-gradient-to-r from-violet-600 to-violet-700 text-white py-4 px-6 rounded-xl 
+                      hover:from-violet-700 hover:to-violet-800 transition-all duration-300 
+                      flex items-center justify-center space-x-3 text-lg font-semibold
+                      shadow-lg hover:shadow-xl transform hover:-translate-y-1 
+                      active:transform active:translate-y-0 active:shadow-md
+                      relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed
+                      disabled:hover:transform-none disabled:hover:shadow-lg"
+                      disabled={product.colors && product.colors.length > 0 && !selectedColor}
+                      aria-label="Ajouter au devis"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="relative flex items-center space-x-3">
+                        <ShoppingCart className="w-6 h-6 animate-bounce" />
+                        <span>Ajouter au devis</span>
+                      </div>
+                      <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                    </button>
+
+                    {/* Comparison Button */}
+                    <button
+                      onClick={handleAddToComparison}
+                      disabled={isInComparison(product?.id || '')}
+                      className={`w-full py-4 px-6 rounded-xl transition-all duration-300 
+                      flex items-center justify-center space-x-3 text-lg font-semibold
+                      shadow-lg hover:shadow-xl transform hover:-translate-y-1 
+                      active:transform active:translate-y-0 active:shadow-md
+                      relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed
+                      disabled:hover:transform-none disabled:hover:shadow-lg
+                      ${isInComparison(product?.id || '')
+                        ? 'bg-gray-100 text-gray-400'
+                        : 'bg-violet-50 text-violet-700 hover:bg-violet-100'}`}
+                      aria-label="Comparer le produit"
+                    >
+                      <div className="relative flex items-center space-x-3">
+                        <Scale className="w-6 h-6" />
+                        <span>{isInComparison(product?.id || '') ? 'Ajouté à la comparaison' : 'Comparer'}</span>
+                      </div>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -1079,6 +1139,15 @@ const ProductPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Notification */}
+      {notification.show && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(prev => ({ ...prev, show: false }))}
+        />
+      )}
     </div>
   );
 };
