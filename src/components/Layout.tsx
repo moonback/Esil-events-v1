@@ -58,6 +58,7 @@ const Layout: React.FC = () => {
       </main>
       <BottomNav />
       <Footer />
+      
     </div>
   );
 };
