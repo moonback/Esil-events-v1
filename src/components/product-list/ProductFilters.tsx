@@ -154,13 +154,15 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
       </button>
       
       {/* Filter panel - hidden on mobile unless open */}
-      <div className={`
-        lg:block
-        ${isFilterOpen ? 'block fixed inset-0 z-50 lg:relative bg-white lg:bg-transparent overflow-auto pb-20 lg:pb-0' : 'hidden'}
-        transform transition-transform duration-300 ease-in-out
-        ${isFilterOpen ? 'translate-x-0' : 'translate-x-full'}
-      `}>
-        <div className="lg:block fixed lg:relative inset-y-0 right-0 w-full lg:w-auto max-w-sm bg-white lg:bg-transparent shadow-xl lg:shadow-none overflow-y-auto">
+      <div
+        className={
+          `lg:block ` +
+          (isFilterOpen
+            ? 'block fixed inset-0 z-50 bg-white overflow-auto pb-20 lg:static lg:relative lg:z-auto lg:bg-transparent lg:overflow-visible lg:pb-0'
+            : 'hidden lg:block lg:static lg:relative lg:z-auto lg:bg-transparent lg:overflow-visible lg:pb-0')
+        }
+      >
+        <div className="w-full lg:w-auto max-w-sm lg:max-w-none bg-white lg:bg-transparent shadow-xl lg:shadow-none overflow-y-auto lg:overflow-visible lg:p-0">
           {/* Mobile header with close button */}
           <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center">
             <h2 className="text-lg font-medium text-gray-900">Filtres</h2>

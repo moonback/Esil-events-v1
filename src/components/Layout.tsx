@@ -56,8 +56,9 @@ const Layout: React.FC = () => {
       <main className="flex-grow">
         <Outlet />
       </main>
-      <Footer />
       <BottomNav />
+      <Footer />
+      
     </div>
   );
 };
