@@ -140,7 +140,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
       {/* Mobile filter toggle button - only visible on small screens */}
       <button
         onClick={toggleFilterPanel}
-        className="lg:hidden fixed bottom-4 right-4 z-10 bg-violet-600 text-white p-3 rounded-full shadow-lg flex items-center"
+        className="lg:hidden fixed bottom-20 right-4 z-10 bg-violet-600 text-white p-3 rounded-full shadow-lg flex items-center"
         aria-label="Toggle filters"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
