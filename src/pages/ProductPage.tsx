@@ -4,17 +4,15 @@ import {
   ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, 
   ShoppingCart, Star, Clock, Tag, Truck, Check, ZoomIn, X, 
   BarChart, TrendingUp, TrendingDown, Loader2, AlertCircle,
-  Package, FileCode, Video, Lock, Scale, Palette, Euro
+  Package, FileCode, Video, Lock
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
-import { useComparison } from '../context/ComparisonContext';
 import { getProductById, getSimilarProducts } from '../services/productService';
 import { supabase } from '../services/supabaseClient';
 import { Product } from '../types/Product';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 import SEO from '../components/SEO';
-import Notification from '../components/common/Notification';
 
 interface KeywordRanking {
   keyword: string;
@@ -54,17 +52,6 @@ const ProductPage: React.FC = () => {
   const [keywordRankings, setKeywordRankings] = useState<Record<string, KeywordRanking>>({});
   const [loadingRankings, setLoadingRankings] = useState(false);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'docs'>('description');
-  const [notification, setNotification] = useState<{
-    show: boolean;
-    message: string;
-    type: 'success' | 'error' | 'info';
-  }>({
-    show: false,
-    message: '',
-    type: 'success'
-  });
-
-  const { addToComparison, isInComparison, comparisonProducts } = useComparison();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -265,35 +252,6 @@ const ProductPage: React.FC = () => {
     setTimeout(() => {
       setShowToast(false);
     }, 3000);
-  };
-
-  const handleAddToComparison = () => {
-    if (!product) return;
-    
-    if (comparisonProducts.length >= 3) {
-      setNotification({
-        show: true,
-        message: 'Vous ne pouvez comparer que 3 produits maximum',
-        type: 'error'
-      });
-      return;
-    }
-    
-    if (isInComparison(product.id)) {
-      setNotification({
-        show: true,
-        message: `${product.name} est déjà dans la comparaison`,
-        type: 'info'
-      });
-      return;
-    }
-    
-    addToComparison(product);
-    setNotification({
-      show: true,
-      message: `${product.name} a été ajouté à la comparaison`,
-      type: 'success'
-    });
   };
 
   // Fonction pour récupérer les positions des mots-clés
@@ -579,16 +537,6 @@ const ProductPage: React.FC = () => {
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight bg-gradient-to-r from-violet-600 to-violet-800 bg-clip-text text-transparent">
                       {product.name}
                     </h1>
-                    {product.createdAt && (
-                      <div className="inline-flex items-center">
-                        {new Date().getTime() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000 && (
-                          <span className="inline-flex items-center gap-1 ml-2 px-3 py-1.5 text-xs font-bold rounded-full shadow-sm bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 animate-pulse align-middle">
-                            <Star className="w-3 h-3" />
-                            Nouveau à la location
-                          </span>
-                        )}
-                      </div>
-                    )}
                     <div className="mt-2 flex items-center space-x-4">
                       <p className="text-gray-500 flex items-center text-sm group">
                         <Tag className="w-4 h-4 mr-1.5 text-violet-500 group-hover:text-violet-600 transition-colors" />
@@ -685,48 +633,30 @@ const ProductPage: React.FC = () => {
                   </div>
 
                   {/* Add to Cart Button */}
-                  <div className="space-y-4">
-                    <button 
-                      onClick={handleAddToCart}
-                      className="w-full bg-gradient-to-r from-violet-600 to-violet-700 text-white py-4 px-6 rounded-xl 
-                      hover:from-violet-700 hover:to-violet-800 transition-all duration-300 
-                      flex items-center justify-center space-x-3 text-lg font-semibold
-                      shadow-lg hover:shadow-xl transform hover:-translate-y-1 
-                      active:transform active:translate-y-0 active:shadow-md
-                      relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed
-                      disabled:hover:transform-none disabled:hover:shadow-lg"
-                      disabled={product.colors && product.colors.length > 0 && !selectedColor}
-                      aria-label="Ajouter au devis"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <div className="relative flex items-center space-x-3">
-                        <ShoppingCart className="w-6 h-6 animate-bounce" />
-                        <span>Ajouter au devis</span>
-                      </div>
-                      <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                    </button>
-
-                    {/* Comparison Button */}
-                    <button
-                      onClick={handleAddToComparison}
-                      disabled={isInComparison(product?.id || '')}
-                      className={`w-full py-4 px-6 rounded-xl transition-all duration-300 
-                      flex items-center justify-center space-x-3 text-lg font-semibold
-                      shadow-lg hover:shadow-xl transform hover:-translate-y-1 
-                      active:transform active:translate-y-0 active:shadow-md
-                      relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed
-                      disabled:hover:transform-none disabled:hover:shadow-lg
-                      ${isInComparison(product?.id || '')
-                        ? 'bg-gray-100 text-gray-400'
-                        : 'bg-violet-50 text-violet-700 hover:bg-violet-100'}`}
-                      aria-label="Comparer le produit"
-                    >
-                      <div className="relative flex items-center space-x-3">
-                        <Scale className="w-6 h-6" />
-                        <span>{isInComparison(product?.id || '') ? 'Ajouté à la comparaison' : 'Comparer'}</span>
-                      </div>
-                    </button>
-                  </div>
+                  <button 
+                    onClick={handleAddToCart}
+                    className="w-full bg-gradient-to-r from-violet-600 to-violet-700 text-white py-4 px-6 rounded-xl 
+                    hover:from-violet-700 hover:to-violet-800 transition-all duration-300 
+                    flex items-center justify-center space-x-3 text-lg font-semibold
+                    shadow-lg hover:shadow-xl transform hover:-translate-y-1 
+                    active:transform active:translate-y-0 active:shadow-md
+                    relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed
+                    disabled:hover:transform-none disabled:hover:shadow-lg"
+                    disabled={product.colors && product.colors.length > 0 && !selectedColor}
+                    aria-label="Ajouter au devis"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative flex items-center space-x-3">
+                      <ShoppingCart className="w-6 h-6 animate-bounce" />
+                      <span>Ajouter au devis</span>
+                    </div>
+                    <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                  </button>
+                  {product.colors && product.colors.length > 0 && !selectedColor && (
+                    <p className="text-sm text-red-500 text-center animate-fade-in">
+                      Veuillez sélectionner une couleur
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -1003,19 +933,19 @@ const ProductPage: React.FC = () => {
           )}
           {/* Similar Products */}
           {similarProducts.length > 0 && (
-            <div className="pt-8 md:pt-12 pb-6 md:pb-8">
-              <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 space-y-4 md:space-y-0">
+            <div className="pt-12 pb-8">
+              <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center">
-                    <Star className="w-5 h-5 md:w-6 md:h-6 mr-2 text-violet-600" />
+                  <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                    <Star className="w-6 h-6 mr-2 text-violet-600" />
                     Produits similaires
                   </h2>
-                  <p className="text-sm md:text-base text-gray-600 mt-1">D'autres produits qui pourraient vous intéresser</p>
+                  <p className="text-gray-600 mt-1">D'autres produits qui pourraient vous intéresser</p>
                 </div>
                 {similarProducts.length > 4 && (
                   <Link 
                     to={`/products/${product.category}`}
-                    className="text-violet-600 hover:text-violet-800 font-medium flex items-center transition-colors hover:scale-105 transform duration-200 bg-violet-50 hover:bg-violet-100 px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm md:text-base"
+                    className="text-violet-600 hover:text-violet-800 font-medium flex items-center transition-colors hover:scale-105 transform duration-200 bg-violet-50 hover:bg-violet-100 px-4 py-2 rounded-lg"
                   >
                     Voir plus <ChevronRight className="w-4 h-4 ml-1" />
                   </Link>
@@ -1023,50 +953,29 @@ const ProductPage: React.FC = () => {
               </div>
               
               {/* Filtres pour les produits similaires */}
-              <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-2 mb-6">
-                <span className="text-sm text-gray-600">Trier par :</span>
-                <div className="flex flex-wrap gap-2">
-                  <button 
-                    onClick={() => fetchSimilarProducts('relevance')}
-                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
-                      sortMethod === 'relevance' 
-                        ? 'bg-violet-600 text-white shadow-md' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                    title="Produits les plus pertinents selon vos critères"
-                  >
-                    <Star className="w-4 h-4" />
-                    <span>Pertinence</span>
-                  </button>
-                  <button 
-                    onClick={() => fetchSimilarProducts('price')}
-                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
-                      sortMethod === 'price' 
-                        ? 'bg-violet-600 text-white shadow-md' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                    title="Du moins cher au plus cher"
-                  >
-                    <TrendingUp className="w-4 h-4" />
-                    <span>Prix croissant</span>
-                  </button>
-                  <button 
-                    onClick={() => fetchSimilarProducts('newest')}
-                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
-                      sortMethod === 'newest' 
-                        ? 'bg-violet-600 text-white shadow-md' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                    title="Produits les plus récemment ajoutés"
-                  >
-                    <Clock className="w-4 h-4" />
-                    <span>Nouveautés</span>
-                  </button>
-                </div>
+              <div className="mb-6 flex flex-wrap gap-2">
+                <button 
+                  onClick={() => fetchSimilarProducts('relevance')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${sortMethod === 'relevance' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  Pertinence
+                </button>
+                <button 
+                  onClick={() => fetchSimilarProducts('price')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${sortMethod === 'price' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  Prix croissant
+                </button>
+                <button 
+                  onClick={() => fetchSimilarProducts('newest')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${sortMethod === 'newest' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  Nouveautés
+                </button>
               </div>
               
-              {/* Grille de produits similaires optimisée pour mobile */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8 transition-all duration-500">
+              {/* Carrousel de produits similaires avec animations */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 transition-all duration-500">
                 {similarProducts.map((similarProduct, index) => {
                   const score = calculateProductSimilarity(product, similarProduct, sortMethod);
                   
@@ -1074,7 +983,7 @@ const ProductPage: React.FC = () => {
                     <Link 
                       to={`/product/${similarProduct.id}`} 
                       key={similarProduct.id}
-                      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 md:hover:-translate-y-2 flex flex-col h-full group"
+                      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full group"
                     >
                       <div className="aspect-[4/3] relative overflow-hidden bg-gray-50">
                         <img 
@@ -1083,93 +992,54 @@ const ProductPage: React.FC = () => {
                             : similarProduct.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
                           alt={similarProduct.name}
                           className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 p-2"
-                          loading="lazy"
                           onError={(e) => {
                             e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
                           }}
                         />
-                        
-                        {/* Indicateur de pertinence */}
-                        {sortMethod === 'relevance' && score.score > 0 && (
-                          <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center space-x-1 shadow-sm">
-                            <Star className="w-3 h-3 text-violet-600" />
-                            <span className="text-xs font-medium text-violet-700">
-                              {Math.round((score.score / 100) * 5)}/5
-                            </span>
-                          </div>
-                        )}
-                        
-                        <div className="absolute top-2 left-2 flex flex-col space-y-2">
+                        <div className="absolute top-0 left-0 w-full p-3 flex justify-between items-start">
                           {similarProduct.category && (
-                            <span className={`text-white text-xs px-2 py-1 md:px-3 md:py-1.5 rounded-lg font-medium shadow-md feedback-message-enter ${similarProduct.category === product.category ? 'bg-violet-600' : 'bg-gray-600'}`}>
+                            <span className={`text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md feedback-message-enter ${similarProduct.category === product.category ? 'bg-violet-600' : 'bg-gray-600'}`}>
                               {typeof similarProduct.category === 'string' 
                                 ? similarProduct.category.charAt(0).toUpperCase() + similarProduct.category.slice(1)
                                 : similarProduct.category[0]}
                             </span>
                           )}
                           {!similarProduct.isAvailable && (
-                            <span className="bg-red-500 text-white text-xs px-2 py-1 md:px-3 md:py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
+                            <span className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
                               Indisponible
                             </span>
                           )}
                           {similarProduct.stock > 0 && similarProduct.stock <= 5 && (
-                            <span className="bg-amber-500 text-white text-xs px-2 py-1 md:px-3 md:py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
+                            <span className="bg-amber-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
                               Stock limité
                             </span>
                           )}
                         </div>
                       </div>
-                      <div className="p-3 md:p-5 flex flex-col flex-grow">
-                        <h3 className="font-semibold text-gray-900 text-base md:text-lg mb-2 line-clamp-2 group-hover:text-violet-600 transition-colors">
+                      <div className="p-5 flex flex-col flex-grow">
+                        <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-violet-600 transition-colors">
                           {similarProduct.name}
                         </h3>
                         
                         {/* Badges pour les caractéristiques communes */}
                         <div className="flex flex-wrap gap-1 mb-2">
-                          {score.reasons.slice(0, 3).map((reason, idx) => {
-                            let icon = null;
-                            let bgColor = 'bg-violet-50';
-                            let textColor = 'text-violet-700';
-                            
-                            if (reason.includes('catégorie')) {
-                              icon = <Tag className="w-3 h-3 mr-1" />;
-                            } else if (reason.includes('couleur')) {
-                              icon = <Palette className="w-3 h-3 mr-1" />;
-                            } else if (reason.includes('Prix')) {
-                              icon = <Euro className="w-3 h-3 mr-1" />;
-                            } else if (reason.includes('stock')) {
-                              icon = <Package className="w-3 h-3 mr-1" />;
-                              bgColor = 'bg-green-50';
-                              textColor = 'text-green-700';
-                            } else if (reason.includes('récent')) {
-                              icon = <Clock className="w-3 h-3 mr-1" />;
-                              bgColor = 'bg-blue-50';
-                              textColor = 'text-blue-700';
-                            }
-
-                            return (
-                              <span 
-                                key={idx}
-                                className={`${bgColor} ${textColor} text-xs px-1.5 py-0.5 md:px-2 md:py-0.5 rounded-md flex items-center`}
-                                title={reason}
-                              >
-                                {icon}
-                                <span className="hidden sm:inline">{reason}</span>
-                                <span className="sm:hidden">{reason.split(' ')[0]}</span>
-                              </span>
-                            );
-                          })}
+                          {score.reasons.slice(0, 3).map((reason, idx) => (
+                            <span 
+                              key={idx}
+                              className="bg-violet-50 text-violet-700 text-xs px-2 py-0.5 rounded-md"
+                            >
+                              {reason}
+                            </span>
+                          ))}
                         </div>
                         
                         {similarProduct.subCategory && (
                           <div className="mt-1 mb-2 text-xs text-gray-500 flex items-center">
                             <Tag className="w-3 h-3 mr-1 text-violet-400" />
-                            <span className="truncate">
-                              {typeof similarProduct.subCategory === 'string' 
-                                ? similarProduct.subCategory.charAt(0).toUpperCase() + similarProduct.subCategory.slice(1)
-                                : similarProduct.subCategory[0]}
-                              {similarProduct.subSubCategory && ` › ${similarProduct.subSubCategory}`}
-                            </span>
+                            {typeof similarProduct.subCategory === 'string' 
+                              ? similarProduct.subCategory.charAt(0).toUpperCase() + similarProduct.subCategory.slice(1)
+                              : similarProduct.subCategory[0]}
+                            {similarProduct.subSubCategory && ` › ${similarProduct.subSubCategory}`}
                           </div>
                         )}
                       
@@ -1177,7 +1047,7 @@ const ProductPage: React.FC = () => {
                           <div className="flex justify-between items-center">
                             <div>
                               <p className="text-xs text-gray-500">Prix TTC / jour</p>
-                              <p className="text-violet-600 font-bold text-base md:text-lg">
+                              <p className="text-violet-600 font-bold text-lg">
                                 {similarProduct.priceTTC.toFixed(2)} €
                               </p>
                             </div>
@@ -1188,7 +1058,7 @@ const ProductPage: React.FC = () => {
                                   Stock: {similarProduct.stock}
                                 </span>
                               )}
-                              <div className="bg-violet-50 text-violet-700 p-1.5 md:p-2 rounded-full group-hover:bg-violet-100 transition-colors transform group-hover:scale-110 duration-200 shadow-sm group-hover:shadow-md">
+                              <div className="bg-violet-50 text-violet-700 p-2 rounded-full group-hover:bg-violet-100 transition-colors transform group-hover:scale-110 duration-200 shadow-sm group-hover:shadow-md">
                                 <ShoppingCart className="w-4 h-4" />
                               </div>
                             </div>
@@ -1201,23 +1071,14 @@ const ProductPage: React.FC = () => {
               </div>
               
               {loadingSimilar && (
-                <div className="flex justify-center mt-6 md:mt-8">
-                  <div className="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-t-2 border-b-2 border-violet-600"></div>
+                <div className="flex justify-center mt-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-violet-600"></div>
                 </div>
               )}
             </div>
           )}
         </div>
       </div>
-
-      {/* Notification */}
-      {notification.show && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onClose={() => setNotification(prev => ({ ...prev, show: false }))}
-        />
-      )}
     </div>
   );
 };
