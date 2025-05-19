@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../../types/Product';
 import { DEFAULT_PRODUCT_IMAGE } from '../../constants/images';
@@ -8,7 +8,7 @@ interface ProductGridProps {
   error: string | null;
 }
 
-const ProductGrid: React.FC<ProductGridProps> = ({ products, error }) => {
+const ProductGrid: React.FC<ProductGridProps> = memo(({ products, error }) => {
   if (error) {
     return (
       <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
@@ -56,13 +56,22 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products, error }) => {
       ))}
     </div>
   );
-};
+});
 
 interface ProductCardProps {
   product: Product;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = memo(({ product }) => {
+  const getProductImage = useCallback(() => {
+    if (product.images && product.images.length > 0) {
+      return product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
+        ? product.images[product.mainImageIndex] 
+        : product.images[0];
+    }
+    return DEFAULT_PRODUCT_IMAGE;
+  }, [product.images, product.mainImageIndex]);
+
   return (
     <Link
       to={`/product/${product.id}`}
@@ -70,11 +79,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     >
       <div className="aspect-w-1 aspect-h-1 w-full h-48 overflow-hidden bg-white flex items-center justify-center">
         <img
-          src={product.images && product.images.length > 0 
-            ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
-              ? product.images[product.mainImageIndex] 
-              : product.images[0])
-            : DEFAULT_PRODUCT_IMAGE}
+          src={getProductImage()}
           alt={product.name}
           className="max-w-full max-h-full object-contain group-hover:opacity-75"
         />
@@ -97,6 +102,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </div>
     </Link>
   );
-};
+});
+
+ProductGrid.displayName = 'ProductGrid';
+ProductCard.displayName = 'ProductCard';
 
 export default ProductGrid;
