@@ -1003,19 +1003,19 @@ const ProductPage: React.FC = () => {
           )}
           {/* Similar Products */}
           {similarProducts.length > 0 && (
-            <div className="pt-12 pb-8">
-              <div className="flex items-center justify-between mb-8">
+            <div className="pt-8 md:pt-12 pb-6 md:pb-8">
+              <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 space-y-4 md:space-y-0">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-                    <Star className="w-6 h-6 mr-2 text-violet-600" />
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center">
+                    <Star className="w-5 h-5 md:w-6 md:h-6 mr-2 text-violet-600" />
                     Produits similaires
                   </h2>
-                  <p className="text-gray-600 mt-1">D'autres produits qui pourraient vous intéresser</p>
+                  <p className="text-sm md:text-base text-gray-600 mt-1">D'autres produits qui pourraient vous intéresser</p>
                 </div>
                 {similarProducts.length > 4 && (
                   <Link 
                     to={`/products/${product.category}`}
-                    className="text-violet-600 hover:text-violet-800 font-medium flex items-center transition-colors hover:scale-105 transform duration-200 bg-violet-50 hover:bg-violet-100 px-4 py-2 rounded-lg"
+                    className="text-violet-600 hover:text-violet-800 font-medium flex items-center transition-colors hover:scale-105 transform duration-200 bg-violet-50 hover:bg-violet-100 px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm md:text-base"
                   >
                     Voir plus <ChevronRight className="w-4 h-4 ml-1" />
                   </Link>
@@ -1023,12 +1023,12 @@ const ProductPage: React.FC = () => {
               </div>
               
               {/* Filtres pour les produits similaires */}
-              <div className="flex items-center space-x-2 mb-6">
+              <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-2 mb-6">
                 <span className="text-sm text-gray-600">Trier par :</span>
-                <div className="flex space-x-2">
+                <div className="flex flex-wrap gap-2">
                   <button 
                     onClick={() => fetchSimilarProducts('relevance')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
+                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
                       sortMethod === 'relevance' 
                         ? 'bg-violet-600 text-white shadow-md' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -1040,7 +1040,7 @@ const ProductPage: React.FC = () => {
                   </button>
                   <button 
                     onClick={() => fetchSimilarProducts('price')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
+                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
                       sortMethod === 'price' 
                         ? 'bg-violet-600 text-white shadow-md' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -1052,7 +1052,7 @@ const ProductPage: React.FC = () => {
                   </button>
                   <button 
                     onClick={() => fetchSimilarProducts('newest')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
+                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
                       sortMethod === 'newest' 
                         ? 'bg-violet-600 text-white shadow-md' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -1065,8 +1065,8 @@ const ProductPage: React.FC = () => {
                 </div>
               </div>
               
-              {/* Carrousel de produits similaires avec animations */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 transition-all duration-500">
+              {/* Grille de produits similaires optimisée pour mobile */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8 transition-all duration-500">
                 {similarProducts.map((similarProduct, index) => {
                   const score = calculateProductSimilarity(product, similarProduct, sortMethod);
                   
@@ -1074,7 +1074,7 @@ const ProductPage: React.FC = () => {
                     <Link 
                       to={`/product/${similarProduct.id}`} 
                       key={similarProduct.id}
-                      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full group"
+                      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 md:hover:-translate-y-2 flex flex-col h-full group"
                     >
                       <div className="aspect-[4/3] relative overflow-hidden bg-gray-50">
                         <img 
@@ -1083,6 +1083,7 @@ const ProductPage: React.FC = () => {
                             : similarProduct.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
                           alt={similarProduct.name}
                           className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 p-2"
+                          loading="lazy"
                           onError={(e) => {
                             e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
                           }}
@@ -1100,33 +1101,32 @@ const ProductPage: React.FC = () => {
                         
                         <div className="absolute top-2 left-2 flex flex-col space-y-2">
                           {similarProduct.category && (
-                            <span className={`text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md feedback-message-enter ${similarProduct.category === product.category ? 'bg-violet-600' : 'bg-gray-600'}`}>
+                            <span className={`text-white text-xs px-2 py-1 md:px-3 md:py-1.5 rounded-lg font-medium shadow-md feedback-message-enter ${similarProduct.category === product.category ? 'bg-violet-600' : 'bg-gray-600'}`}>
                               {typeof similarProduct.category === 'string' 
                                 ? similarProduct.category.charAt(0).toUpperCase() + similarProduct.category.slice(1)
                                 : similarProduct.category[0]}
                             </span>
                           )}
                           {!similarProduct.isAvailable && (
-                            <span className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
+                            <span className="bg-red-500 text-white text-xs px-2 py-1 md:px-3 md:py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
                               Indisponible
                             </span>
                           )}
                           {similarProduct.stock > 0 && similarProduct.stock <= 5 && (
-                            <span className="bg-amber-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
+                            <span className="bg-amber-500 text-white text-xs px-2 py-1 md:px-3 md:py-1.5 rounded-lg font-medium shadow-md ml-auto feedback-message-enter">
                               Stock limité
                             </span>
                           )}
                         </div>
                       </div>
-                      <div className="p-5 flex flex-col flex-grow">
-                        <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-violet-600 transition-colors">
+                      <div className="p-3 md:p-5 flex flex-col flex-grow">
+                        <h3 className="font-semibold text-gray-900 text-base md:text-lg mb-2 line-clamp-2 group-hover:text-violet-600 transition-colors">
                           {similarProduct.name}
                         </h3>
                         
                         {/* Badges pour les caractéristiques communes */}
                         <div className="flex flex-wrap gap-1 mb-2">
                           {score.reasons.slice(0, 3).map((reason, idx) => {
-                            // Déterminer l'icône et la couleur en fonction du type de raison
                             let icon = null;
                             let bgColor = 'bg-violet-50';
                             let textColor = 'text-violet-700';
@@ -1150,11 +1150,12 @@ const ProductPage: React.FC = () => {
                             return (
                               <span 
                                 key={idx}
-                                className={`${bgColor} ${textColor} text-xs px-2 py-0.5 rounded-md flex items-center`}
+                                className={`${bgColor} ${textColor} text-xs px-1.5 py-0.5 md:px-2 md:py-0.5 rounded-md flex items-center`}
                                 title={reason}
                               >
                                 {icon}
-                                {reason}
+                                <span className="hidden sm:inline">{reason}</span>
+                                <span className="sm:hidden">{reason.split(' ')[0]}</span>
                               </span>
                             );
                           })}
@@ -1163,10 +1164,12 @@ const ProductPage: React.FC = () => {
                         {similarProduct.subCategory && (
                           <div className="mt-1 mb-2 text-xs text-gray-500 flex items-center">
                             <Tag className="w-3 h-3 mr-1 text-violet-400" />
-                            {typeof similarProduct.subCategory === 'string' 
-                              ? similarProduct.subCategory.charAt(0).toUpperCase() + similarProduct.subCategory.slice(1)
-                              : similarProduct.subCategory[0]}
-                            {similarProduct.subSubCategory && ` › ${similarProduct.subSubCategory}`}
+                            <span className="truncate">
+                              {typeof similarProduct.subCategory === 'string' 
+                                ? similarProduct.subCategory.charAt(0).toUpperCase() + similarProduct.subCategory.slice(1)
+                                : similarProduct.subCategory[0]}
+                              {similarProduct.subSubCategory && ` › ${similarProduct.subSubCategory}`}
+                            </span>
                           </div>
                         )}
                       
@@ -1174,7 +1177,7 @@ const ProductPage: React.FC = () => {
                           <div className="flex justify-between items-center">
                             <div>
                               <p className="text-xs text-gray-500">Prix TTC / jour</p>
-                              <p className="text-violet-600 font-bold text-lg">
+                              <p className="text-violet-600 font-bold text-base md:text-lg">
                                 {similarProduct.priceTTC.toFixed(2)} €
                               </p>
                             </div>
@@ -1185,7 +1188,7 @@ const ProductPage: React.FC = () => {
                                   Stock: {similarProduct.stock}
                                 </span>
                               )}
-                              <div className="bg-violet-50 text-violet-700 p-2 rounded-full group-hover:bg-violet-100 transition-colors transform group-hover:scale-110 duration-200 shadow-sm group-hover:shadow-md">
+                              <div className="bg-violet-50 text-violet-700 p-1.5 md:p-2 rounded-full group-hover:bg-violet-100 transition-colors transform group-hover:scale-110 duration-200 shadow-sm group-hover:shadow-md">
                                 <ShoppingCart className="w-4 h-4" />
                               </div>
                             </div>
@@ -1198,8 +1201,8 @@ const ProductPage: React.FC = () => {
               </div>
               
               {loadingSimilar && (
-                <div className="flex justify-center mt-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-violet-600"></div>
+                <div className="flex justify-center mt-6 md:mt-8">
+                  <div className="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-t-2 border-b-2 border-violet-600"></div>
                 </div>
               )}
             </div>
