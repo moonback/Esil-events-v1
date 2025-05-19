@@ -4,7 +4,7 @@ import {
   ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, 
   ShoppingCart, Star, Clock, Tag, Truck, Check, ZoomIn, X, 
   BarChart, TrendingUp, TrendingDown, Loader2, AlertCircle,
-  Package, FileCode, Video, Lock, Scale
+  Package, FileCode, Video, Lock, Scale, Palette, Euro
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
@@ -1023,25 +1023,46 @@ const ProductPage: React.FC = () => {
               </div>
               
               {/* Filtres pour les produits similaires */}
-              <div className="mb-6 flex flex-wrap gap-2">
-                <button 
-                  onClick={() => fetchSimilarProducts('relevance')}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${sortMethod === 'relevance' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                >
-                  Pertinence
-                </button>
-                <button 
-                  onClick={() => fetchSimilarProducts('price')}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${sortMethod === 'price' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                >
-                  Prix croissant
-                </button>
-                <button 
-                  onClick={() => fetchSimilarProducts('newest')}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${sortMethod === 'newest' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                >
-                  Nouveautés
-                </button>
+              <div className="flex items-center space-x-2 mb-6">
+                <span className="text-sm text-gray-600">Trier par :</span>
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={() => fetchSimilarProducts('relevance')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
+                      sortMethod === 'relevance' 
+                        ? 'bg-violet-600 text-white shadow-md' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                    title="Produits les plus pertinents selon vos critères"
+                  >
+                    <Star className="w-4 h-4" />
+                    <span>Pertinence</span>
+                  </button>
+                  <button 
+                    onClick={() => fetchSimilarProducts('price')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
+                      sortMethod === 'price' 
+                        ? 'bg-violet-600 text-white shadow-md' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                    title="Du moins cher au plus cher"
+                  >
+                    <TrendingUp className="w-4 h-4" />
+                    <span>Prix croissant</span>
+                  </button>
+                  <button 
+                    onClick={() => fetchSimilarProducts('newest')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
+                      sortMethod === 'newest' 
+                        ? 'bg-violet-600 text-white shadow-md' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                    title="Produits les plus récemment ajoutés"
+                  >
+                    <Clock className="w-4 h-4" />
+                    <span>Nouveautés</span>
+                  </button>
+                </div>
               </div>
               
               {/* Carrousel de produits similaires avec animations */}
@@ -1066,7 +1087,18 @@ const ProductPage: React.FC = () => {
                             e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
                           }}
                         />
-                        <div className="absolute top-0 left-0 w-full p-3 flex justify-between items-start">
+                        
+                        {/* Indicateur de pertinence */}
+                        {sortMethod === 'relevance' && score.score > 0 && (
+                          <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center space-x-1 shadow-sm">
+                            <Star className="w-3 h-3 text-violet-600" />
+                            <span className="text-xs font-medium text-violet-700">
+                              {Math.round((score.score / 100) * 5)}/5
+                            </span>
+                          </div>
+                        )}
+                        
+                        <div className="absolute top-2 left-2 flex flex-col space-y-2">
                           {similarProduct.category && (
                             <span className={`text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-md feedback-message-enter ${similarProduct.category === product.category ? 'bg-violet-600' : 'bg-gray-600'}`}>
                               {typeof similarProduct.category === 'string' 
@@ -1093,14 +1125,39 @@ const ProductPage: React.FC = () => {
                         
                         {/* Badges pour les caractéristiques communes */}
                         <div className="flex flex-wrap gap-1 mb-2">
-                          {score.reasons.slice(0, 3).map((reason, idx) => (
-                            <span 
-                              key={idx}
-                              className="bg-violet-50 text-violet-700 text-xs px-2 py-0.5 rounded-md"
-                            >
-                              {reason}
-                            </span>
-                          ))}
+                          {score.reasons.slice(0, 3).map((reason, idx) => {
+                            // Déterminer l'icône et la couleur en fonction du type de raison
+                            let icon = null;
+                            let bgColor = 'bg-violet-50';
+                            let textColor = 'text-violet-700';
+                            
+                            if (reason.includes('catégorie')) {
+                              icon = <Tag className="w-3 h-3 mr-1" />;
+                            } else if (reason.includes('couleur')) {
+                              icon = <Palette className="w-3 h-3 mr-1" />;
+                            } else if (reason.includes('Prix')) {
+                              icon = <Euro className="w-3 h-3 mr-1" />;
+                            } else if (reason.includes('stock')) {
+                              icon = <Package className="w-3 h-3 mr-1" />;
+                              bgColor = 'bg-green-50';
+                              textColor = 'text-green-700';
+                            } else if (reason.includes('récent')) {
+                              icon = <Clock className="w-3 h-3 mr-1" />;
+                              bgColor = 'bg-blue-50';
+                              textColor = 'text-blue-700';
+                            }
+
+                            return (
+                              <span 
+                                key={idx}
+                                className={`${bgColor} ${textColor} text-xs px-2 py-0.5 rounded-md flex items-center`}
+                                title={reason}
+                              >
+                                {icon}
+                                {reason}
+                              </span>
+                            );
+                          })}
                         </div>
                         
                         {similarProduct.subCategory && (
