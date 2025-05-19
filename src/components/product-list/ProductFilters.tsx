@@ -15,7 +15,7 @@ interface ProductFiltersProps {
   resetFilters: () => void;
   products: Product[];
   isFilterOpen: boolean;
-  setIsFilterOpen?: (isOpen: boolean) => void;
+  setIsFilterOpen: (isOpen: boolean) => void;
   categories: Category[];
   currentCategory?: string;
   currentSubcategory?: string;
@@ -45,9 +45,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   
   // Handle mobile filter panel
   const toggleFilterPanel = () => {
-    if (setIsFilterOpen) {
-      setIsFilterOpen(!isFilterOpen);
-    }
+    setIsFilterOpen(!isFilterOpen);
   };
   
   // Extract unique colors from products with memoization

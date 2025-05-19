@@ -317,6 +317,7 @@ const ProductListPage: React.FC = () => {
             resetFilters={resetFilters}
             products={products}
             isFilterOpen={isFilterOpen}
+            setIsFilterOpen={toggleFilter}
             categories={categories}
             currentCategory={category}
             currentSubcategory={subcategory}
