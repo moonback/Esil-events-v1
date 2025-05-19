@@ -579,10 +579,15 @@ const ProductPage: React.FC = () => {
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight bg-gradient-to-r from-violet-600 to-violet-800 bg-clip-text text-transparent">
                       {product.name}
                     </h1>
-                    {product.createdAt && (new Date().getTime() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000) && (
-                      <span className="inline-block ml-2 px-3 py-1.5 text-xs font-bold rounded-full shadow-sm bg-yellow-100 text-yellow-800 animate-pulse align-middle">
-                        Nouveau à la location
-                      </span>
+                    {product.createdAt && (
+                      <div className="inline-flex items-center">
+                        {new Date().getTime() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000 && (
+                          <span className="inline-flex items-center gap-1 ml-2 px-3 py-1.5 text-xs font-bold rounded-full shadow-sm bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 animate-pulse align-middle">
+                            <Star className="w-3 h-3" />
+                            Nouveau à la location
+                          </span>
+                        )}
+                      </div>
                     )}
                     <div className="mt-2 flex items-center space-x-4">
                       <p className="text-gray-500 flex items-center text-sm group">

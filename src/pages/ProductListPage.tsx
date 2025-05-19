@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Filter, ChevronDown, Scale } from 'lucide-react';
+import { Filter, ChevronDown, Scale, Star } from 'lucide-react';
 import { getAllProducts, getProductsByCategory, getProductsBySubCategory, getProductsBySubSubCategory } from '../services/productService';
 import { Category, getAllCategories } from '../services/categoryService';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
@@ -409,11 +409,16 @@ const ProductListPage: React.FC = () => {
                             </span>
                           )}
                           {/* Badge Nouveau */}
-                          {product.createdAt && (new Date().getTime() - new Date(product.createdAt).getTime() < 15 * 24 * 60 * 60 * 1000) && (
-                            <span className="absolute top-3 left-3 z-10 px-3 py-1.5 text-xs font-bold rounded-full shadow-sm bg-yellow-100 text-yellow-800 animate-pulse">
-                              Nouveau à la location
-                            </span>
-                          )}
+                          {product.createdAt && (
+                      <div className="inline-flex items-center">
+                        {new Date().getTime() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000 && (
+                          <span className="inline-flex items-center gap-1 ml-2 px-3 py-1.5 text-xs font-bold rounded-full shadow-sm bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 animate-pulse align-middle">
+                            <Star className="w-3 h-3" />
+                            Nouveau à la location
+                          </span>
+                        )}
+                      </div>
+                    )}
                           
                           {/* Product image with hover effect */}
                           <div className="aspect-w-1 aspect-h-1 w-full h-64 overflow-hidden bg-gray-50 flex items-center justify-center p-6">
