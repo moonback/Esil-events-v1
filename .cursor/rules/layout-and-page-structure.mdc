@@ -1,0 +1,11 @@
+---
+description: Layout and Pagpages/**/*.tsx", "components/Layout.tsx", "components/layouts/AdminLayout.tsxe Structure Guidelines
+globs: 
+alwaysApply: false
+---
+
+- Public-facing pages are typically wrapped by `@components/Layout.tsx`, which includes the main `@components/Header.tsx`, `@components/Footer.tsx`, and `@components/BottomNav.tsx` (for mobile).
+- Admin pages are wrapped by `@components/layouts/AdminLayout.tsx`, which provides a sidebar navigation and uses `@components/admin/AdminHeader.tsx`.
+- Most pages should include the `@components/SEO.tsx` component for managing meta tags and structured data.
+
+- The `@components/ScrollToTop.tsx` component ensures navigation scrolls the window to the top.

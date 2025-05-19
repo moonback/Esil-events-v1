@@ -1,0 +1,15 @@
+---
+description: The project includes sitemap management features in `pages/admin/Sitemap.tsx`. This allows manual editing, adding product URLs, and saving the sitemap.xml file.
+globs: 
+alwaysApply: false
+---
+
+
+- Sitemap management is handled in `pages/admin/Sitemap.tsx`.
+- The `@services/sitemapService.ts` provides functions to:
+    - Generate sitemap entries for products.
+    - Parse existing `sitemap.xml`.
+    - Generate new `sitemap.xml` content.
+    - Save the `sitemap.xml` (likely by calling a backend API endpoint like `/api/admin/sitemap`).
+
+- Admins can manually add/remove/edit sitemap entries.

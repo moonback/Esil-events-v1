@@ -1,0 +1,13 @@
+---
+description: 
+globs: pages/ArtistPage.tsx", "pages/ArtistDetailPage.tsx", "pages/admin/Artists.tsx", "pages/admin/ArtistCategories.tsx
+alwaysApply: false
+---
+
+
+- An artist directory is available at `ArtistPage.tsx`, showing artists filterable by category.
+- `ArtistDetailPage.tsx` shows details for a specific artist.
+- Admin management for artists is in `pages/admin/Artists.tsx`.
+- Admin management for artist categories is in `pages/admin/ArtistCategories.tsx`.
+
+- Artist and artist category data is managed by `@services/artistService.ts` and `@services/artistCategoryService.ts` respectively.

@@ -1,0 +1,16 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+
+- `@hooks/useAuth.ts`: Provides current user and admin status.
+- `@hooks/useProductFilters.ts`: Manages filtering, sorting, and pagination for public product lists.
+- `@hooks/useAdminProductFilters.ts`: Manages filtering, sorting, and pagination for admin product lists.
+- `@hooks/useQuoteRequestFilters.ts`: Handles filtering logic for quote requests in the admin panel.
+- `@hooks/useQuoteRequestActions.ts`: Encapsulates actions like updating status, deleting, and generating AI responses for quote requests.
+- `@hooks/useCookieConsent.ts`: Manages cookie consent state.
+- `@hooks/usePagination.ts`: Provides generic pagination logic.
+
+- `@hooks/useCalendar.ts`: Manages state and logic for the admin quote request calendar.

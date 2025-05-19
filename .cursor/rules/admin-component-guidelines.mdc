@@ -1,0 +1,21 @@
+---
+description: 
+globs: pages/admin/**/*.tsx", "components/admin/**/*.tsx
+alwaysApply: false
+---
+---
+description: "Admin Component Guidelines"
+autoAttached: true
+globs: ["pages/admin/**/*.tsx", "components/admin/**/*.tsx"]
+---
+
+- Admin interfaces generally use `@components/layouts/AdminLayout.tsx`.
+- `@components/admin/AdminHeader.tsx` is a common header for admin sections.
+- Admin notifications use `@components/admin/AdminNotification.tsx` and `NotificationContainer`.
+- Statistical data is often displayed using `@components/admin/StatCard.tsx` (the newer one from `components/StatCard.tsx` seems to be the intended one for general admin stats, while `components/admin/StatCard.tsx` is the one with specific color schemes and trend lines).
+- Admin routes are protected by `@components/AdminRoute.tsx`.
+- Forms in the admin section (e.g., `@components/ProductForm.tsx`) handle data for entities like products, categories.
+- Product form uses dynamic categories from `@services/categoryService.ts` and supports image uploads.
+- Tools like `KeywordGeneratorTool` and `KeywordRankingTool` provide SEO functionalities.
+
+- Quote request management includes components like `QuoteRequestList`, `QuoteRequestDetails`, `AIResponseGenerator`, `FilterPanel`, `Pagination` found in `components/admin/quoteRequests/`.

@@ -1,0 +1,21 @@
+---
+description: Core Project Setup and Technologies
+globs: 
+alwaysApply: false
+---
+
+
+- This project is a React application built with TypeScript.
+- Styling is primarily done using Tailwind CSS. Custom global styles and animations can be found in `index.css` and the `styles/` directory (e.g., `header-animations.css`, `admin-animations.css`, `map.css`).
+- Custom fonts used: 'Komoda' and 'Code Pro' (defined in `index.css`).
+- State management for cart and product comparison is handled via React Context:
+    - `@context/CartContext.tsx`
+    - `@context/ComparisonContext.tsx`
+- Routing is managed by `react-router-dom`. Main routes are in `App.tsx`. Admin routes are in `components/AdminRoutes.tsx`.
+- Supabase is used as the backend and database. Client is configured in `@services/supabaseClient.ts`.
+- SEO is managed by the `@components/SEO.tsx` component, with default configurations in `@config/seo.ts`.
+- Email services (SMTP configuration, sending emails) are handled by `@services/emailService.ts`. SMTP config is initialized at app startup in `App.tsx`.
+- Cookie consent is managed by `@components/CookieConsent.tsx` using the `@hooks/useCookieConsent.ts` hook.
+- Lucide Icons (`lucide-react`) are used extensively for iconography.
+
+- Framer Motion (`framer-motion`) is used for animations.

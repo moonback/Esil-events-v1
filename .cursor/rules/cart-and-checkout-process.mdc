@@ -1,0 +1,18 @@
+---
+description: 
+globs: pages/CartPage.tsx", "components/cart/**/*.tsx
+alwaysApply: false
+---
+
+
+- The cart functionality is managed by `@context/CartContext.tsx`.
+- `CartPage.tsx` orchestrates the cart display and checkout process.
+- Key cart components in `components/cart/`:
+    - `CartItemList.tsx`: Displays items in the cart.
+    - `CartSummary.tsx`: Shows cart total and checkout button.
+    - `EmptyCart.tsx`: Displayed when the cart is empty.
+    - `CheckoutForm.tsx`: Collects user and event details for a quote request. Uses `FormData` type from `components/cart/types.ts`.
+    - `CartSummaryPreview.tsx`: Shows a preview of cart items within the checkout form.
+    - `SuccessMessage.tsx`: Displayed after successful quote submission.
+
+- Submitting the `CheckoutForm` triggers `createQuoteRequest` from `@services/quoteRequestService.ts`.

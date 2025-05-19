@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+
+- Core TypeScript types are defined in the `types/` directory.
+- `@types/Product.ts` defines `Product`, `ProductFormData`, and related category/subcategory interfaces.
+- `@types/calendar.ts` defines types for calendar views and events.
+
+- Types for cart components are in `@components/cart/types.ts`.

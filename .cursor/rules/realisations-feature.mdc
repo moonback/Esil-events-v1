@@ -1,0 +1,20 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Réalisations (Portfolio/Projects) Feature"
+autoAttached: true
+globs: ["pages/RealisationPage.tsx", "pages/admin/Realizations.tsx", "components/realization/**/*.tsx"]
+---
+
+- "Réalisations" (projects/portfolio items) are displayed on `RealisationPage.tsx`.
+- Admin management for réalisations is in `pages/admin/Realizations.tsx`.
+- Components for this feature are in `components/realization/`:
+    - `RealizationGrid.tsx`: Displays a grid of realization cards.
+    - `RealizationFilters.tsx`: Provides filtering options.
+    - `FilterButton.tsx`: Mobile filter toggle.
+    - `RealizationDetails.tsx`: Modal to show details of a specific realization.
+
+- Data is managed by `@services/realizationService.ts`.

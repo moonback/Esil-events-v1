@@ -1,0 +1,24 @@
+---
+description: 
+globs: services/**/*.ts
+alwaysApply: false
+---
+
+
+- Services in the `services/` directory are responsible for data fetching and mutations, primarily interacting with Supabase.
+- Authentication logic is in `@services/authService.ts`. This includes user login, registration, session management, and admin role checks.
+- Product data (CRUD, search, categories) is handled by `@services/productService.ts` and `@services/categoryService.ts`.
+- Quote requests are managed by `@services/quoteRequestService.ts`.
+- Artist and artist category data is in `@services/artistService.ts` and `@services/artistCategoryService.ts`.
+- "Réalisations" (portfolio/project showcases) are managed by `@services/realizationService.ts`.
+- Newsletter subscriptions and sending are handled by `@services/newsletterService.ts`.
+- Sitemap generation and management logic is in `@services/sitemapService.ts`.
+- File uploads (e.g., product images) are handled by `@services/storageService.ts`, targeting the `product-images` Supabase Storage bucket.
+- AI-powered content generation services exist for:
+    - Product descriptions: `@services/productDescriptionService.ts`
+    - Product/Category SEO: `@services/productSeoService.ts`, `@services/seoContentService.ts`
+    - AI responses for quotes: `@services/aiResponseService.ts`
+    - Keyword generation: `@services/keywordGenerationService.ts`
+    - These AI services typically use the Google Gemini API, configured via `VITE_GOOGLE_GEMINI_API_KEY`.
+
+- Keyword ranking lookups utilize SerpApi, configured in `@config/googleSearchApi.ts` and used in `@services/keywordRankingService.ts`.

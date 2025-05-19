@@ -1,0 +1,22 @@
+---
+description: 
+globs: pages/ProductListPage.tsx", "pages/ProductPage.tsx", "components/product-list/**/*.tsx
+alwaysApply: false
+---
+
+
+- `ProductListPage.tsx` displays products, potentially filtered by category, subcategory, or sub-subcategory from URL params.
+- It uses `@hooks/useProductFilters.ts` for filtering, sorting, and pagination logic.
+- Components used on product list pages include:
+    - `@components/product-list/Breadcrumb.tsx` for navigation.
+    - `@components/product-list/CategoryHeader.tsx` for page titles.
+    - `@components/product-list/ProductFilters.tsx` for filter UI.
+    - `@components/product-list/ProductGrid.tsx` to display product cards.
+    - `@components/product-list/ComparisonBar.tsx` for product comparison features, using `ComparisonContext`.
+- `ProductPage.tsx` displays details for a single product.
+    - It fetches product data using `getProductById` from `@services/productService.ts`.
+    - It displays images, description, technical specs, and allows adding to cart (`CartContext`) and comparison (`ComparisonContext`).
+    - It can show similar products fetched via `getSimilarProducts`.
+    - Includes SEO data for the specific product.
+
+    - Default product image from `@constants/images.ts` is `DEFAULT_PRODUCT_IMAGE`.
