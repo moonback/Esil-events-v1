@@ -296,41 +296,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                   </div>
                 </div>
                 
-                {/* <div className="px-2">
-                  <div className="relative">
-                    <div className="h-1 bg-gray-200 rounded-full">
-                      <div 
-                        className="absolute h-1 bg-violet-500 rounded-full" 
-                        style={{
-                          left: `${((priceRange[0] - minMaxPrice[0]) / (minMaxPrice[1] - minMaxPrice[0])) * 100}%`,
-                          right: `${100 - ((priceRange[1] - minMaxPrice[0]) / (minMaxPrice[1] - minMaxPrice[0])) * 100}%`
-                        }}
-                      ></div>
-                    </div>
-                    <input
-                      type="range"
-                      min={minMaxPrice[0]}
-                      max={minMaxPrice[1]}
-                      step="1"
-                      value={priceRange[0]}
-                      onChange={(e) => handlePriceRangeChange(0, parseInt(e.target.value))}
-                      className="absolute w-full h-1 opacity-0 cursor-pointer"
-                    />
-                    <input
-                      type="range"
-                      min={minMaxPrice[0]}
-                      max={minMaxPrice[1]}
-                      step="1"
-                      value={priceRange[1]}
-                      onChange={(e) => handlePriceRangeChange(1, parseInt(e.target.value))}
-                      className="absolute w-full h-1 opacity-0 cursor-pointer"
-                    />
-                  </div>
-                  <div className="flex justify-between mt-2 text-xs text-gray-500">
-                    <span>{minMaxPrice[0]}€</span>
-                    <span>{minMaxPrice[1]}€</span>
-                  </div>
-                </div> */}
+                
               </div>
             </div>
 
