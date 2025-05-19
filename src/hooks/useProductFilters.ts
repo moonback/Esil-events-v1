@@ -31,7 +31,7 @@ interface UseProductFiltersResult {
 export const useProductFilters = (products: Product[], category?: string, itemsPerPageParam = 12): UseProductFiltersResult => {
   // Filter states
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
-  const [sortBy, setSortBy] = useState<string>('name-asc');
+  const [sortBy, setSortBy] = useState<string>('popularity-desc');
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [availability, setAvailability] = useState<'all' | 'available' | 'unavailable'>('all');
@@ -51,7 +51,7 @@ export const useProductFilters = (products: Product[], category?: string, itemsP
     setSelectedColors([]);
     setSelectedCategories([]);
     setAvailability('all');
-    setSortBy('name-asc');
+    setSortBy('popularity-desc');
   };
 
   // Apply filters and sorting to products
