@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, ChevronDown, ChevronUp, Search, Filter, X } from 'lucide-react';
+import { Plus, Edit, Trash2, ChevronDown, ChevronUp, Search, Filter, X, List, Grid } from 'lucide-react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import AdminHeader from '../../components/admin/AdminHeader';
 import SeoContentGenerator from '../../components/SeoContentGenerator';
@@ -36,6 +36,10 @@ const AdminCategories: React.FC = () => {
   const [selectedItemId, setSelectedItemId] = useState<string>('');
   const [selectedParentId, setSelectedParentId] = useState<string>('');
   const [showModal, setShowModal] = useState(false);
+  const [viewMode, setViewMode] = useState<'tree' | 'flat'>('tree');
+  const [levelFilter, setLevelFilter] = useState<'all' | 'category' | 'subcategory' | 'subsubcategory'>('all');
+  const [sortBy, setSortBy] = useState<'name' | 'order'>('order');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const loadCategories = async () => {
     try {
@@ -472,30 +476,144 @@ const AdminCategories: React.FC = () => {
     setModalSeoKeywords('');
   };
 
-  const filteredCategories = categories.filter(category =>
-    category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    category.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (category.description && category.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (category.seo_title && category.seo_title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (category.seo_description && category.seo_description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (category.seo_keywords && category.seo_keywords.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    category.subcategories?.some(sub =>
-      sub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sub.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (sub.description && sub.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (sub.seo_title && sub.seo_title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (sub.seo_description && sub.seo_description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (sub.seo_keywords && sub.seo_keywords.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      sub.subsubcategories?.some(subsub =>
-        subsub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        subsub.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (subsub.description && subsub.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (subsub.seo_title && subsub.seo_title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (subsub.seo_description && subsub.seo_description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (subsub.seo_keywords && subsub.seo_keywords.toLowerCase().includes(searchTerm.toLowerCase()))
-      )
-    )
-  );
+  const getFilteredAndSortedCategories = () => {
+    let filtered = [...categories];
+
+    if (levelFilter !== 'all') {
+      filtered = filtered.filter(category => {
+        if (levelFilter === 'category') return true;
+        if (levelFilter === 'subcategory') {
+          return category.subcategories && category.subcategories.length > 0;
+        }
+        if (levelFilter === 'subsubcategory') {
+          return category.subcategories?.some(sub => sub.subsubcategories && sub.subsubcategories.length > 0);
+        }
+        return true;
+      });
+    }
+
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(category => {
+        const matchesCategory = category.name.toLowerCase().includes(searchLower) ||
+          category.description?.toLowerCase().includes(searchLower);
+        
+        const matchesSubcategories = category.subcategories?.some(sub => 
+          sub.name.toLowerCase().includes(searchLower) ||
+          sub.description?.toLowerCase().includes(searchLower)
+        );
+
+        const matchesSubSubcategories = category.subcategories?.some(sub =>
+          sub.subsubcategories?.some(subsub =>
+            subsub.name.toLowerCase().includes(searchLower) ||
+            subsub.description?.toLowerCase().includes(searchLower)
+          )
+        );
+
+        return matchesCategory || matchesSubcategories || matchesSubSubcategories;
+      });
+    }
+
+    const sortFunction = (a: any, b: any) => {
+      const direction = sortDirection === 'asc' ? 1 : -1;
+      if (sortBy === 'name') {
+        return direction * a.name.localeCompare(b.name);
+      }
+      return direction * (a.order_index - b.order_index);
+    };
+
+    filtered.sort(sortFunction);
+    return filtered;
+  };
+
+  const FlatView = () => {
+    const items = getFilteredAndSortedCategories();
+    
+    return (
+      <div className="space-y-4">
+        {items.map(category => (
+          <div key={category.id} className="border rounded-lg p-4 bg-white shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold">{category.name}</h3>
+                {category.description && (
+                  <p className="text-gray-600 mt-1">{category.description}</p>
+                )}
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleEditCategory(category)}
+                  className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                >
+                  <Edit size={18} />
+                </button>
+                <button
+                  onClick={() => handleDeleteCategory(category.id)}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+            
+            {category.subcategories?.map(subcategory => (
+              <div key={subcategory.id} className="ml-8 mt-4 border-l-2 pl-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">{subcategory.name}</h4>
+                    {subcategory.description && (
+                      <p className="text-gray-600 text-sm mt-1">{subcategory.description}</p>
+                    )}
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEditSubcategory(subcategory)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteSubcategory(subcategory.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {subcategory.subsubcategories?.map(subsubcategory => (
+                  <div key={subsubcategory.id} className="ml-8 mt-3 border-l-2 pl-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h5 className="text-sm font-medium">{subsubcategory.name}</h5>
+                        {subsubcategory.description && (
+                          <p className="text-gray-600 text-xs mt-1">{subsubcategory.description}</p>
+                        )}
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditSubSubcategory(subsubcategory)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                        >
+                          <Edit size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSubSubcategory(subsubcategory.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -507,209 +625,180 @@ const AdminCategories: React.FC = () => {
 
   return (
     <AdminLayout>
-      {/* Main content */}
-      <AdminHeader />
-      <div className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 mt-12">
-        {/* Header Section */}
-        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Gestion des catégories</h1>
-              <p className="mt-2 text-sm text-gray-500">Gérez vos catégories, sous-catégories et sous-sous-catégories</p>
-            </div>
-            <button
-              onClick={handleAddCategory}
-              className="px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 md:space-x-3 font-medium"
+      <div className="container mx-auto px-4 py-8">
+        <AdminHeader title="Gestion des Catégories" />
+        
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Rechercher..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+              </div>
+              
+              <select
+                value={levelFilter}
+                onChange={(e) => setLevelFilter(e.target.value as any)}
+                className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-              <Plus className="w-5 h-5 mr-2" />
-              Nouvelle catégorie
-            </button>
-          </div>
-        </div>
+                <option value="all">Tous les niveaux</option>
+                <option value="category">Catégories</option>
+                <option value="subcategory">Sous-catégories</option>
+                <option value="subsubcategory">Sous-sous-catégories</option>
+              </select>
 
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg animate-fade-in">
-            {error}
-          </div>
-        )}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="name">Trier par nom</option>
+                <option value="order">Trier par ordre</option>
+              </select>
 
-        {/* Search Section */}
-        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                placeholder="Rechercher une catégorie..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent shadow-sm text-gray-700"
-              />
-              <Search className="w-5 h-5 text-gray-400 absolute left-4 top-3.5" />
+              <button
+                onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                className="p-2 hover:bg-gray-100 rounded"
+              >
+                {sortDirection === 'asc' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+              </button>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setViewMode(prev => prev === 'tree' ? 'flat' : 'tree')}
+                className="p-2 hover:bg-gray-100 rounded"
+                title={viewMode === 'tree' ? 'Vue à plat' : 'Vue arborescente'}
+              >
+                {viewMode === 'tree' ? <Grid size={20} /> : <List size={20} />}
+              </button>
+
+              <button
+                onClick={handleAddCategory}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+              >
+                <Plus size={20} />
+                <span>Nouvelle catégorie</span>
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Categories List */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-          <div className="divide-y divide-gray-100">
-            {filteredCategories.map((category) => (
-              <div key={category.id} className="group p-5 hover:bg-gray-50 transition-all duration-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <button
-                      onClick={() => toggleCategory(category.id)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 group-hover:bg-white"
-                    >
-                      {expandedCategories.has(category.id) ? (
-                        <ChevronUp className="w-5 h-5 text-gray-600" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-600" />
-                      )}
-                    </button>
-                    <div>
-                      <div className="flex items-center">
-                        <span className="text-lg font-semibold text-gray-900">{category.name}</span>
-                        <span className="ml-2 text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                          {category.slug}
-                        </span>
-                        {category.description && (
-                          <span className="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-                            Description
-                          </span>
-                        )}
-                        {(category.seo_title || category.seo_description || category.seo_keywords) && (
-                          <span className="ml-2 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                            SEO
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleAddSubcategory(category.id)}
-                      className="p-2 hover:bg-white rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
-                      title="Ajouter une sous-catégorie"
-                    >
-                      <Plus className="w-4.5 h-4.5" />
-                    </button>
-                    <button
-                      onClick={() => handleEditCategory(category)}
-                      className="p-2 hover:bg-white rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
-                      title="Modifier la catégorie"
-                    >
-                      <Edit className="w-4.5 h-4.5" />
-                    </button>
-                    <button
-                      onClick={() => openCategorySeoModal(category)}
-                      className="p-2 hover:bg-white rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
-                      title="Modifier la description et le SEO"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 24 24" width="18" className="w-5 h-5">
-                        <path d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="currentColor"/>
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCategory(category.id)}
-                      className="p-2 hover:bg-red-50 rounded-lg transition-all duration-200 text-red-600 hover:text-red-700"
-                      title="Supprimer la catégorie"
-                    >
-                      <Trash2 className="w-4.5 h-4.5" />
-                    </button>
-                  </div>
-                </div>
+          {error && (
+            <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
+              {error}
+            </div>
+          )}
 
-                {expandedCategories.has(category.id) && category.subcategories && (
-                  <div className="mt-4 ml-8 space-y-3">
-                    {category.subcategories.map((subcategory) => (
-                      <div key={subcategory.id} className="space-y-2">
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200">
-                          <div className="flex items-center space-x-4">
-                            <button
-                              onClick={() => toggleSubcategory(subcategory.id)}
-                              className="p-2 hover:bg-white rounded-lg transition-all duration-200"
-                            >
-                              {expandedSubcategories.has(subcategory.id) ? (
-                                <ChevronUp className="w-4.5 h-4.5 text-gray-600" />
-                              ) : (
-                                <ChevronDown className="w-4.5 h-4.5 text-gray-600" />
-                              )}
-                            </button>
-                            <div>
-                              <div className="flex items-center flex-wrap gap-1">
-                                <span className="text-gray-900 font-medium">{subcategory.name}</span>
-                                <span className="text-sm text-gray-500 bg-white px-2 py-0.5 rounded-full">
-                                  {subcategory.slug}
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+          ) : viewMode === 'tree' ? (
+            <div className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 mt-12">
+              <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                <div className="divide-y divide-gray-100">
+                  {getFilteredAndSortedCategories().map((category) => (
+                    <div key={category.id} className="group p-5 hover:bg-gray-50 transition-all duration-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <button
+                            onClick={() => toggleCategory(category.id)}
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 group-hover:bg-white"
+                          >
+                            {expandedCategories.has(category.id) ? (
+                              <ChevronUp className="w-5 h-5 text-gray-600" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5 text-gray-600" />
+                            )}
+                          </button>
+                          <div>
+                            <div className="flex items-center">
+                              <span className="text-lg font-semibold text-gray-900">{category.name}</span>
+                              <span className="ml-2 text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                                {category.slug}
+                              </span>
+                              {category.description && (
+                                <span className="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                                  Description
                                 </span>
-                                {subcategory.description && (
-                                  <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-                                    Description
-                                  </span>
-                                )}
-                                {(subcategory.seo_title || subcategory.seo_description || subcategory.seo_keywords) && (
-                                  <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                                    SEO
-                                  </span>
-                                )}
-                              </div>
+                              )}
+                              {(category.seo_title || category.seo_description || category.seo_keywords) && (
+                                <span className="ml-2 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                                  SEO
+                                </span>
+                              )}
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => handleAddSubSubcategory(subcategory.id)}
-                              className="p-2 hover:bg-white rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
-                              title="Ajouter une sous-sous-catégorie"
-                            >
-                              <Plus className="w-4.5 h-4.5" />
-                            </button>
-                            <button
-                              onClick={() => handleEditSubcategory(subcategory)}
-                              className="p-2 hover:bg-white rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
-                              title="Modifier la sous-catégorie"
-                            >
-                              <Edit className="w-4.5 h-4.5" />
-                            </button>
-                            <button
-                              onClick={() => openSubcategorySeoModal(subcategory)}
-                              className="p-2 hover:bg-white rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
-                              title="Modifier la description et le SEO"
-                            >
-                               <svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 24 24" width="18" className="w-5 h-5">
-                        <path d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="currentColor"/>
-                      </svg>
-                            </button>
-                            <button
-                              onClick={() => handleDeleteSubcategory(subcategory.id)}
-                              className="p-2 hover:bg-red-50 rounded-lg transition-all duration-200 text-red-600 hover:text-red-700"
-                              title="Supprimer la sous-catégorie"
-                            >
-                              <Trash2 className="w-4.5 h-4.5" />
-                            </button>
-                          </div>
                         </div>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleAddSubcategory(category.id)}
+                            className="p-2 hover:bg-white rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
+                            title="Ajouter une sous-catégorie"
+                          >
+                            <Plus className="w-4.5 h-4.5" />
+                          </button>
+                          <button
+                            onClick={() => handleEditCategory(category)}
+                            className="p-2 hover:bg-white rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
+                            title="Modifier la catégorie"
+                          >
+                            <Edit className="w-4.5 h-4.5" />
+                          </button>
+                          <button
+                            onClick={() => openCategorySeoModal(category)}
+                            className="p-2 hover:bg-white rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
+                            title="Modifier la description et le SEO"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 24 24" width="18" className="w-5 h-5">
+                              <path d="M0 0h24v24H0z" fill="none"/>
+                              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="currentColor"/>
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCategory(category.id)}
+                            className="p-2 hover:bg-red-50 rounded-lg transition-all duration-200 text-red-600 hover:text-red-700"
+                            title="Supprimer la catégorie"
+                          >
+                            <Trash2 className="w-4.5 h-4.5" />
+                          </button>
+                        </div>
+                      </div>
 
-                        {expandedSubcategories.has(subcategory.id) && subcategory.subsubcategories && (
-                          <div className="ml-8 space-y-2">
-                            {subcategory.subsubcategories.map((subsubcategory) => (
-                              <div
-                                key={subsubcategory.id}
-                                className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200"
-                              >
+                      {expandedCategories.has(category.id) && category.subcategories && (
+                        <div className="mt-4 ml-8 space-y-3">
+                          {category.subcategories.map((subcategory) => (
+                            <div key={subcategory.id} className="space-y-2">
+                              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200">
                                 <div className="flex items-center space-x-4">
+                                  <button
+                                    onClick={() => toggleSubcategory(subcategory.id)}
+                                    className="p-2 hover:bg-white rounded-lg transition-all duration-200"
+                                  >
+                                    {expandedSubcategories.has(subcategory.id) ? (
+                                      <ChevronUp className="w-4.5 h-4.5 text-gray-600" />
+                                    ) : (
+                                      <ChevronDown className="w-4.5 h-4.5 text-gray-600" />
+                                    )}
+                                  </button>
                                   <div>
                                     <div className="flex items-center flex-wrap gap-1">
-                                      <span className="text-gray-900">{subsubcategory.name}</span>
-                                      <span className="text-sm text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">
-                                        {subsubcategory.slug}
+                                      <span className="text-gray-900 font-medium">{subcategory.name}</span>
+                                      <span className="text-sm text-gray-500 bg-white px-2 py-0.5 rounded-full">
+                                        {subcategory.slug}
                                       </span>
-                                      {subsubcategory.description && (
+                                      {subcategory.description && (
                                         <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
                                           Description
                                         </span>
                                       )}
-                                      {(subsubcategory.seo_title || subsubcategory.seo_description || subsubcategory.seo_keywords) && (
+                                      {(subcategory.seo_title || subcategory.seo_description || subcategory.seo_keywords) && (
                                         <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
                                           SEO
                                         </span>
@@ -719,15 +808,22 @@ const AdminCategories: React.FC = () => {
                                 </div>
                                 <div className="flex items-center space-x-2">
                                   <button
-                                    onClick={() => handleEditSubSubcategory(subsubcategory)}
-                                    className="p-2 hover:bg-gray-50 rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
-                                    title="Modifier la sous-sous-catégorie"
+                                    onClick={() => handleAddSubSubcategory(subcategory.id)}
+                                    className="p-2 hover:bg-white rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
+                                    title="Ajouter une sous-sous-catégorie"
+                                  >
+                                    <Plus className="w-4.5 h-4.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleEditSubcategory(subcategory)}
+                                    className="p-2 hover:bg-white rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
+                                    title="Modifier la sous-catégorie"
                                   >
                                     <Edit className="w-4.5 h-4.5" />
                                   </button>
                                   <button
-                                    onClick={() => openSubSubcategorySeoModal(subsubcategory)}
-                                    className="p-2 hover:bg-gray-50 rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
+                                    onClick={() => openSubcategorySeoModal(subcategory)}
+                                    className="p-2 hover:bg-white rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
                                     title="Modifier la description et le SEO"
                                   >
                                      <svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 24 24" width="18" className="w-5 h-5">
@@ -736,27 +832,87 @@ const AdminCategories: React.FC = () => {
                                       </svg>
                                   </button>
                                   <button
-                                    onClick={() => handleDeleteSubSubcategory(subsubcategory.id)}
+                                    onClick={() => handleDeleteSubcategory(subcategory.id)}
                                     className="p-2 hover:bg-red-50 rounded-lg transition-all duration-200 text-red-600 hover:text-red-700"
-                                    title="Supprimer la sous-sous-catégorie"
+                                    title="Supprimer la sous-catégorie"
                                   >
                                     <Trash2 className="w-4.5 h-4.5" />
                                   </button>
                                 </div>
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
+
+                              {expandedSubcategories.has(subcategory.id) && subcategory.subsubcategories && (
+                                <div className="ml-8 space-y-2">
+                                  {subcategory.subsubcategories.map((subsubcategory) => (
+                                    <div
+                                      key={subsubcategory.id}
+                                      className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200"
+                                    >
+                                      <div className="flex items-center space-x-4">
+                                        <div>
+                                          <div className="flex items-center flex-wrap gap-1">
+                                            <span className="text-gray-900">{subsubcategory.name}</span>
+                                            <span className="text-sm text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">
+                                              {subsubcategory.slug}
+                                            </span>
+                                            {subsubcategory.description && (
+                                              <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                                                Description
+                                              </span>
+                                            )}
+                                            {(subsubcategory.seo_title || subsubcategory.seo_description || subsubcategory.seo_keywords) && (
+                                              <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                                                SEO
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center space-x-2">
+                                        <button
+                                          onClick={() => handleEditSubSubcategory(subsubcategory)}
+                                          className="p-2 hover:bg-gray-50 rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
+                                          title="Modifier la sous-sous-catégorie"
+                                        >
+                                          <Edit className="w-4.5 h-4.5" />
+                                        </button>
+                                        <button
+                                          onClick={() => openSubSubcategorySeoModal(subsubcategory)}
+                                          className="p-2 hover:bg-gray-50 rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:shadow-sm"
+                                          title="Modifier la description et le SEO"
+                                        >
+                                           <svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 24 24" width="18" className="w-5 h-5">
+                                              <path d="M0 0h24v24H0z" fill="none"/>
+                                              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="currentColor"/>
+                                            </svg>
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteSubSubcategory(subsubcategory.id)}
+                                          className="p-2 hover:bg-red-50 rounded-lg transition-all duration-200 text-red-600 hover:text-red-700"
+                                          title="Supprimer la sous-sous-catégorie"
+                                        >
+                                          <Trash2 className="w-4.5 h-4.5" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <FlatView />
+          )}
         </div>
       </div>
-      {/* Modal pour éditer la description et les champs SEO */}
+
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
