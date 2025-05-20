@@ -161,7 +161,7 @@ const HomePage: React.FC = () => {
               className="relative group"
             >
               <Link 
-                to="/products/" 
+                to="/categories/" 
                 className="bg-violet-600 hover:bg-black text-white inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold rounded-full shadow-lg group-hover:shadow-xl transition-all duration-300"
               >
                 Nos produits à la location
@@ -358,13 +358,13 @@ const HomePage: React.FC = () => {
                 <div className="h-48 overflow-hidden relative">
                   <img 
                     src="\images\4.png" 
-                    alt="Technique" 
+                    alt="SON-LIGHTS-VIDEO" 
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-4 text-fuchsia-700 group-hover:text-fuchsia-800 transition-colors">TECHNIQUE</h3>
+                  <h3 className="text-xl font-bold mb-4 text-fuchsia-700 group-hover:text-fuchsia-800 transition-colors">SON-LIGHTS-VIDEO</h3>
                   <p className="text-sm mb-4 text-gray-600">
                     Mettez en lumière vos événements avec
                     notre matériel technique : éclairage,
