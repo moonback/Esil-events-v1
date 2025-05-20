@@ -161,7 +161,7 @@ const HomePage: React.FC = () => {
               className="relative group"
             >
               <Link 
-                to="/products/" 
+                to="/categories/" 
                 className="bg-violet-600 hover:bg-black text-white inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold rounded-full shadow-lg group-hover:shadow-xl transition-all duration-300"
               >
                 Nos produits à la location
