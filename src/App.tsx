@@ -31,7 +31,10 @@ const ArtistDetailPage = lazy(() => import('./pages/ArtistDetailPage'));
 const CguPage = lazy(() => import('./pages/CguPage'));
 const ComparePage = lazy(() => import('./pages/ComparePage'));
 const RealisationPage = lazy(() => import('./pages/RealisationPage'));
+
+
 const CategoriesPage = lazy(() => import('./pages/CategoriesPage'));
+
 
 // Composant de chargement
 const LoadingFallback = () => (
@@ -57,7 +60,10 @@ const App: React.FC = () => {
               {/* Routes publiques avec Layout principal */}
               <Route element={<Layout />}>
                 <Route path="/" element={<HomePage />} />
+
+
                 <Route path="/categories" element={<CategoriesPage />} />
+
                 <Route path="/products" element={<ProductListPage />} />
                 <Route path="/products/:category" element={<ProductListPage />} />
                 <Route path="/products/:category/:subcategory" element={<ProductListPage />} />

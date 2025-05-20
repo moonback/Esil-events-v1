@@ -4,17 +4,15 @@ import {
   ChevronLeft, ChevronRight, Info, FileText, Plus, Minus, 
   ShoppingCart, Star, Clock, Tag, Truck, Check, ZoomIn, X, 
   BarChart, TrendingUp, TrendingDown, Loader2, AlertCircle,
-  Package, FileCode, Video, Lock, Scale
+  Package, FileCode, Video, Lock
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
-import { useComparison } from '../context/ComparisonContext';
 import { getProductById, getSimilarProducts } from '../services/productService';
 import { supabase } from '../services/supabaseClient';
 import { Product } from '../types/Product';
 import { DEFAULT_PRODUCT_IMAGE } from '../constants/images';
 import SEO from '../components/SEO';
-import Notification from '../components/common/Notification';
 
 interface KeywordRanking {
   keyword: string;
@@ -54,17 +52,6 @@ const ProductPage: React.FC = () => {
   const [keywordRankings, setKeywordRankings] = useState<Record<string, KeywordRanking>>({});
   const [loadingRankings, setLoadingRankings] = useState(false);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'docs'>('description');
-  const [notification, setNotification] = useState<{
-    show: boolean;
-    message: string;
-    type: 'success' | 'error' | 'info';
-  }>({
-    show: false,
-    message: '',
-    type: 'success'
-  });
-
-  const { addToComparison, isInComparison, comparisonProducts } = useComparison();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -267,35 +254,6 @@ const ProductPage: React.FC = () => {
     }, 3000);
   };
 
-  const handleAddToComparison = () => {
-    if (!product) return;
-    
-    if (comparisonProducts.length >= 3) {
-      setNotification({
-        show: true,
-        message: 'Vous ne pouvez comparer que 3 produits maximum',
-        type: 'error'
-      });
-      return;
-    }
-    
-    if (isInComparison(product.id)) {
-      setNotification({
-        show: true,
-        message: `${product.name} est déjà dans la comparaison`,
-        type: 'info'
-      });
-      return;
-    }
-    
-    addToComparison(product);
-    setNotification({
-      show: true,
-      message: `${product.name} a été ajouté à la comparaison`,
-      type: 'success'
-    });
-  };
-
   // Fonction pour récupérer les positions des mots-clés
   const fetchKeywordRankings = async (keywords: string[]) => {
     if (!keywords.length) return;
@@ -424,11 +382,11 @@ const ProductPage: React.FC = () => {
         />
       )}
       
-      <div className="max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      <div className="max-w-[95%] sm:max-w-[90%] mx-auto px-2 sm:px-4 lg:px-8 py-12 sm:py-16 lg:py-24">
         {/* Breadcrumb */}
-        <div className="mb-8">
+        <div className="mb-4 sm:mb-6 lg:mb-8">
           <nav className="flex" aria-label="Breadcrumb">
-            <ol className="inline-flex items-center space-x-3 text-sm bg-white px-6 py-3 rounded-xl shadow-md">
+            <ol className="inline-flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm bg-white px-3 sm:px-6 py-2 sm:py-3 rounded-xl shadow-md overflow-x-auto whitespace-nowrap">
               <li className="inline-flex items-center">
                 <Link to="/" className="text-gray-600 hover:text-violet-600 transition-colors duration-200 font-medium flex items-center">
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -491,11 +449,11 @@ const ProductPage: React.FC = () => {
           })}
         </script>
 
-        <div className="space-y-10 pt-10">
+        <div className="space-y-6 sm:space-y-8 lg:space-y-10 pt-6 sm:pt-8 lg:pt-10">
           {/* Main Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
             {/* Product Images */}
-            <div className="bg-white rounded-2xl shadow-xl p-4 md:p-8 transform transition-all duration-300 hover:shadow-2xl">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-3 sm:p-4 md:p-6 lg:p-8 transform transition-all duration-300 hover:shadow-2xl">
               <div className="relative aspect-square md:aspect-[4/3] overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-white">
                 {product.images && product.images.length > 0 ? (
                   <div className="relative w-full h-full group">
@@ -572,23 +530,13 @@ const ProductPage: React.FC = () => {
             </div>
 
             {/* Product Info */}
-            <div className="space-y-6">
-              <div className="bg-white rounded-2xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 transform transition-all duration-300 hover:shadow-xl">
                 <div className="space-y-4">
                   <div>
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight bg-gradient-to-r from-violet-600 to-violet-800 bg-clip-text text-transparent">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight bg-gradient-to-r from-violet-600 to-violet-800 bg-clip-text text-transparent">
                       {product.name}
                     </h1>
-                    {product.createdAt && (
-                      <div className="inline-flex items-center">
-                        {new Date().getTime() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000 && (
-                          <span className="inline-flex items-center gap-1 ml-2 px-3 py-1.5 text-xs font-bold rounded-full shadow-sm bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 animate-pulse align-middle">
-                            <Star className="w-3 h-3" />
-                            Nouveau à la location
-                          </span>
-                        )}
-                      </div>
-                    )}
                     <div className="mt-2 flex items-center space-x-4">
                       <p className="text-gray-500 flex items-center text-sm group">
                         <Tag className="w-4 h-4 mr-1.5 text-violet-500 group-hover:text-violet-600 transition-colors" />
@@ -608,19 +556,19 @@ const ProductPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
-                      <p className="text-sm text-gray-500 mb-1">Prix HT / jour</p>
-                      <p className="text-2xl font-bold text-gray-900">{product.priceHT.toFixed(2)} €</p>
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    <div className="bg-gradient-to-br from-gray-50 to-white p-3 sm:p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                      <p className="text-xs sm:text-sm text-gray-500 mb-1">Prix HT / jour</p>
+                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{product.priceHT.toFixed(2)} €</p>
                     </div>
-                    <div className="bg-gradient-to-br from-violet-50 to-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
-                      <p className="text-sm text-violet-600 mb-1">Prix TTC / jour</p>
-                      <p className="text-2xl font-bold text-violet-600">{product.priceTTC.toFixed(2)} €</p>
+                    <div className="bg-gradient-to-br from-violet-50 to-white p-3 sm:p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                      <p className="text-xs sm:text-sm text-violet-600 mb-1">Prix TTC / jour</p>
+                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-violet-600">{product.priceTTC.toFixed(2)} €</p>
                     </div>
                   </div>
 
                   {/* Quantity and Color Selectors */}
-                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 space-y-4 shadow-sm hover:shadow-md transition-all duration-300">
+                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-3 sm:p-4 space-y-3 sm:space-y-4 shadow-sm hover:shadow-md transition-all duration-300">
                     <div className="flex items-center justify-between">
                       <label className="text-sm font-medium text-gray-700 flex items-center group">
                         <Clock className="w-4 h-4 mr-1.5 text-violet-500 group-hover:text-violet-600 transition-colors" />
@@ -685,55 +633,37 @@ const ProductPage: React.FC = () => {
                   </div>
 
                   {/* Add to Cart Button */}
-                  <div className="space-y-4">
-                    <button 
-                      onClick={handleAddToCart}
-                      className="w-full bg-gradient-to-r from-violet-600 to-violet-700 text-white py-4 px-6 rounded-xl 
-                      hover:from-violet-700 hover:to-violet-800 transition-all duration-300 
-                      flex items-center justify-center space-x-3 text-lg font-semibold
-                      shadow-lg hover:shadow-xl transform hover:-translate-y-1 
-                      active:transform active:translate-y-0 active:shadow-md
-                      relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed
-                      disabled:hover:transform-none disabled:hover:shadow-lg"
-                      disabled={product.colors && product.colors.length > 0 && !selectedColor}
-                      aria-label="Ajouter au devis"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <div className="relative flex items-center space-x-3">
-                        <ShoppingCart className="w-6 h-6 animate-bounce" />
-                        <span>Ajouter au devis</span>
-                      </div>
-                      <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                    </button>
-
-                    {/* Comparison Button */}
-                    <button
-                      onClick={handleAddToComparison}
-                      disabled={isInComparison(product?.id || '')}
-                      className={`w-full py-4 px-6 rounded-xl transition-all duration-300 
-                      flex items-center justify-center space-x-3 text-lg font-semibold
-                      shadow-lg hover:shadow-xl transform hover:-translate-y-1 
-                      active:transform active:translate-y-0 active:shadow-md
-                      relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed
-                      disabled:hover:transform-none disabled:hover:shadow-lg
-                      ${isInComparison(product?.id || '')
-                        ? 'bg-gray-100 text-gray-400'
-                        : 'bg-violet-50 text-violet-700 hover:bg-violet-100'}`}
-                      aria-label="Comparer le produit"
-                    >
-                      <div className="relative flex items-center space-x-3">
-                        <Scale className="w-6 h-6" />
-                        <span>{isInComparison(product?.id || '') ? 'Ajouté à la comparaison' : 'Comparer'}</span>
-                      </div>
-                    </button>
-                  </div>
+                  <button 
+                    onClick={handleAddToCart}
+                    className="w-full bg-gradient-to-r from-violet-600 to-violet-700 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl 
+                    hover:from-violet-700 hover:to-violet-800 transition-all duration-300 
+                    flex items-center justify-center space-x-2 sm:space-x-3 text-base sm:text-lg font-semibold
+                    shadow-lg hover:shadow-xl transform hover:-translate-y-1 
+                    active:transform active:translate-y-0 active:shadow-md
+                    relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed
+                    disabled:hover:transform-none disabled:hover:shadow-lg"
+                    disabled={product.colors && product.colors.length > 0 && !selectedColor}
+                    aria-label="Ajouter au devis"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative flex items-center space-x-3">
+                      <ShoppingCart className="w-6 h-6 animate-bounce" />
+                      <span>Ajouter au devis</span>
+                    </div>
+                    <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                  </button>
+                  {product.colors && product.colors.length > 0 && !selectedColor && (
+                    <p className="text-sm text-red-500 text-center animate-fade-in">
+                      Veuillez sélectionner une couleur
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* Description, Specs and Docs Tabs */}
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
                 <div className="border-b border-gray-200">
-                  <nav className="flex space-x-4 px-6" aria-label="Tabs">
+                  <nav className="flex space-x-2 sm:space-x-4 px-3 sm:px-6 overflow-x-auto" aria-label="Tabs">
                     <button
                       onClick={() => setActiveTab('description')}
                       className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
@@ -772,7 +702,7 @@ const ProductPage: React.FC = () => {
                   </nav>
                 </div>
 
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   {activeTab === 'description' && (
                     <div className="prose prose-violet max-w-none">
                       {product.description.split('\n').map((paragraph, index) => (
@@ -827,7 +757,7 @@ const ProductPage: React.FC = () => {
 
               {/* SEO Keywords Section - Only visible for authenticated users */}
               {user && (product.seo_keywords || product.seo_title || product.seo_description) && (
-                <div className="bg-gradient-to-br from-violet-50 to-white rounded-2xl shadow-lg p-6 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                <div className="bg-gradient-to-br from-violet-50 to-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-bold text-gray-900 flex items-center">
                       <Lock className="w-5 h-5 mr-2 text-violet-600" />
@@ -934,83 +864,16 @@ const ProductPage: React.FC = () => {
               )}
             </div>
           </div>
-          {/* Toast Notification */}
-          {showToast && (
-            <div className="fixed bottom-6 right-6 bg-gradient-to-r from-violet-600 to-violet-700 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up z-50 transform hover:scale-105 transition-transform duration-300">
-              <div className="bg-white/20 p-2 rounded-full animate-pulse">
-                <Check className="w-5 h-5" />
-              </div>
-              <span className="font-medium">Produit ajouté au devis avec succès !</span>
-              <button 
-                onClick={() => setShowToast(false)}
-                className="ml-4 p-1 hover:bg-white/20 rounded-full transition-colors"
-                aria-label="Fermer la notification"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-          
-          {/* Image Zoom Modal */}
-          {zoomOpen && product.images && product.images.length > 0 && (
-            <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 md:p-8">
-              <div className="relative w-full h-full flex flex-col">
-                <div className="absolute top-4 left-4 bg-white/10 text-white/80 px-3 py-1 rounded-lg text-sm">
-                  <span>Mode zoom interactif</span>
-                </div>
-                <button 
-                  onClick={() => setZoomOpen(false)}
-                  className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300 z-10"
-                  aria-label="Fermer le zoom"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-                
-                {/* Utilisation du composant ZoomableImage pour le zoom interactif */}
-                <ZoomableImage 
-                  src={product.images[currentImageIndex]} 
-                  alt={product.name}
-                  fallbackSrc={DEFAULT_PRODUCT_IMAGE}
-                />
-                
-                {product.images.length > 1 && (
-                  <div className="flex justify-center mt-4 space-x-2">
-                    <button 
-                      onClick={() => setCurrentImageIndex(prev => (prev === 0 ? product.images.length - 1 : prev - 1))}
-                      className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300"
-                      aria-label="Image précédente"
-                    >
-                      <ChevronLeft className="w-6 h-6" />
-                    </button>
-                    <span className="text-white/70 flex items-center px-3">
-                      {currentImageIndex + 1} / {product.images.length}
-                    </span>
-                    <button 
-                      onClick={() => setCurrentImageIndex(prev => (prev === product.images.length - 1 ? 0 : prev + 1))}
-                      className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300"
-                      aria-label="Image suivante"
-                    >
-                      <ChevronRight className="w-6 h-6" />
-                    </button>
-                  </div>
-                )}
-                
-                {/* <div className="absolute bottom-4 left-4 right-4 text-center text-white/60 text-xs md:text-sm bg-black/30 p-2 rounded-lg">
-                  <p>Utilisez la molette de la souris ou les boutons pour zoomer • Cliquez et déplacez pour naviguer dans l'image zoomée</p>
-                </div> */}
-              </div>
-            </div>
-          )}
           {/* Similar Products */}
           {similarProducts.length > 0 && (
-            <div className="pt-12 pb-8">
-              <div className="flex items-center justify-between mb-8">
+            <div className="pt-8 sm:pt-10 lg:pt-12 pb-6 sm:pb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-                    <Star className="w-6 h-6 mr-2 text-violet-600" />
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+                    <Star className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-violet-600" />
                     Produits similaires
                   </h2>
-                  <p className="text-gray-600 mt-1">D'autres produits qui pourraient vous intéresser</p>
+                  <p className="text-sm sm:text-base text-gray-600 mt-1">D'autres produits qui pourraient vous intéresser</p>
                 </div>
                 {similarProducts.length > 4 && (
                   <Link 
@@ -1023,7 +886,7 @@ const ProductPage: React.FC = () => {
               </div>
               
               {/* Filtres pour les produits similaires */}
-              <div className="mb-6 flex flex-wrap gap-2">
+              <div className="mb-4 sm:mb-6 flex flex-wrap gap-2">
                 <button 
                   onClick={() => fetchSimilarProducts('relevance')}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${sortMethod === 'relevance' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
@@ -1044,8 +907,8 @@ const ProductPage: React.FC = () => {
                 </button>
               </div>
               
-              {/* Carrousel de produits similaires avec animations */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 transition-all duration-500">
+              {/* Carrousel de produits similaires */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 transition-all duration-500">
                 {similarProducts.map((similarProduct, index) => {
                   const score = calculateProductSimilarity(product, similarProduct, sortMethod);
                   
@@ -1150,13 +1013,72 @@ const ProductPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Notification */}
-      {notification.show && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onClose={() => setNotification(prev => ({ ...prev, show: false }))}
-        />
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 bg-gradient-to-r from-violet-600 to-violet-700 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg shadow-lg flex items-center space-x-2 sm:space-x-3 animate-fade-in-up z-50 transform hover:scale-105 transition-transform duration-300 max-w-[90%] sm:max-w-none">
+          <div className="bg-white/20 p-2 rounded-full animate-pulse">
+            <Check className="w-5 h-5" />
+          </div>
+          <span className="font-medium">Produit ajouté au devis avec succès !</span>
+          <button 
+            onClick={() => setShowToast(false)}
+            className="ml-4 p-1 hover:bg-white/20 rounded-full transition-colors"
+            aria-label="Fermer la notification"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+      
+      {/* Image Zoom Modal */}
+      {zoomOpen && product.images && product.images.length > 0 && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-2 sm:p-4 md:p-8">
+          <div className="relative w-full h-full flex flex-col">
+            <div className="absolute top-4 left-4 bg-white/10 text-white/80 px-3 py-1 rounded-lg text-sm">
+              <span>Mode zoom interactif</span>
+            </div>
+            <button 
+              onClick={() => setZoomOpen(false)}
+              className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300 z-10"
+              aria-label="Fermer le zoom"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            {/* Utilisation du composant ZoomableImage pour le zoom interactif */}
+            <ZoomableImage 
+              src={product.images[currentImageIndex]} 
+              alt={product.name}
+              fallbackSrc={DEFAULT_PRODUCT_IMAGE}
+            />
+            
+            {product.images.length > 1 && (
+              <div className="flex justify-center mt-4 space-x-2">
+                <button 
+                  onClick={() => setCurrentImageIndex(prev => (prev === 0 ? product.images.length - 1 : prev - 1))}
+                  className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300"
+                  aria-label="Image précédente"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <span className="text-white/70 flex items-center px-3">
+                  {currentImageIndex + 1} / {product.images.length}
+                </span>
+                <button 
+                  onClick={() => setCurrentImageIndex(prev => (prev === product.images.length - 1 ? 0 : prev + 1))}
+                  className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors duration-300"
+                  aria-label="Image suivante"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </div>
+            )}
+            
+            {/* <div className="absolute bottom-4 left-4 right-4 text-center text-white/60 text-xs md:text-sm bg-black/30 p-2 rounded-lg">
+              <p>Utilisez la molette de la souris ou les boutons pour zoomer • Cliquez et déplacez pour naviguer dans l'image zoomée</p>
+            </div> */}
+          </div>
+        </div>
       )}
     </div>
   );

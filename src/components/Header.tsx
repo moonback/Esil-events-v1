@@ -14,6 +14,9 @@ import '../styles/header-animations.css';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [scrollThreshold, setScrollThreshold] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMegaMenu, setShowMegaMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -28,13 +31,40 @@ const Header: React.FC = () => {
   const megaMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    let scrollTimeout: NodeJS.Timeout;
+    
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      const currentScrollY = window.scrollY;
+      
+      // Calculer la vitesse de défilement
+      const scrollSpeed = Math.abs(currentScrollY - lastScrollY);
+      
+      // Déterminer la direction du défilement avec un seuil de vitesse
+      if (currentScrollY > lastScrollY && scrollSpeed > 5) {
+        setScrollDirection('down');
+      } else if (currentScrollY < lastScrollY && scrollSpeed > 5) {
+        setScrollDirection('up');
+      }
+      
+      // Mettre à jour l'état du défilement avec un seuil dynamique
+      const newThreshold = Math.min(Math.max(currentScrollY, 0), 100);
+      setScrollThreshold(newThreshold);
+      setIsScrolled(currentScrollY > 20);
+      setLastScrollY(currentScrollY);
+      
+      // Réinitialiser la direction après un court délai d'inactivité
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        setScrollDirection('up');
+      }, 150);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [lastScrollY]);
   
 
 
@@ -66,16 +96,31 @@ const Header: React.FC = () => {
   const [showTopBar, setShowTopBar] = useState(true);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
+        scrollDirection === 'down' && isScrolled 
+          ? '-translate-y-full opacity-0' 
+          : 'translate-y-0 opacity-100'
+      }`}
+      style={{
+        transform: `translateY(${scrollDirection === 'down' && isScrolled ? '-100%' : '0'}) translateZ(0)`,
+        willChange: 'transform, opacity',
+      }}
+    >
       {showTopBar && <TopBar onClose={() => setShowTopBar(false)} />}
       
       <div 
-        className={`transition-all duration-300 relative ${
+        className={`transition-all duration-500 ease-in-out relative ${
           isScrolled 
-            ? 'glassmorphism shadow-lg border-b border-gray-200/20 dark:border-gray-700/20' 
-            : 'bg-white dark:bg-white backdrop-blur-sm'
+            ? 'glassmorphism shadow-lg border-b border-gray-200/20 dark:border-gray-700/20 backdrop-blur-md bg-white/90 dark:bg-gray-900/90 scale-[0.98]' 
+            : 'bg-white dark:bg-white backdrop-blur-sm scale-100'
         }`} 
-        style={{ '--header-height': 'calc(2.5rem + 44px)' } as React.CSSProperties}
+        style={{ 
+          '--header-height': 'calc(2.5rem + 44px)',
+          '--scroll-progress': `${scrollThreshold}%`,
+          transform: `scale(${isScrolled ? 0.98 : 1}) translateZ(0)`,
+          willChange: 'transform, background-color, backdrop-filter',
+        } as React.CSSProperties}
       >
         <div className="w-full mx-auto">
           <div className="flex flex-col relative">
