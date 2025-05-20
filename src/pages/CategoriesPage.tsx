@@ -185,7 +185,7 @@ const CategoriesPage: React.FC = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-30 group-hover:opacity-40 transition-opacity"></div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-4 text-fuchsia-700 group-hover:text-fuchsia-800 transition-colors">TECHNIQUE</h3>
+                  <h3 className="text-xl font-bold mb-4 text-fuchsia-700 group-hover:text-fuchsia-800 transition-colors">SON-LIGHTS-VIDEO</h3>
                   <p className="text-sm mb-4 text-gray-600">
                     Mettez en lumière vos événements avec
                     notre matériel technique : éclairage,
