@@ -90,6 +90,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
   // --- État pour gérer l'initialisation asynchrone ---
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // --- Nouveaux états pour les catégories dynamiques ---
+  const [priceInputMode, setPriceInputMode] = useState<'HT' | 'TTC'>('HT');
+
   // --- Charger les catégories depuis la DB ---
   useEffect(() => {
     const fetchCategories = async () => {
@@ -273,9 +276,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
 
 
   useEffect(() => {
-    const priceTTC = formData.priceHT * 1.2;
-    setFormData(prev => ({ ...prev, priceTTC }));
-  }, [formData.priceHT]);
+    if (priceInputMode === 'HT') {
+      setFormData(prev => ({ ...prev, priceTTC: +(prev.priceHT * 1.2).toFixed(2) }));
+    } else {
+      setFormData(prev => ({ ...prev, priceHT: +(prev.priceTTC / 1.2).toFixed(2) }));
+    }
+    // eslint-disable-next-line
+  }, [formData.priceHT, formData.priceTTC, priceInputMode]);
 
 
   const validateFile = (file: File): string | null => {
@@ -814,7 +821,32 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
             </svg>
             Prix et disponibilité
           </h2>
-          
+          <div className="mb-4 flex gap-4 items-center">
+            <span className="text-sm font-medium text-gray-700">Saisir le prix en :</span>
+            <label className="inline-flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name="priceInputMode"
+                value="HT"
+                checked={priceInputMode === 'HT'}
+                onChange={() => setPriceInputMode('HT')}
+                className="form-radio text-violet-600"
+              />
+              <span className="ml-2">HT</span>
+            </label>
+            <label className="inline-flex items-center cursor-pointer ml-4">
+              <input
+                type="radio"
+                name="priceInputMode"
+                value="TTC"
+                checked={priceInputMode === 'TTC'}
+                onChange={() => setPriceInputMode('TTC')}
+                className="form-radio text-violet-600"
+              />
+              <span className="ml-2">TTC</span>
+            </label>
+            <span className="ml-6 text-xs text-gray-500">(TVA 20%)</span>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Prix HT */}
             <div className="transition-all duration-200 hover:shadow-md rounded-lg p-2">
@@ -823,23 +855,25 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span className="text-gray-500 sm:text-sm">€</span>
                 </div>
-                <input 
-                  type="number" 
-                  name="priceHT" 
-                  value={formData.priceHT} 
-                  onChange={handleChange} 
-                  required 
-                  min="0" 
-                  step="0.01" 
+                <input
+                  type="number"
+                  name="priceHT"
+                  value={formData.priceHT}
+                  onChange={e => {
+                    if (priceInputMode === 'HT') handleChange(e);
+                  }}
+                  required
+                  min="0"
+                  step="0.01"
                   placeholder="0.00"
-                  className="block w-full pl-7 pr-12 rounded-lg border-gray-300 focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200" 
+                  className={`block w-full pl-7 pr-12 rounded-lg border-gray-300 focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200 ${priceInputMode !== 'HT' ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : ''}`}
+                  disabled={priceInputMode !== 'HT'}
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <span className="text-gray-500 sm:text-sm">HT</span>
                 </div>
               </div>
             </div>
-            
             {/* Prix TTC */}
             <div className="transition-all duration-200 hover:shadow-md rounded-lg p-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Prix TTC</label>
@@ -847,31 +881,38 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span className="text-gray-500 sm:text-sm">€</span>
                 </div>
-                <input 
-                  type="number" 
-                  value={formData.priceTTC.toFixed(2)} 
-                  disabled 
-                  className="block w-full pl-7 pr-12 rounded-lg border-gray-300 bg-gray-50 text-gray-500 cursor-not-allowed" 
+                <input
+                  type="number"
+                  name="priceTTC"
+                  value={formData.priceTTC}
+                  onChange={e => {
+                    if (priceInputMode === 'TTC') setFormData(prev => ({ ...prev, priceTTC: +e.target.value }));
+                  }}
+                  required
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  className={`block w-full pl-7 pr-12 rounded-lg border-gray-300 focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200 ${priceInputMode !== 'TTC' ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : ''}`}
+                  disabled={priceInputMode !== 'TTC'}
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <span className="text-gray-500 sm:text-sm">TTC</span>
                 </div>
               </div>
             </div>
-            
             {/* Stock */}
             <div className="transition-all duration-200 hover:shadow-md rounded-lg p-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Stock disponible</label>
               <div className="relative rounded-md shadow-sm">
-                <input 
-                  type="number" 
-                  name="stock" 
-                  value={formData.stock} 
-                  onChange={handleChange} 
-                  required 
-                  min="0" 
+                <input
+                  type="number"
+                  name="stock"
+                  value={formData.stock}
+                  onChange={handleChange}
+                  required
+                  min="0"
                   placeholder="Quantité en stock"
-                  className="block w-full rounded-lg border-gray-300 focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200" 
+                  className="block w-full rounded-lg border-gray-300 focus:border-violet-500 focus:ring-violet-500 transition-colors duration-200"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <span className="text-gray-500 sm:text-sm">unités</span>
@@ -879,7 +920,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, isLoad
               </div>
             </div>
           </div>
-          
           {/* Disponibilité */}
           <div className="mt-4 p-2 transition-all duration-200 hover:shadow-md rounded-lg">
             <div className="flex items-center space-x-2">
