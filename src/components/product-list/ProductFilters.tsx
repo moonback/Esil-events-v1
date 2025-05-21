@@ -194,38 +194,38 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           
           {/* Categories */}
           <div className="mb-6">
-            <h4 className="font-medium mb-3 text-gray-900 flex items-center">
-              <span className="w-5 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full mr-2"></span>
+            <h4 className="font-medium mb-3 text-gray-900 flex items-center text-lg">
+              <span className="w-8 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full mr-3"></span>
               Catégories
-              <span className="w-5 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full ml-2"></span>
+              <span className="w-8 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full ml-3"></span>
             </h4>
-            <div className="space-y-1 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+            <div className="space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto pr-2 custom-scrollbar">
               {categories.map(category => {
                 const isActiveCategory = category.slug === currentCategory;
                 return (
                   <motion.div 
                     key={category.id} 
-                    className="space-y-1"
+                    className="space-y-2"
                     whileHover={{ x: 5 }}
                     transition={{ duration: 0.2 }}
                   >
                     <Link
                       to={`/products/${category.slug}`}
                       onClick={() => {
-                        if (window.innerWidth < 1024) { // Seulement sur mobile
+                        if (window.innerWidth < 1024) {
                           setIsFilterOpen(false);
                         }
                       }}
-                      className={`flex items-center justify-between w-full text-left text-sm px-3 py-2 rounded-lg transition-all duration-300 ${
+                      className={`flex items-center justify-between w-full text-left px-4 py-3 rounded-xl transition-all duration-300 ${
                         isActiveCategory 
-                          ? 'bg-gradient-to-r from-violet-50 to-indigo-50 text-violet-700 font-medium' 
+                          ? 'bg-gradient-to-r from-violet-100 to-indigo-100 text-violet-700 font-medium shadow-sm' 
                           : 'text-gray-600 hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-indigo-50/50 hover:text-violet-700'
                       }`}
                     >
-                      <span>{category.name}</span>
+                      <span className="text-base">{category.name}</span>
                       {category.subcategories && category.subcategories.length > 0 && (
                         <svg 
-                          className={`w-4 h-4 transition-transform duration-200 ${isActiveCategory ? 'rotate-90 text-violet-700' : 'text-gray-400'}`}
+                          className={`w-5 h-5 transition-transform duration-200 ${isActiveCategory ? 'rotate-90 text-violet-700' : 'text-gray-400'}`}
                           fill="none" 
                           stroke="currentColor" 
                           viewBox="0 0 24 24"
@@ -237,30 +237,30 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                     
                     {/* Subcategories */}
                     {isActiveCategory && category.subcategories && category.subcategories.length > 0 && (
-                      <div className="pl-4 border-l border-violet-200 ml-2 space-y-1 mt-1">
+                      <div className="pl-6 border-l-2 border-violet-200 ml-3 space-y-2 mt-2">
                         {category.subcategories.map(subcategory => {
                           const isActiveSubcategory = subcategory.slug === currentSubcategory;
                           return (
                             <motion.div 
                               key={subcategory.id} 
-                              className="space-y-1"
+                              className="space-y-2"
                               whileHover={{ x: 5 }}
                               transition={{ duration: 0.2 }}
                             >
                               <Link
                                 to={`/products/${category.slug}/${subcategory.slug}`}
                                 onClick={() => {
-                                  if (window.innerWidth < 1024) { // Seulement sur mobile
+                                  if (window.innerWidth < 1024) {
                                     setIsFilterOpen(false);
                                   }
                                 }}
-                                className={`flex items-center justify-between w-full text-left text-sm px-3 py-2 rounded-lg transition-all duration-300 ${
+                                className={`flex items-center justify-between w-full text-left px-4 py-2.5 rounded-lg transition-all duration-300 ${
                                   isActiveSubcategory 
                                     ? 'bg-gradient-to-r from-violet-50 to-indigo-50 text-violet-700 font-medium' 
                                     : 'text-gray-600 hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-indigo-50/50 hover:text-violet-700'
                                 }`}
                               >
-                                <span>{subcategory.name}</span>
+                                <span className="text-sm">{subcategory.name}</span>
                                 {subcategory.subsubcategories && subcategory.subsubcategories.length > 0 && (
                                   <svg 
                                     className={`w-4 h-4 transition-transform duration-200 ${isActiveSubcategory ? 'rotate-90 text-violet-700' : 'text-gray-400'}`}
@@ -275,7 +275,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                               
                               {/* Sub-subcategories */}
                               {isActiveSubcategory && subcategory.subsubcategories && subcategory.subsubcategories.length > 0 && (
-                                <div className="pl-4 border-l border-violet-200 ml-2 space-y-1 mt-1">
+                                <div className="pl-6 border-l-2 border-violet-200 ml-3 space-y-1 mt-1">
                                   {subcategory.subsubcategories.map(subsubcategory => (
                                     <motion.div
                                       key={subsubcategory.id}
@@ -285,11 +285,11 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                                       <Link
                                         to={`/products/${category.slug}/${subcategory.slug}/${subsubcategory.slug}`}
                                         onClick={() => {
-                                          if (window.innerWidth < 1024) { // Seulement sur mobile
+                                          if (window.innerWidth < 1024) {
                                             setIsFilterOpen(false);
                                           }
                                         }}
-                                        className={`block text-sm px-3 py-2 rounded-lg transition-all duration-300 ${
+                                        className={`block text-sm px-4 py-2 rounded-lg transition-all duration-300 ${
                                           subsubcategory.slug === currentSubsubcategory 
                                             ? 'bg-gradient-to-r from-violet-50 to-indigo-50 text-violet-700 font-medium' 
                                             : 'text-gray-600 hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-indigo-50/50 hover:text-violet-700'
