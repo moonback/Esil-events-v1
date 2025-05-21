@@ -251,10 +251,10 @@ const Footer = () => {
             © {currentYear} ESIL Events - Tous droits réservés
           </p>
           <div className="flex flex-wrap justify-center gap-6">
-            <Link to="/legal" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
+            <Link to="/conditions-generales-d-utilisation" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
               Mentions légales
             </Link>
-            <Link to="/privacy" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
+            <Link to="/politique-de-confidentialite" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
               Politique de confidentialité
             </Link>
             <Link to="/cgu" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
