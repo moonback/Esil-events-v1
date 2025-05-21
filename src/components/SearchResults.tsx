@@ -65,8 +65,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ query, onSelect }) => {
             animate="show"
           >
             {results.length > 0 && (
-              <div className="px-3 py-2 text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider flex items-center">
-                <Search className="w-3 h-3 mr-1" />
+              <div className="px-3 py-2 text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider flex items-center gap-2">
+                <span className="flex items-center justify-center h-4 w-4"><Search className="w-4 h-4" /></span>
                 <span>Résultats de recherche</span>
               </div>
             )}
