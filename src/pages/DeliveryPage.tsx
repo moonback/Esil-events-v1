@@ -711,7 +711,7 @@ solutions pour une gestion simplifiée de votre matériel événementiel.       
                 Demander un devis
               </Link>
               <Link 
-                to="/products" 
+                to="/categories" 
                 className="border-2 border-white text-white hover:bg-white hover:text-violet-600 font-bold py-4 px-10 rounded-full transition-all duration-300 flex items-center justify-center hover:shadow-xl hover:scale-105"
               >
                 Découvrir nos produits
@@ -965,29 +965,7 @@ solutions pour une gestion simplifiée de votre matériel événementiel.       
   </p>
 </div>
 
-          {/* Access Verification */}
-          <div>
-            <h2 className="text-3xl font-bold mb-6">Vérification des Accès : Garantissez une livraison sans accroc</h2>
-            <p className="mb-4">
-              Afin de garantir une livraison, il est impératif de vérifier les accès au lieu de l'événement,
-              surtout si des marches, escaliers, ascenseurs étroits ou des portes étroites sont présents.
-              Ces contraintes peuvent rendre le transport et l'installation du matériel plus complexes. C'est
-              pourquoi nous vous encourageons à bien nous renseigner sur ces éléments lors de votre
-              demande.
-            </p>
-            <p className="mb-4">
-              Certains de nos jeux ou équipements peuvent nécessiter un espace de manœuvre plus large,
-              ou des équipements spécifiques (comme des chariots élévateurs ou des rampes). Une
-              vérification des dimensions des portes et des accès doit être effectuée pour éviter tout
-              problème le jour J. En cas de doute, nous sommes à votre disposition pour effectuer une
-              évaluation à distance ou discuter des solutions possibles.
-            </p>
-            <p>
-              Nous vous conseillons également de vérifier les zones de stationnement à proximité pour
-              permettre un déchargement rapide. En cas de difficulté d'accès, nous pourrons organiser des
-              équipements ou des moyens alternatifs pour garantir une installation sans retard.
-            </p>
-          </div>
+          
     </div>
   );
 };
