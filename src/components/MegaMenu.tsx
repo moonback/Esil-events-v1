@@ -166,7 +166,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
                 onClick={() => handleCategoryChange(category.id)}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-lg">{category.name}</span>
+                  <span className="text-lg font-bold">{category.name}</span>
                   
                 </div>
               </div>
