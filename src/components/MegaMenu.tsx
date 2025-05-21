@@ -179,16 +179,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
               <div className={`transition-all duration-300 ${isTransitioning ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'}`}>
               <>
                 <h2 className="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
-                  <Link 
-                    to={`/products/${activeCat.slug}`}
-                    className="hover:text-violet-700 transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (onLinkClick) onLinkClick();
-                    }}
-                  >
-                    {activeCat.name}
-                  </Link>
+                  {activeCat.name}
                 </h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
@@ -198,17 +189,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
                     
                     return (
                       <div key={subCategory.id} className="mb-4">
-                        <Link
-                          to={`/products/${activeCat.slug}/${subCategory.slug}`}
-                          className="text-violet-800 hover:text-violet-900 font-medium text-lg block mb-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (onLinkClick) onLinkClick();
-                          }}
-                        >
-                          {subCategory.name}
-                        </Link>
-                        
+                        <div className="text-violet-800 font-medium text-lg mb-2">{subCategory.name}</div>
                         {subsubcategories.length > 0 && (
                           <ul className="space-y-1 pl-1">
                             {subsubcategories.map((subSubCategory) => (
