@@ -1,5 +1,5 @@
 import React from 'react';
-import { Filter, X } from 'lucide-react';
+import { Filter, X, Search, Package, Tag, ShoppingCart, Layers, Eye, ArrowUpDown, Copy, BarChart, Hash, FileText, RefreshCw, DollarSign, Box, CheckCircle } from 'lucide-react';
 import { Product } from '../../types/Product';
 
 interface ProductFilterPanelProps {
@@ -90,68 +90,33 @@ const ProductFilterPanel: React.FC<ProductFilterPanelProps> = ({
       <div className={`${isFilterOpen ? 'block' : 'hidden'} space-y-4 transition-all duration-300 ease-in-out overflow-hidden`}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
           {/* Recherche */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Recherche
-            </label>
+          <div className="flex items-center gap-2">
+            <Search className="w-4 h-4 text-gray-400" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Nom, référence..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              placeholder="Rechercher un produit..."
+              className="w-full bg-transparent border-none focus:ring-0 text-sm text-gray-900 dark:text-white placeholder-gray-500"
             />
           </div>
 
           {/* Filtre par catégorie */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Catégorie
-            </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            >
-              {categories.map((category, index) => (
-                <option key={index} value={category === 'Tous' ? '' : category}>
-                  {category}
-                </option>
-              ))}
-            </select>
+          <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <Package className="w-4 h-4" />
+            <span>Catégorie</span>
           </div>
 
           {/* Filtre par disponibilité */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Disponibilité
-            </label>
-            <select
-              value={availabilityFilter}
-              onChange={(e) => setAvailabilityFilter(e.target.value as 'all' | 'available' | 'unavailable')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            >
-              <option value="all">Tous</option>
-              <option value="available">Disponible</option>
-              <option value="unavailable">Indisponible</option>
-            </select>
+          <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <CheckCircle className="w-4 h-4" />
+            <span>Disponibilité</span>
           </div>
 
           {/* Filtre par stock */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Stock
-            </label>
-            <select
-              value={stockFilter}
-              onChange={(e) => setStockFilter(e.target.value as 'all' | 'inStock' | 'lowStock' | 'outOfStock')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            >
-              <option value="all">Tous</option>
-              <option value="inStock">En stock</option>
-              <option value="lowStock">Stock faible</option>
-              <option value="outOfStock">Rupture de stock</option>
-            </select>
+          <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <Box className="w-4 h-4" />
+            <span>Stock</span>
           </div>
         </div>
 
