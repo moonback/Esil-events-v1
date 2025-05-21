@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { X, Settings, Home, ShoppingBag, Info, Phone, Truck, User, Heart, Package, LogOut, ShoppingCart, ChevronDown, ChevronRight } from 'lucide-react';
+import { X, Settings, Home, ShoppingBag, Info, Phone, Truck, User, Heart, Package, LogOut, ShoppingCart } from 'lucide-react';
 import { signOut } from '../services/authService';
-import { getAllCategories, Category } from '../services/categoryService';
 import '../styles/header-animations.css';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -19,50 +18,6 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
   user, 
   isAdminUser 
 }) => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
-  const [expandedSubcategories, setExpandedSubcategories] = useState<Set<string>>(new Set());
-
-  // Fetch categories on component mount
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const fetchedCategories = await getAllCategories();
-        setCategories(fetchedCategories);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  // Toggle category expansion
-  const toggleCategory = (categoryId: string) => {
-    setExpandedCategories(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(categoryId)) {
-        newSet.delete(categoryId);
-      } else {
-        newSet.add(categoryId);
-      }
-      return newSet;
-    });
-  };
-
-  // Toggle subcategory expansion
-  const toggleSubcategory = (subcategoryId: string) => {
-    setExpandedSubcategories(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(subcategoryId)) {
-        newSet.delete(subcategoryId);
-      } else {
-        newSet.add(subcategoryId);
-      }
-      return newSet;
-    });
-  };
-
   // Prevent body scroll when sidebar is open
   useEffect(() => {
     if (isOpen) {
@@ -237,78 +192,60 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
               >
                 <h3 className="px-3 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-3 flex items-center">
                   <span className="w-5 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full mr-2"></span>
-                  Catégories
+                  Navigation
                   <span className="w-5 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full ml-2"></span>
                 </h3>
                 <div className="space-y-1">
-                  {categories.map((category) => (
-                    <motion.div key={category.id} variants={itemVariant}>
-                      <div className="flex flex-col">
-                        <button
-                          onClick={() => toggleCategory(category.id)}
-                          className="flex items-center justify-between px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gradient-to-r hover:from-violet-50 hover:to-indigo-50 dark:hover:from-violet-900/20 dark:hover:to-indigo-900/20 rounded-lg transition-all duration-300 hover:shadow-sm group w-full"
-                        >
-                          <div className="flex items-center">
-                            <ShoppingBag className="w-5 h-5 mr-3 text-violet-500 dark:text-violet-400 group-hover:scale-110 transition-transform duration-300" />
-                            <span className="group-hover:translate-x-1 transition-transform duration-300">{category.name}</span>
-                          </div>
-                          {category.subcategories && category.subcategories.length > 0 && (
-                            expandedCategories.has(category.id) ? (
-                              <ChevronDown className="w-4 h-4 text-gray-500" />
-                            ) : (
-                              <ChevronRight className="w-4 h-4 text-gray-500" />
-                            )
-                          )}
-                        </button>
-                        
-                        {/* Subcategories */}
-                        {expandedCategories.has(category.id) && category.subcategories && (
-                          <div className="ml-8 mt-1 space-y-1">
-                            {category.subcategories.map((subcategory) => (
-                              <motion.div key={subcategory.id} variants={itemVariant}>
-                                <div className="flex flex-col">
-                                  <button
-                                    onClick={() => toggleSubcategory(subcategory.id)}
-                                    className="flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-violet-50 hover:to-indigo-50 dark:hover:from-violet-900/20 dark:hover:to-indigo-900/20 rounded-lg transition-all duration-300 hover:shadow-sm group w-full"
-                                  >
-                                    <div className="flex items-center">
-                                      <Package className="w-4 h-4 mr-3 text-violet-400 dark:text-violet-500 group-hover:scale-110 transition-transform duration-300" />
-                                      <span className="group-hover:translate-x-1 transition-transform duration-300">{subcategory.name}</span>
-                                    </div>
-                                    {subcategory.subsubcategories && subcategory.subsubcategories.length > 0 && (
-                                      expandedSubcategories.has(subcategory.id) ? (
-                                        <ChevronDown className="w-4 h-4 text-gray-400" />
-                                      ) : (
-                                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                                      )
-                                    )}
-                                  </button>
-
-                                  {/* SubSubcategories */}
-                                  {expandedSubcategories.has(subcategory.id) && subcategory.subsubcategories && (
-                                    <div className="ml-8 mt-1 space-y-1">
-                                      {subcategory.subsubcategories.map((subsubcategory) => (
-                                        <motion.div key={subsubcategory.id} variants={itemVariant}>
-                                          <Link
-                                            to={`/products/${category.slug}/${subcategory.slug}/${subsubcategory.slug}`}
-                                            className="flex items-center px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gradient-to-r hover:from-violet-50 hover:to-indigo-50 dark:hover:from-violet-900/20 dark:hover:to-indigo-900/20 rounded-lg transition-all duration-300 hover:shadow-sm group"
-                                            onClick={onClose}
-                                          >
-                                            <span className="w-1.5 h-1.5 bg-violet-300 dark:bg-violet-600 rounded-full mr-3"></span>
-                                            <span className="group-hover:translate-x-1 transition-transform duration-300">{subsubcategory.name}</span>
-                                          </Link>
-                                        </motion.div>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              </motion.div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
+                  <motion.div variants={itemVariant}>
+                    <Link 
+                      to="/" 
+                      className="flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gradient-to-r hover:from-violet-50 hover:to-indigo-50 dark:hover:from-violet-900/20 dark:hover:to-indigo-900/20 rounded-lg transition-all duration-300 hover:shadow-sm group"
+                      onClick={onClose}
+                    >
+                      <Home className="w-5 h-5 mr-3 text-violet-500 dark:text-violet-400 group-hover:scale-110 transition-transform duration-300" />
+                      <span className="group-hover:translate-x-1 transition-transform duration-300">Accueil</span>
+                    </Link>
+                  </motion.div>
+                  <motion.div variants={itemVariant}>
+                    <Link 
+                      to="/products" 
+                      className="flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gradient-to-r hover:from-violet-50 hover:to-indigo-50 dark:hover:from-violet-900/20 dark:hover:to-indigo-900/20 rounded-lg transition-all duration-300 hover:shadow-sm group"
+                      onClick={onClose}
+                    >
+                      <ShoppingBag className="w-5 h-5 mr-3 text-violet-500 dark:text-violet-400 group-hover:scale-110 transition-transform duration-300" />
+                      <span className="group-hover:translate-x-1 transition-transform duration-300">Nos produits</span>
+                    </Link>
+                  </motion.div>
+                  <motion.div variants={itemVariant}>
+                    <Link 
+                      to="/cart" 
+                      className="flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gradient-to-r hover:from-violet-50 hover:to-indigo-50 dark:hover:from-violet-900/20 dark:hover:to-indigo-900/20 rounded-lg transition-all duration-300 hover:shadow-sm group"
+                      onClick={onClose}
+                    >
+                      <ShoppingCart className="w-5 h-5 mr-3 text-violet-500 dark:text-violet-400 group-hover:scale-110 transition-transform duration-300" />
+                      <span className="group-hover:translate-x-1 transition-transform duration-300">Panier</span>
+                    </Link>
+                  </motion.div>
+                  <motion.div variants={itemVariant}>
+                    <Link 
+                      to="/agence-evenementielle" 
+                      className="flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gradient-to-r hover:from-violet-50 hover:to-indigo-50 dark:hover:from-violet-900/20 dark:hover:to-indigo-900/20 rounded-lg transition-all duration-300 hover:shadow-sm group"
+                      onClick={onClose}
+                    >
+                      <Heart className="w-5 h-5 mr-3 text-violet-500 dark:text-violet-400 group-hover:scale-110 transition-transform duration-300" />
+                      <span className="group-hover:translate-x-1 transition-transform duration-300">Agence événementielle</span>
+                    </Link>
+                  </motion.div>
+                  <motion.div variants={itemVariant}>
+                    <Link 
+                      to="/artists" 
+                      className="flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gradient-to-r hover:from-violet-50 hover:to-indigo-50 dark:hover:from-violet-900/20 dark:hover:to-indigo-900/20 rounded-lg transition-all duration-300 hover:shadow-sm group"
+                      onClick={onClose}
+                    >
+                      <User className="w-5 h-5 mr-3 text-violet-500 dark:text-violet-400 group-hover:scale-110 transition-transform duration-300" />
+                      <span className="group-hover:translate-x-1 transition-transform duration-300">Artistes</span>
+                    </Link>
+                  </motion.div>
                 </div>
               </motion.div>
 
