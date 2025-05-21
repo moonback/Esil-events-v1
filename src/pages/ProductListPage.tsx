@@ -13,6 +13,7 @@ import { useComparison } from '../context/ComparisonContext';
 import { useCart } from '../context/CartContext';
 import { CartItem } from '../components/cart/types';
 import Notification from '../components/common/Notification';
+import ProductCard from '../components/product-list/ProductCard';
 
 interface NotificationState {
   show: boolean;
@@ -393,102 +394,13 @@ const ProductListPage: React.FC = () => {
               displayMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
                   {currentItems.map((product) => (
-                    <div key={product.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col h-full transform hover:-translate-y-2">
-                      <Link
-                        to={`/product/${product.slug}`}
-                        className="flex-grow"
-                      >
-                        <div className="relative">
-                          {/* Badge for availability status */}
-                          {product.isAvailable !== undefined && (
-                            <span className={`absolute top-3 right-3 z-10 px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${
-                              product.isAvailable 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-red-100 text-red-800'
-                            }`}>
-                              {product.isAvailable ? 'Disponible' : 'Indisponible'}
-                            </span>
-                          )}
-                          {/* Badge Nouveau */}
-                          {product.createdAt && (
-                      <div className="inline-flex items-center">
-                        {new Date().getTime() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000 && (
-                          <span className="inline-flex items-center gap-1 ml-2 px-3 py-1.5 text-xs font-bold rounded-full shadow-sm bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 animate-pulse align-middle">
-                            <Star className="w-3 h-3" />
-                            Nouveau à la location
-                          </span>
-                        )}
-                      </div>
-                    )}
-                          
-                          {/* Product image with hover effect */}
-                          <div className="aspect-w-1 aspect-h-1 w-full h-64 overflow-hidden bg-gray-50 flex items-center justify-center p-6">
-                            <img
-                              src={product.images && product.images.length > 0 
-                                ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
-                                  ? product.images[product.mainImageIndex] 
-                                  : product.images[0])
-                                : DEFAULT_PRODUCT_IMAGE}
-                              alt={product.name}
-                              className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500"
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="p-6 flex-grow flex flex-col bg-white rounded-b-2xl">
-                          <h3 className="text-lg font-bold text-gray-900 group-hover:text-violet-700 transition-colors line-clamp-2 mb-2">
-                            {product.name}
-                          </h3>
-                          <p className="text-sm text-gray-500 mb-4 font-medium">
-                            Réf: {product.reference}
-                          </p> 
-                          <div className="mt-auto pt-4 border-t border-gray-100">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="text-2xl font-bold text-violet-600">
-                                  {product.priceTTC.toFixed(2)}€
-                                </p>
-                                <span className="text-sm text-gray-500 font-medium">
-                                  TTC / jour
-                                </span>
-                                <span className="text-xs text-gray-400 block mt-1">
-                                  HT : {(product.priceTTC / 1.2).toFixed(2)}€
-                                </span>
-                              </div>
-                              <span className="text-sm font-semibold text-violet-600 flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                Voir
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                      <div className="p-4 border-t border-gray-100 space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <button
-                          onClick={() => handleAddToCart(product)}
-                          className="w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                          </svg>
-                          Ajouter au panier
-                        </button>
-                        <button
-                          onClick={() => handleAddToComparison(product)}
-                          disabled={isInComparison(product.id)}
-                          className={`w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            isInComparison(product.id)
-                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                              : 'bg-violet-50 text-violet-700 hover:bg-violet-100'
-                          }`}
-                        >
-                          <Scale className="h-4 w-4 mr-2" />
-                          {isInComparison(product.id) ? 'Ajouté à la comparaison' : 'Comparer'}
-                        </button>
-                      </div>
-                    </div>
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onAddToCart={handleAddToCart}
+                      onAddToComparison={handleAddToComparison}
+                      isInComparison={isInComparison}
+                    />
                   ))}
                 </div>
               ) : (

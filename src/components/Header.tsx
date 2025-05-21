@@ -253,7 +253,7 @@ const Header: React.FC = () => {
                   <Link to="/artists" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     Artistes
                   </Link>
-                  <Link to="/about" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
+                  <Link to="/qui-sommes-nous" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">
                     À propos
                   </Link>
                   <Link to="/delivery" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 py-1 nav-link-border">

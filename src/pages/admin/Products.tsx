@@ -483,36 +483,9 @@ const AdminProducts: React.FC = () => {
                           >
                             {product.isAvailable ? 'Disponible' : 'Indisponible'}
                           </span>
-                          {/* {product.stock < 5 && (
-                            <span className="px-2 py-1 text-xs font-medium rounded-full shadow-sm backdrop-blur-sm bg-amber-100/90 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                              Stock faible
-                            </span>
-                          )} */}
+                         
                         </div>
 
-                        {/* Indicateur de stock amélioré
-                        <div className="absolute bottom-2 left-2 right-2">
-                          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg p-2 shadow-sm border border-gray-100 dark:border-gray-700">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-medium text-gray-900 dark:text-white">Stock</span>
-                              <span className={`text-xs font-semibold ${product.stock < 5 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-900 dark:text-white'}`}>
-                                {product.stock} unités
-                              </span>
-                            </div>
-                            <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full rounded-full transition-all duration-500 ${
-                                  product.stock < 5 
-                                    ? 'bg-gradient-to-r from-amber-500 to-amber-600' 
-                                    : product.stock < 10 
-                                      ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' 
-                                      : 'bg-gradient-to-r from-green-500 to-green-600'
-                                }`}
-                                style={{ width: `${Math.min(100, (product.stock / 20) * 100)}%` }}
-                              />
-                            </div>
-                          </div>
-                        </div> */}
                       </div>
 
                       {/* Informations du produit améliorées */}
@@ -542,20 +515,7 @@ const AdminProducts: React.FC = () => {
                                 <span className="text-xs text-purple-500 dark:text-purple-400">€ TTC</span>
                               </div>
                             </div>
-                            {/* {product.stock !== undefined && (
-                              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
-                                <span className={`w-2 h-2 rounded-full ${
-                                  product.stock < 5 
-                                    ? 'bg-amber-500' 
-                                    : product.stock < 10 
-                                      ? 'bg-yellow-500'
-                                      : 'bg-green-500'
-                                }`} />
-                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                                  {product.stock} en stock
-                                </span>
-                              </div>
-                            )} */}
+                            
                           </div>
                         </div>
 
