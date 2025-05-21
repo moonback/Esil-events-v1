@@ -313,7 +313,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           </div>
           
           {/* Price Range Filter */}
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
               <span className="w-5 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full mr-2"></span>
               Prix
@@ -360,7 +360,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Colors */}
           {availableColors.length > 0 && (
@@ -392,7 +392,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           )}
 
           {/* Sort By */}
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
               <span className="w-5 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full mr-2"></span>
               Trier par
@@ -411,10 +411,10 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
               <option value="popularity">Popularité</option>
               <option value="newest">Nouveautés</option>
             </select>
-          </div>
+          </div> */}
 
           {/* Availability Filter */}
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
               <span className="w-5 h-0.5 bg-violet-300 dark:bg-violet-700 rounded-full mr-2"></span>
               Disponibilité
@@ -443,7 +443,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 </motion.label>
               ))}
             </div>
-          </div>
+          </div> */}
           
           {/* Applied filters summary */}
           {(selectedColors.length > 0 || availability !== 'all' || priceRange[0] > minMaxPrice[0] || priceRange[1] < minMaxPrice[1]) && (
