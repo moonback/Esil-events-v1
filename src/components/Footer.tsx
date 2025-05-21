@@ -32,7 +32,7 @@ const Footer = () => {
   const socialLinks = [
     { icon: <Facebook className="w-5 h-5" />, label: "Facebook", href: "https://facebook.com/esilevents" },
     { icon: <Instagram className="w-5 h-5" />, label: "Instagram", href: "https://instagram.com/esil_events" },
-    { icon: <Linkedin className="w-5 h-5" />, label: "LinkedIn", href: "https://linkedin.com/company/esil-events" }
+    // { icon: <Linkedin className="w-5 h-5" />, label: "LinkedIn", href: "https://linkedin.com/company/esil-events" }
   ];
   
   // Fonction pour gérer la soumission du formulaire de newsletter
@@ -155,12 +155,21 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <Phone className="w-5 h-5 text-violet-500 mr-3 flex-shrink-0" />
-                <a 
-                  href="tel:+33620461385" 
-                  className="text-gray-400 hover:text-violet-400 transition-colors"
-                >
-                  06 20 46 13 85
-                </a>
+                <div className="flex flex-col">
+                  <a 
+                    href="tel:+33620461385" 
+                    className="text-gray-400 hover:text-violet-400 transition-colors"
+                  >
+                    06 20 46 13 85
+                  </a>
+                  <a 
+                    href="tel:0785959723" 
+                    className="text-gray-400 hover:text-violet-400 transition-colors"
+                  >
+                    07.85.95.97.23
+
+                  </a>
+                </div>
               </li>
               <li className="flex items-center">
                 <Mail className="w-5 h-5 text-violet-500 mr-3 flex-shrink-0" />
@@ -242,17 +251,17 @@ const Footer = () => {
             © {currentYear} ESIL Events - Tous droits réservés
           </p>
           <div className="flex flex-wrap justify-center gap-6">
-            <Link to="/legal" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
+            <Link to="/conditions-generales-d-utilisation" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
               Mentions légales
             </Link>
-            <Link to="/privacy" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
+            <Link to="/politique-de-confidentialite" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
               Politique de confidentialité
             </Link>
             <Link to="/cgu" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
               CGU
             </Link>
-            <Link to="/login" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
-              Administration
+            <Link to="/livraison" className="text-gray-500 hover:text-violet-400 text-sm transition-colors">
+              Livraison
             </Link>
           </div>
         </div>

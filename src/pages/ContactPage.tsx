@@ -489,7 +489,7 @@ const ContactPage: React.FC = () => {
                     <h3 className="font-bold mb-2 text-violet-300">Téléphone</h3>
                     <div className="space-y-2">
                       <a href="tel:+33785959723" className="block text-gray-300 hover:text-violet-300 transition-colors">
-                        Service commercial : 07 85 95 97 23
+                        Service commercial : 07 85 95 97 23 (lundi au vendredi de 9h-17h)
                       </a>
                       <a href="tel:+33620461385" className="block text-gray-300 hover:text-violet-300 transition-colors">
                         Service technique : 06 20 46 13 85
@@ -674,19 +674,15 @@ const ContactPage: React.FC = () => {
               className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl"
               variants={scaleIn}
             >
-              <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Horaires d'ouverture</h2>
+              <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Horaires d'ouverture du dépôt</h2>
               
               <ul className="space-y-4">
                 <li className="flex justify-between items-center p-3 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors duration-300">
                   <span className="font-medium">Lundi - Vendredi</span>
-                  <span className="font-bold text-violet-600 dark:text-violet-400">9h00 - 18h00</span>
+                  <span className="font-bold text-violet-600 dark:text-violet-400">9h15 - 12h00 et 14h15 - 16h30</span>
                 </li>
                 <li className="flex justify-between items-center p-3 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors duration-300">
-                  <span className="font-medium">Samedi</span>
-                  <span className="font-bold text-violet-600 dark:text-violet-400">10h00 - 16h00</span>
-                </li>
-                <li className="flex justify-between items-center p-3 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors duration-300">
-                  <span className="font-medium">Dimanche</span>
+                  <span className="font-medium">Samedi - Dimanche</span>
                   <span className="font-bold text-violet-600 dark:text-violet-400">Fermé</span>
                 </li>
               </ul>

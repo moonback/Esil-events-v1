@@ -205,29 +205,27 @@ const AdminProducts: React.FC = () => {
               <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <button
                   onClick={() => setViewMode('cards')}
-                  className={`p-2 rounded-lg transition-all duration-200 ${
+                  className={`p-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
                     viewMode === 'cards'
                       ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
                       : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                   title="Vue en cards"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                  </svg>
+                  <Layers className="w-4 h-4" />
+                  <span className="hidden sm:inline">Cards</span>
                 </button>
                 <button
                   onClick={() => setViewMode('table')}
-                  className={`p-2 rounded-lg transition-all duration-200 ${
+                  className={`p-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
                     viewMode === 'table'
                       ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
                       : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                   title="Vue en tableau"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
+                  <BarChart className="w-4 h-4" />
+                  <span className="hidden sm:inline">Tableau</span>
                 </button>
               </div>
 
@@ -483,36 +481,9 @@ const AdminProducts: React.FC = () => {
                           >
                             {product.isAvailable ? 'Disponible' : 'Indisponible'}
                           </span>
-                          {/* {product.stock < 5 && (
-                            <span className="px-2 py-1 text-xs font-medium rounded-full shadow-sm backdrop-blur-sm bg-amber-100/90 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                              Stock faible
-                            </span>
-                          )} */}
+                         
                         </div>
 
-                        {/* Indicateur de stock amélioré
-                        <div className="absolute bottom-2 left-2 right-2">
-                          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg p-2 shadow-sm border border-gray-100 dark:border-gray-700">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-medium text-gray-900 dark:text-white">Stock</span>
-                              <span className={`text-xs font-semibold ${product.stock < 5 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-900 dark:text-white'}`}>
-                                {product.stock} unités
-                              </span>
-                            </div>
-                            <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full rounded-full transition-all duration-500 ${
-                                  product.stock < 5 
-                                    ? 'bg-gradient-to-r from-amber-500 to-amber-600' 
-                                    : product.stock < 10 
-                                      ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' 
-                                      : 'bg-gradient-to-r from-green-500 to-green-600'
-                                }`}
-                                style={{ width: `${Math.min(100, (product.stock / 20) * 100)}%` }}
-                              />
-                            </div>
-                          </div>
-                        </div> */}
                       </div>
 
                       {/* Informations du produit améliorées */}
@@ -542,20 +513,7 @@ const AdminProducts: React.FC = () => {
                                 <span className="text-xs text-purple-500 dark:text-purple-400">€ TTC</span>
                               </div>
                             </div>
-                            {/* {product.stock !== undefined && (
-                              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
-                                <span className={`w-2 h-2 rounded-full ${
-                                  product.stock < 5 
-                                    ? 'bg-amber-500' 
-                                    : product.stock < 10 
-                                      ? 'bg-yellow-500'
-                                      : 'bg-green-500'
-                                }`} />
-                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                                  {product.stock} en stock
-                                </span>
-                              </div>
-                            )} */}
+                            
                           </div>
                         </div>
 
