@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export const EventsPage: React.FC = () => {
   // Animation variants
@@ -430,7 +431,7 @@ export const EventsPage: React.FC = () => {
             variants={fadeInUp}
           >
             <div className="absolute inset-0 opacity-10">
-              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80')] bg-cover bg-center" />
+              <div className="absolute inset-0 bg-[url('/images/confiance.png')] bg-cover bg-center" />
             </div>
             
             <div className="relative z-10">
@@ -578,16 +579,18 @@ export const EventsPage: React.FC = () => {
                 Contactez-nous dès maintenant pour discuter de votre projet et voyons ensemble comment marquer les esprits !
               </p>
               
-              <motion.button
-                className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-bold rounded-full shadow-lg text-violet-900 bg-white hover:bg-violet-50 transition-colors duration-300"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Contactez notre équipe
-                <svg className="ml-3 -mr-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                </svg>
-              </motion.button>
+              <Link to="/contact">
+                <motion.button
+                  className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-bold rounded-full shadow-lg text-violet-900 bg-white hover:bg-violet-50 transition-colors duration-300"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Contactez notre équipe
+                  <svg className="ml-3 -mr-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                </motion.button>
+              </Link>
               
               <p className="mt-8 text-violet-200">
                 ESIL Events - Là où les idées prennent vie et les événements deviennent légendaires.
