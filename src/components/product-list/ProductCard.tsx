@@ -18,7 +18,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onAddTo
     >
       {/* Image produit avec overlay */}
       <Link to={`/product/${product.slug}`} className="block">
-        <div className="relative aspect-[4/3] overflow-hidden">
+        <div className="relative aspect-[4/3] overflow-hidden bg-white">
           <img
             src={product.images && product.images.length > 0
               ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex]
