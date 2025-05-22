@@ -524,13 +524,13 @@ const ProductListPage: React.FC = () => {
       <ComparisonBar />
 
       {/* Notification */}
-      {notification.show && (
+      {/* {notification.show && (
         <Notification
           message={notification.message}
           type={notification.type}
           onClose={() => setNotification(prev => ({ ...prev, show: false }))}
         />
-      )}
+      )} */}
     </>
   );
 };
