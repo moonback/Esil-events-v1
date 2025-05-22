@@ -149,7 +149,9 @@ const ProductListPage: React.FC = () => {
           productsData = await getAllProducts();
         }
         
-        setProducts(productsData);
+        // Filtrer les produits indisponibles
+        const availableProducts = productsData.filter(product => product.isAvailable);
+        setProducts(availableProducts);
       } catch (error) {
         console.error('Error fetching products:', error);
         setError('Une erreur est survenue lors du chargement des produits');
