@@ -325,7 +325,7 @@ const ProductListPage: React.FC = () => {
           />
 
           {/* Product Grid */}
-          <div className="lg:w-3/4">
+          <div className="lg:w-4/4">
             {error && (
               <div className="bg-red-50 border-l-4 border-red-400 p-6 mb-8 rounded-lg">
                 <p className="text-red-700 font-medium">{error}</p>
@@ -391,7 +391,7 @@ const ProductListPage: React.FC = () => {
               </div>
             ) : (
               displayMode === 'grid' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-8">
                   {currentItems.map((product) => (
                     <div key={product.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col h-full transform hover:-translate-y-2">
                       <Link
