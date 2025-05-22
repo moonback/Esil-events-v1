@@ -393,81 +393,78 @@ const ProductListPage: React.FC = () => {
               displayMode === 'grid' ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-8">
                   {currentItems.map((product) => (
-                    <div key={product.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col h-full transform hover:-translate-y-2">
-                      <Link
-                        to={`/product/${product.slug}`}
-                        className="flex-grow"
-                      >
-                        <div className="relative">
-                          {/* Badge for availability status */}
-                          {product.isAvailable !== undefined && (
-                            <span className={`absolute top-3 right-3 z-10 px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${
-                              product.isAvailable 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-red-100 text-red-800'
-                            }`}>
+                    <div 
+                      key={product.id} 
+                      className="bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group relative cursor-pointer"
+                    >
+                      <Link to={`/product/${product.slug}`}> 
+                        {/* Image du produit */}
+                        <div className="relative aspect-[4/3] overflow-hidden">
+                          {product.images && product.images.length > 0 ? (
+                            <img
+                              src={product.mainImageIndex !== undefined && 
+                                   product.mainImageIndex >= 0 && 
+                                   product.mainImageIndex < product.images.length 
+                                   ? product.images[product.mainImageIndex] 
+                                   : product.images[0]}
+                              alt={product.name}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                              <svg className="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                          )}
+                          {/* Badge disponibilité */}
+                          <div className="absolute top-2 right-2">
+                            <span
+                              className={`px-2 py-1 text-xs font-medium rounded-full shadow-sm backdrop-blur-sm ${
+                                product.isAvailable
+                                  ? 'bg-green-100 text-green-800 border border-green-200'
+                                  : 'bg-red-100 text-red-800 border border-red-200'
+                              }`}
+                            >
                               {product.isAvailable ? 'Disponible' : 'Indisponible'}
                             </span>
-                          )}
-                          {/* Badge Nouveau */}
-                          {product.createdAt && (
-                      <div className="inline-flex items-center">
-                        {new Date().getTime() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000 && (
-                          <span className="inline-flex items-center gap-1 ml-2 px-3 py-1.5 text-xs font-bold rounded-full shadow-sm bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 animate-pulse align-middle">
-                            <Star className="w-3 h-3" />
-                            Nouveau à la location
-                          </span>
-                        )}
-                      </div>
-                    )}
-                          
-                          {/* Product image with hover effect */}
-                          <div className="aspect-w-1 aspect-h-1 w-full h-64 overflow-hidden bg-gray-50 flex items-center justify-center p-6">
-                            <img
-                              src={product.images && product.images.length > 0 
-                                ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
-                                  ? product.images[product.mainImageIndex] 
-                                  : product.images[0])
-                                : DEFAULT_PRODUCT_IMAGE}
-                              alt={product.name}
-                              className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500"
-                            />
                           </div>
                         </div>
-                        
-                        <div className="p-6 flex-grow flex flex-col bg-white rounded-b-2xl">
-                          <h3 className="text-lg font-bold text-gray-900 group-hover:text-violet-700 transition-colors line-clamp-2 mb-2">
-                            {product.name}
-                          </h3>
-                          <p className="text-sm text-gray-500 mb-4 font-medium">
-                            Réf: {product.reference}
-                          </p> 
-                          <div className="mt-auto pt-4 border-t border-gray-100">
+
+                        {/* Infos produit */}
+                        <div className="p-3">
+                          <div className="mb-2">
+                            <h3 className="text-sm font-semibold text-gray-900 truncate group-hover:text-indigo-600 transition-colors">
+                              {product.name}
+                            </h3>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              {product.reference}
+                            </p>
+                          </div>
+                          <div className="mb-2">
                             <div className="flex items-center justify-between">
-                              <div>
-                                <p className="text-2xl font-bold text-violet-600">
-                                  {product.priceTTC.toFixed(2)}€
-                                </p>
-                                <span className="text-sm text-gray-500 font-medium">
-                                  TTC / jour
-                                </span>
-                                <span className="text-xs text-gray-400 block mt-1">
-                                  HT : {(product.priceTTC / 1.2).toFixed(2)}€
-                                </span>
+                              <div className="space-y-1">
+                                <div className="flex items-baseline gap-1">
+                                  <p className="text-base font-medium text-gray-900">
+                                    {product.priceHT.toFixed(2)}€
+                                  </p>
+                                  <span className="text-sm text-gray-500">€ HT</span>
+                                </div>
+                                <div className="flex items-baseline gap-1">
+                                  <p className="text-lg font-bold text-purple-600">
+                                    {product.priceTTC.toFixed(2)}€
+                                  </p>
+                                  <span className="text-sm text-gray-500">€ TTC</span>
+                                </div>
                               </div>
-                              <span className="text-sm font-semibold text-violet-600 flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                Voir
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
-                              </span>
                             </div>
                           </div>
                         </div>
                       </Link>
-                      <div className="p-4 border-t border-gray-100 space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      {/* Actions */}
+                      <div className="flex flex-col gap-2 mt-2 p-3 pt-0">
                         <button
-                          onClick={() => handleAddToCart(product)}
+                          onClick={e => { e.stopPropagation(); handleAddToCart(product); }}
                           className="w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -476,7 +473,7 @@ const ProductListPage: React.FC = () => {
                           Ajouter au panier
                         </button>
                         <button
-                          onClick={() => handleAddToComparison(product)}
+                          onClick={e => { e.stopPropagation(); handleAddToComparison(product); }}
                           disabled={isInComparison(product.id)}
                           className={`w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                             isInComparison(product.id)
