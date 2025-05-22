@@ -292,7 +292,7 @@ const ProductListPage: React.FC = () => {
         </div>
 
         {/* Filter Button (Mobile) */}
-        <div className="lg:hidden mb-6">
+        {/* <div className="lg:hidden mb-6">
           <button
             onClick={toggleFilter}
             className="flex items-center justify-center w-full py-3 px-6 border border-violet-200 rounded-xl shadow-sm bg-white text-sm font-medium text-violet-700 hover:bg-violet-50 transition-all duration-200"
@@ -301,7 +301,7 @@ const ProductListPage: React.FC = () => {
             Filtres
             <ChevronDown className={`h-5 w-5 ml-2 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
           </button>
-        </div>
+        </div> */}
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters (Sidebar) */}
