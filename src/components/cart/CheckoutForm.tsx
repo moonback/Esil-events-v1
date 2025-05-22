@@ -62,9 +62,70 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     // Fusionner avec les données initiales si fournies
     ...initialData
   });
+  const [termsError, setTermsError] = React.useState(false);
+  const [dateErrors, setDateErrors] = React.useState({
+    deliveryAfterEvent: false,
+    pickupBeforeDelivery: false
+  });
+  const [fieldErrors, setFieldErrors] = React.useState({
+    email: false,
+    phone: false,
+    guestCount: false,
+    timeSlot: false
+  });
 
   // Ajout des styles globaux pour les champs de formulaire
   const inputFieldClass = "input-field border border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 transition-colors duration-200";
+
+  // Fonction de validation des dates
+  const validateDates = () => {
+    const errors = {
+      deliveryAfterEvent: false,
+      pickupBeforeDelivery: false
+    };
+
+    if (formData.eventDate && formData.deliveryDate) {
+      errors.deliveryAfterEvent = new Date(formData.deliveryDate) > new Date(formData.eventDate);
+    }
+
+    if (formData.deliveryDate && formData.pickupReturnDate) {
+      errors.pickupBeforeDelivery = new Date(formData.pickupReturnDate) < new Date(formData.deliveryDate);
+    }
+
+    setDateErrors(errors);
+    return !errors.deliveryAfterEvent && !errors.pickupBeforeDelivery;
+  };
+
+  // Validation des champs
+  const validateFields = () => {
+    const errors = {
+      email: false,
+      phone: false,
+      guestCount: false,
+      timeSlot: false
+    };
+
+    // Validation email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    errors.email = !emailRegex.test(formData.email);
+
+    // Validation téléphone (format français)
+    const phoneRegex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
+    errors.phone = !phoneRegex.test(formData.phone);
+
+    // Validation nombre d'invités
+    errors.guestCount = formData.guestCount <= 0;
+
+    // Validation créneau horaire
+    if (formData.eventStartTime && formData.eventEndTime) {
+      const startTime = new Date(`2000-01-01T${formData.eventStartTime}`);
+      const endTime = new Date(`2000-01-01T${formData.eventEndTime}`);
+      errors.timeSlot = startTime >= endTime;
+    }
+
+    setFieldErrors(errors);
+    return !Object.values(errors).some(error => error);
+  };
 
   // Gestion des changements dans les champs du formulaire
   const handleInputChange = (
@@ -72,16 +133,24 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   ) => {
     const { name, value, type } = e.target;
 
-    // Gestion spéciale pour les cases à cocher
     if (type === 'checkbox') {
       const target = e.target as HTMLInputElement;
       setFormData(prev => ({ ...prev, [name]: target.checked }));
     } else {
-      // Gestion des champs numériques
       const isNumberInput = type === 'number';
       const processedValue = isNumberInput && value !== '' ? parseFloat(value) : value;
 
       setFormData(prev => ({ ...prev, [name]: processedValue }));
+    }
+
+    // Valider les dates après chaque changement
+    if (['eventDate', 'deliveryDate', 'pickupReturnDate'].includes(name)) {
+      setTimeout(validateDates, 0);
+    }
+
+    // Valider les autres champs après chaque changement
+    if (['email', 'phone', 'guestCount', 'eventStartTime', 'eventEndTime'].includes(name)) {
+      setTimeout(validateFields, 0);
     }
   };
 
@@ -89,13 +158,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation de base
     if (!formData.termsAccepted) {
-      alert("Veuillez accepter les conditions générales.");
+      setTermsError(true);
       return;
     }
 
-    // Appeler la fonction onSubmit passée en props
+    if (!validateDates() || !validateFields()) {
+      return;
+    }
+
+    setTermsError(false);
     onSubmit(formData);
   };
 
@@ -169,11 +241,38 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           </div>
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Téléphone *</label>
-            <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleInputChange} required className={inputFieldClass} />
+            <input 
+              type="tel" 
+              id="phone" 
+              name="phone" 
+              value={formData.phone} 
+              onChange={handleInputChange} 
+              required 
+              className={`${inputFieldClass} ${fieldErrors.phone ? 'border-red-500' : ''}`}
+              placeholder="Ex: 06 12 34 56 78"
+            />
+            {fieldErrors.phone && (
+              <p className="mt-2 text-sm text-red-600">
+                Veuillez entrer un numéro de téléphone valide (format français)
+              </p>
+            )}
           </div>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-            <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required className={inputFieldClass} />
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              value={formData.email} 
+              onChange={handleInputChange} 
+              required 
+              className={`${inputFieldClass} ${fieldErrors.email ? 'border-red-500' : ''}`}
+            />
+            {fieldErrors.email && (
+              <p className="mt-2 text-sm text-red-600">
+                Veuillez entrer une adresse email valide
+              </p>
+            )}
           </div>
         </div>
 
@@ -182,7 +281,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700 mb-1">Date de l'événement *</label>
-            <input type="date" id="eventDate" name="eventDate" value={formData.eventDate} onChange={handleInputChange} required className={inputFieldClass} />
+            <input 
+              type="date" 
+              id="eventDate" 
+              name="eventDate" 
+              value={formData.eventDate} 
+              onChange={handleInputChange} 
+              required 
+              className={inputFieldClass} 
+            />
           </div>
           <div>
             <label htmlFor="eventDuration" className="block text-sm font-medium text-gray-700 mb-1">Durée de location *</label>
@@ -190,15 +297,50 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           </div>
           <div>
             <label htmlFor="eventStartTime" className="block text-sm font-medium text-gray-700 mb-1">Heure de début *</label>
-            <input type="time" id="eventStartTime" name="eventStartTime" value={formData.eventStartTime} onChange={handleInputChange} required className={inputFieldClass} />
+            <input 
+              type="time" 
+              id="eventStartTime" 
+              name="eventStartTime" 
+              value={formData.eventStartTime} 
+              onChange={handleInputChange} 
+              required 
+              className={`${inputFieldClass} ${fieldErrors.timeSlot ? 'border-red-500' : ''}`}
+            />
           </div>
           <div>
             <label htmlFor="eventEndTime" className="block text-sm font-medium text-gray-700 mb-1">Heure de fin *</label>
-            <input type="time" id="eventEndTime" name="eventEndTime" value={formData.eventEndTime} onChange={handleInputChange} required className={inputFieldClass} />
+            <input 
+              type="time" 
+              id="eventEndTime" 
+              name="eventEndTime" 
+              value={formData.eventEndTime} 
+              onChange={handleInputChange} 
+              required 
+              className={`${inputFieldClass} ${fieldErrors.timeSlot ? 'border-red-500' : ''}`}
+            />
+            {fieldErrors.timeSlot && (
+              <p className="mt-2 text-sm text-red-600">
+                L'heure de fin doit être après l'heure de début
+              </p>
+            )}
           </div>
           <div>
             <label htmlFor="guestCount" className="block text-sm font-medium text-gray-700 mb-1">Nombre d'invités (approximatif) *</label>
-            <input type="number" id="guestCount" name="guestCount" value={formData.guestCount} onChange={handleInputChange} required min="0" className={inputFieldClass} />
+            <input 
+              type="number" 
+              id="guestCount" 
+              name="guestCount" 
+              value={formData.guestCount} 
+              onChange={handleInputChange} 
+              required 
+              min="1" 
+              className={`${inputFieldClass} ${fieldErrors.guestCount ? 'border-red-500' : ''}`}
+            />
+            {fieldErrors.guestCount && (
+              <p className="mt-2 text-sm text-red-600">
+                Le nombre d'invités doit être supérieur à 0
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Lieu de l'événement *</label>
@@ -251,7 +393,20 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             <>
               <div>
                 <label htmlFor="deliveryDate" className="block text-sm font-medium text-gray-700 mb-1">Date de livraison *</label>
-                <input type="date" id="deliveryDate" name="deliveryDate" value={formData.deliveryDate} onChange={handleInputChange} required={isDelivery} className={inputFieldClass} />
+                <input 
+                  type="date" 
+                  id="deliveryDate" 
+                  name="deliveryDate" 
+                  value={formData.deliveryDate} 
+                  onChange={handleInputChange} 
+                  required={isDelivery} 
+                  className={inputFieldClass} 
+                />
+                {dateErrors.deliveryAfterEvent && (
+                  <p className="mt-2 text-sm text-red-600">
+                    La date de livraison ne peut pas être après la date de l'événement
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Créneau horaire de livraison *</label>
@@ -340,7 +495,20 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label htmlFor="pickupReturnDate" className="block text-sm font-medium text-gray-700 mb-1">Date de reprise *</label>
-            <input type="date" id="pickupReturnDate" name="pickupReturnDate" value={formData.pickupReturnDate} onChange={handleInputChange} required className={inputFieldClass} />
+            <input 
+              type="date" 
+              id="pickupReturnDate" 
+              name="pickupReturnDate" 
+              value={formData.pickupReturnDate} 
+              onChange={handleInputChange} 
+              required 
+              className={inputFieldClass} 
+            />
+            {dateErrors.pickupBeforeDelivery && (
+              <p className="mt-2 text-sm text-red-600">
+                La date de reprise ne peut pas être avant la date de livraison
+              </p>
+            )}
           </div>
           <div> {/* Placeholder pour l'équilibre de la mise en page */} </div>
           <div>
@@ -385,7 +553,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
               type="checkbox"
               name="termsAccepted"
               checked={formData.termsAccepted}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                handleInputChange(e);
+                setTermsError(false);
+              }}
               className="form-checkbox h-5 w-5 text-primary focus:ring-primary-dark border-gray-300 rounded"
               required
             />
@@ -393,6 +564,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
               J'accepte les <Link to="/terms" target="_blank" className="underline hover:text-primary">conditions générales de location</Link> *
             </span>
           </label>
+          {termsError && (
+            <p className="mt-2 text-sm text-red-600">
+              Vous devez accepter les conditions générales de location pour continuer
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
