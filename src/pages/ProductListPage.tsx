@@ -13,7 +13,6 @@ import { useComparison } from '../context/ComparisonContext';
 import { useCart } from '../context/CartContext';
 import { CartItem } from '../components/cart/types';
 import Notification from '../components/common/Notification';
-import ProductCard from '../components/product-list/ProductCard';
 
 interface NotificationState {
   show: boolean;
@@ -51,9 +50,6 @@ const ProductListPage: React.FC = () => {
     filteredProducts,
     isFilterOpen,
     toggleFilter,
-    // Display mode properties
-    displayMode,
-    toggleDisplayMode,
     // Pagination properties
     currentItems,
     currentPage,
@@ -293,7 +289,7 @@ const ProductListPage: React.FC = () => {
         </div>
 
         {/* Filter Button (Mobile) */}
-        <div className="lg:hidden mb-6">
+        {/* <div className="lg:hidden mb-6">
           <button
             onClick={toggleFilter}
             className="flex items-center justify-center w-full py-3 px-6 border border-violet-200 rounded-xl shadow-sm bg-white text-sm font-medium text-violet-700 hover:bg-violet-50 transition-all duration-200"
@@ -302,7 +298,7 @@ const ProductListPage: React.FC = () => {
             Filtres
             <ChevronDown className={`h-5 w-5 ml-2 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
           </button>
-        </div>
+        </div> */}
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters (Sidebar) */}
@@ -326,42 +322,13 @@ const ProductListPage: React.FC = () => {
           />
 
           {/* Product Grid */}
-          <div className="lg:w-3/4">
+          <div className="lg:w-4/4">
             {error && (
               <div className="bg-red-50 border-l-4 border-red-400 p-6 mb-8 rounded-lg">
                 <p className="text-red-700 font-medium">{error}</p>
               </div>
             )}
             
-            {/* Display Mode Toggle */}
-            <div className="flex justify-between items-center mb-8">
-              <div className="text-sm text-gray-600">
-                {filteredProducts.length} produit{filteredProducts.length !== 1 ? 's' : ''} trouvé{filteredProducts.length !== 1 ? 's' : ''}
-              </div>
-              <div className="inline-flex rounded-xl shadow-sm overflow-hidden" role="group">
-                <button
-                  type="button"
-                  onClick={toggleDisplayMode}
-                  className={`px-4 py-2.5 text-sm font-medium border ${displayMode === 'grid' ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}
-                  aria-label="Affichage en grille"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={toggleDisplayMode}
-                  className={`px-4 py-2.5 text-sm font-medium border ${displayMode === 'list' ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}
-                  aria-label="Affichage en liste"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
             {filteredProducts.length === 0 ? (
               <div className="bg-white p-16 rounded-2xl shadow-lg text-center border border-gray-100">
                 <div className="mb-8">
@@ -391,120 +358,103 @@ const ProductListPage: React.FC = () => {
                 </button>
               </div>
             ) : (
-              displayMode === 'grid' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-                  {currentItems.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      onAddToCart={handleAddToCart}
-                      onAddToComparison={handleAddToComparison}
-                      isInComparison={isInComparison}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col space-y-6">
-                  {currentItems.map((product) => (
-                    <div key={product.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-row transform hover:-translate-y-1">
-                      <Link
-                        to={`/product/${product.slug}`}
-                        className="flex-grow"
-                      >
-                        <div className="relative w-1/4 min-w-[200px]">
-                          {/* Badge for availability status */}
-                          {product.isAvailable !== undefined && (
-                            <span className={`absolute top-3 right-3 z-10 px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${
-                              product.isAvailable 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-red-100 text-red-800'
-                            }`}>
-                              {product.isAvailable ? 'Disponible' : 'Indisponible'}
-                            </span>
-                          )}
-                          {/* Badge Nouveau */}
-                          {product.createdAt && (new Date().getTime() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000) && (
-                            <span className="absolute top-3 left-3 z-10 px-3 py-1.5 text-xs font-bold rounded-full shadow-sm bg-yellow-100 text-yellow-800 animate-pulse">
-                              Nouveau
-                            </span>
-                          )}
-                          
-                          {/* Product image */}
-                          <div className="h-full overflow-hidden bg-gray-50 flex items-center justify-center p-6">
-                            <img
-                              src={product.images && product.images.length > 0 
-                                ? (product.mainImageIndex !== undefined && product.images[product.mainImageIndex] 
-                                  ? product.images[product.mainImageIndex] 
-                                  : product.images[0])
-                                : DEFAULT_PRODUCT_IMAGE}
-                              alt={product.name}
-                              className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500"
-                            />
+              <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-8">
+                {currentItems.map((product) => (
+                  <div 
+                    key={product.id} 
+                    className="bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group relative cursor-pointer"
+                  >
+                    <Link to={`/product/${product.slug}`}> 
+                      {/* Image du produit */}
+                      <div className="relative aspect-[4/3] overflow-hidden">
+                        {product.images && product.images.length > 0 ? (
+                          <img
+                            src={product.mainImageIndex !== undefined && 
+                                 product.mainImageIndex >= 0 && 
+                                 product.mainImageIndex < product.images.length 
+                                 ? product.images[product.mainImageIndex] 
+                                 : product.images[0]}
+                            alt={product.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                            <svg className="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
                           </div>
+                        )}
+                        {/* Badge disponibilité */}
+                        <div className="absolute top-2 right-2">
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded-full shadow-sm backdrop-blur-sm ${
+                              product.isAvailable
+                                ? 'bg-green-100 text-green-800 border border-green-200'
+                                : 'bg-red-100 text-red-800 border border-red-200'
+                            }`}
+                          >
+                            {product.isAvailable ? 'Disponible' : 'Indisponible'}
+                          </span>
                         </div>
-                        
-                        <div className="p-8 flex-grow flex flex-col justify-between">
-                          <div>
-                            <h3 className="text-xl font-bold text-gray-900 group-hover:text-violet-700 transition-colors mb-3">
-                              {product.name}
-                            </h3>
-                            <p className="text-sm text-gray-500 mb-3 font-medium">
-                              Réf: {product.reference}
-                            </p>
-                            <p className="text-gray-600 mb-4 line-clamp-2">
-                              {product.description || 'Aucune description disponible'}
-                            </p>
-                          </div>
-                          
-                          <div className="flex items-center justify-between mt-4">
-                            <div>
-                              <p className="text-2xl font-bold text-violet-600">
-                                {product.priceTTC.toFixed(2)}€
-                              </p>
-                              <span className="text-sm text-gray-500 font-medium">
-                                TTC / jour
-                              </span>
-                              <span className="text-xs text-gray-400 block mt-1">
-                                HT : {(product.priceTTC / 1.2).toFixed(2)}€
-                              </span>
-                            </div>
-                            
-                            <span className="text-sm font-semibold text-violet-600 flex items-center px-4 py-2 rounded-lg bg-violet-50 group-hover:bg-violet-100 transition-colors duration-200">
-                              Voir le produit
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                              </svg>
-                            </span>
-                          </div>
-                        </div>
-                      </Link>
-                      <div className="p-4 border-l border-gray-100 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <button
-                          onClick={() => handleAddToCart(product)}
-                          className="flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                          </svg>
-                          Ajouter au panier
-                        </button>
-                        <button
-                          onClick={() => handleAddToComparison(product)}
-                          disabled={isInComparison(product.id)}
-                          className={`flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            isInComparison(product.id)
-                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                              : 'bg-violet-50 text-violet-700 hover:bg-violet-100'
-                          }`}
-                        >
-                          <Scale className="h-4 w-4 mr-2" />
-                          {isInComparison(product.id) ? 'Ajouté à la comparaison' : 'Comparer'}
-                        </button>
                       </div>
+
+                      {/* Infos produit */}
+                      <div className="p-3">
+                        <div className="mb-2">
+                          <h3 className="text-sm font-semibold text-gray-900 truncate group-hover:text-indigo-600 transition-colors">
+                            {product.name}
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {product.reference}
+                          </p>
+                        </div>
+                        <div className="mb-2">
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <div className="flex items-baseline gap-1">
+                                <p className="text-base font-medium text-gray-900">
+                                  {product.priceHT.toFixed(2)}€
+                                </p>
+                                <span className="text-sm text-gray-500">€ HT</span>
+                              </div>
+                              <div className="flex items-baseline gap-1">
+                                <p className="text-lg font-bold text-purple-600">
+                                  {product.priceTTC.toFixed(2)}€
+                                </p>
+                                <span className="text-sm text-gray-500">€ TTC</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                    {/* Actions */}
+                    <div className="flex flex-col gap-2 mt-2 p-3 pt-0">
+                      <button
+                        onClick={e => { e.stopPropagation(); handleAddToCart(product); }}
+                        className="w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Ajouter au panier
+                      </button>
+                      <button
+                        onClick={e => { e.stopPropagation(); handleAddToComparison(product); }}
+                        disabled={isInComparison(product.id)}
+                        className={`w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          isInComparison(product.id)
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-violet-50 text-violet-700 hover:bg-violet-100'
+                        }`}
+                      >
+                        <Scale className="h-4 w-4 mr-2" />
+                        {isInComparison(product.id) ? 'Ajouté à la comparaison' : 'Comparer'}
+                      </button>
                     </div>
-                  ))}
-                </div>
-              )
+                  </div>
+                ))}
+              </div>
             )}
             
             {/* Pagination Controls */}
