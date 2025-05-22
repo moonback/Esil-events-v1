@@ -135,7 +135,7 @@ const DeliveryPage: React.FC = () => {
       <div className="container-custom mx-auto">
         {/* Introduction */}
         <div className="max-w-4xl mx-auto mb-16 text-center">
-          <h2 className="text-3xl font-bold mb-6">Les Solutions de livraison et d’installation de matériel événementiel chez
+          <h2 className="text-3xl font-bold mb-6">Les Solutions de livraison et d'installation de matériel événementiel chez
           ESIL Events </h2>
           <p className="text-lg mb-6">
           Chez ESIL Events, nous comprenons l'importance d'une logistique événementielle fluide et
@@ -942,28 +942,88 @@ solutions pour une gestion simplifiée de votre matériel événementiel.       
 </div>
 
 {/* Access Verification */}
-<div>
-  <h2 className="text-3xl font-bold mb-6">Vérification des Accès : Garantissez une livraison sans accroc</h2>
-  <p className="mb-4">
-    Afin de garantir une livraison, il est impératif de vérifier les accès au lieu de l'événement,
-    surtout si des marches, escaliers, ascenseurs étroits ou des portes étroites sont présents.
-    Ces contraintes peuvent rendre le transport et l'installation du matériel plus complexes. C'est
-    pourquoi nous vous encourageons à bien nous renseigner sur ces éléments lors de votre
-    demande.
-  </p>
-  <p className="mb-4">
-    Certains de nos jeux ou équipements peuvent nécessiter un espace de manœuvre plus large,
-    ou des équipements spécifiques (comme des chariots élévateurs ou des rampes). Une
-    vérification des dimensions des portes et des accès doit être effectuée pour éviter tout
-    problème le jour J. En cas de doute, nous sommes à votre disposition pour effectuer une
-    évaluation à distance ou discuter des solutions possibles.
-  </p>
-  <p>
-    Nous vous conseillons également de vérifier les zones de stationnement à proximité pour
-    permettre un déchargement rapide. En cas de difficulté d'accès, nous pourrons organiser des
-    équipements ou des moyens alternatifs pour garantir une installation sans retard.
-  </p>
-</div>
+<motion.div 
+  className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 md:p-12 mb-20"
+  variants={fadeInUp}
+>
+  <div className="flex items-center mb-8">
+    <div className="bg-orange-100 dark:bg-orange-900/30 p-4 rounded-2xl mr-4">
+      <HardHat className="w-8 h-8 text-orange-600" />
+    </div>
+    <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Vérification des Accès : Garantissez une livraison sans accroc</h2>
+  </div>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="space-y-6">
+      <div className="flex items-start">
+        <div className="bg-violet-100 dark:bg-violet-900/30 p-3 rounded-full mr-4">
+          <MapPin className="w-6 h-6 text-violet-600" />
+        </div>
+        <div>
+          <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-white">Points d'accès</h3>
+          <p className="text-gray-600 dark:text-gray-300">
+            Vérifiez les accès au lieu de l'événement, notamment les marches, escaliers, ascenseurs étroits ou portes étroites. Ces contraintes peuvent compliquer le transport et l'installation du matériel.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <div className="bg-indigo-100 dark:bg-indigo-900/30 p-3 rounded-full mr-4">
+          <Settings className="w-6 h-6 text-indigo-600" />
+        </div>
+        <div>
+          <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-white">Équipements spécifiques</h3>
+          <p className="text-gray-600 dark:text-gray-300">
+            Certains équipements nécessitent un espace de manœuvre plus large ou des équipements spécifiques (chariots élévateurs, rampes). Une vérification des dimensions est essentielle.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-full mr-4">
+          <Truck className="w-6 h-6 text-purple-600" />
+        </div>
+        <div>
+          <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-white">Stationnement</h3>
+          <p className="text-gray-600 dark:text-gray-300">
+            Vérifiez les zones de stationnement à proximité pour permettre un déchargement rapide. En cas de difficulté d'accès, nous pouvons organiser des solutions alternatives.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-2xl p-6">
+      <h3 className="font-bold text-xl mb-4 text-orange-700 dark:text-orange-400">Points clés à vérifier</h3>
+      <ul className="space-y-4">
+        <li className="flex items-start">
+          <CheckCircle className="w-5 h-5 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
+          <span className="text-gray-700 dark:text-gray-300">Largeur des portes et couloirs</span>
+        </li>
+        <li className="flex items-start">
+          <CheckCircle className="w-5 h-5 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
+          <span className="text-gray-700 dark:text-gray-300">Hauteur des plafonds et passages</span>
+        </li>
+        <li className="flex items-start">
+          <CheckCircle className="w-5 h-5 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
+          <span className="text-gray-700 dark:text-gray-300">Présence d'ascenseurs et leur capacité</span>
+        </li>
+        <li className="flex items-start">
+          <CheckCircle className="w-5 h-5 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
+          <span className="text-gray-700 dark:text-gray-300">Accès pour les véhicules de livraison</span>
+        </li>
+        <li className="flex items-start">
+          <CheckCircle className="w-5 h-5 text-orange-600 mr-2 mt-0.5 flex-shrink-0" />
+          <span className="text-gray-700 dark:text-gray-300">Zones de déchargement disponibles</span>
+        </li>
+      </ul>
+      <div className="mt-6 p-4 bg-white dark:bg-gray-800 rounded-xl">
+        <p className="text-sm text-gray-600 dark:text-gray-300 italic">
+          En cas de doute, notre équipe peut effectuer une évaluation à distance ou discuter des solutions possibles pour garantir une installation sans retard.
+        </p>
+      </div>
+    </div>
+  </div>
+</motion.div>
 
           
     </div>
