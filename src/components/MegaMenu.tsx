@@ -14,6 +14,14 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
   const [prevActiveCategory, setPrevActiveCategory] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  // Fonction pour obtenir le nom d'affichage d'une catégorie
+  const getDisplayName = (category: Category) => {
+    if (category.slug === 'technique') {
+      return 'Son / Light / Video';
+    }
+    return category.name;
+  };
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -166,8 +174,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
                 onClick={() => handleCategoryChange(category.id)}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold">{category.name}</span>
-                  
+                  <span className="text-lg font-bold">{getDisplayName(category)}</span>
                 </div>
               </div>
             ))}
@@ -177,49 +184,49 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
           <div className="w-full md:w-3/4 pl-0 md:pl-6 mt-4 md:mt-0 relative overflow-hidden">
             {activeCat && (
               <div className={`transition-all duration-300 ${isTransitioning ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'}`}>
-              <>
-                <h2 className="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
-                  {activeCat.name}
-                </h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
-                  {activeSubcategories.map((subCategory) => {
-                    // Safe access to subsubcategories
-                    const subsubcategories = subCategory.subsubcategories || [];
-                    
-                    return (
-                      <div key={subCategory.id} className="mb-4">
-                        <div className="text-violet-800 font-medium text-lg mb-2">{subCategory.name}</div>
-                        {subsubcategories.length > 0 && (
-                          <ul className="space-y-1 pl-1">
-                            {subsubcategories.map((subSubCategory) => (
-                              <li key={subSubCategory.id} className="transform transition-all duration-200 hover:translate-x-1">
-                                <Link
-                                  to={`/products/${activeCat.slug}/${subCategory.slug}/${subSubCategory.slug}`}
-                                  className="text-gray-600 hover:text-violet-700 text-sm transition-colors duration-200 block flex items-center"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (onLinkClick) onLinkClick();
-                                  }}
-                                >
-                                  <span className="text-violet-400 mr-1">•</span> {subSubCategory.name}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {activeSubcategories.length === 0 && (
-                  <div className="text-center p-6 bg-gray-50 rounded-lg">
-                    <p className="text-gray-600">Aucune sous-catégorie disponible</p>
+                <>
+                  <h2 className="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
+                    {getDisplayName(activeCat)}
+                  </h2>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
+                    {activeSubcategories.map((subCategory) => {
+                      // Safe access to subsubcategories
+                      const subsubcategories = subCategory.subsubcategories || [];
+                      
+                      return (
+                        <div key={subCategory.id} className="mb-4">
+                          <div className="text-violet-800 font-medium text-lg mb-2">{subCategory.name}</div>
+                          {subsubcategories.length > 0 && (
+                            <ul className="space-y-1 pl-1">
+                              {subsubcategories.map((subSubCategory) => (
+                                <li key={subSubCategory.id} className="transform transition-all duration-200 hover:translate-x-1">
+                                  <Link
+                                    to={`/products/${activeCat.slug}/${subCategory.slug}/${subSubCategory.slug}`}
+                                    className="text-gray-600 hover:text-violet-700 text-sm transition-colors duration-200 block flex items-center"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (onLinkClick) onLinkClick();
+                                    }}
+                                  >
+                                    <span className="text-violet-400 mr-1">•</span> {subSubCategory.name}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
-                )}
-              </>
-                </div>
+
+                  {activeSubcategories.length === 0 && (
+                    <div className="text-center p-6 bg-gray-50 rounded-lg">
+                      <p className="text-gray-600">Aucune sous-catégorie disponible</p>
+                    </div>
+                  )}
+                </>
+              </div>
             )}
           </div>
         </div>
