@@ -41,9 +41,9 @@ const BottomNav: React.FC = () => {
         </Link>
         
         <Link 
-          to="/products" 
+          to="/categories" 
           className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-300 ${
-            isActive('/products') ? 'text-violet-600' : 'text-gray-500'
+            isActive('/categories') ? 'text-violet-600' : 'text-gray-500'
           }`}
         >
           <div className="relative">
