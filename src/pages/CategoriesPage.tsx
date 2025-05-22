@@ -7,8 +7,16 @@ import { getAllCategories, type Category } from '../services/categoryService';
 
 const CategoriesPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>('technique');
+  const [isMenuOpen, setIsMenuOpen] = useState(true);
+
+  // Fonction pour obtenir le nom d'affichage d'une catégorie
+  const getDisplayName = (category: Category) => {
+    if (category.slug === 'technique') {
+      return 'Son / Light / Video';
+    }
+    return category.name;
+  };
 
   // Définition des animations
   const fadeInUp = {
@@ -51,7 +59,10 @@ const CategoriesPage: React.FC = () => {
       try {
         const data = await getAllCategories();
         setCategories(data);
-        console.log('Categories loaded:', data); // Debug log
+        // Si la catégorie technique n'existe pas, on prend la première catégorie
+        if (!data.find(cat => cat.slug === 'technique')) {
+          setActiveCategory(data[0]?.slug || null);
+        }
       } catch (err) {
         console.error('Error fetching categories:', err);
       }
@@ -70,7 +81,6 @@ const CategoriesPage: React.FC = () => {
 
   // Fonction pour gérer le clic sur une catégorie
   const handleCategoryClick = (categorySlug: string) => {
-    console.log('Category clicked:', categorySlug); // Debug log
     setActiveCategory(categorySlug);
     setIsMenuOpen(true);
   };
@@ -201,7 +211,7 @@ marquante.
                       alt={category.name}
                       className="w-6 h-6 mr-2"
                     /> */}
-                    <span className="text-gray-600 dark:text-gray-300">{category.name}</span>
+                    <span className="text-gray-600 dark:text-gray-300">{getDisplayName(category)}</span>
                   </button>
                 ))}
               </motion.div>
@@ -215,7 +225,7 @@ marquante.
                   className="mt-8 bg-white rounded-xl shadow-lg p-6"
                 >
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-violet-800">{activeCat.name}</h3>
+                    <h3 className="text-xl font-bold text-violet-800">{getDisplayName(activeCat)}</h3>
                     <button 
                       onClick={() => setIsMenuOpen(false)}
                       className="text-gray-500 hover:text-gray-700"
