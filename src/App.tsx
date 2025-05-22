@@ -72,11 +72,11 @@ const App: React.FC = () => {
                 <Route path="/product/:slug" element={<ProductPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/contact" element={<ContactPage />} />
-                <Route path="/delivery" element={<DeliveryPage />} />
+                <Route path="/livraison" element={<DeliveryPage />} />
                 <Route path="/login" element={<LoginForm />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/legal" element={<TermsPage />} />
-                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/qui-sommes-nous" element={<AboutPage />} />
+                <Route path="/conditions-generales-d-utilisation" element={<TermsPage />} />
+                <Route path="/politique-de-confidentialite" element={<PrivacyPage />} />
                 <Route path="/artists" element={<ArtistPage />} />
                 <Route path="/artist/:id" element={<ArtistDetailPage />} />
                 <Route path="/agence-evenementielle" element={<EventsPage />} />
