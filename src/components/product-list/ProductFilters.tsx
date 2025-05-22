@@ -26,13 +26,10 @@ interface ProductFiltersProps {
 const ProductFilters: React.FC<ProductFiltersProps> = ({
   priceRange,
   setPriceRange,
-  sortBy,
   setSortBy,
   selectedColors,
   setSelectedColors,
-  availability,
   setAvailability,
-  resetFilters,
   products,
   isFilterOpen,
   setIsFilterOpen,
@@ -45,16 +42,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   
   // Handle mobile filter panel
-  const toggleFilterPanel = () => {
-    setIsFilterOpen(!isFilterOpen);
-  };
   
   // Extract unique colors from products with memoization
-  const availableColors = useMemo(() => {
-    if (!products || products.length === 0) return [];
-    return Array.from(new Set(products.flatMap(product => product.colors || [])))
-      .sort((a, b) => a.localeCompare(b));
-  }, [products]);
   
   // Calculate min and max prices from products
   useEffect(() => {
@@ -71,74 +60,24 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     }
   }, [products]);
   
-  const handlePriceRangeChange = (index: number, value: number) => {
-    const newRange = [...priceRange] as [number, number];
-    newRange[index] = value;
-    
-    // Ensure min <= max
-    if (index === 0 && value > newRange[1]) {
-      newRange[1] = value;
-    } else if (index === 1 && value < newRange[0]) {
-      newRange[0] = value;
-    }
-    
-    setPriceRange(newRange);
-  };
 
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortBy(e.target.value);
-  };
   
-  const handleColorToggle = (color: string) => {
-    setSelectedColors(
-      selectedColors.includes(color)
-        ? selectedColors.filter(c => c !== color)
-        : [...selectedColors, color]
-    );
-  };
   
-  const handleAvailabilityChange = (value: 'all' | 'available' | 'unavailable') => {
-    setAvailability(value);
-  };
   
   // Category rendering helper function for cleaner JSX
-  const renderCategory = (category: Category, isActive: boolean) => (
-    <Link
-      to={`/products/${category.slug}`}
-      className={`flex items-center justify-between w-full text-left text-sm px-2 py-1.5 rounded hover:bg-violet-50 transition-colors ${
-        isActive ? 'font-medium text-violet-700 bg-violet-50' : 'text-gray-600 hover:text-violet-700'
-      }`}
-    >
-      <span>{category.name}</span>
-      {category.subcategories && category.subcategories.length > 0 && (
-        <svg 
-          className={`w-3 h-3 transition-transform duration-200 ${isActive ? 'rotate-90 text-violet-700' : 'text-gray-400'}`}
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path 
-            strokeLinecap="round" 
-            strokeWidth="2" 
-            d="M9 5l7 7-7 7" 
-          />
-        </svg>
-      )}
-    </Link>
-  );
 
   return (
     <div className="">
       {/* Floating category button */}
-      <button
+          <button
         onClick={() => setIsCategoryModalOpen(true)}
         className="fixed right-4 top-1/2 transform -translate-y-1/2 z-40 bg-violet-600 text-white p-3 rounded-full shadow-lg hover:bg-violet-700 transition-colors"
         aria-label="Afficher les catégories"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+            </svg>
+          </button>
 
       {/* Category Modal */}
       <CategoryModal
