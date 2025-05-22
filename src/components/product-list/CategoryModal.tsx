@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Category } from '../../services/categoryService';
 
@@ -19,6 +19,9 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   currentSubcategory,
   currentSubsubcategory
 }) => {
+  const [openCategory, setOpenCategory] = useState<string | null>(currentCategory || null);
+  const [openSubcategory, setOpenSubcategory] = useState<string | null>(currentSubcategory || null);
+
   if (!isOpen) return null;
 
   return (
@@ -41,11 +44,12 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
         <div className="max-h-[calc(100vh-8rem)] overflow-y-auto p-4">
           <div className="space-y-2">
             {categories.map(category => {
-              const isActiveCategory = category.slug === currentCategory;
+              const isActiveCategory = openCategory === category.slug;
               return (
                 <div key={category.id} className="space-y-1">
-                  <Link
-                    to={`/products/${category.slug}`}
+                  <button
+                    type="button"
+                    onClick={() => setOpenCategory(isActiveCategory ? null : category.slug)}
                     className={`flex items-center justify-between w-full text-left text-sm px-2 py-1.5 rounded hover:bg-violet-50 transition-colors ${
                       isActiveCategory ? 'font-medium text-violet-700 bg-violet-50' : 'text-gray-600 hover:text-violet-700'
                     }`}
@@ -61,16 +65,17 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
                         <path strokeLinecap="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                       </svg>
                     )}
-                  </Link>
+                  </button>
                   
                   {isActiveCategory && category.subcategories && category.subcategories.length > 0 && (
                     <div className="pl-3 border-l border-gray-200 ml-2 space-y-1 mt-1">
                       {category.subcategories.map(subcategory => {
-                        const isActiveSubcategory = subcategory.slug === currentSubcategory;
+                        const isActiveSubcategory = openSubcategory === subcategory.slug;
                         return (
                           <div key={subcategory.id} className="space-y-1">
-                            <Link
-                              to={`/products/${category.slug}/${subcategory.slug}`}
+                            <button
+                              type="button"
+                              onClick={() => setOpenSubcategory(isActiveSubcategory ? null : subcategory.slug)}
                               className={`flex items-center justify-between w-full text-left text-sm px-2 py-1 rounded hover:bg-violet-50 transition-colors ${
                                 isActiveSubcategory ? 'font-medium text-violet-700 bg-violet-50' : 'text-gray-600 hover:text-violet-700'
                               }`}
@@ -86,7 +91,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
                                   <path strokeLinecap="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                                 </svg>
                               )}
-                            </Link>
+                            </button>
                             
                             {isActiveSubcategory && subcategory.subsubcategories && subcategory.subsubcategories.length > 0 && (
                               <div className="pl-3 border-l border-gray-200 ml-2 space-y-1 mt-1">
