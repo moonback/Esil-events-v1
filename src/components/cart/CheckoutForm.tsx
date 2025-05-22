@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { CheckoutFormProps, FormData } from './types';
@@ -63,6 +63,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     ...initialData
   });
 
+  // Ajout des styles globaux pour les champs de formulaire
+  const inputFieldClass = "input-field border border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 transition-colors duration-200";
+
   // Gestion des changements dans les champs du formulaire
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -110,8 +113,25 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
       <form onSubmit={handleSubmit}>
         {/* Section 1: Customer Info */}
-        <h3 className="text-lg font-semibold mb-4 border-b pb-2">1. Informations client</h3>
+        <h3 className="text-lg text-violet-800 font-semibold mb-4 border-b pb-2">1. Informations client</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          
+          {isProfessional && (
+            <div>
+              <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
+                Raison sociale *
+              </label>
+              <input type="text" id="company" name="company" value={formData.company} onChange={handleInputChange} required={isProfessional} className={inputFieldClass} />
+            </div>
+          )}
+          <div>
+            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+            <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required className={inputFieldClass} />
+          </div>
+          <div>
+            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+            <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} required className={inputFieldClass} />
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Type de client *
@@ -127,66 +147,58 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
               </label>
             </div>
           </div>
-          {isProfessional && (
-            <div>
-              <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
-                Raison sociale *
-              </label>
-              <input type="text" id="company" name="company" value={formData.company} onChange={handleInputChange} required={isProfessional} className="input-field" />
-            </div>
-          )}
-          <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
-            <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required className="input-field" />
-          </div>
-          <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
-            <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} required className="input-field" />
-          </div>
-          <div className="md:col-span-2">
+          <div className="w-full">
             <label htmlFor="billingAddress" className="block text-sm font-medium text-gray-700 mb-1">Adresse de facturation *</label>
-            <input type="text" id="billingAddress" name="billingAddress" value={formData.billingAddress} onChange={handleInputChange} required className="input-field" />
+            <textarea 
+              id="billingAddress" 
+              name="billingAddress" 
+              value={formData.billingAddress} 
+              onChange={handleInputChange} 
+              required 
+              className={`${inputFieldClass} min-h-[100px] resize-y w-full`}
+              placeholder="Entrez votre adresse complète"
+            />
           </div>
           <div>
             <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">Code postal *</label>
-            <input type="text" id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required className="input-field" />
+            <input type="text" id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required className={inputFieldClass} />
           </div>
           <div>
             <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">Ville *</label>
-            <input type="text" id="city" name="city" value={formData.city} onChange={handleInputChange} required className="input-field" />
+            <input type="text" id="city" name="city" value={formData.city} onChange={handleInputChange} required className={inputFieldClass} />
           </div>
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Téléphone *</label>
-            <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleInputChange} required className="input-field" />
+            <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleInputChange} required className={inputFieldClass} />
           </div>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-            <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required className="input-field" />
+            <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required className={inputFieldClass} />
           </div>
         </div>
 
         {/* Section 2: Event Info */}
-        <h3 className="text-lg font-semibold mb-4 border-b pb-2">2. Informations sur l'événement</h3>
+        <h3 className="text-lg text-violet-800 font-semibold mb-4 border-b pb-2">2. Informations sur l'événement</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700 mb-1">Date de l'événement *</label>
-            <input type="date" id="eventDate" name="eventDate" value={formData.eventDate} onChange={handleInputChange} required className="input-field" />
+            <input type="date" id="eventDate" name="eventDate" value={formData.eventDate} onChange={handleInputChange} required className={inputFieldClass} />
           </div>
           <div>
             <label htmlFor="eventDuration" className="block text-sm font-medium text-gray-700 mb-1">Durée de location *</label>
-            <input type="text" id="eventDuration" name="eventDuration" value={formData.eventDuration} onChange={handleInputChange} required placeholder="Ex: 1 jour, Week-end, 3 jours" className="input-field" />
+            <input type="text" id="eventDuration" name="eventDuration" value={formData.eventDuration} onChange={handleInputChange} required placeholder="Ex: 1 jour, Week-end, 3 jours" className={inputFieldClass} />
           </div>
           <div>
             <label htmlFor="eventStartTime" className="block text-sm font-medium text-gray-700 mb-1">Heure de début *</label>
-            <input type="time" id="eventStartTime" name="eventStartTime" value={formData.eventStartTime} onChange={handleInputChange} required className="input-field" />
+            <input type="time" id="eventStartTime" name="eventStartTime" value={formData.eventStartTime} onChange={handleInputChange} required className={inputFieldClass} />
           </div>
           <div>
             <label htmlFor="eventEndTime" className="block text-sm font-medium text-gray-700 mb-1">Heure de fin *</label>
-            <input type="time" id="eventEndTime" name="eventEndTime" value={formData.eventEndTime} onChange={handleInputChange} required className="input-field" />
+            <input type="time" id="eventEndTime" name="eventEndTime" value={formData.eventEndTime} onChange={handleInputChange} required className={inputFieldClass} />
           </div>
           <div>
             <label htmlFor="guestCount" className="block text-sm font-medium text-gray-700 mb-1">Nombre d'invités (approximatif) *</label>
-            <input type="number" id="guestCount" name="guestCount" value={formData.guestCount} onChange={handleInputChange} required min="0" className="input-field" />
+            <input type="number" id="guestCount" name="guestCount" value={formData.guestCount} onChange={handleInputChange} required min="0" className={inputFieldClass} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Lieu de l'événement *</label>
@@ -204,7 +216,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         </div>
 
         {/* Section 3: Delivery/Pickup */}
-        <h3 className="text-lg font-semibold mb-4 border-b pb-2">3. Livraison / Retrait</h3>
+        <h3 className="text-lg text-violet-800 font-semibold mb-4 border-b pb-2">3. Livraison / Retrait</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -230,7 +242,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           {!isDelivery && (
             <div>
               <label htmlFor="pickupDate" className="block text-sm font-medium text-gray-700 mb-1">Date de retrait *</label>
-              <input type="date" id="pickupDate" name="pickupDate" value={formData.pickupDate} onChange={handleInputChange} required={!isDelivery} className="input-field" />
+              <input type="date" id="pickupDate" name="pickupDate" value={formData.pickupDate} onChange={handleInputChange} required={!isDelivery} className={inputFieldClass} />
             </div>
           )}
 
@@ -239,27 +251,35 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             <>
               <div>
                 <label htmlFor="deliveryDate" className="block text-sm font-medium text-gray-700 mb-1">Date de livraison *</label>
-                <input type="date" id="deliveryDate" name="deliveryDate" value={formData.deliveryDate} onChange={handleInputChange} required={isDelivery} className="input-field" />
+                <input type="date" id="deliveryDate" name="deliveryDate" value={formData.deliveryDate} onChange={handleInputChange} required={isDelivery} className={inputFieldClass} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Créneau horaire de livraison *</label>
-                <select name="deliveryTimeSlot" value={formData.deliveryTimeSlot} onChange={handleInputChange} required={isDelivery} className="input-field">
+                <select name="deliveryTimeSlot" value={formData.deliveryTimeSlot} onChange={handleInputChange} required={isDelivery} className={inputFieldClass}>
                   <option value="before9">Avant 9h</option>
                   <option value="9to13">9h-13h</option>
                   <option value="13to19">13h-19h</option>
                 </select>
               </div>
-              <div className="md:col-span-2">
+              <div className="w-full">
                 <label htmlFor="deliveryAddress" className="block text-sm font-medium text-gray-700 mb-1">Adresse de livraison *</label>
-                <input type="text" id="deliveryAddress" name="deliveryAddress" value={formData.deliveryAddress} onChange={handleInputChange} required={isDelivery} className="input-field" />
+                <textarea 
+                  id="deliveryAddress" 
+                  name="deliveryAddress" 
+                  value={formData.deliveryAddress} 
+                  onChange={handleInputChange} 
+                  required={isDelivery} 
+                  className={`${inputFieldClass} min-h-[100px] resize-y w-full`}
+                  placeholder="Entrez l'adresse complète de livraison"
+                />
               </div>
               <div>
                 <label htmlFor="deliveryPostalCode" className="block text-sm font-medium text-gray-700 mb-1">Code postal de livraison *</label>
-                <input type="text" id="deliveryPostalCode" name="deliveryPostalCode" value={formData.deliveryPostalCode} onChange={handleInputChange} required={isDelivery} className="input-field" />
+                <input type="text" id="deliveryPostalCode" name="deliveryPostalCode" value={formData.deliveryPostalCode} onChange={handleInputChange} required={isDelivery} className={inputFieldClass} />
               </div>
               <div>
                 <label htmlFor="deliveryCity" className="block text-sm font-medium text-gray-700 mb-1">Ville de livraison *</label>
-                <input type="text" id="deliveryCity" name="deliveryCity" value={formData.deliveryCity} onChange={handleInputChange} required={isDelivery} className="input-field" />
+                <input type="text" id="deliveryCity" name="deliveryCity" value={formData.deliveryCity} onChange={handleInputChange} required={isDelivery} className={inputFieldClass} />
               </div>
 
               {/* Access Info */}
@@ -299,15 +319,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 <>
                   <div>
                     <label htmlFor="elevatorWidth" className="block text-sm font-medium text-gray-700 mb-1">Largeur ascenseur (cm)</label>
-                    <input type="number" id="elevatorWidth" name="elevatorWidth" value={formData.elevatorWidth} onChange={handleInputChange} min="0" className="input-field" />
+                    <input type="number" id="elevatorWidth" name="elevatorWidth" value={formData.elevatorWidth} onChange={handleInputChange} min="0" className={inputFieldClass} />
                   </div>
                   <div>
                     <label htmlFor="elevatorHeight" className="block text-sm font-medium text-gray-700 mb-1">Hauteur ascenseur (cm)</label>
-                    <input type="number" id="elevatorHeight" name="elevatorHeight" value={formData.elevatorHeight} onChange={handleInputChange} min="0" className="input-field" />
+                    <input type="number" id="elevatorHeight" name="elevatorHeight" value={formData.elevatorHeight} onChange={handleInputChange} min="0" className={inputFieldClass} />
                   </div>
                   <div>
                     <label htmlFor="elevatorDepth" className="block text-sm font-medium text-gray-700 mb-1">Profondeur ascenseur (cm)</label>
-                    <input type="number" id="elevatorDepth" name="elevatorDepth" value={formData.elevatorDepth} onChange={handleInputChange} min="0" className="input-field" />
+                    <input type="number" id="elevatorDepth" name="elevatorDepth" value={formData.elevatorDepth} onChange={handleInputChange} min="0" className={inputFieldClass} />
                   </div>
                 </>
               )}
@@ -316,25 +336,25 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         </div>
 
         {/* Section 4: Return */}
-        <h3 className="text-lg font-semibold mb-4 border-b pb-2">4. Reprise du matériel</h3>
+        <h3 className="text-lg text-violet-800 font-semibold mb-4 border-b pb-2">4. Reprise du matériel</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label htmlFor="pickupReturnDate" className="block text-sm font-medium text-gray-700 mb-1">Date de reprise *</label>
-            <input type="date" id="pickupReturnDate" name="pickupReturnDate" value={formData.pickupReturnDate} onChange={handleInputChange} required className="input-field" />
+            <input type="date" id="pickupReturnDate" name="pickupReturnDate" value={formData.pickupReturnDate} onChange={handleInputChange} required className={inputFieldClass} />
           </div>
           <div> {/* Placeholder pour l'équilibre de la mise en page */} </div>
           <div>
             <label htmlFor="pickupReturnStartTime" className="block text-sm font-medium text-gray-700 mb-1">Début créneau reprise *</label>
-            <input type="time" id="pickupReturnStartTime" name="pickupReturnStartTime" value={formData.pickupReturnStartTime} onChange={handleInputChange} required className="input-field" />
+            <input type="time" id="pickupReturnStartTime" name="pickupReturnStartTime" value={formData.pickupReturnStartTime} onChange={handleInputChange} required className={inputFieldClass} />
           </div>
           <div>
             <label htmlFor="pickupReturnEndTime" className="block text-sm font-medium text-gray-700 mb-1">Fin créneau reprise *</label>
-            <input type="time" id="pickupReturnEndTime" name="pickupReturnEndTime" value={formData.pickupReturnEndTime} onChange={handleInputChange} required className="input-field" />
+            <input type="time" id="pickupReturnEndTime" name="pickupReturnEndTime" value={formData.pickupReturnEndTime} onChange={handleInputChange} required className={inputFieldClass} />
           </div>
         </div>
 
         {/* Section 5: Project Description & Terms */}
-        <h3 className="text-lg font-semibold mb-4 border-b pb-2">5. Votre projet et finalisation</h3>
+        <h3 className="text-lg text-violet-800 font-semibold mb-4 border-b pb-2">5. Votre projet et finalisation</h3>
         <div className="mb-6">
           <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
             Description de votre projet (optionnel, max 1000 caractères)
@@ -346,7 +366,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             onChange={handleInputChange} 
             maxLength={1000} 
             rows={4} 
-            className="input-field w-full resize-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
+            className={`${inputFieldClass} w-full resize-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors`}
             placeholder="Décrivez votre projet en détail..."
           ></textarea>
           <div className="flex justify-between items-center mt-1">
