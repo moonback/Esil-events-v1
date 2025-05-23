@@ -8,28 +8,28 @@ const teamMembers = [
     id: 1,
     name: "Eric",
     role: "Fondateur et Responsable Technique",
-    image: "/images/default-product.svg",
+    image: "/images/personnel/eric.png",
     description: "Depuis la création de ESIL Events en 2004, Eric est le garant de la qualité technique de vos événements. Expert en sonorisation et éclairage, il conseille chaque client sur le choix du matériel et veille à ce que chaque installation soit parfaitement réalisée. Eric supervise également l'équipe technique pour assurer le bon déroulement de toutes les prestations."
   },
   {
     id: 2,
     name: "Amélie",
     role: "Responsable Commerciale",
-    image: "/images/default-product.svg",
+    image: "/images/personnel/amelie.png",
     description: "Amélie est votre interlocutrice privilégiée pour toutes vos demandes commerciales. Elle est là pour vous aider à trouver les solutions qui correspondent à vos besoins et à votre budget. Grâce à son expertise commerciale et sa connaissance du secteur événementiel, Amélie vous accompagne tout au long de votre projet, de la demande de devis à la finalisation de votre événement."
   },
   {
     id: 3,
     name: "Virginie",
     role: "Chargée de Projets Événementiels",
-    image: "/images/default-product.svg",
+    image: "/images/personnel/virginie.png",
     description: "Virginie gère l'ensemble des projets événementiels, de leur conception à leur réalisation. Elle est en charge de la planification, de la coordination des équipes et de la gestion de tous les détails pour que votre événement soit un succès. Son rôle est de s'assurer que tout soit organisé dans les moindres détails, afin que vous puissiez vous concentrer sur l'essentiel."
   },
   {
     id: 4,
     name: "Équipe Technique",
     role: "Techniciens Événementiels",
-    image: "/images/default-product.svg",
+    image: "/images/personnel/techniciens.jpg",
     description: "Nos techniciens événementiels, responsables de l'installation et du bon fonctionnement du matériel technique. De la sonorisation à l'éclairage, en passant par la mise en place des scènes, ils assurent un service irréprochable. Leur savoir-faire et leur professionnalisme garantissent une prestation sans accroc."
   }
 ];
