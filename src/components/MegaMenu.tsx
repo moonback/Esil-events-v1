@@ -193,13 +193,17 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onLinkClick }) => {
                     {activeSubcategories.map((subCategory) => {
                       // Safe access to subsubcategories
                       const subsubcategories = subCategory.subsubcategories || [];
+                      // Trier les sous-sous-catégories par ordre alphabétique
+                      const sortedSubsubcategories = [...subsubcategories].sort((a, b) => 
+                        a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
+                      );
                       
                       return (
                         <div key={subCategory.id} className="mb-4">
                           <div className="text-violet-800 font-medium text-lg mb-2">{subCategory.name}</div>
                           {subsubcategories.length > 0 && (
                             <ul className="space-y-1 pl-1">
-                              {subsubcategories.map((subSubCategory) => (
+                              {sortedSubsubcategories.map((subSubCategory) => (
                                 <li key={subSubCategory.id} className="transform transition-all duration-200 hover:translate-x-1">
                                   <Link
                                     to={`/products/${activeCat.slug}/${subCategory.slug}/${subSubCategory.slug}`}
