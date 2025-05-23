@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { getAllRealizations, Realization } from '../services/realizationService';
 import { useRealizationFilters } from '../hooks/useRealizationFilters';
+import { useSearchParams } from 'react-router-dom';
 import {
   RealizationGrid,
   RealizationFilters,
@@ -16,6 +17,7 @@ const RealisationPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRealization, setSelectedRealization] = useState<Realization | null>(null);
+  const [searchParams] = useSearchParams();
 
   // Utiliser le hook de filtrage
   const {
@@ -49,6 +51,14 @@ const RealisationPage: React.FC = () => {
 
     fetchRealizations();
   }, []);
+
+  // Appliquer le filtre de catégorie depuis l'URL
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category');
+    if (categoryFromUrl) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [searchParams, setSelectedCategory]);
 
   // Filtrer les réalisations en fonction du terme de recherche
   const searchFilteredRealizations = filteredRealizations.filter(realization =>

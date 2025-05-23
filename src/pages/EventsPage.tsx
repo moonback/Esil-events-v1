@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { getAllRealizations, Realization } from '../services/realizationService';
 const teamMembers = [
   {
     id: 1,
@@ -36,6 +37,30 @@ const teamMembers = [
   }
 ];
 export const EventsPage: React.FC = () => {
+  const [realizations, setRealizations] = useState<Realization[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Charger les réalisations au montage du composant
+  useEffect(() => {
+    const fetchRealizations = async () => {
+      try {
+        const data = await getAllRealizations();
+        setRealizations(data);
+      } catch (err) {
+        console.error('Erreur lors du chargement des réalisations:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRealizations();
+  }, []);
+
+  // Obtenir les catégories uniques
+  const uniqueCategories = Array.from(
+    new Set(realizations.map(realization => realization.category).filter(Boolean))
+  ) as string[];
+
   // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
@@ -412,6 +437,71 @@ export const EventsPage: React.FC = () => {
           </motion.div>
         </div>
         </motion.section>
+          {/* Section des catégories de réalisations */}
+      <motion.section 
+        className="mb-32 relative overflow-hidden"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainer}
+      >
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div 
+            className="text-center mb-16"
+            variants={fadeInUp}
+          >
+            <span className="inline-block text-sm font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-2">Nos Réalisations</span>
+            <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-white">
+              Découvrez nos <span className="text-violet-700 dark:text-violet-400">catégories</span> d'événements
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
+              Explorez nos différentes catégories d'événements et découvrez comment nous transformons vos idées en réalité.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {uniqueCategories.map((category, index) => (
+              <motion.div
+                key={category}
+                variants={fadeInUp}
+                whileHover={{ y: -10 }}
+                className="group"
+              >
+                <Link 
+                  to={`/realisations?category=${encodeURIComponent(category)}`}
+                  className="block"
+                >
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl">
+                    <div className="relative h-48 bg-gradient-to-br from-violet-600 to-indigo-800">
+                      <div className="absolute inset-0 bg-black opacity-20 group-hover:opacity-30 transition-opacity duration-300" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <h3 className="text-2xl font-bold text-white text-center px-4">
+                          {category}
+                        </h3>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {realizations.filter(r => r.category === category).length} événements
+                        </span>
+                        <motion.div
+                          whileHover={{ x: 5 }}
+                          className="text-violet-600 dark:text-violet-400"
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          </svg>
+                        </motion.div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
       {/* Testimonials Carousel */}
       <motion.section className="container-custom mx-auto px-4 md:px-6 mt-32">
         <motion.div
@@ -593,6 +683,7 @@ export const EventsPage: React.FC = () => {
           </motion.div>
           </motion.div>
         </motion.section>
+      
       
     </div>
   );
