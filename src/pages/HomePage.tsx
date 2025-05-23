@@ -485,7 +485,7 @@ const HomePage: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <img 
-                src="/images/esil-events.JPG" 
+                src="/images/photo (1).JPG" 
                 alt="Event Gallery 1"
                 className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
               />
@@ -497,7 +497,7 @@ const HomePage: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <img 
-                src="/images/esil-events.JPG" 
+                src="/images/photo (2).JPG" 
                 alt="Event Gallery 2"
                 className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
               />
@@ -509,7 +509,7 @@ const HomePage: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <img 
-                src="/images/esil-events.JPG" 
+                src="/images/photo (3).JPG" 
                 alt="Event Gallery 3"
                 className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
               />
@@ -521,7 +521,7 @@ const HomePage: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <img 
-                src="/images/esil-events.JPG" 
+                src="/images/photo (4).JPG" 
                 alt="Event Gallery 4"
                 className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
               />
@@ -533,7 +533,7 @@ const HomePage: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <img 
-                src="/images/esil-events.JPG" 
+                src="/images/photo (5).JPG" 
                 alt="Event Gallery 5"
                 className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
               />
@@ -545,7 +545,7 @@ const HomePage: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <img 
-                src="/images/esil-events.JPG" 
+                src="/images/photo (6).JPG" 
                 alt="Event Gallery 6"
                 className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
               />

@@ -7,30 +7,30 @@ const teamMembers = [
   {
     id: 1,
     name: "Eric",
-    role: "Fondateur et Responsable Technique",
+    role: "CEO - Président et fondateur",
     image: "/images/personnel/eric.png",
-    description: "Depuis la création de ESIL Events en 2004, Eric est le garant de la qualité technique de vos événements. Expert en sonorisation et éclairage, il conseille chaque client sur le choix du matériel et veille à ce que chaque installation soit parfaitement réalisée. Eric supervise également l'équipe technique pour assurer le bon déroulement de toutes les prestations."
+    description: "Avec plus de 30 ans dans l’événementiel, Éric a créé l’agence pour offrir des solutions clés en main aux entreprises et collectivités. Visionnaire et exigeant, il veille à chaque projet avec passion et professionnalisme."
   },
   {
     id: 2,
     name: "Amélie",
-    role: "Responsable Commerciale",
+    role: "COO - Directrice des opérations",
     image: "/images/personnel/amelie.png",
-    description: "Amélie est votre interlocutrice privilégiée pour toutes vos demandes commerciales. Elle est là pour vous aider à trouver les solutions qui correspondent à vos besoins et à votre budget. Grâce à son expertise commerciale et sa connaissance du secteur événementiel, Amélie vous accompagne tout au long de votre projet, de la demande de devis à la finalisation de votre événement."
+    description: "Véritable chef d’orchestre de l’organisation interne, Amélie coordonne chaque projet avec rigueur et créativité. Grâce à son sens du détail et à son efficacité, elle assure le bon déroulement des opérations, de la logistique à la satisfaction client."
   },
   {
     id: 3,
     name: "Virginie",
-    role: "Chargée de Projets Événementiels",
+    role: "Cheffe de projet événementiel",
     image: "/images/personnel/virginie.png",
-    description: "Virginie gère l'ensemble des projets événementiels, de leur conception à leur réalisation. Elle est en charge de la planification, de la coordination des équipes et de la gestion de tous les détails pour que votre événement soit un succès. Son rôle est de s'assurer que tout soit organisé dans les moindres détails, afin que vous puissiez vous concentrer sur l'essentiel."
+    description: "Avec une solide expérience et un sens aigu de l'organisation, Virginie pilote chaque événement de A à Z, tout en encadrant son équipe avec dynamisme. Elle veille à la coordination parfaite des intervenants pour garantir des prestations à la hauteur des attentes de nos clients."
   },
   {
     id: 4,
     name: "Équipe Technique",
     role: "Techniciens Événementiels",
     image: "/images/personnel/techniciens.jpg",
-    description: "Nos techniciens événementiels, responsables de l'installation et du bon fonctionnement du matériel technique. De la sonorisation à l'éclairage, en passant par la mise en place des scènes, ils assurent un service irréprochable. Leur savoir-faire et leur professionnalisme garantissent une prestation sans accroc."
+    description: "Nos techniciens assurent l’installation et le bon fonctionnement du matériel (son, lumière, scène) avec rigueur. À l’écoute sur le terrain, ils conseillent nos clients et s’adaptent à chaque situation pour garantir une prestation fluide et professionnelle."
   }
 ];
 

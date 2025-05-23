@@ -1,7 +1,36 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-
+const teamMembers = [
+  {
+    id: 1,
+    name: "Eric",
+    role: "Fondateur & CEO",
+    image: "/images/personnel/eric.png",
+    description: "Depuis plus de 30 ans, Éric accompagne les entreprises et collectivités dans la réussite de leurs événements. Son expertise, sa vision et son exigence sont au cœur de notre engagement qualité. Avec lui, chaque projet commence sur des bases solides."
+  },
+  {
+    id: 2,
+    name: "Amélie",
+    role: " Directrice des opérations (COO)",
+    image: "/images/personnel/amelie.png",
+    description: "Pilier de l’organisation interne, Amélie veille à ce que tout soit parfaitement orchestré, du premier contact à la dernière minute de l’événement. Elle coordonne les équipes et s’assure que tout se déroule dans le respect des délais, du budget et des attentes."
+  },
+  {
+    id: 3,
+    name: "Virginie",
+    role: "Cheffe de projet événementiel",
+    image: "/images/personnel/virginie.png",
+    description: "Virginie est votre interlocutrice de terrain. Elle transforme vos idées en événements concrets, en encadrant son équipe avec efficacité et bonne humeur. Son sens du détail et son engagement font la différence à chaque étape."
+  },
+  {
+    id: 4,
+    name: "Équipe Technique",
+    role: "Techniciens Événementiels",
+    image: "/images/personnel/techniciens.jpg",
+    description: "Discrets mais indispensables, nos techniciens assurent l’installation, les réglages et le bon déroulement technique de vos événements. Professionnels, à l’écoute et réactifs, ils sont aussi là pour vous conseiller sur site."
+  }
+];
 export const EventsPage: React.FC = () => {
   // Animation variants
   const fadeInUp = {
@@ -157,7 +186,65 @@ export const EventsPage: React.FC = () => {
           </motion.div>
         </motion.div>
       </motion.div>
+{/* Section Team Members avec des cartes interactives et des animations */}
+<motion.section 
+        className="mb-32 relative overflow-hidden"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainer}
+      >
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div 
+            className="text-center mb-16"
+            variants={fadeInUp}
+          >
+            <span className="inline-block text-sm font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-2">Notre équipe</span>
+            <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-white">
+              Rencontrez les visages de vos événements
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
+              Découvrez les experts passionnés qui rendent chaque événement unique et mémorable grâce à leur savoir-faire et leur créativité.
+            </p>
+          </motion.div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {teamMembers.map((member) => (
+              <motion.div 
+                key={member.id} 
+                className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden group"
+                variants={scaleIn}
+                whileHover={{ y: -10 }}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-12">
+                  <div className="relative md:col-span-5 h-full">
+                    <div className="h-full min-h-64 bg-gradient-to-br from-violet-600 to-indigo-800 relative overflow-hidden">
+                      <div className="absolute inset-0 opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+                        <img
+                          src={member.image}
+                          alt={member.name}
+                          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-50"></div>
+                    </div>
+                  </div>
+                  <div className="p-8 md:col-span-7">
+                    <div className="flex flex-col h-full">
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{member.name}</h3>
+                        <p className="text-violet-600 dark:text-violet-400 font-medium mb-4">{member.role}</p>
+                        <div className="w-16 h-1 bg-gradient-to-r from-violet-500 to-indigo-600 rounded-full mb-6"></div>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300 flex-grow">{member.description}</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
       {/* About Section avec design amélioré */}
       <motion.section 
         className="mb-24 relative"
