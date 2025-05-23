@@ -453,7 +453,7 @@ const HomePage: React.FC = () => {
                   </motion.div>
                   
                   <motion.a 
-                    href="tel:+33620461385" 
+                    href="/contact" 
                     className="text-white border-2 border-white hover:bg-white hover:text-violet-700 px-8 py-4 rounded-full font-bold flex items-center justify-center transition-colors"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
