@@ -7,28 +7,32 @@ const teamMembers = [
     name: "Eric",
     role: "Fondateur & CEO",
     image: "/images/personnel/eric.png",
-    description: "Depuis plus de 30 ans, Éric accompagne les entreprises et collectivités dans la réussite de leurs événements. Son expertise, sa vision et son exigence sont au cœur de notre engagement qualité. Avec lui, chaque projet commence sur des bases solides."
+    description: "Depuis plus de 30 ans, Éric accompagne les entreprises et collectivités dans la réussite de leurs événements. Son expertise, sa vision et son exigence sont au cœur de notre engagement qualité. Avec lui, chaque projet commence sur des bases solides.",
+    message: "👉 Une question ? Éric est toujours prêt à écouter et conseiller."
   },
   {
     id: 2,
     name: "Amélie",
     role: " Directrice des opérations (COO)",
     image: "/images/personnel/amelie.png",
-    description: "Pilier de l’organisation interne, Amélie veille à ce que tout soit parfaitement orchestré, du premier contact à la dernière minute de l’événement. Elle coordonne les équipes et s’assure que tout se déroule dans le respect des délais, du budget et des attentes."
+    description: "Pilier de l’organisation interne, Amélie veille à ce que tout soit parfaitement orchestré, du premier contact à la dernière minute de l’événement. Elle coordonne les équipes et s’assure que tout se déroule dans le respect des délais, du budget et des attentes.",
+    message: "👉 Envie d’un événement fluide et bien géré ? Amélie est là pour ça."
   },
   {
     id: 3,
     name: "Virginie",
     role: "Cheffe de projet événementiel",
     image: "/images/personnel/virginie.png",
-    description: "Virginie est votre interlocutrice de terrain. Elle transforme vos idées en événements concrets, en encadrant son équipe avec efficacité et bonne humeur. Son sens du détail et son engagement font la différence à chaque étape."
+    description: "Virginie est votre interlocutrice de terrain. Elle transforme vos idées en événements concrets, en encadrant son équipe avec efficacité et bonne humeur. Son sens du détail et son engagement font la différence à chaque étape.",
+    message: "👉 Besoin d’un accompagnement personnalisé ? Virginie vous écoute."
   },
   {
     id: 4,
     name: "Équipe Technique",
     role: "Techniciens Événementiels",
     image: "/images/personnel/techniciens.jpg",
-    description: "Discrets mais indispensables, nos techniciens assurent l’installation, les réglages et le bon déroulement technique de vos événements. Professionnels, à l’écoute et réactifs, ils sont aussi là pour vous conseiller sur site."
+    description: "Discrets mais indispensables, nos techniciens assurent l’installation, les réglages et le bon déroulement technique de vos événements. Professionnels, à l’écoute et réactifs, ils sont aussi là pour vous conseiller sur site.",
+    message: "👉 Un souci technique ? Ils anticipent avant même qu’il n’apparaisse."
   }
 ];
 export const EventsPage: React.FC = () => {
@@ -236,7 +240,10 @@ export const EventsPage: React.FC = () => {
                         <p className="text-violet-600 dark:text-violet-400 font-medium mb-4">{member.role}</p>
                         <div className="w-16 h-1 bg-gradient-to-r from-violet-500 to-indigo-600 rounded-full mb-6"></div>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-300 flex-grow">{member.description}</p>
+                      <p className="text-gray-600 dark:text-gray-300 flex-grow mb-4">{member.description}</p>
+                      <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <p className="text-violet-600 dark:text-violet-400 font-medium">{member.message}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
