@@ -204,14 +204,18 @@ marquante.
                   <button 
                     key={category.id}
                     onClick={() => handleCategoryClick(category.slug)}
-                    className="flex items-center border-2 border-violet-200 dark:border-violet-800 rounded-full py-3 px-6 hover:bg-violet-50 transition-colors"
+                    className={`flex items-center border-2 rounded-full py-3 px-6 transition-colors ${
+                      activeCat?.slug === category.slug 
+                        ? 'bg-violet-600 text-white border-violet-600 hover:bg-violet-700' 
+                        : 'border-violet-200 dark:border-violet-800 hover:bg-violet-50 text-gray-600 dark:text-gray-300'
+                    }`}
                   >
                     {/* <img 
                       src={`/images/icons/${category.slug}.svg`}
                       alt={category.name}
                       className="w-6 h-6 mr-2"
                     /> */}
-                    <span className="text-gray-600 dark:text-gray-300">{getDisplayName(category)}</span>
+                    <span>{getDisplayName(category)}</span>
                   </button>
                 ))}
               </motion.div>
