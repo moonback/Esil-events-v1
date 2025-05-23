@@ -234,7 +234,7 @@ marquante.
                     </button>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 text-left md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {activeSubcategories.map((subCategory) => (
                       <div key={subCategory.id} className="space-y-2">
                         <h4 className="font-medium text-violet-700">{subCategory.name}</h4>
