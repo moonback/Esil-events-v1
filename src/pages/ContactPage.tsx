@@ -217,7 +217,7 @@ const ContactPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            Contactez <span className="text-violet-300">Nous</span>
+            Contactez-<span className="text-violet-300">nous</span>
           </motion.h1>
           <motion.p 
             className="text-xl md:text-2xl max-w-3xl mx-auto font-light"
