@@ -906,7 +906,7 @@ const AdminNewsletter: React.FC = () => {
                                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{product.reference}</p>
                                       </div>
                                       <div className="text-sm font-medium text-gray-900 dark:text-white">
-                                        {product.priceTTC.toFixed(2)}€
+                                        {Math.round(product.priceTTC)}€
                                       </div>
                                     </div>
                                   </div>

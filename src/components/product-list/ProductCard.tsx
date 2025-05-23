@@ -54,7 +54,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onAddTo
               <span className="text-sm text-gray-500">€ HT</span>
             </div>
             <div className="flex items-baseline gap-1">
-              <p className="text-base font-medium text-purple-600">{product.priceTTC.toFixed(2)}€</p>
+              <p className="text-base font-medium text-purple-600">{Math.round(product.priceTTC)}€</p>
               <span className="text-xs text-purple-500">€ TTC</span>
             </div>
           </div>

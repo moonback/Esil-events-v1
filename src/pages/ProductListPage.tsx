@@ -414,14 +414,14 @@ const ProductListPage: React.FC = () => {
                           <div className="flex items-center justify-between">
                             <div className="space-y-1">
                               <div className="flex items-baseline gap-1">
-                                <p className="text-base font-medium text-gray-900">
+                                <p className="text-sm font-medium text-gray-900">
                                   {product.priceHT.toFixed(2)}€
                                 </p>
                                 <span className="text-sm text-gray-500">€ HT</span>
                               </div>
                               <div className="flex items-baseline gap-1">
                                 <p className="text-lg font-bold text-purple-600">
-                                  {product.priceTTC.toFixed(2)}€
+                                  {Math.round(product.priceTTC)}€
                                 </p>
                                 <span className="text-sm text-gray-500">€ TTC</span>
                               </div>

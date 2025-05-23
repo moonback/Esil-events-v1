@@ -563,7 +563,7 @@ const ProductPage: React.FC = () => {
                     </div>
                     <div className="bg-gradient-to-br from-violet-50 to-white p-3 sm:p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
                       <p className="text-xs sm:text-sm text-violet-600 mb-1">Prix TTC / jour</p>
-                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-violet-600">{product.priceTTC.toFixed(2)} €</p>
+                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-violet-600">{Math.round(product.priceTTC)} €</p>
                     </div>
                   </div>
 

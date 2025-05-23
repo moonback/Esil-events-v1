@@ -508,7 +508,7 @@ const AdminProducts: React.FC = () => {
                               </div>
                               <div className="flex items-baseline gap-1">
                                 <p className="text-base font-medium text-purple-600 dark:text-purple-400">
-                                {product.priceTTC.toFixed(2)}€
+                                {Math.round(product.priceTTC)}€
                                 </p>
                                 <span className="text-xs text-purple-500 dark:text-purple-400">€ TTC</span>
                               </div>

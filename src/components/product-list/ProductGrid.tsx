@@ -88,7 +88,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product }) => {
         <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
         <p className="mt-1 text-sm text-gray-500">{product.reference}</p>
         <div className="mt-2 flex justify-between items-center">
-          <p className="text-lg font-semibold text-gray-900">{product.priceTTC.toFixed(2)}€</p>
+          <p className="text-lg font-semibold text-gray-900">{Math.round(product.priceTTC)}€</p>
           {product.isAvailable !== undefined && (
             <span className={`px-2 py-1 text-xs font-medium rounded-full ${
               product.isAvailable 
