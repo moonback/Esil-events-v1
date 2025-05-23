@@ -15,8 +15,8 @@ const teamMembers = [
     name: "Amélie",
     role: " Directrice des opérations (COO)",
     image: "/images/personnel/amelie.png",
-    description: "Pilier de l’organisation interne, Amélie veille à ce que tout soit parfaitement orchestré, du premier contact à la dernière minute de l’événement. Elle coordonne les équipes et s’assure que tout se déroule dans le respect des délais, du budget et des attentes.",
-    message: "👉 Envie d’un événement fluide et bien géré ? Amélie est là pour ça."
+    description: "Pilier de l'organisation interne, Amélie veille à ce que tout soit parfaitement orchestré, du premier contact à la dernière minute de l'événement. Elle coordonne les équipes et s'assure que tout se déroule dans le respect des délais, du budget et des attentes.",
+    message: "👉 Envie d'un événement fluide et bien géré ? Amélie est là pour ça."
   },
   {
     id: 3,
@@ -24,15 +24,15 @@ const teamMembers = [
     role: "Cheffe de projet événementiel",
     image: "/images/personnel/virginie.png",
     description: "Virginie est votre interlocutrice de terrain. Elle transforme vos idées en événements concrets, en encadrant son équipe avec efficacité et bonne humeur. Son sens du détail et son engagement font la différence à chaque étape.",
-    message: "👉 Besoin d’un accompagnement personnalisé ? Virginie vous écoute."
+    message: "👉 Besoin d'un accompagnement personnalisé ? Virginie vous écoute."
   },
   {
     id: 4,
     name: "Équipe Technique",
     role: "Techniciens Événementiels",
     image: "/images/personnel/techniciens.jpg",
-    description: "Discrets mais indispensables, nos techniciens assurent l’installation, les réglages et le bon déroulement technique de vos événements. Professionnels, à l’écoute et réactifs, ils sont aussi là pour vous conseiller sur site.",
-    message: "👉 Un souci technique ? Ils anticipent avant même qu’il n’apparaisse."
+    description: "Discrets mais indispensables, nos techniciens assurent l'installation, les réglages et le bon déroulement technique de vos événements. Professionnels, à l'écoute et réactifs, ils sont aussi là pour vous conseiller sur site.",
+    message: "👉 Un souci technique ? Ils anticipent avant même qu'il n'apparaisse."
   }
 ];
 export const EventsPage: React.FC = () => {
@@ -315,107 +315,7 @@ export const EventsPage: React.FC = () => {
         </div>
       </motion.section>
 
-      {/* Gallery Section améliorée */}
-      <motion.section 
-        className="mb-32 relative overflow-hidden"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={staggerContainer}
-      >
-        <div className="container-custom mx-auto px-6">
-          <motion.div 
-            className="text-center mb-16"
-            variants={fadeInUp}
-          >
-            <span className="inline-block text-sm font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-2">Portfolio</span>
-            <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-white">
-              Nos <span className="text-violet-700 dark:text-violet-400">réalisations</span>
-            </h2>
-            
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
-              Découvrez quelques-uns de nos événements récents qui ont marqué les esprits
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={staggerContainer}
-          >
-            {[
-              {
-                imgSrc: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-                title: 'Soirée d\'entreprise',
-                description: 'Événement corporate exclusif'
-              },
-              {
-                imgSrc: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-                title: 'Lancement de produit',
-                description: 'Mise en scène spectaculaire'
-              },
-              {
-                imgSrc: 'https://images.unsplash.com/photo-1531058020387-3be344556be6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-                title: 'Séminaire d\'équipe',
-                description: 'Espace de travail innovant'
-              },
-              {
-                imgSrc: 'https://images.unsplash.com/photo-1492681290082-e932832941e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-                title: 'Conférence annuelle',
-                description: 'Scénographie immersive'
-              },
-              {
-                imgSrc: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-                title: 'Soirée de gala',
-                description: 'Ambiance élégante et raffinée'
-              },
-              {
-                imgSrc: 'https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-                title: 'Festival corporate',
-                description: 'Animation et interactivité'
-              }
-            ].map((event, index) => (
-              <motion.div 
-                key={index}
-                className="relative group overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 aspect-[4/3]"
-                variants={scaleIn}
-                whileHover={{ y: -10 }}
-              >
-                <motion.img 
-                  src={event.imgSrc}
-                  alt={event.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  initial={{ scale: 1.1 }}
-                  whileInView={{ scale: 1 }}
-                  transition={{ duration: 1.2 }}
-                />
-                
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
-                
-                <div className="absolute inset-0 flex flex-col justify-end p-8">
-                  <h3 className="text-white text-2xl font-bold mb-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">{event.title}</h3>
-                  <p className="text-violet-200 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 delay-100">{event.description}</p>
-                  
-                  <div className="mt-4 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 delay-150">
-                    {/* <span className="inline-flex items-center text-white text-sm font-medium">
-                      Voir le projet
-                      <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                      </svg>
-                    </span> */}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-          
-          <motion.div 
-            className="mt-12 text-center"
-            variants={fadeInUp}
-          >
-            
-          </motion.div>
-        </div>
-      </motion.section>
+      
 
       {/* Methodology Section améliorée */}
       <motion.section 
@@ -692,6 +592,8 @@ export const EventsPage: React.FC = () => {
             </div>
           </motion.div>
           </motion.div>
-        </motion.section>    </div>
+        </motion.section>
+      
+    </div>
   );
 };
