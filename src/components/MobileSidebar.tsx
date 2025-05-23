@@ -117,7 +117,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
           
           {/* Sidebar - From top with improved glassmorphism and animations */}
           <motion.div 
-            className="fixed top-0 left-0 right-0 w-full h-auto max-h-[90vh] overflow-y-auto glassmorphism dark:bg-gray-900/90 z-[100] md:hidden rounded-b-2xl shadow-2xl border-b border-gray-200/20 dark:border-gray-700/20"
+            className="fixed top-0 left-0 right-0 w-full h-auto max-h-[90vh] overflow-y-auto glassmorphism dark:bg-gray-900/ z-[100] md:hidden rounded-b-2xl shadow-2xl border-b border-gray-200/20 dark:border-gray-700/20"
             initial="hidden"
             animate="visible"
             exit="exit"
@@ -180,7 +180,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
             )}
 
             <motion.div 
-              className="px-2 py-3 space-y-3 overflow-y-auto"
+              className="px-2 py-3 space-y-3 overflow-y-auto  bg-white"
               variants={staggerChildren}
               initial="hidden"
               animate="visible"
@@ -213,7 +213,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
                       onClick={onClose}
                     >
                       <ShoppingBag className="w-5 h-5 mr-3 text-violet-500 dark:text-violet-400 group-hover:scale-110 transition-transform duration-300" />
-                      <span className="group-hover:translate-x-1 transition-transform duration-300">Nos produits</span>
+                      <span className="group-hover:translate-x-1 transition-transform duration-300">Nos locations</span>
                     </Link>
                   </motion.div>
                   <motion.div variants={itemVariant}>

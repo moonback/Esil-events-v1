@@ -52,7 +52,7 @@ const BottomNav: React.FC = () => {
               <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-violet-600 rounded-full"></span>
             )}
           </div>
-          <span className={`text-xs mt-1 font-medium ${isActive('/products') ? 'text-violet-600' : 'text-gray-500'}`}>Produits</span>
+          <span className={`text-xs mt-1 font-medium ${isActive('/products') ? 'text-violet-600' : 'text-gray-500'}`}>Nos locations</span>
         </Link>
         
         <Link 
