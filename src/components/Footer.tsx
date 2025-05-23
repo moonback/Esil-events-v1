@@ -94,15 +94,7 @@ const Footer = () => {
               Nous concevons des solutions sur mesure pour vos séminaires, soirées et lancements produits.
             </p>
             
-            <div className="mt-8">
-              <Link 
-                to="/about" 
-                className="inline-flex items-center text-violet-400 hover:text-violet-300 transition-colors"
-              >
-                Découvrir notre histoire
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </div>
+            
           </div>
 
           {/* Services */}

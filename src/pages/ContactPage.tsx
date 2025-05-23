@@ -687,16 +687,7 @@ const ContactPage: React.FC = () => {
                 </li>
               </ul>
               
-              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-start">
-                  <div className="bg-gradient-to-br from-violet-500 to-indigo-600 p-3 rounded-xl text-white shadow-lg mr-4">
-                    <Clock className="w-5 h-5" />
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Notre équipe est disponible <span className="font-semibold">24h/24 et 7j/7</span> pour les interventions techniques sur les événements en cours.
-                  </p>
-                </div>
-              </div>
+              
             </motion.div>
           </motion.div>
         </motion.div>
