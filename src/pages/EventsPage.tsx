@@ -280,7 +280,9 @@ export const EventsPage: React.FC = () => {
                       </div>
                       <p className="text-gray-600 dark:text-gray-300 flex-grow mb-4">{member.description}</p>
                       <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <p className="text-violet-600 dark:text-violet-400 font-medium">{member.message}</p>
+                        <Link to="/contact" className="text-violet-600 dark:text-violet-400 font-medium hover:text-violet-700 dark:hover:text-violet-300 transition-colors duration-300">
+                          {member.message}
+                        </Link>
                       </div>
                     </div>
                   </div>
