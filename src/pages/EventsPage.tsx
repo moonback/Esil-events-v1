@@ -118,6 +118,19 @@ export const EventsPage: React.FC = () => {
     }
   };
 
+  // Fonction pour obtenir une image aléatoire pour une catégorie
+  const getRandomImageForCategory = (category: string): string => {
+    const categoryRealizations = realizations.filter(r => r.category === category);
+    if (categoryRealizations.length === 0) return '/images/default-category.jpg';
+    
+    const randomRealization = categoryRealizations[Math.floor(Math.random() * categoryRealizations.length)];
+    if (!randomRealization.images || randomRealization.images.length === 0) {
+      return '/images/default-category.jpg';
+    }
+    
+    return randomRealization.images[Math.floor(Math.random() * randomRealization.images.length)];
+  };
+
   return (
     <div className="pt-28 pb-20 bg-white dark:bg-gray-900 min-h-screen overflow-hidden">
       {/* Hero Section avec background animé */}
@@ -472,7 +485,15 @@ export const EventsPage: React.FC = () => {
                   className="block"
                 >
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl">
-                    <div className="relative h-48 bg-gradient-to-br from-violet-600 to-indigo-800">
+                    <div className="relative h-48 overflow-hidden">
+                      {/* Image de fond */}
+                      <img
+                        src={getRandomImageForCategory(category)}
+                        alt={category}
+                        className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
+                      />
+                      {/* Overlay avec gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-violet-900/80 to-indigo-900/80" />
                       <div className="absolute inset-0 bg-black opacity-20 group-hover:opacity-30 transition-opacity duration-300" />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <h3 className="text-2xl font-bold text-white text-center px-4">
