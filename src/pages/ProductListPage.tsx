@@ -377,7 +377,7 @@ const ProductListPage: React.FC = () => {
                                  ? product.images[product.mainImageIndex] 
                                  : product.images[0]}
                             alt={product.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
